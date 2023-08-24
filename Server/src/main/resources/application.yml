@@ -1,0 +1,20 @@
+spring:
+#  config:
+#    activate:
+#      on-profile: local
+  h2:
+    console:
+      enabled: true
+      path: /h2
+  datasource:
+    url: jdbc:h2:mem:test
+    driver-class-name: org.h2.Driver
+  jpa:
+    database: h2
+    database-platform: org.hibernate.dialect.H2Dialect
+
+# p6spy ?? ??
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
