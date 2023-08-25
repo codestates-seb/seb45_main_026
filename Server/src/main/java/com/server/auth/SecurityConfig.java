@@ -32,7 +32,7 @@ public class SecurityConfig {
 						);
 						config.setAllowedHeaders(List.of("*"));
 						config.setAllowCredentials(true);
-						config.setExposedHeaders(List.of("Authorization"));
+						config.setExposedHeaders(List.of("Authorization", "Refresh", "Location"));
 						return config;
 					};
 					c.configurationSource(source);
