@@ -64,6 +64,9 @@ dependencies {
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
     //p6spy
     implementation "com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.0"
+    //aws sdk
+    implementation platform('software.amazon.awssdk:bom:2.20.56')
+    implementation 'software.amazon.awssdk:s3:'
 }
 
 tasks.named('test') {
