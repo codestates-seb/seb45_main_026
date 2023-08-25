@@ -8,8 +8,6 @@ public class MemberServiceRequest {
 	@Getter
 	@Builder
 	public static class Create {
-		private String code;
-
 		private String email;
 
 		private String password;

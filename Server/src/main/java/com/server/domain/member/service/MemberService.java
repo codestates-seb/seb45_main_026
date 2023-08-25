@@ -26,7 +26,7 @@ public class MemberService {
 
 	public void signUp(MemberServiceRequest.Create create) {
 		checkDuplicationEmail(create.getEmail());
-		mailService.checkEmailCertify(create.getEmail(), create.getCode());
+		mailService.checkEmailCertify(create.getEmail());
 
 		Member member = Member.createMember(create.getEmail(), passwordEncoder.encode(create.getPassword()),
 			create.getNickname());
