@@ -25,9 +25,6 @@ public class AuthApiRequest {
 	@Getter
 	public static class SignUp {
 		@NotNull
-		private String code;
-
-		@NotNull
 		private String email;
 
 		@NotNull
@@ -38,7 +35,6 @@ public class AuthApiRequest {
 
 		public MemberServiceRequest.Create toServiceRequest() {
 			return MemberServiceRequest.Create.builder()
-				.code(code)
 				.email(email)
 				.password(password)
 				.nickname(nickname)

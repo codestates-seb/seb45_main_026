@@ -84,10 +84,14 @@ public class MailService {
 		if (getEmail == null || (optional.isPresent() && !email.equals(optional.get()))) {
 			throw new MailCertificationException();
 		}
+
+		redisService.setExpire(email, "true", 300);
 	}
 
-	public void checkEmailCertify(String email, String authCode) {
-		verifyEmail(email, authCode);
-		redisService.deleteData(authCode);
+	public void checkEmailCertify(String email) {
+		if (!"true".equals(redisService.getData(email))) {
+			throw new MailCertificationException();
+		}
+		redisService.deleteData(email);
 	}
 }
