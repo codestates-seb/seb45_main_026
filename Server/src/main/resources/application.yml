@@ -1,4 +1,7 @@
 spring:
+  config:
+    import:
+      - classpath:/application-secret.yml
 #  config:
 #    activate:
 #      on-profile: local
