@@ -5,7 +5,9 @@ import javax.validation.constraints.NotNull;
 import com.server.auth.service.dto.AuthServiceRequest;
 import com.server.domain.member.service.dto.MemberServiceRequest;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 public class AuthApiRequest {
 	@Getter
@@ -44,15 +46,11 @@ public class AuthApiRequest {
 	}
 
 	@Getter
+	@AllArgsConstructor
+	@NoArgsConstructor
 	public static class Login {
 		private String email;
 		private String password;
 
-		public AuthServiceRequest.Login toServiceRequest() {
-			return AuthServiceRequest.Login.builder()
-				.email(email)
-				.password(password)
-				.build();
-		}
 	}
 }
