@@ -1,7 +1,10 @@
 package com.server.auth.controller;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.server.auth.controller.dto.AuthApiRequest;
 import com.server.auth.service.AuthService;
 import com.server.domain.member.service.MemberService;
+import com.server.global.annotation.LoginId;
 import com.server.module.email.service.MailService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -48,5 +52,15 @@ public class AuthController {
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
+	@PostMapping("/login")
+	public ResponseEntity<HttpStatus> login(@RequestBody AuthApiRequest.Login login, HttpServletResponse response) throws
+		Exception {
+		authService.login(login.toServiceRequest(), response);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 
+	@GetMapping("/test")
+	public void annotationTest(@LoginId Long id) {
+		System.out.println("아이디 : " + id);
+	}
 }
