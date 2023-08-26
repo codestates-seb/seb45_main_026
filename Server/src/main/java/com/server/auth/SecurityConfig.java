@@ -9,11 +9,21 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import com.server.auth.jwt.filter.JwtAuthenticationFilter;
+import com.server.auth.jwt.service.JwtProvider;
+
 @Configuration
 public class SecurityConfig {
+	private JwtProvider jwtProvider;
+
+	public SecurityConfig(JwtProvider jwtProvider) {
+		this.jwtProvider = jwtProvider;
+	}
+
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
@@ -41,8 +51,10 @@ public class SecurityConfig {
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
 			.authorizeRequests()
+			.antMatchers("/auth/test").hasRole("USER")
 			.anyRequest().permitAll()
 			.and()
+			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
 			.exceptionHandling()
 			.accessDeniedHandler((request, response, accessDeniedException) -> {
 				response.setStatus(403);

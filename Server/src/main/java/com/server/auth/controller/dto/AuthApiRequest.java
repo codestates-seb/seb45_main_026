@@ -2,6 +2,7 @@ package com.server.auth.controller.dto;
 
 import javax.validation.constraints.NotNull;
 
+import com.server.auth.service.dto.AuthServiceRequest;
 import com.server.domain.member.service.dto.MemberServiceRequest;
 
 import lombok.Getter;
@@ -38,6 +39,19 @@ public class AuthApiRequest {
 				.email(email)
 				.password(password)
 				.nickname(nickname)
+				.build();
+		}
+	}
+
+	@Getter
+	public static class Login {
+		private String email;
+		private String password;
+
+		public AuthServiceRequest.Login toServiceRequest() {
+			return AuthServiceRequest.Login.builder()
+				.email(email)
+				.password(password)
 				.build();
 		}
 	}
