@@ -1,8 +1,8 @@
 package com.server.domain.question.entity;
 
-import com.server.domain.entity.BaseEntity;
 import com.server.domain.answer.entity.Answer;
 import com.server.domain.video.entity.Video;
+import com.server.global.entity.BaseEntity;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -19,18 +19,19 @@ public class Question extends BaseEntity {
     @Id
     private Long questionId;
 
-    private int order;
+    private int position;
 
     @Lob
     private String content;
 
     @OneToMany(mappedBy = "question")
-    private List<Answer> answer = new ArrayList<>();
+    private List<Answer> answers = new ArrayList<>();
 
     @Lob
     private String description;
 
     @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "video_id")
     private Video video;
 
 

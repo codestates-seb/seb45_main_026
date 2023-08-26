@@ -1,7 +1,7 @@
 package com.server.domain.selection.entity;
 
-import com.server.domain.entity.BaseEntity;
 import com.server.domain.question.entity.Question;
+import com.server.global.entity.BaseEntity;
 import lombok.Getter;
 
 import javax.persistence.*;

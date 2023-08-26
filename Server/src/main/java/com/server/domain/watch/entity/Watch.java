@@ -1,8 +1,8 @@
 package com.server.domain.watch.entity;
 
-import com.server.domain.entity.BaseEntity;
 import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
+import com.server.global.entity.BaseEntity;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -15,7 +15,7 @@ public class Watch extends BaseEntity {
     private Long watchId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_Id")
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)

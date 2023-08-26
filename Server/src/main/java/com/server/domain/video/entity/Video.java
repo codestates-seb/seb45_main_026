@@ -1,14 +1,14 @@
 package com.server.domain.video.entity;
 
-import com.server.domain.entity.BaseEntity;
-import com.server.domain.Order.entity.Order;
+import com.server.domain.order.entity.Order;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
-import com.server.domain.like.entity.Like;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.watch.entity.Watch;
+import com.server.global.entity.BaseEntity;
+import lombok.Getter;
 
 import javax.persistence.*;
 
@@ -17,6 +17,7 @@ import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
 
+@Getter
 @Entity
 public class Video extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,8 +46,7 @@ public class Video extends BaseEntity {
     @Column(nullable = false)
     private int price;
 
-    @OneToMany(mappedBy = "video")
-    private List<Like> likes = new ArrayList<>();
+    private int like;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "channelId")

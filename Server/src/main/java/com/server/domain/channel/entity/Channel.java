@@ -1,8 +1,8 @@
 package com.server.domain.channel.entity;
 
-import com.server.domain.entity.BaseEntity;
-import com.server.domain.Subscribe.entity.Subscribe;
+import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.member.entity.Member;
+import com.server.global.entity.BaseEntity;
 import lombok.Getter;
 
 import javax.persistence.*;
