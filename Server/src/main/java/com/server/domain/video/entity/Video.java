@@ -46,10 +46,10 @@ public class Video extends BaseEntity {
     @Column(nullable = false)
     private int price;
 
-    private int like;
+    private int likes;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "channelId")
+    @JoinColumn(name = "channel_id")
     private Channel channel;
 
     @OneToMany(mappedBy = "video")

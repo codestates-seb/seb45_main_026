@@ -7,7 +7,7 @@ import lombok.Getter;
 
 import javax.persistence.*;
 @Getter
-@Entity
+@Entity(name = "orders")
 public class Order extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -16,9 +16,9 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private String price;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private OrderStatus orderStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
