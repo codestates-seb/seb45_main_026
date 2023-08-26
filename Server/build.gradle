@@ -70,6 +70,10 @@ dependencies {
     implementation 'software.amazon.awssdk:cloudfront'
 }
 
+jar {
+    enabled = false
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }
