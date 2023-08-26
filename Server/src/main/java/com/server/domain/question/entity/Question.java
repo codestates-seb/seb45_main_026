@@ -27,6 +27,9 @@ public class Question extends BaseEntity {
     @OneToMany(mappedBy = "question")
     private List<Answer> answer = new ArrayList<>();
 
+    @ElementCollection
+    private List<String> selections = new ArrayList<>();
+
     @Lob
     private String description;
 
