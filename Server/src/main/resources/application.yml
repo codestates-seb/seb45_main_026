@@ -18,8 +18,6 @@ spring:
   mail:
     host: smtp.naver.com
     port: 465
-    username: ${NAVER_ID}
-    password: ${NAVER_PW}
     properties:
       debug: true
       mail:

@@ -1,6 +1,6 @@
 package com.server.domain.question.service.dto.response;
 
-import com.server.domain.answer.entity.Answer;
+import com.server.domain.answer.entity.AnswerStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +23,7 @@ public class QuestionResponse {
 
     private String questionAnswer;
 
-    private Answer.AnswerStatus answerStatus;
+    private AnswerStatus answerStatus;
 
     private String description;
 
