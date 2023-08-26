@@ -1,8 +1,11 @@
 package com.server.auth.jwt.service;
 
+import static com.server.auth.util.AuthConstant.*;
+
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -11,78 +14,120 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Component;
 
+import com.server.global.exception.businessexception.authexception.JwtExpiredException;
+import com.server.global.exception.businessexception.authexception.JwtNotValidException;
+
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SecurityException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Component
 public class JwtProvider {
 	@Value("${jwt.key}")
-	private String salt;
-
+	private String key;
 	private Key secretKey;
-
-	// 만료시간 : 1Hour
-	private final long exp = 1000L * 60 * 600;
 
 	private final JpaUserDetailsService userDetailsService;
 
 	@PostConstruct
 	protected void init() {
-		secretKey = Keys.hmacShaKeyFor(salt.getBytes(StandardCharsets.UTF_8));
+		secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(key));
 	}
 
-	public String createToken(String account, HttpServletResponse response) {
-		Claims claims = Jwts.claims().setSubject(account);
-		Date now = new Date();
-		String token = Jwts.builder()
-			.setClaims(claims)
-			.setIssuedAt(now)
-			.setExpiration(new Date(now.getTime() + exp))
-			.signWith(secretKey, SignatureAlgorithm.HS256)
+	// 액세스 토큰 생성
+	public String createAccessToken(Authentication authentication, Long tokenExpireTime) {
+
+		return Jwts.builder()
+			.setSubject(authentication.getName())
+			.claim(CLAIM_ID, getId(authentication))
+			.claim(CLAIM_AUTHORITY, getAuthorities(authentication))
+			.setExpiration(getExpiration(tokenExpireTime))
+			.signWith(secretKey, SignatureAlgorithm.HS512)
 			.compact();
-
-		response.setHeader("Authorization", "Bearer " + token);
-
-		return token;
 	}
 
-	public Authentication getAuthentication(String token) {
-		UserDetails userDetails = userDetailsService.loadUserByUsername(this.getAccount(token));
-		return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+	// 리프래쉬 토큰 생성
+	public String createRefreshToken(Authentication authentication, long tokenExpireTime){
+
+		return Jwts.builder()
+			.setSubject(authentication.getName())
+			.claim(CLAIM_ID, getId(authentication))
+			.setExpiration(getExpiration(tokenExpireTime))
+			.signWith(secretKey, SignatureAlgorithm.HS512)
+			.compact();
 	}
 
-	// 토큰에 담겨있는 유저 account 획득
-	public String getAccount(String token) {
-		return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody().getSubject();
+	// 리프래쉬 토큰으로 액세스 토큰 리필
+	public String refillAccessToken(String refreshToken, long tokenExpireTime) {
+		Claims claims = getClaims(refreshToken);
+		String username = claims.getSubject();
+
+		UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+			userDetails, null, userDetails.getAuthorities());
+
+		return createAccessToken(authentication, tokenExpireTime);
 	}
 
-	// Authorization Header를 통해 인증을 한다.
-	public String resolveToken(HttpServletRequest request) {
-		return request.getHeader("Authorization");
+	private Long getId(Authentication authentication) {
+
+		if(authentication.getPrincipal() instanceof CustomUserDetails){
+			CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+			return customUserDetails.getMemberId();
+		}
+
+		if(authentication.getPrincipal() instanceof DefaultOAuth2User){
+			DefaultOAuth2User principal = (DefaultOAuth2User) authentication.getPrincipal();
+			return principal.getAttribute(CLAIM_ID);
+		}
+
+		return null;
 	}
 
-	// 토큰 검증
-	public boolean validateToken(String token) {
+	private String getAuthorities(Authentication authentication) {
+
+		return authentication.getAuthorities().stream()
+			.map(GrantedAuthority::getAuthority)
+			.collect(Collectors.joining(","));
+	}
+
+	private Date getExpiration(Long tokenExpireTime) {
+		return new Date(new Date().getTime() + tokenExpireTime);
+		// return new Date(System.currentTimeMillis() + tokenExpireTime);
+	}
+
+	public Claims getClaims(String token) {
 		try {
-			// Bearer 검증
-			if (!token.substring(0, "BEARER ".length()).equalsIgnoreCase("BEARER ")) {
-				return false;
-			} else {
-				token = token.split(" ")[1].trim();
-			}
-			Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
-			// 만료되었을 시 false
-			return !claims.getBody().getExpiration().before(new Date());
-		} catch (Exception e) {
-			return false;
+			return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+		} catch (ExpiredJwtException e) {
+			throw new JwtExpiredException();
+		} catch (SecurityException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+			throw new JwtNotValidException();
+		}
+	}
+
+	public void validateToken(String token) {
+		try {
+			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+		} catch (ExpiredJwtException e) {
+			throw new JwtExpiredException();
+		} catch (SecurityException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+			throw new JwtNotValidException();
 		}
 	}
 }

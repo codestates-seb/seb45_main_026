@@ -52,13 +52,6 @@ public class AuthController {
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
-	@PostMapping("/login")
-	public ResponseEntity<HttpStatus> login(@RequestBody AuthApiRequest.Login login, HttpServletResponse response) throws
-		Exception {
-		authService.login(login.toServiceRequest(), response);
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
-
 	@GetMapping("/test")
 	public void annotationTest(@LoginId Long id) {
 		System.out.println("아이디 : " + id);
