@@ -1,8 +1,8 @@
-package com.server.domain.Order.entity;
+package com.server.domain.order.entity;
 
-import com.server.domain.entity.BaseEntity;
 import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
+import com.server.global.entity.BaseEntity;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -21,11 +21,11 @@ public class Order extends BaseEntity {
     private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_Id")
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "video_Id")
+    @JoinColumn(name = "video_id")
     private Video video;
 
 

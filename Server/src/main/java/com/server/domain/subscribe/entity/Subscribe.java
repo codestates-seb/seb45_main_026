@@ -1,8 +1,8 @@
-package com.server.domain.Subscribe.entity;
+package com.server.domain.subscribe.entity;
 
-import com.server.domain.entity.BaseEntity;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
+import com.server.global.entity.BaseEntity;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -14,11 +14,11 @@ public class Subscribe extends BaseEntity {
     private Long subscribe;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_Id")
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "channel_Id")
+    @JoinColumn(name = "channel_id")
     private Channel channel;
 
 

@@ -2,7 +2,7 @@ package com.server.domain.category.entity;
 
 
 
-import com.server.domain.entity.BaseEntity;
+import com.server.global.entity.BaseEntity;
 import lombok.Getter;
 
 import javax.persistence.*;

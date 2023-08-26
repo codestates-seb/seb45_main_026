@@ -1,8 +1,8 @@
 package com.server.domain.cart.entity;
 
-import com.server.domain.entity.BaseEntity;
 import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
+import com.server.global.entity.BaseEntity;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -18,7 +18,7 @@ public class Cart extends BaseEntity {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "video_Id")
+    @JoinColumn(name = "video_id")
     private Video video;
 
     @Column(nullable = false)
