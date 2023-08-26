@@ -8,7 +8,7 @@ import com.server.domain.reply.entity.Reply;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.entity.BaseEntity;
-import lombok.Getter;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -19,6 +19,9 @@ import static javax.persistence.FetchType.LAZY;
 
 @Getter
 @Entity
+@AllArgsConstructor(access= AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class Video extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -60,9 +63,6 @@ public class Video extends BaseEntity {
 
     @OneToMany(mappedBy = "video")
     private List<Cart> carts = new ArrayList<>();
-
-    @OneToMany(mappedBy = "video")
-    private List<Order> orders = new ArrayList<>();
 
     @OneToMany(mappedBy = "video")
     private List<Question> questions = new ArrayList<>();
