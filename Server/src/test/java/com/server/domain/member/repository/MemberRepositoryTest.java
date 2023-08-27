@@ -1,5 +1,6 @@
 package com.server.domain.member.repository;
 
+import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.dto.MemberVideoData;
 import com.server.domain.order.entity.Order;
@@ -22,7 +23,8 @@ class MemberRepositoryTest extends RepositoryTest {
     void checkMemberPurchaseVideo() {
         // given
         Member member = createAndSaveMember();
-        Video video = createAndSaveVideo();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
         Order order = createAndSaveOrder(member, List.of(video));
         order.completeOrder();
         em.persist(order);
@@ -42,7 +44,8 @@ class MemberRepositoryTest extends RepositoryTest {
     void checkMemberPurchaseVideoFalse() {
         // given
         Member member = createAndSaveMember();
-        Video video = createAndSaveVideo();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
 
         em.flush();
         em.clear();
@@ -59,7 +62,8 @@ class MemberRepositoryTest extends RepositoryTest {
     void checkMemberPurchaseVideoOrderCancel() {
         //given
         Member member = createAndSaveMember();
-        Video video = createAndSaveVideo();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
         Order order = createAndSaveOrder(member, List.of(video));
 
         order.deleteOrder();
@@ -79,9 +83,10 @@ class MemberRepositoryTest extends RepositoryTest {
     void getMemberPurchaseVideo() {
         // given
         Member member = createAndSaveMember();
-        Video video1 = createAndSaveVideo();
-        Video video2 = createAndSaveVideo();
-        Video video3 = createAndSaveVideo(); // 구매안한 비디오
+        Channel channel = createAndSaveChannel(member);
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+        Video video3 = createAndSaveVideo(channel); // 구매안한 비디오
 
         Order order = createAndSaveOrder(member, List.of(video1, video2));
 

@@ -44,6 +44,17 @@ public class Question extends BaseEntity {
     @JoinColumn(name = "video_id")
     private Video video;
 
+    public static Question createQuestion(int position, String content, String questionAnswer, String description, List<String> selections, Video video) {
+        return Question.builder()
+                .position(position)
+                .content(content)
+                .questionAnswer(questionAnswer)
+                .description(description)
+                .selections(selections)
+                .video(video)
+                .build();
+    }
+
 
     public void update(Integer position, String content, String questionAnswer, String description, List<String> selections) {
         this.position = position == null ? this.position : position;

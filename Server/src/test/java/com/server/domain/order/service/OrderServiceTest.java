@@ -1,5 +1,6 @@
 package com.server.domain.order.service;
 
+import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
@@ -38,10 +39,11 @@ class OrderServiceTest extends ServiceTest {
     @DisplayName("videoId 리스트와 사용하는 reward 를 통해 주문을 생성한다.")
     void createOrder() {
         //given
-        Video video1 = createAndSaveVideo();
-        Video video2 = createAndSaveVideo();
-
         Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
 
         OrderCreateServiceRequest request = OrderCreateServiceRequest.builder()
                 .videoIds(List.of(video1.getVideoId(), video2.getVideoId()))
@@ -63,10 +65,11 @@ class OrderServiceTest extends ServiceTest {
     @DisplayName("주문 시 reward 가 부족하면 RewardNotEnoughException 이 발생한다.")
     void createOrderRewardNotEnoughException() {
         //given
-        Video video1 = createAndSaveVideo();
-        Video video2 = createAndSaveVideo();
-
         Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
 
         OrderCreateServiceRequest request = OrderCreateServiceRequest.builder()
                 .videoIds(List.of(video1.getVideoId(), video2.getVideoId()))
@@ -82,10 +85,11 @@ class OrderServiceTest extends ServiceTest {
     @DisplayName("주문 시 없는 video Id 로 요청하면 VideoNotFoundException 이 발생한다.")
     void createOrderVideoNotFoundException() {
         //given
-        Video video1 = createAndSaveVideo();
-        Video video2 = createAndSaveVideo();
-
         Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
 
         OrderCreateServiceRequest request = OrderCreateServiceRequest.builder()
                 .videoIds(List.of(video1.getVideoId(), video2.getVideoId(), 999L)) // 999L 은 존재하지 않는 videoId 이다.
@@ -101,10 +105,11 @@ class OrderServiceTest extends ServiceTest {
     @DisplayName("이미 주문한 video Id 로 요청하면 OrderExistException 이 발생한다.")
     void createOrderOrderExistException() {
         //given
-        Video video1 = createAndSaveVideo();
-        Video video2 = createAndSaveVideo();
-
         Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
 
         Order order = createAndSaveOrder(member, List.of(video2), 0); // 2번 비디오는 이미 구매
 
@@ -122,10 +127,11 @@ class OrderServiceTest extends ServiceTest {
     @DisplayName("이미 Order 에 있는 video 라도 order 의 상태가 CANCEL 이면 주문이 가능하다.")
     void createOrderWithCanceledOrder() {
         //given
-        Video video1 = createAndSaveVideo();
-        Video video2 = createAndSaveVideo();
-
         Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
 
         Order order = createAndSaveOrder(member, List.of(video2), 0);
         order.deleteOrder(); // 2번 비디오는 이미 구매했지만 취소했다.
@@ -147,10 +153,11 @@ class OrderServiceTest extends ServiceTest {
     @DisplayName("주문을 취소하고 order 의 상태를 취소로 변경한다.")
     void deleteOrder() {
         //given
-        Video video1 = createAndSaveVideo();
-        Video video2 = createAndSaveVideo();
-
         Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
 
         Order order = createAndSaveOrder(member, List.of(video1, video2), 0);
 
@@ -161,13 +168,5 @@ class OrderServiceTest extends ServiceTest {
 
         //then
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELED);
-    }
-
-    private Order createAndSaveOrder(Member member, List<Video> video, int reward) {
-        Order order = Order.createOrder(member, video, reward);
-
-        orderRepository.save(order);
-
-        return order;
     }
 }

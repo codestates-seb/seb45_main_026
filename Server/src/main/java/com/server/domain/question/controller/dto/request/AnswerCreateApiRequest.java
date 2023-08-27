@@ -4,10 +4,12 @@ import com.server.domain.question.service.dto.request.AnswerCreateServiceRequest
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @Builder
 @Getter
+@NoArgsConstructor
 public class AnswerCreateApiRequest {
 
     private String myAnswer;

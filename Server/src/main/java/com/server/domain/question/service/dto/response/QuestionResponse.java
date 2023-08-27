@@ -8,6 +8,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -45,6 +46,12 @@ public class QuestionResponse {
                 .selections(questionData.getSelections())
                 .solvedDate(questionData.getSolvedDate())
                 .build();
+    }
+
+    public static List<QuestionResponse> of(List<QuestionData> questionDatas) {
+        return questionDatas.stream()
+                .map(QuestionResponse::of)
+                .collect(Collectors.toList());
     }
 
 }
