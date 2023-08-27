@@ -3,7 +3,7 @@ import './App.css';
 function App() {
   return (
     <div className="App">
-      This is Client App!
+      오펜하이머 웹페이지
     </div>
   );
 }

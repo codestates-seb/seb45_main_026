@@ -1,5 +1,7 @@
 * {
   box-sizing: border-box;
+  font-family: 'Noto Sans KR', sans-serif;
+  /*font-family: 'Saira Semi Condensed', sans-serif;*/
 }
 button {
   border-style : none;
