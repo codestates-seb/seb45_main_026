@@ -1,4 +1,5 @@
 import './App.css';
+import { RegularButton } from './atoms/Buttons';
 
 function App() {
   return (
