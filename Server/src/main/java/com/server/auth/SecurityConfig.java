@@ -82,6 +82,7 @@ public class SecurityConfig {
 	// 요청별 인가 설정
 	private Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> getAuthorizeRequests() {
 		return (http) -> http
+			.antMatchers("/auth/test").hasRole("USER")
 			.antMatchers("/auth/**").permitAll()
 			.anyRequest().permitAll();
 	}
