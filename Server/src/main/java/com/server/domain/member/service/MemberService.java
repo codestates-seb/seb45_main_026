@@ -41,6 +41,10 @@ public class MemberService {
 		channelService.createChannel(signMember);
 	}
 
+	public void changePassword(MemberServiceRequest.Password request) {
+
+	}
+
 	public void checkDuplicationEmail(String email) {
 		memberRepository.findByEmail(email).ifPresent(member -> {
 			throw new MemberDuplicateException();

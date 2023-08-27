@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.server.global.exception.businessexception.mailexception.MailCertificationException;
 import com.server.global.exception.businessexception.mailexception.MailSendException;
+import com.server.module.email.service.dto.MailServiceRequest;
 import com.server.module.redis.service.RedisService;
 
 @Service
@@ -77,8 +78,10 @@ public class MailService {
 		return key.toString();
 	}
 
-	public void verifyEmail(String email, String authCode) throws MailCertificationException {
-		String getEmail = redisService.getData(authCode);
+	public void verifyEmail(MailServiceRequest.Confirm request) throws MailCertificationException {
+		String email = request.getEmail();
+
+		String getEmail = redisService.getData(request.getCode());
 		Optional<String> optional = Optional.ofNullable(getEmail);
 
 		if (getEmail == null || (optional.isPresent() && !email.equals(optional.get()))) {

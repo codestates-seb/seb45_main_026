@@ -25,8 +25,14 @@ public class AuthService {
 		this.memberService = memberService;
 	}
 
-	public void sendEmail(String email) throws Exception {
+	public void sendEmail(AuthServiceRequest.Send request) throws Exception {
+		String email = request.getEmail();
+
 		memberService.checkDuplicationEmail(email);
 		mailService.sendEmail(email);
+	}
+
+	public void resetPassword(AuthServiceRequest.Reset request) {
+
 	}
 }

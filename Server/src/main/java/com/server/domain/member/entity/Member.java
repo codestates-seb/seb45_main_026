@@ -2,8 +2,13 @@ package com.server.domain.member.entity;
 
 import javax.persistence.*;
 
+import com.server.domain.answer.entity.Answer;
+import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.order.entity.Order;
+import com.server.domain.reply.entity.Reply;
+import com.server.domain.subscribe.entity.Subscribe;
+import com.server.domain.watch.entity.Watch;
 import com.server.global.entity.BaseEntity;
 
 import lombok.AllArgsConstructor;
@@ -11,6 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -46,6 +52,26 @@ public class Member extends BaseEntity {
 
 	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
 	private Channel channel;
+
+	@OneToMany(mappedBy = "member")
+	@Builder.Default
+	private List<Answer> answers = new ArrayList<>();
+
+	@OneToMany(mappedBy = "member")
+	@Builder.Default
+	private List<Cart> carts = new ArrayList<>();
+
+	@OneToMany(mappedBy = "member")
+	@Builder.Default
+	private List<Watch> watches = new ArrayList<>();
+
+	@OneToMany(mappedBy = "member")
+	@Builder.Default
+	private List<Reply> replies = new ArrayList<>();
+
+	@OneToMany(mappedBy = "member")
+	@Builder.Default
+	private List<Subscribe> subscribes = new ArrayList<>();
 
 	public void setEmail(String email) {
 		this.email = email;

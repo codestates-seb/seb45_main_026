@@ -1,10 +1,13 @@
 package com.server.auth.controller.dto;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import com.server.auth.oauth.service.OAuthProvider;
 import com.server.auth.service.dto.AuthServiceRequest;
 import com.server.domain.member.service.dto.MemberServiceRequest;
+import com.server.module.email.service.dto.MailServiceRequest;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,28 +16,42 @@ import lombok.NoArgsConstructor;
 public class AuthApiRequest {
 	@Getter
 	public static class Send {
-		@NotNull
+		@NotBlank
 		private String email;
+
+		public AuthServiceRequest.Send toServiceRequest() {
+			return AuthServiceRequest.Send.builder()
+				.email(email)
+				.build();
+		}
 	}
 
 	@Getter
 	public static class Confirm {
-		@NotNull
+		@NotBlank
 		private String email;
 
-		@NotNull
+		@NotBlank
 		private String code;
+
+		public MailServiceRequest.Confirm toServiceRequest() {
+			return MailServiceRequest.Confirm.builder()
+				.email(email)
+				.code(code)
+				.build();
+		}
 	}
 
 	@Getter
 	public static class SignUp {
-		@NotNull
+		@NotBlank
+		@Email(message = "이메일 양식을 확인하세요.")
 		private String email;
 
-		@NotNull
+		@NotBlank
 		private String password;
 
-		@NotNull
+		@NotBlank
 		private String nickname;
 
 		public MemberServiceRequest.Create toServiceRequest() {
@@ -52,7 +69,6 @@ public class AuthApiRequest {
 	public static class Login {
 		private String email;
 		private String password;
-
 	}
 
 	@Getter
@@ -68,5 +84,20 @@ public class AuthApiRequest {
 	public static class OAuth {
 		private OAuthProvider provider;
 		private String code;
+	}
+
+	public static class Reset {
+		@NotBlank
+		@Email
+		private String email;
+		@NotBlank
+		private String password;
+
+		public AuthServiceRequest.Reset toServiceRequest() {
+			return AuthServiceRequest.Reset.builder()
+				.email(email)
+				.password(password)
+				.build();
+		}
 	}
 }
