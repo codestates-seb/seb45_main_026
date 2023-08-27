@@ -6,6 +6,7 @@ import com.server.global.entity.BaseEntity;
 import lombok.Getter;
 
 import javax.persistence.*;
+
 @Getter
 @Entity
 public class Reply extends BaseEntity {
@@ -28,8 +29,25 @@ public class Reply extends BaseEntity {
     @JoinColumn(name = "video_id")
     private Video video;
 
+    public void setReplyId(Long replyId){
+        this.replyId = replyId;
+    }
 
+    public void setStar(int star){
+        this.star = star;
+    }
 
+    public void setContent(String content){
+        this.content = content;
+    }
 
+    public void setMember(Member member){
+        this.member = member;
+    }
+
+    public void setVideo(Video video){
+        this.video = video;
+    }
 
 }
+
