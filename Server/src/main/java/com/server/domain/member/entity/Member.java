@@ -1,19 +1,16 @@
 package com.server.domain.member.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
+import com.server.domain.order.entity.Order;
 import com.server.global.entity.BaseEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -43,6 +40,9 @@ public class Member extends BaseEntity {
 
 	private int reward;
 
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+	private List<Order> orders;
+
 	public void setEmail(String email) {
 		this.email = email;
 	}
@@ -70,5 +70,13 @@ public class Member extends BaseEntity {
 			.nickname(nickname)
 			.authority(Authority.ROLE_USER)
 			.build();
+	}
+
+	public void addReward(int reward) {
+		this.reward += reward;
+	}
+
+	public void minusReward(int reward) {
+		this.reward -= reward;
 	}
 }

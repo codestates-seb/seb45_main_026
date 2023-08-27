@@ -2,25 +2,30 @@ package com.server.domain.order.service;
 
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.member.repository.dto.MemberVideoResponse;
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
 import com.server.domain.order.service.dto.response.OrderResponse;
-import com.server.domain.order.service.dto.response.OrderVideoResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
+import com.server.global.exception.businessexception.orderexception.OrderExistException;
+import com.server.global.exception.businessexception.orderexception.OrderNotFoundException;
+import com.server.global.exception.businessexception.orderexception.OrderNotValidException;
 import com.server.global.exception.businessexception.orderexception.RewardNotEnoughException;
+import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import net.minidev.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -41,21 +46,14 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
-    public boolean isPaid(Member member, Video video) {
-        //todo : member 가 video 를 구매한 적이 있는지 확인하는 로직
-        return true;
-    }
-
-    public List<OrderVideoResponse> purchasedVideoList(Member member) {
-        //todo : member 가 구매한 video 리스트를 반환하는 로직
-        return new ArrayList<>();
-    }
-
     @Transactional
-    public PaymentServiceResponse requestFinalPayment(String paymentKey, Long orderId, Long amount) {
+    public PaymentServiceResponse requestFinalPayment(Long memberId, String paymentKey, String orderId, int amount) {
 
-        //todo: orderId 에 저장된 price 와 amount 가 같은지 확인하는 로직
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다."));
+        Member member = verifedMember(memberId);
+
+        Order order = verifedOrder(member, orderId);
+
+        order.checkValidOrder(amount);
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -75,20 +73,34 @@ public class OrderService {
 
         //todo: 장바구니에서 삭제하는 로직
 
-        //todo: order 상태를 결제완료로 변경하는 로직
+        order.completeOrder();
 
-        //todo: member reward 차감하는 로직
+        member.minusReward(amount);
 
-        return restTemplate.postForEntity(
+        ResponseEntity<PaymentServiceResponse> response = restTemplate.postForEntity(
                 "https://api.tosspayments.com/v1/payments/" + paymentKey,
                 new HttpEntity<>(param, headers),
                 PaymentServiceResponse.class
-        ).getBody();
+        );
+
+        if(response.getStatusCode().value() != 200)
+            throw new OrderNotValidException();
+
+        order.setPaymentKey(paymentKey);
+
+        return response.getBody();
     }
 
     @Transactional
-    public void deleteOrder(Long orderId) {
-        //todo: order 를 취소하는 로직 (전체 취소)
+    public void deleteOrder(Long memberId, String orderId) {
+
+        Member member = verifedMember(memberId);
+        Order order = verifedOrder(member, orderId);
+        
+        if(order.getOrderStatus().equals(OrderStatus.COMPLETED))
+            member.addReward(order.getReward());
+
+        orderRepository.delete(order);
     }
 
     @Transactional
@@ -98,20 +110,38 @@ public class OrderService {
 
         checkEnoughReward(member.getReward(), request.getReward());
 
-        List<Video> videos = videoRepository.findAllById(request.getVideoIds());
+        List<Video> videos = checkValidVideos(request);
 
-        checkValidVideo(videos, request);
+        checkDuplicateOrder(member, videos);
 
-        Order order = Order.createOrder(videos, request.getReward());
+        Order order = Order.createOrder(member, videos, request.getReward());
 
         orderRepository.save(order);
 
         return OrderResponse.of(order);
     }
 
-    private void checkValidVideo(List<Video> videos, OrderCreateServiceRequest request) {
+    private void checkDuplicateOrder(Member member, List<Video> toBuyVideos) {
+        List<MemberVideoResponse> purchasedVideos = memberRepository.getMemberPurchaseVideo(member.getMemberId());
+
+        for(MemberVideoResponse video : purchasedVideos){
+            toBuyVideos.forEach(toBuyVideo -> {
+                if (video.getVideoId().equals(toBuyVideo.getVideoId()) && !video.getOrderStatus().equals(OrderStatus.CANCELED))
+                    throw new OrderExistException();
+            });
+        }
+
+
+    }
+
+    private List<Video> checkValidVideos(OrderCreateServiceRequest request) {
+
+        List<Video> videos = videoRepository.findAllById(request.getVideoIds());
+
         if(videos.size() != request.getVideoIds().size())
-            throw new IllegalArgumentException();
+            throw new VideoNotFoundException();
+
+        return videos;
     }
 
     private void checkEnoughReward(int retainReward, Integer requestReward) {
@@ -124,5 +154,14 @@ public class OrderService {
                 .orElseThrow(MemberNotFoundException::new);
     }
 
+    private Order verifedOrder(Member member, String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(OrderNotFoundException::new);
+
+        if(!order.getMember().equals(member))
+            throw new OrderNotValidException();
+
+        return order;
+    }
 
 }

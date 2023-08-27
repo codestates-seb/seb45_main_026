@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Getter
 public class OrderVideoResponse {
 
-    private Long orderId;
+    private String orderId;
     private Integer totalAmount;
     private Integer rewardAmount;
     private Integer paymentAmount;

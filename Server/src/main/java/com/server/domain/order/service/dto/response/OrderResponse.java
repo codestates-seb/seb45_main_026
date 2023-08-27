@@ -10,7 +10,7 @@ import lombok.Getter;
 @Getter
 public class OrderResponse {
 
-    private Long orderId;
+    private String orderId;
     private Integer totalAmount;
 
     public static OrderResponse of(Order order){
