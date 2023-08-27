@@ -12,8 +12,10 @@ public class AnswerCreateApiRequest {
 
     private String myAnswer;
 
-
     public AnswerCreateServiceRequest toServiceRequest(Long questionId) {
-        return null;
+        return AnswerCreateServiceRequest.builder()
+                .questionId(questionId)
+                .myAnswer(myAnswer)
+                .build();
     }
 }

@@ -33,20 +33,4 @@ class VideoRepositoryTest extends RepositoryTest {
                 .extracting("videoId").containsExactly(video1.getVideoId(), video2.getVideoId());
 
     }
-
-    private Video createAndSaveVideo() {
-        Video video = Video.builder()
-                .videoName("title")
-                .description("description")
-                .thumbnailFile("thumbnailFile")
-                .videoFile("videoFile")
-                .view(0)
-                .star(0)
-                .price(1000)
-                .build();
-
-        em.persist(video);
-
-        return video;
-    }
 }

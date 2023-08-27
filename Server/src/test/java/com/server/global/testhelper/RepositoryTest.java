@@ -2,10 +2,13 @@ package com.server.global.testhelper;
 
 import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
+import com.server.domain.order.entity.Order;
+import com.server.domain.video.entity.Video;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 @DataJpaTest
 public abstract class RepositoryTest {
@@ -25,5 +28,30 @@ public abstract class RepositoryTest {
         em.persist(member);
 
         return member;
+    }
+
+    protected Video createAndSaveVideo() {
+        Video video = Video.builder()
+                .videoName("title")
+                .description("description")
+                .thumbnailFile("thumbnailFile")
+                .videoFile("videoFile")
+                .view(0)
+                .star(0)
+                .price(1000)
+                .build();
+
+        em.persist(video);
+
+        return video;
+    }
+
+    protected Order createAndSaveOrder(Member member, List<Video> video) {
+
+        Order order = Order.createOrder(member, video, 500);
+
+        em.persist(order);
+
+        return order;
     }
 }

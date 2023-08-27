@@ -66,7 +66,7 @@ public class QuestionController {
 
         Long loginMemberId = 1L;
 
-        questionService.solveQuestion(loginMemberId, request.toServiceRequest(questionId));
+        Boolean result = questionService.solveQuestion(loginMemberId, request.toServiceRequest(questionId));
 
         URI uri = URI.create("/questions/" + questionId);
 
