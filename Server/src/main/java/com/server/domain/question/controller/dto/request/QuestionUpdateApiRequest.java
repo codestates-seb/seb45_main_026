@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 public class QuestionUpdateApiRequest {
 
-    private int position;
+    private Integer position;
 
     private String content;
 
@@ -25,6 +25,13 @@ public class QuestionUpdateApiRequest {
 
     public QuestionUpdateServiceRequest toServiceRequest(Long questionId) {
 
-        return null;
+        return QuestionUpdateServiceRequest.builder()
+                .questionId(questionId)
+                .position(position)
+                .content(content)
+                .questionAnswer(questionAnswer)
+                .description(description)
+                .selections(selections)
+                .build();
     }
 }

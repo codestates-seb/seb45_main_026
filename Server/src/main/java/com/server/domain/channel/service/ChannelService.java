@@ -37,8 +37,11 @@ public class ChannelService {
             throw new ChannelNotFoundException();
         }
 
+        //todo : 굳이 이렇게 따로 두지말고 ChannelInfo 파라미터로 바로 넣으면 됨
         int subscriberCount = channel.getSubscribers();
         boolean isSubscribed = channel.isSubscribed();
+
+        //todo : imageUrl = awsService.getImageUrl(member.getImageUrl());
 
         return new ChannelDto.ChannelInfo(
                 channel.getMember().getMemberId(),
@@ -52,6 +55,7 @@ public class ChannelService {
     }
 
     public void updateChannel(Long memberId, ChannelDto.UpdateInfo updateInfo) {
+        //todo : 로그인한 사용자와 memberId 가 같은지 확인하는 로직 필요
         Channel channel = channelRepository.findByChannelId(memberId);
 
         if (updateInfo != null) {
@@ -63,16 +67,22 @@ public class ChannelService {
                 channel.setDescription(updateInfo.getDescription());
             }
 
+            //todo : 아래 save 는 불필요 (dirty checking)
             channelRepository.save(channel);
         }
     }
 
     public boolean updateSubscribe(Long memberId) {
+        //todo : member 와 channel 의 Subscribe 레코드가 있는지 확인하고 있으면 삭제, 없으면 생성... channel 의 isSubscribed 필드는 전혀 필요없음.
+        //todo : 여기도 로그인한 사용자와 memberId 가 같은지 확인하는 로직 필요
         Channel channel = channelRepository.findByChannelId(memberId);
         channel.setSubscribed(!channel.isSubscribed());
         return channel.isSubscribed();
     }
+
+    //todo : service 클래스에서 ApiPageResponse 를 사용하면 안됨. 따로 반환 클래스(dto) 를 만들 것
     public ApiPageResponse<ChannelDto.VideoResponse> getChannelVideos(Long memberId, int page, String sort){
+        //todo : 로그인한 사용자 정보를 받아서 memberId 와 비교하는 로직 필요
         Channel channel = channelRepository.findByChannelId(memberId);
         PageRequest pageRequest;
 
@@ -97,6 +107,7 @@ public class ChannelService {
             ChannelDto.VideoResponse videoResponse = new ChannelDto.VideoResponse(
                     video.getVideoId(),
                     video.getVideoName(),
+                    //todo : thumbnailUrl = awsService.getThumbnail(video.getThumbnailUrl());
                     video.getThumbnailFile(),
                     video.getView(),
                     video.getPrice(),

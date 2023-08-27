@@ -1,10 +1,12 @@
 package com.server.domain.question.service.dto.response;
 
 import com.server.domain.answer.entity.AnswerStatus;
+import com.server.domain.question.repository.dto.QuestionData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -28,5 +30,21 @@ public class QuestionResponse {
     private String description;
 
     private List<String> selections;
+
+    private LocalDateTime solvedDate;
+
+    public static QuestionResponse of(QuestionData questionData) {
+        return QuestionResponse.builder()
+                .questionId(questionData.getQuestionId())
+                .position(questionData.getPosition())
+                .content(questionData.getContent())
+                .questionAnswer(questionData.getQuestionAnswer())
+                .myAnswer(questionData.getMyAnswer())
+                .answerStatus(questionData.getAnswerStatus())
+                .description(questionData.getDescription())
+                .selections(questionData.getSelections())
+                .solvedDate(questionData.getSolvedDate())
+                .build();
+    }
 
 }

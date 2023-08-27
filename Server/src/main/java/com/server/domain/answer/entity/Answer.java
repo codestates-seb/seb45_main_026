@@ -3,7 +3,7 @@ package com.server.domain.answer.entity;
 import com.server.domain.member.entity.Member;
 import com.server.domain.question.entity.Question;
 import com.server.global.entity.BaseEntity;
-import lombok.Getter;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -11,6 +11,9 @@ import static javax.persistence.FetchType.LAZY;
 
 @Getter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Answer extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id

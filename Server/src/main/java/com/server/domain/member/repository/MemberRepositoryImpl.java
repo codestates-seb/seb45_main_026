@@ -2,21 +2,14 @@ package com.server.domain.member.repository;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.server.domain.member.entity.Member;
-import com.server.domain.member.entity.QMember;
-import com.server.domain.member.repository.dto.MemberVideoResponse;
-import com.server.domain.member.repository.dto.QMemberVideoResponse;
+import com.server.domain.member.repository.dto.MemberVideoData;
+import com.server.domain.member.repository.dto.QMemberVideoData;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
-import com.server.domain.order.entity.QOrder;
-import com.server.domain.order.entity.QOrderVideo;
-import com.server.domain.video.entity.QVideo;
-import com.server.domain.video.entity.Video;
 
 import javax.persistence.EntityManager;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.server.domain.channel.entity.QChannel.channel;
 import static com.server.domain.member.entity.QMember.*;
@@ -51,10 +44,10 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
     // 주문했다가 취소한 경우도 포함합니다.
     @Override
-    public List<MemberVideoResponse> getMemberPurchaseVideo(Long memberId) {
+    public List<MemberVideoData> getMemberPurchaseVideo(Long memberId) {
 
         return queryFactory
-                .select(new QMemberVideoResponse(
+                .select(new QMemberVideoData(
                         video.videoId,
                         order.orderId,
                         video.videoName,
