@@ -5,11 +5,13 @@ import static com.server.auth.util.AuthConstant.*;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,27 +47,27 @@ public class AuthController {
 		this.memberService = memberService;
 	}
 
-	@PostMapping("/signup/email")
-	public ResponseEntity<String> sendEmail(@RequestParam("email") String email) throws Exception {
-		authService.sendEmail(email);
-		return new ResponseEntity<>(HttpStatus.OK);
+	@PostMapping(value = { "/signup/email", "/password/email" })
+	public ResponseEntity<Void> sendEmail(@RequestBody @Valid AuthApiRequest.Send request) throws Exception {
+		authService.sendEmail(request.toServiceRequest());
+		return ResponseEntity.noContent().build();
 	}
 
-	@PostMapping("/signup/confirm")
-	public ResponseEntity<Void> confirmEmail(@RequestBody AuthApiRequest.Confirm confirm) {
-		mailService.verifyEmail(confirm.getEmail(), confirm.getCode());
-		return new ResponseEntity<>(HttpStatus.OK);
+	@PostMapping(value = { "/signup/confirm", "/password/confirm" })
+	public ResponseEntity<Void> confirmEmail(@RequestBody @Valid AuthApiRequest.Confirm request) {
+		mailService.verifyEmail(request.toServiceRequest());
+		return ResponseEntity.noContent().build();
 	}
 
 	@PostMapping("/signup")
-	public ResponseEntity<Void> signup(@RequestBody AuthApiRequest.SignUp signUp) {
-		memberService.signUp(signUp.toServiceRequest());
-		return new ResponseEntity<>(HttpStatus.CREATED);
+	public ResponseEntity<Void> signup(@RequestBody @Valid AuthApiRequest.SignUp request) {
+		memberService.signUp(request.toServiceRequest());
+		return new ResponseEntity<>(HttpStatus.CREATED); // 나중에 로케이션으로 바꾸기
 	}
 
 	@GetMapping("/oauth")
-	public ResponseEntity<Void> oauth(@ModelAttribute AuthApiRequest.OAuth oAuth) {
-		AuthApiRequest.Token token = oAuthService.login(oAuth.getProvider(), oAuth.getCode());
+	public ResponseEntity<Void> oauth(@ModelAttribute @Valid AuthApiRequest.OAuth request) {
+		AuthApiRequest.Token token = oAuthService.login(request.getProvider(), request.getCode());
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.add(AUTHORIZATION, BEARER + " " + token.getAccessToken());
@@ -74,8 +76,9 @@ public class AuthController {
 		return ResponseEntity.ok().headers(headers).build();
 	}
 
-	@GetMapping("/test")
-	public void annotationTest(@LoginId Long id) {
-		System.out.println("아이디 : " + id);
+	@PostMapping("/password")
+	public ResponseEntity<Void> updatePassword(@RequestBody @Valid AuthApiRequest.Reset request) {
+		authService.resetPassword(request.toServiceRequest());
+		return ResponseEntity.noContent().build();
 	}
 }
