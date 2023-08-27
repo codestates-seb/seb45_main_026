@@ -1,5 +1,7 @@
 package com.server.global.testhelper;
 
+import com.server.domain.channel.entity.Channel;
+import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
@@ -23,6 +25,7 @@ public abstract class ServiceTest {
     @Autowired protected MemberRepository memberRepository;
     @Autowired protected VideoRepository videoRepository;
     @Autowired protected OrderRepository orderRepository;
+    @Autowired protected ChannelRepository channelRepository;
     protected Member createAndSaveMember() {
         Member member = Member.builder()
                 .email("test@gmail.com")
@@ -38,7 +41,15 @@ public abstract class ServiceTest {
         return member;
     }
 
-    protected Video createAndSaveVideo() {
+    protected Channel createAndSaveChannel(Member member) {
+        Channel channel = Channel.createChannel("channelName");
+        channel.setMember(member);
+        channelRepository.save(channel);
+
+        return channel;
+    }
+
+    protected Video createAndSaveVideo(Channel channel) {
         Video video = Video.builder()
                 .videoName("title")
                 .description("description")
@@ -47,6 +58,7 @@ public abstract class ServiceTest {
                 .view(0)
                 .star(0)
                 .price(1000)
+                .channel(channel)
                 .build();
 
         videoRepository.save(video);
@@ -54,7 +66,7 @@ public abstract class ServiceTest {
         return video;
     }
 
-    protected Video createAndSavePurchasedVideo(Member member) {
+    protected Video createAndSavePurchasedVideo(Member member, Channel channel) {
         Video video = Video.builder()
                 .videoName("title")
                 .description("description")
@@ -63,6 +75,7 @@ public abstract class ServiceTest {
                 .view(0)
                 .star(0)
                 .price(1000)
+                .channel(channel)
                 .build();
 
         Order order = Order.createOrder(member, List.of(video), 0);
@@ -72,5 +85,21 @@ public abstract class ServiceTest {
         orderRepository.save(order);
 
         return video;
+    }
+
+    protected Order createAndSaveOrder(Member member, List<Video> video, int reward) {
+        Order order = Order.createOrder(member, video, reward);
+
+        orderRepository.save(order);
+
+        return order;
+    }
+
+    protected Order createAndSaveOrderWithPurchase(Member member, List<Video> video, int reward) {
+        Order order = Order.createOrder(member, video, reward);
+        order.completeOrder();
+        orderRepository.save(order);
+
+        return order;
     }
 }

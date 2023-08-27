@@ -4,6 +4,7 @@ import com.server.domain.question.controller.dto.request.AnswerCreateApiRequest;
 import com.server.domain.question.service.dto.response.QuestionResponse;
 import com.server.domain.question.controller.dto.request.QuestionUpdateApiRequest;
 import com.server.domain.question.service.QuestionService;
+import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiSingleResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,9 +27,8 @@ public class QuestionController {
 
     @GetMapping("/{question-id}") //개별 질문 조회 사용 x
     public ResponseEntity<ApiSingleResponse<QuestionResponse>> getQuestion(
-            @PathVariable("question-id") @Positive Long questionId) {
-
-        Long loginMemberId = 1L;
+            @PathVariable("question-id") @Positive Long questionId,
+            @LoginId Long loginMemberId) {
 
         QuestionResponse questionResponse = questionService.getQuestion(loginMemberId, questionId);
 
@@ -38,9 +38,8 @@ public class QuestionController {
     @PatchMapping("/{question-id}")
     public ResponseEntity<Void> updateQuestion(
             @PathVariable("question-id") @Positive Long questionId,
-            @RequestBody @Valid QuestionUpdateApiRequest request) {
-        //질문 수정 + 선택지 수정 포함
-        Long loginMemberId = 1L;
+            @RequestBody @Valid QuestionUpdateApiRequest request,
+            @LoginId Long loginMemberId) {
 
         questionService.updateQuestion(loginMemberId, request.toServiceRequest(questionId));
 
@@ -49,9 +48,8 @@ public class QuestionController {
 
     @DeleteMapping("/{question-id}")
     public ResponseEntity<Void> deleteQuestion(
-            @PathVariable("question-id") @Positive Long questionId) {
-        //질문 삭제
-        Long loginMemberId = 1L;
+            @PathVariable("question-id") @Positive Long questionId,
+            @LoginId Long loginMemberId) {
 
         questionService.deleteQuestion(loginMemberId, questionId);
 
@@ -60,16 +58,13 @@ public class QuestionController {
 
     //질문 풀기
     @PostMapping("/{question-id}/answers")
-    public ResponseEntity<Void> solveQuestion(
+    public ResponseEntity<ApiSingleResponse<Boolean>> solveQuestion(
             @PathVariable("question-id") @Positive Long questionId,
-            @RequestBody @Valid AnswerCreateApiRequest request) {
-
-        Long loginMemberId = 1L;
+            @RequestBody @Valid AnswerCreateApiRequest request,
+            @LoginId Long loginMemberId) {
 
         Boolean result = questionService.solveQuestion(loginMemberId, request.toServiceRequest(questionId));
 
-        URI uri = URI.create("/questions/" + questionId);
-
-        return ResponseEntity.created(uri).build();
+        return ResponseEntity.ok(ApiSingleResponse.ok(result, "문제 제출 성공"));
     }
 }

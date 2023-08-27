@@ -31,7 +31,8 @@ class QuestionRepositoryTest extends RepositoryTest {
         Member member = createAndSaveMember();
         Member otherMember = createAndSaveMember();
 
-        Video video = createAndSaveVideo();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
         Order order = createAndSaveOrder(member, List.of(video));
 
         List<Question> questions = createAndSaveQuestions(video);
@@ -50,6 +51,7 @@ class QuestionRepositoryTest extends RepositoryTest {
         assertThat(questionData.getContent()).isEqualTo(question.getContent());
         assertThat(questionData.getQuestionAnswer()).isEqualTo(question.getQuestionAnswer());
         assertThat(questionData.getDescription()).isEqualTo(question.getDescription());
+        assertThat(questionData.getAnswerId()).isEqualTo(answer.getAnswerId());
         assertThat(questionData.getMyAnswer()).isEqualTo(answer.getMyAnswer());
         assertThat(questionData.getAnswerStatus()).isEqualTo(answer.getAnswerStatus());
         assertThat(questionData.getSelections()).containsExactlyInAnyOrder("1", "2", "3", "4", "5");
@@ -66,7 +68,9 @@ class QuestionRepositoryTest extends RepositoryTest {
         Member member = createAndSaveMember();
         Member otherMember = createAndSaveMember();
 
-        Video video = createAndSaveVideo();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video = createAndSaveVideo(channel);
         Order order = createAndSaveOrder(member, List.of(video));
 
         List<Question> questions = createAndSaveQuestions(video);
@@ -94,19 +98,62 @@ class QuestionRepositoryTest extends RepositoryTest {
     @DisplayName("questionId 로 video 를 찾는다.")
     void findVideoWithQuestion() {
         //given
-//        Video video = createAndSaveVideo();
-//
-//        List<Question> questions = createAndSaveQuestions(video);
-//        Question question = questions.get(0);
-//
-//        em.flush();
-//        em.clear();
-//
-//        //when
-//        Video findVideo = questionRepository.findVideoByQuestionId(question.getQuestionId()).orElseThrow();
-//
-//        //then
-//        assertThat(findVideo.getVideoId()).isEqualTo(video.getVideoId());
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video = createAndSaveVideo(channel);
+
+        List<Question> questions = createAndSaveQuestions(video);
+        Question question = questions.get(0);
+
+        em.flush();
+        em.clear();
+
+        //when
+        Video findVideo = questionRepository.findVideoByQuestionId(question.getQuestionId()).orElseThrow();
+
+        //then
+        assertThat(findVideo.getVideoId()).isEqualTo(video.getVideoId());
+
+    }
+
+    @Test
+    @DisplayName("memberId 와 videoId 로 해당 video 의 모든 question 정보를 조회한다.")
+    void findQuestionDatasWithMemberAnswerByVideoId() {
+        //given
+        Member member = createAndSaveMember();
+
+        Channel channel = createAndSaveChannel(member);
+
+        Video video = createAndSaveVideo(channel);
+        Order order = createAndSaveOrder(member, List.of(video));
+
+        List<Question> questions = createAndSaveQuestions(video);
+        Question question = questions.get(0);
+        Answer answer = createAndSaveAnswer(member, question); //한 문제는 품
+
+        em.flush();
+        em.clear();
+
+        //when
+        List<QuestionData> datas =
+                questionRepository.findQuestionDatasWithMemberAnswerByVideoId(member.getMemberId(), video.getVideoId());
+
+        //then
+        assertThat(datas).hasSize(questions.size());
+        datas.forEach(data -> {
+            if(data.getAnswerId() != null){ //answer 가 존재하는 경우
+                if(data.getAnswerId().equals(answer.getAnswerId())) {
+                    assertThat(data.getAnswerStatus()).isEqualTo(answer.getAnswerStatus());
+                    assertThat(data.getMyAnswer()).isEqualTo(answer.getMyAnswer());
+                }
+            }
+            else { //answer 가 존재하지 않는 경우
+                assertThat(data.getAnswerStatus()).isNull();
+                assertThat(data.getMyAnswer()).isNull();
+            }
+        });
+
 
     }
 

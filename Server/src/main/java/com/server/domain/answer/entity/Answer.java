@@ -33,4 +33,26 @@ public class Answer extends BaseEntity {
     @JoinColumn(name = "question_id")
     private Question question;
 
+    public static Answer createAnswer(String myAnswer, Member member, Question question) {
+        return Answer.builder()
+                .answerStatus(AnswerStatus.WRONG)
+                .myAnswer(myAnswer)
+                .member(member)
+                .question(question)
+                .build();
+    }
+
+    public boolean solveAnswer(String myAnswer, String questionAnswer) {
+
+        this.myAnswer = myAnswer;
+
+        if (myAnswer.equals(questionAnswer)) {
+            this.answerStatus = AnswerStatus.CORRECT;
+            return true;
+        } else {
+            this.answerStatus = AnswerStatus.WRONG;
+            return false;
+        }
+    }
+
 }

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface VideoRepository extends JpaRepository<Video, Long> {
+public interface VideoRepository extends JpaRepository<Video, Long>, VideoRepositoryCustom {
 
     List<Video> findAllByVideoIdIn(List<Long> videoIds);
 

@@ -22,13 +22,10 @@ import java.net.URI;
 public class OrderController {
 
     private final OrderService orderService;
-    private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public OrderController(OrderService orderService, MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
+    public OrderController(OrderService orderService) {
         this.orderService = orderService;
-        this.memberRepository = memberRepository;
-        this.passwordEncoder = passwordEncoder;
+
     }
 
     @PostMapping
@@ -44,7 +41,7 @@ public class OrderController {
     public ResponseEntity<ApiSingleResponse<PaymentApiResponse>> success(
             @RequestParam String paymentKey,
             @RequestParam String orderId,
-            @RequestParam int amount,
+            @RequestParam Integer amount,
             @LoginId Long memberId) {
 
         PaymentServiceResponse serviceResponse = orderService.requestFinalPayment(memberId, paymentKey, orderId, amount);
@@ -61,20 +58,5 @@ public class OrderController {
         orderService.deleteOrder(memberId, orderId);
 
         return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/member")
-    public ResponseEntity<Void> createMockMember(){
-        Member member = Member.builder()
-                .email("test@gmail.com")
-                .password(passwordEncoder.encode("1q2w3e4r!"))
-                .nickname("테스트")
-                .authority(Authority.ROLE_USER).build();
-
-        Member savedMember = memberRepository.save(member);
-
-        URI uri = URI.create("/members/" + savedMember.getMemberId());
-
-        return ResponseEntity.created(uri).build();
     }
 }
