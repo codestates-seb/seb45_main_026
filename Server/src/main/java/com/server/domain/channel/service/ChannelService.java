@@ -4,6 +4,7 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.channel.service.dto.ChannelDto;
+import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
@@ -122,5 +123,10 @@ public class ChannelService {
         return new ApiPageResponse<>(videoResponses, pageInfo, 200, "OK", "채널목록이 조회되었습니다.");
     }
 
+    public void createChannel(Member signMember) {
+        Channel channel = Channel.createChannel(signMember.getNickname());
 
+        channel.setMember(signMember);
+        channelRepository.save(channel);
+    }
 }

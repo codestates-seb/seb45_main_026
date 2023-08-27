@@ -2,6 +2,7 @@ package com.server.auth.controller.dto;
 
 import javax.validation.constraints.NotNull;
 
+import com.server.auth.oauth.service.OAuthProvider;
 import com.server.auth.service.dto.AuthServiceRequest;
 import com.server.domain.member.service.dto.MemberServiceRequest;
 
@@ -52,5 +53,20 @@ public class AuthApiRequest {
 		private String email;
 		private String password;
 
+	}
+
+	@Getter
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class Token {
+		private String accessToken;
+		private String refreshToken;
+		private Long memberId;
+	}
+
+	@Getter
+	public static class OAuth {
+		private OAuthProvider provider;
+		private String code;
 	}
 }

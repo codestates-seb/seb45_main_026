@@ -4,6 +4,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.server.domain.channel.entity.Channel;
+import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.dto.MemberServiceRequest;
@@ -16,14 +18,18 @@ public class MemberService {
 
 	private final MemberRepository memberRepository;
 	private final MailService mailService;
+	private final ChannelService channelService;
 	private final PasswordEncoder passwordEncoder;
 
-	public MemberService(MemberRepository memberRepository, MailService mailService, PasswordEncoder passwordEncoder) {
+	public MemberService(MemberRepository memberRepository, MailService mailService, ChannelService channelService,
+		PasswordEncoder passwordEncoder) {
 		this.memberRepository = memberRepository;
 		this.mailService = mailService;
+		this.channelService = channelService;
 		this.passwordEncoder = passwordEncoder;
 	}
 
+	@Transactional
 	public void signUp(MemberServiceRequest.Create create) {
 		checkDuplicationEmail(create.getEmail());
 		mailService.checkEmailCertify(create.getEmail());
@@ -31,7 +37,8 @@ public class MemberService {
 		Member member = Member.createMember(create.getEmail(), passwordEncoder.encode(create.getPassword()),
 			create.getNickname());
 
-		memberRepository.save(member);
+		Member signMember = memberRepository.save(member);
+		channelService.createChannel(signMember);
 	}
 
 	public void checkDuplicationEmail(String email) {

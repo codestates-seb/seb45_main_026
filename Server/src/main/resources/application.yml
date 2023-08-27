@@ -28,6 +28,28 @@ spring:
             trust: smtp.naver.com
           starttls:
             enable: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            scope: email
+            redirect-uri: https://www.itprometheus.net
+          github:
+            scope: user:email, read:user
+            redirect-uri: https://www.itprometheus.net
+          kakao:
+            client-authentication-method: POST
+            authorization-grant-type: authorization_code
+            scope: profile_nickname, account_email
+            client-name: Kakao
+            redirect-uri: https://www.itprometheus.net
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
   redis:
     host: 127.0.0.1
     port: 6379

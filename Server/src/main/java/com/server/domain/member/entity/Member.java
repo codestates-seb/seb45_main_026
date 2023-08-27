@@ -2,6 +2,7 @@ package com.server.domain.member.entity;
 
 import javax.persistence.*;
 
+import com.server.domain.channel.entity.Channel;
 import com.server.domain.order.entity.Order;
 import com.server.global.entity.BaseEntity;
 
@@ -43,6 +44,9 @@ public class Member extends BaseEntity {
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
 	private List<Order> orders;
 
+	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+	private Channel channel;
+
 	public void setEmail(String email) {
 		this.email = email;
 	}
@@ -61,6 +65,13 @@ public class Member extends BaseEntity {
 
 	public void setReward(int reward) {
 		this.reward = reward;
+	}
+
+	public void setChannel(Channel channel) {
+		this.channel = channel;
+		if (this.channel.getMember() != this) {
+			this.channel.setMember(this);
+		}
 	}
 
 	public static Member createMember(String email, String password, String nickname) {
