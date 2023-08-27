@@ -16,19 +16,22 @@ import com.server.global.exception.businessexception.videoexception.VideoNotFoun
 import com.server.global.testhelper.ServiceTest;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.DynamicTest.*;
 
 class OrderServiceTest extends ServiceTest {
 
-    @Autowired VideoRepository videoRepository;
+
     @Autowired OrderRepository orderRepository;
-    @Autowired MemberRepository memberRepository;
     @Autowired OrderService orderService;
 
     @Test
@@ -144,44 +147,20 @@ class OrderServiceTest extends ServiceTest {
     @DisplayName("주문을 취소하고 order 의 상태를 취소로 변경한다.")
     void deleteOrder() {
         //given
+        Video video1 = createAndSaveVideo();
+        Video video2 = createAndSaveVideo();
 
+        Member member = createAndSaveMember();
+
+        Order order = createAndSaveOrder(member, List.of(video1, video2), 0);
+
+        orderRepository.save(order);
 
         //when
-
+        orderService.deleteOrder(member.getMemberId(), order.getOrderId());
 
         //then
-
-    }
-
-    private Video createAndSaveVideo() {
-        Video video = Video.builder()
-                .videoName("title")
-                .description("description")
-                .thumbnailFile("thumbnailFile")
-                .videoFile("videoFile")
-                .view(0)
-                .star(0)
-                .price(1000)
-                .build();
-
-        videoRepository.save(video);
-
-        return video;
-    }
-
-    private Member createAndSaveMember() {
-        Member member = Member.builder()
-                .email("test@gmail.com")
-                .password("1q2w3e4r!")
-                .nickname("test")
-                .authority(Authority.ROLE_USER)
-                .reward(1000)
-                .imageFile("imageFile")
-                .build();
-
-        memberRepository.save(member);
-
-        return member;
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELED);
     }
 
     private Order createAndSaveOrder(Member member, List<Video> video, int reward) {

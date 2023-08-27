@@ -2,7 +2,7 @@ package com.server.domain.order.service;
 
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
-import com.server.domain.member.repository.dto.MemberVideoResponse;
+import com.server.domain.member.repository.dto.MemberVideoData;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.order.repository.OrderRepository;
@@ -100,7 +100,7 @@ public class OrderService {
         if(order.getOrderStatus().equals(OrderStatus.COMPLETED))
             member.addReward(order.getReward());
 
-        orderRepository.delete(order);
+        order.deleteOrder();
     }
 
     @Transactional
@@ -122,9 +122,9 @@ public class OrderService {
     }
 
     private void checkDuplicateOrder(Member member, List<Video> toBuyVideos) {
-        List<MemberVideoResponse> purchasedVideos = memberRepository.getMemberPurchaseVideo(member.getMemberId());
+        List<MemberVideoData> purchasedVideos = memberRepository.getMemberPurchaseVideo(member.getMemberId());
 
-        for(MemberVideoResponse video : purchasedVideos){
+        for(MemberVideoData video : purchasedVideos){
             toBuyVideos.forEach(toBuyVideo -> {
                 if (video.getVideoId().equals(toBuyVideo.getVideoId()) && !video.getOrderStatus().equals(OrderStatus.CANCELED))
                     throw new OrderExistException();

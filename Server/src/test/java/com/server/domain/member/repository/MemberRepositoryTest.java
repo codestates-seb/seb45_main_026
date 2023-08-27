@@ -1,12 +1,10 @@
 package com.server.domain.member.repository;
 
 import com.server.domain.member.entity.Member;
-import com.server.domain.member.repository.dto.MemberVideoResponse;
+import com.server.domain.member.repository.dto.MemberVideoData;
 import com.server.domain.order.entity.Order;
 import com.server.domain.video.entity.Video;
 import com.server.global.testhelper.RepositoryTest;
-import org.assertj.core.api.Assertions;
-import org.hibernate.Hibernate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +24,8 @@ class MemberRepositoryTest extends RepositoryTest {
         Member member = createAndSaveMember();
         Video video = createAndSaveVideo();
         Order order = createAndSaveOrder(member, List.of(video));
+        order.completeOrder();
+        em.persist(order);
 
         em.flush();
         em.clear();
@@ -89,36 +89,11 @@ class MemberRepositoryTest extends RepositoryTest {
         em.clear();
 
         // when
-        List<MemberVideoResponse> memberPurchaseVideo = memberRepository.getMemberPurchaseVideo(member.getMemberId());
+        List<MemberVideoData> memberPurchaseVideo = memberRepository.getMemberPurchaseVideo(member.getMemberId());
 
         // then
         assertThat(memberPurchaseVideo).hasSize(2)
                 .extracting("videoId").containsExactlyInAnyOrder(video1.getVideoId(), video2.getVideoId());
 
-    }
-
-    private Video createAndSaveVideo() {
-        Video video = Video.builder()
-                .videoName("title")
-                .description("description")
-                .thumbnailFile("thumbnailFile")
-                .videoFile("videoFile")
-                .view(0)
-                .star(0)
-                .price(1000)
-                .build();
-
-        em.persist(video);
-
-        return video;
-    }
-
-    private Order createAndSaveOrder(Member member, List<Video> video) {
-
-        Order order = Order.createOrder(member, video, 500);
-
-        em.persist(order);
-
-        return order;
     }
 }

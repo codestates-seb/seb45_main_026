@@ -21,6 +21,7 @@ public class Channel extends BaseEntity {
     @Lob
     private String description;
 
+    //todo : 빼기
     private String imageUrl;
 
     @OneToMany(mappedBy = "channel")
@@ -28,6 +29,7 @@ public class Channel extends BaseEntity {
 
     private int subscribers;
 
+    //todo : 빼기
     private boolean isSubscribed; //구독여부
 
     @OneToOne(fetch = FetchType.LAZY)

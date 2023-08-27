@@ -1,20 +1,15 @@
 package com.server.domain.member.repository.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.server.domain.channel.entity.Channel;
 import com.server.domain.order.entity.OrderStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-
 import java.time.LocalDateTime;
-
-import static javax.persistence.FetchType.LAZY;
 
 @NoArgsConstructor
 @Getter
-public class MemberVideoResponse {
+public class MemberVideoData {
 
     private Long videoId;
 
@@ -43,7 +38,7 @@ public class MemberVideoResponse {
     private String channelName;
 
     @QueryProjection
-    public MemberVideoResponse(Long videoId, String orderId, String videoName, String description, String thumbnailFile, String videoFile, int view, int star, int price, OrderStatus orderStatus, LocalDateTime purchasedDate, Long channelId, String channelName) {
+    public MemberVideoData(Long videoId, String orderId, String videoName, String description, String thumbnailFile, String videoFile, int view, int star, int price, OrderStatus orderStatus, LocalDateTime purchasedDate, Long channelId, String channelName) {
         this.videoId = videoId;
         this.orderId = orderId;
         this.videoName = videoName;
