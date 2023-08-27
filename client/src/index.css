@@ -7,6 +7,13 @@ button {
 ol,ul {
   list-style: none;
 }
+a,
+a:link,
+a:visited,
+a:hover,
+a:active {
+  text-decoration: none;
+}
 body {
   margin: 0;
   padding: 0;
