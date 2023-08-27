@@ -13,15 +13,16 @@ import org.springframework.security.config.annotation.web.configurers.Expression
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.server.auth.jwt.filter.JwtAuthenticationFilter;
 import com.server.auth.jwt.filter.JwtRefreshFilter;
 import com.server.auth.jwt.filter.JwtVerificationFilter;
-import com.server.auth.jwt.handler.MemberAuthenticationFailureHandler;
-import com.server.auth.jwt.handler.MemberAuthenticationSuccessHandler;
 import com.server.auth.jwt.service.JwtProvider;
 
 import static com.server.auth.util.AuthConstant.*;
@@ -47,6 +48,8 @@ public class SecurityConfig {
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
 			.apply(new CustomFilterConfigurer())
+			.and()
+			.oauth2Login()
 			.and()
 			.exceptionHandling()
 			.accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN))
@@ -105,7 +108,22 @@ public class SecurityConfig {
 	}
 
 	@Bean
+	public DefaultOAuth2UserService defaultOAuth2UserService() {
+		return new DefaultOAuth2UserService();
+	}
+
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
 	}
+
+	// @Bean
+	// public InMemoryClientRegistrationRepository inMemoryClientRegistrationRepository() {
+	// 	return new InMemoryClientRegistrationRepository();
+	// }
 }
