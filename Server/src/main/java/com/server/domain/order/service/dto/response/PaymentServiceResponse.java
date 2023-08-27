@@ -2,9 +2,11 @@ package com.server.domain.order.service.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @Getter
+@NoArgsConstructor
 public class PaymentServiceResponse {
 
     private String mId;
@@ -46,6 +48,7 @@ public class PaymentServiceResponse {
 
     @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class PaymentCardResponse {
 
         private String issuerCode;
@@ -64,12 +67,14 @@ public class PaymentServiceResponse {
 
     @AllArgsConstructor
     @Getter
+    @NoArgsConstructor
     public static class Receipt {
         private String url;
     }
 
     @AllArgsConstructor
     @Getter
+    @NoArgsConstructor
     public static class Checkout {
         private String url;
     }

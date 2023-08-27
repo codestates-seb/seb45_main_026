@@ -3,6 +3,7 @@ package com.server.domain.video.entity;
 import com.server.domain.order.entity.Order;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.videoCategory.entity.VideoCategory;
@@ -69,6 +70,9 @@ public class Video extends BaseEntity {
 
     @OneToMany(mappedBy = "video")
     private List<VideoCategory> videoCategories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "video")
+    private List<OrderVideo> orderVideos = new ArrayList<>();
 
 
 }
