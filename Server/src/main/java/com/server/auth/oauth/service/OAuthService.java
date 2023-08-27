@@ -33,8 +33,11 @@ import com.server.auth.controller.dto.AuthApiRequest;
 import com.server.auth.jwt.service.CustomUserDetails;
 import com.server.auth.jwt.service.JwtProvider;
 import com.server.auth.util.AuthConstant;
+import com.server.domain.channel.entity.Channel;
+import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.member.service.MemberService;
 import com.server.global.exception.businessexception.authexception.OAuthCodeRequestException;
 import com.server.global.exception.businessexception.authexception.OAuthGitubRequestException;
 
@@ -49,17 +52,17 @@ public class OAuthService {
 	// OAuth2.0 클라이언트 등록 정보를 저장하는 리포지토리
 	private final InMemoryClientRegistrationRepository inMemoryRepository;
 	private final MemberRepository memberRepository;
+	private final ChannelService channelService;
 	private final JwtProvider jwtProvider;
 	private final DefaultOAuth2UserService defaultOAuth2UserService;
 	private final RestTemplate restTemplate;
 
-	public OAuthService(InMemoryClientRegistrationRepository inMemoryRepository,
-						MemberRepository memberRepository,
-						JwtProvider jwtProvider,
-						DefaultOAuth2UserService defaultOAuth2UserService,
-						RestTemplate restTemplate) {
+	public OAuthService(InMemoryClientRegistrationRepository inMemoryRepository, MemberRepository memberRepository,
+		ChannelService channelService, JwtProvider jwtProvider, DefaultOAuth2UserService defaultOAuth2UserService,
+		RestTemplate restTemplate) {
 		this.inMemoryRepository = inMemoryRepository;
 		this.memberRepository = memberRepository;
+		this.channelService = channelService;
 		this.jwtProvider = jwtProvider;
 		this.defaultOAuth2UserService = defaultOAuth2UserService;
 		this.restTemplate = restTemplate;
@@ -190,7 +193,10 @@ public class OAuthService {
 			memberProfile.getEmail(),
 			memberProfile.getEmail().split("@")[0],
 			"oauthUser");
-		return memberRepository.save(member);
+
+		Member signMember = memberRepository.save(member);
+		channelService.createChannel(signMember);
+		return signMember;
 	}
 
 	// 실제로 인증 과정을 처리하고 토큰을 만드는 메서드

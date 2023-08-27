@@ -67,6 +67,13 @@ public class Member extends BaseEntity {
 		this.reward = reward;
 	}
 
+	public void setChannel(Channel channel) {
+		this.channel = channel;
+		if (this.channel.getMember() != this) {
+			this.channel.setMember(this);
+		}
+	}
+
 	public static Member createMember(String email, String password, String nickname) {
 		return Member.builder()
 			.email(email)

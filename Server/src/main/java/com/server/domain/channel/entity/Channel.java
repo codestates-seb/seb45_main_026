@@ -3,12 +3,20 @@ package com.server.domain.channel.entity;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.member.entity.Member;
 import com.server.global.entity.BaseEntity;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 @Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 public class Channel extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +42,12 @@ public class Channel extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    public static Channel createChannel(String memberNickname) {
+        return Channel.builder()
+            .channelName(memberNickname)
+            .build();
+    }
+
     public void setChannelName(String channelName){
         this.channelName = channelName;
     }
@@ -46,8 +60,11 @@ public class Channel extends BaseEntity {
         this.subscribers = subscribers;
     }
 
-    public void setMemberId(Long memberId){
-        setMemberId(memberId);
+    public void setMember(Member member){
+        this.member = member;
+        if (this.member.getChannel() != this) {
+            this.member.setChannel(this);
+        }
     }
 
     public void setSubscribed(boolean subscribed) {
