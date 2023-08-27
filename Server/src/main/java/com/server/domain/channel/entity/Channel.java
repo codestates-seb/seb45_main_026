@@ -21,14 +21,46 @@ public class Channel extends BaseEntity {
     @Lob
     private String description;
 
+    private String imageUrl;
+
     @OneToMany(mappedBy = "channel")
-    private List<Subscribe> subscribes = new ArrayList<>();
+    private List<Subscribe> subscribeList = new ArrayList<>();
 
     private int subscribers;
+
+    private boolean isSubscribed; //구독여부
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public void setChannelName(String channelName){
+        this.channelName = channelName;
+    }
+
+    public void setDescription(String description){
+        this.description = description;
+    }
+
+    public void subscribers(int subscribers){
+        this.subscribers = subscribers;
+    }
+
+    public void setMemberId(Long memberId){
+        setMemberId(memberId);
+    }
+
+    public void setSubscribed(boolean subscribed) {
+    }
+
+    public void incrementSubscribers(){
+        subscribers++;
+    }
+    public void decrementSubscribers(){
+        if(subscribers > 0){
+            subscribers--;
+        }
+    }
 
 
 }
