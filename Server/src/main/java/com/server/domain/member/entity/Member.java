@@ -45,6 +45,11 @@ public class Member extends BaseEntity {
 
 	private String imageFile;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	@Builder.Default
+	private Grade grade = Grade.BRONZE;
+
 	private int reward;
 
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
@@ -87,10 +92,6 @@ public class Member extends BaseEntity {
 
 	public void setImageFile(String imageFile) {
 		this.imageFile = imageFile;
-	}
-
-	public void setReward(int reward) {
-		this.reward = reward;
 	}
 
 	public void setChannel(Channel channel) {

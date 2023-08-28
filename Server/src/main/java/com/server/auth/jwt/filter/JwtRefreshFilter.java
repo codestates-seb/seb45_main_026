@@ -15,7 +15,6 @@ import com.server.auth.jwt.service.JwtProvider;
 import com.server.global.exception.businessexception.authexception.JwtNotFoundException;
 import com.server.global.exception.businessexception.requestexception.RequestNotPostException;
 
-// 리프래시 토큰으로 액세스 토큰을 생성하는 필터
 public class JwtRefreshFilter extends OncePerRequestFilter {
 
 	private final JwtProvider jwtProvider;
