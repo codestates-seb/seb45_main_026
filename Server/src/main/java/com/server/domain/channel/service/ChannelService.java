@@ -8,7 +8,7 @@ import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.subscribe.entity.Subscribe;
-import com.server.domain.subscribe.entity.repository.SubscribeRepository;
+import com.server.domain.subscribe.repository.SubscribeRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.videoCategory.entity.VideoCategory;
