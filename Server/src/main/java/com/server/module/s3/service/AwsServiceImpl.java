@@ -1,7 +1,10 @@
 package com.server.module.s3.service;
 
 import com.server.global.exception.businessexception.s3exception.S3DeleteException;
+import com.server.global.exception.businessexception.s3exception.S3FileNotVaildException;
+import com.server.global.exception.businessexception.s3exception.S3KeyException;
 import com.server.module.s3.service.dto.ImageType;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
@@ -44,10 +47,14 @@ public class AwsServiceImpl implements AwsService {
         this.s3Presigner = s3Presigner;
         this.credentialsProvider = credentialsProvider;
     }
+
+    //todo : API 를 하나로 통일하고 File 형식을 enum 으로 받아도 될 듯 -> 총 3개 (get, put, delete)
     
     @Override
-    public String getImageUrl(String fileName) throws Exception {
-        
+    public String getImageUrl(String fileName) {
+
+        checkValidFile(fileName);
+
         Instant tenSecondsLater = getInstantDuration(60);
 
         SignedUrl signedUrlWithCustomPolicy = getFileUrl(IMAGE_PATH + fileName, tenSecondsLater);
@@ -58,12 +65,14 @@ public class AwsServiceImpl implements AwsService {
 
     @Override
     public String getUploadImageUrl(String fileName, ImageType imageType) {
-        
+
+        checkValidFile(fileName);
+
         Duration duration = Duration.ofMinutes(10);
 
         URL presignedPutObjectUrl = getPresignedPutObjectUrl(
-                        IMAGE_PATH + fileName, 
-                        imageType.getDescription(), 
+                        IMAGE_PATH + fileName,
+                        imageType.getDescription(),
                         duration);
 
         return URLDecoder.decode(presignedPutObjectUrl.toString(), UTF_8);
@@ -72,11 +81,16 @@ public class AwsServiceImpl implements AwsService {
     @Override
     public void deleteImage(String fileName) {
 
+        checkValidFile(fileName);
+
         deleteFile(IMAGE_PATH + fileName);
     }
 
     @Override
-    public String getThumbnailUrl(Long memberId, String fileName) throws Exception {
+    @SneakyThrows
+    public String getThumbnailUrl(Long memberId, String fileName) {
+
+        checkValidFile(fileName);
 
         Instant tenSecondsLater = getInstantDuration(60);
 
@@ -89,6 +103,8 @@ public class AwsServiceImpl implements AwsService {
 
     @Override
     public String getUploadThumbnailUrl(Long memberId, String fileName, ImageType imageType) {
+
+        checkValidFile(fileName);
 
         Duration duration = Duration.ofMinutes(10);
 
@@ -105,21 +121,28 @@ public class AwsServiceImpl implements AwsService {
     @Override
     public void deleteThumbnail(Long memberId, String fileName) {
 
+        checkValidFile(fileName);
+
         deleteFile(memberId + "/" + THUMBNAIL_PATH + fileName);
     }
 
     @Override
-    public String getVideoUrl(Long memberId, String fileName) throws Exception {
+    @SneakyThrows
+    public String getVideoUrl(Long memberId, String fileName) {
+
+        checkValidFile(fileName);
 
         Instant tenSecondsLater = getInstantDuration(60);
-        
+
         SignedUrl signedUrlWithCustomPolicy = getFileUrl(memberId + "/" + fileName, tenSecondsLater);
-        
+
         return URLDecoder.decode(signedUrlWithCustomPolicy.url(), UTF_8);
     }
 
     @Override
     public String getUploadVideoUrl(Long memberId, String fileName) {
+
+        checkValidFile(fileName);
 
         Duration duration = Duration.ofMinutes(10);
 
@@ -134,7 +157,15 @@ public class AwsServiceImpl implements AwsService {
     @Override
     public void deleteVideo(Long memberId, String fileName) {
 
+        checkValidFile(fileName);
+
         deleteFile(memberId + "/" + fileName);
+    }
+
+    private void checkValidFile(String fileName) {
+        if(fileName == null) {
+            throw new S3FileNotVaildException();
+        }
     }
 
     private Instant getInstantDuration(int secondsToAdd) {
@@ -142,13 +173,18 @@ public class AwsServiceImpl implements AwsService {
         return now.plusSeconds(secondsToAdd);
     }
 
-    private SignedUrl getFileUrl(String location, Instant tenSecondsLater) throws Exception {
-        CustomSignerRequest customSignerRequest = CustomSignerRequest.builder()
-                .resourceUrl(CLOUDFRONT_URL + location)
-                .expirationDate(tenSecondsLater)
-                .keyPairId(KEY_PAIR_ID)
-                .privateKey(Path.of(PRIVATE_KEY_PATH))
-                .build();
+    private SignedUrl getFileUrl(String location, Instant tenSecondsLater) {
+        CustomSignerRequest customSignerRequest = null;
+        try {
+            customSignerRequest = CustomSignerRequest.builder()
+                    .resourceUrl(CLOUDFRONT_URL + location)
+                    .expirationDate(tenSecondsLater)
+                    .keyPairId(KEY_PAIR_ID)
+                    .privateKey(Path.of(PRIVATE_KEY_PATH))
+                    .build();
+        } catch (Exception e) {
+            throw new S3KeyException();
+        }
 
         return cloudFrontUtilities.getSignedUrlWithCustomPolicy(customSignerRequest);
     }
