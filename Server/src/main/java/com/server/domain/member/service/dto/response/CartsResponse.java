@@ -19,7 +19,7 @@ public class CartsResponse {
 	@Getter
 	@Builder
 	public static class Channel {
-		private Long channelId;
+		private Long memberId;
 		private String channelName;
 		private int subscribes;
 		private String imageUrl;

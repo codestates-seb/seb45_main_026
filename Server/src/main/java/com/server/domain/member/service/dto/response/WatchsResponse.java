@@ -17,7 +17,7 @@ public class WatchsResponse {
 	@Getter
 	@Builder
 	public static class Channel {
-		private Long channelId;
+		private Long memberId;
 		private String channelName;
 	}
 }
