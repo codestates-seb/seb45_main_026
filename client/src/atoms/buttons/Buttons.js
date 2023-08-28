@@ -1,6 +1,6 @@
 import React from 'react';
 import { styled } from 'styled-components';
-import tokens from '../styles/tokens.json'
+import tokens from '../../styles/tokens.json'
 
 const globalTokens = tokens.global;
 
