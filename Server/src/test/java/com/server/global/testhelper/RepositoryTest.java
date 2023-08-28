@@ -5,6 +5,7 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
+import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,5 +130,14 @@ public abstract class RepositoryTest {
         em.persist(videoCategory);
 
         return videoCategory;
+    }
+
+    protected void createAndSaveSubscribe(Member member, Channel channel) {
+        Subscribe subscribe = Subscribe.builder()
+                .member(member)
+                .channel(channel)
+                .build();
+
+        em.persist(subscribe);
     }
 }

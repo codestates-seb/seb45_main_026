@@ -157,13 +157,4 @@ class MemberRepositoryTest extends RepositoryTest {
         assertThat(isSubscribed).hasSize(3)
                 .containsExactly(true, true, false);
     }
-
-    private void createAndSaveSubscribe(Member member, Channel channel) {
-        Subscribe subscribe = Subscribe.builder()
-                .member(member)
-                .channel(channel)
-                .build();
-
-        em.persist(subscribe);
-    }
 }

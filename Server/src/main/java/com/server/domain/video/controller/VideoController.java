@@ -82,9 +82,10 @@ public class VideoController {
                                                                         @RequestParam(value = "size", defaultValue = "10") int size,
                                                                         @RequestParam(value = "sort", defaultValue = "createdAt") String sort,
                                                                         @RequestParam(value = "category", defaultValue = "") String category,
+                                                                        @RequestParam(value = "subscribe", defaultValue = "false") boolean subscribe,
                                                                         @LoginId Long loginMemberId) {
 
-        Page<VideoPageResponse> videos = videoService.getVideos(loginMemberId, page - 1, size, sort, category);
+        Page<VideoPageResponse> videos = videoService.getVideos(loginMemberId, page - 1, size, sort, category, subscribe);
 
         return ResponseEntity.ok(ApiPageResponse.ok(videos, "비디오 목록 조회 성공"));
     }

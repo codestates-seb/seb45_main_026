@@ -10,5 +10,5 @@ public interface VideoRepositoryCustom {
 
     Optional<Video> findVideoWithMember(Long videoId);
 
-    Page<Video> findAllByCategoryPaging(String category, Pageable pageable, String sort);
+    Page<Video> findAllByCategoryPaging(String category, Pageable pageable, String sort, Long memberId, boolean subscribe);
 }

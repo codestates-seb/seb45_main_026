@@ -1,5 +1,7 @@
 package com.server.global.testhelper;
 
+import com.server.domain.category.entity.Category;
+import com.server.domain.category.entity.CategoryRepository;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.member.entity.Authority;
@@ -7,13 +9,18 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.repository.OrderRepository;
+import com.server.domain.subscribe.entity.Subscribe;
+import com.server.domain.subscribe.repository.SubscribeRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
+import com.server.domain.videoCategory.entity.VideoCategory;
+import com.server.domain.videoCategory.entity.VideoCategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 
 @SpringBootTest
@@ -26,6 +33,21 @@ public abstract class ServiceTest {
     @Autowired protected VideoRepository videoRepository;
     @Autowired protected OrderRepository orderRepository;
     @Autowired protected ChannelRepository channelRepository;
+    @Autowired protected VideoCategoryRepository videoCategoryRepository;
+    @Autowired protected CategoryRepository categoryRepository;
+    @Autowired protected SubscribeRepository subscribeRepository;
+    @Autowired protected EntityManager em;
+
+    protected void flush(){
+        memberRepository.flush();
+        videoRepository.flush();
+        orderRepository.flush();
+        channelRepository.flush();
+        videoCategoryRepository.flush();
+        categoryRepository.flush();
+        subscribeRepository.flush();
+    }
+
     protected Member createAndSaveMember() {
         Member member = Member.builder()
                 .email("test@gmail.com")
@@ -101,5 +123,36 @@ public abstract class ServiceTest {
         orderRepository.save(order);
 
         return order;
+    }
+
+    protected void createAndSaveVideoCategory(Video video, Category category) {
+
+        VideoCategory videoCategory = VideoCategory.builder()
+                .video(video)
+                .category(category)
+                .build();
+
+        videoCategoryRepository.save(videoCategory);
+    }
+
+    protected Category createAndSaveCategory(String categoryName) {
+        Category category = Category.builder()
+                .categoryName(categoryName)
+                .build();
+
+        categoryRepository.save(category);
+
+        return category;
+    }
+
+    protected Subscribe createAndSaveSubscribe(Member member, Channel channel) {
+        Subscribe subscribe = Subscribe.builder()
+                .member(member)
+                .channel(channel)
+                .build();
+
+        subscribeRepository.save(subscribe);
+
+        return subscribe;
     }
 }
