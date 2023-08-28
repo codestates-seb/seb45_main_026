@@ -2,11 +2,10 @@ package com.server.auth.controller.dto;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import com.server.auth.oauth.service.OAuthProvider;
 import com.server.auth.service.dto.AuthServiceRequest;
-import com.server.domain.member.service.dto.MemberServiceRequest;
+import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.module.email.service.dto.MailServiceRequest;
 
 import lombok.AllArgsConstructor;

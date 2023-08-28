@@ -1,13 +1,29 @@
 package com.server.domain.member.controller.dto;
 
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.server.domain.member.service.dto.MemberServiceRequest;
-import com.server.module.email.service.dto.MailServiceRequest;
+import com.server.domain.member.service.dto.request.MemberServiceRequest;
 
 import lombok.Getter;
 
 public class MemberApiRequest {
+
+	public static class Nickname {
+		@NotBlank
+		private String nickname;
+
+		public MemberServiceRequest.Nickname toServiceRequest() {
+			return MemberServiceRequest.Nickname.builder()
+				.nickname(nickname)
+				.build();
+		}
+	}
+
+	@Getter
+	public static class Image {
+		private MultipartFile image;
+	}
 
 	public static class Password {
 		@NotBlank
