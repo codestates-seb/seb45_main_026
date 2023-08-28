@@ -24,11 +24,8 @@ public class Subscribe extends BaseEntity {
     @JoinColumn(name = "channel_id")
     private Channel channel;
 
-
-
-
-
-
-
-
+    public Subscribe(Member member, Channel channel) {
+        this.member = member;
+        this.channel = channel;
+    }
 }

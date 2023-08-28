@@ -3,12 +3,12 @@ package com.server.domain.member.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
-import com.server.domain.member.service.dto.MemberServiceRequest;
+import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.module.email.service.MailService;
 
@@ -41,7 +41,49 @@ public class MemberService {
 		channelService.createChannel(signMember);
 	}
 
-	public void changePassword(MemberServiceRequest.Password request) {
+	public Member getMember(Long memberId, Long loginId) {
+		return new Member();
+	}
+
+	public void getRewards(Long memberId) {
+		// Member member = new Member();
+		// // 클래스명 가져와서 리워드 타입으로 하면 될거 같기도...
+		// System.out.println(member.getClass().getSimpleName().toUpperCase());
+	}
+
+	public void getSubscribes(Long memberId) {
+
+	}
+
+	public void getLikes(Long memberId, int page) {
+
+	}
+
+	public void getCarts(Long memberId, int page) {
+
+	}
+
+	public void getPays(Long memberId, int page, int month) {
+
+	}
+
+	public void getWatchs(Long memberId, int page, int day) {
+
+	}
+
+	public void updatePassword(MemberServiceRequest.Password request) {
+
+	}
+
+	public void updateNickname(MemberServiceRequest.Nickname request) {
+
+	}
+
+	public void updateImage(String imageName) {
+
+	}
+
+	public void deleteMember(Long memberId) {
 
 	}
 

@@ -4,13 +4,20 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.channel.service.dto.ChannelDto;
+import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
+import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.subscribe.entity.Subscribe;
+import com.server.domain.subscribe.entity.repository.SubscribeRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
+import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
+import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.PageInfo;
+import com.server.module.s3.service.AwsService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,68 +33,106 @@ public class ChannelService {
 
     private final ChannelRepository channelRepository;
     private final VideoRepository videoRepository;
+    private final AwsService awsService;
+    private final MemberRepository memberRepository;
+    private final SubscribeRepository subscribeRepository;
 
-    public ChannelService(ChannelRepository channelRepository, VideoRepository videoRepository) {
+
+    public ChannelService(ChannelRepository channelRepository,
+                          VideoRepository videoRepository,
+                          AwsService awsService,
+                          MemberRepository memberRepository,
+                          SubscribeRepository subscribeRepository ) {
+
         this.channelRepository = channelRepository;
         this.videoRepository = videoRepository;
+        this.awsService = awsService;
+        this.memberRepository = memberRepository;
+        this.subscribeRepository = subscribeRepository;
+
     }
 
     @Transactional(readOnly = true)
     public ChannelDto.ChannelInfo getChannelInfo(Long memberId) {
-        Channel channel = channelRepository.findByChannelId(memberId);
+        Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+
+        Channel channel = channelRepository.findByMember(member);
         if (channel == null) {
             throw new ChannelNotFoundException();
         }
+        String imageUrl;
+        try {
+            imageUrl = awsService.getImageUrl(channel.getMember().getImageFile());
+        } catch (Exception e) {
+            imageUrl = "";
+        }
 
-        //todo : 굳이 이렇게 따로 두지말고 ChannelInfo 파라미터로 바로 넣으면 됨
-        int subscriberCount = channel.getSubscribers();
-        boolean isSubscribed = channel.isSubscribed();
+        ChannelDto.ChannelInfo channelInfo = new ChannelDto.ChannelInfo();
+        channelInfo.setMemberId(channel.getMember().getMemberId());
+        channelInfo.setChannelName(channel.getChannelName());
+        channelInfo.setSubscribers(channel.getSubscribers());
+        channelInfo.setDescription(channel.getDescription());
+        channelInfo.setCreatedDate(channel.getCreatedDate());
+        channelInfo.setImageUrl(imageUrl);
 
-        //todo : imageUrl = awsService.getImageUrl(member.getImageUrl());
-
-        return new ChannelDto.ChannelInfo(
-                channel.getMember().getMemberId(),
-                channel.getChannelName(),
-                subscriberCount,
-                isSubscribed,
-                channel.getDescription(),
-                channel.getImageUrl(),
-                channel.getCreatedDate()
-        );
+        return channelInfo;
     }
 
-    public void updateChannel(Long memberId, ChannelDto.UpdateInfo updateInfo) {
-        //todo : 로그인한 사용자와 memberId 가 같은지 확인하는 로직 필요
-        Channel channel = channelRepository.findByChannelId(memberId);
+    public void updateChannel(Long memberId, ChannelDto.UpdateInfo updateInfo, Member member) {
+
+        Long loggedInMember = member.getMemberId();
+
+        if(!loggedInMember.equals(memberId)){
+            throw new MemberAccessDeniedException();
+        }
+
+        Channel channel = channelRepository.findByMember(member);
+
+        if(!isChannelOwner(memberId, member) && !isAdmin(member)){
+            throw new MemberAccessDeniedException();
+        }
 
         if (updateInfo != null) {
             if (updateInfo.getChannelName() != null) {
                 channel.setChannelName(updateInfo.getChannelName());
             }
-
             if (updateInfo.getDescription() != null) {
                 channel.setDescription(updateInfo.getDescription());
             }
 
-            //todo : 아래 save 는 불필요 (dirty checking)
-            channelRepository.save(channel);
         }
     }
 
     public boolean updateSubscribe(Long memberId) {
-        //todo : member 와 channel 의 Subscribe 레코드가 있는지 확인하고 있으면 삭제, 없으면 생성... channel 의 isSubscribed 필드는 전혀 필요없음.
-        //todo : 여기도 로그인한 사용자와 memberId 가 같은지 확인하는 로직 필요
-        Channel channel = channelRepository.findByChannelId(memberId);
-        channel.setSubscribed(!channel.isSubscribed());
-        return channel.isSubscribed();
+
+        Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+
+        Channel channel = channelRepository.findByMember(member);
+
+        if(channel == null){
+            throw new ChannelNotFoundException();
+        }
+
+        if(isSubscribed(member, channel)){
+            unsubscribe(member, channel);
+            return false;
+        } else
+            subscribe(member, channel);
+        return true;
     }
 
-    //todo : service 클래스에서 ApiPageResponse 를 사용하면 안됨. 따로 반환 클래스(dto) 를 만들 것
-    public ApiPageResponse<ChannelDto.VideoResponse> getChannelVideos(Long memberId, int page, String sort){
-        //todo : 로그인한 사용자 정보를 받아서 memberId 와 비교하는 로직 필요
-        Channel channel = channelRepository.findByChannelId(memberId);
-        PageRequest pageRequest;
 
+    //todo : 로그인한 사용자 정보를 받아서 memberId 와 비교하는 로직 필요
+    public List<ChannelDto.ChannelVideoResponseDto> getChannelVideos(Long loggedInMemberId, Long memberId, int page, String sort) {
+        if (!loggedInMemberId.equals(memberId)) {
+            throw new MemberAccessDeniedException();
+        }
+
+        Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+
+        Channel channel = channelRepository.findByMember(member);
+
+        PageRequest pageRequest;
         if ("createdAt".equals(sort)) {
             pageRequest = PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdDate");
         } else {
@@ -96,38 +141,69 @@ public class ChannelService {
 
         Page<Video> videoPage = videoRepository.findByChannel(channel, pageRequest);
 
-
-        List<ChannelDto.VideoResponse> videoResponses = new ArrayList<>();
-        List<Video> videos = videoPage.getContent();
-        for (Video video : videos) {
+        List<ChannelDto.ChannelVideoResponseDto> videoResponses = new ArrayList<>();
+        for (Video video : videoPage.getContent()) {
             List<String> categoryNames = new ArrayList<>();
             List<VideoCategory> categories = video.getVideoCategories();
 //            for (Category category : categories) {
 //                categoryNames.add(category.getCategoryName());
 //            }
 
-            ChannelDto.VideoResponse videoResponse = new ChannelDto.VideoResponse(
-                    video.getVideoId(),
-                    video.getVideoName(),
-                    //todo : thumbnailUrl = awsService.getThumbnail(video.getThumbnailUrl());
-                    video.getThumbnailFile(),
-                    video.getView(),
-                    video.getPrice(),
-                    categoryNames,
-                    video.getCreatedDate().toLocalDate()
-            );
+
+            String imageUrl;
+            try {
+                imageUrl = awsService.getImageUrl(channel.getMember().getImageFile());
+            } catch (Exception e) {
+                imageUrl = "";
+            }
+
+            ChannelDto.ChannelVideoResponseDto videoResponse = new ChannelDto.ChannelVideoResponseDto();
+            videoResponse.setVideoId(video.getVideoId());
+            videoResponse.setVideoName(video.getVideoName());
+            videoResponse.setThumbnailUrl(imageUrl);
+            videoResponse.setViews(video.getView());
+            videoResponse.setPrice(video.getPrice());
+            videoResponse.setCategories(categoryNames);
+            videoResponse.setCreatedDate(video.getCreatedDate().toLocalDate());
+
             videoResponses.add(videoResponse);
         }
 
-        PageInfo pageInfo = PageInfo.of(videoPage);
-
-        return new ApiPageResponse<>(videoResponses, pageInfo, 200, "OK", "채널목록이 조회되었습니다.");
+        return videoResponses;
     }
+
+
 
     public void createChannel(Member signMember) {
         Channel channel = Channel.createChannel(signMember.getNickname());
 
         channel.setMember(signMember);
         channelRepository.save(channel);
+    }
+
+    private boolean isChannelOwner(Long channelId, Member member){
+        return member.getChannel() != null && member.getChannel().getChannelId().equals(channelId);
+    }
+
+    private boolean isAdmin(Member member){
+        return member.getAuthority() == Authority.ROLE_ADMIN;
+    }
+
+    private boolean isSubscribed(Member member, Channel channel){
+        Subscribe subscribe = subscribeRepository.findByMemberAndChannel(member, channel);
+        return subscribe != null;
+    }
+
+    private void unsubscribe(Member member, Channel channel){
+        Subscribe subscribe = subscribeRepository.findByMemberAndChannel(member, channel);
+        if(subscribe != null){
+            subscribeRepository.delete(subscribe);
+        }
+    }
+
+    private void subscribe(Member member, Channel channel){
+        Subscribe subscribe = new Subscribe(member, channel);
+
+        subscribeRepository.save(subscribe);
     }
 }

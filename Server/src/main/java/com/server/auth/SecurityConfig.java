@@ -40,8 +40,6 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.headers().frameOptions().sameOrigin() //브라우저에서 H2 사용하기 위해 추가 나중에 삭제할 것
-			.and()
 			.httpBasic().disable()
 			.csrf().disable()
 			.cors(getCors())
@@ -60,7 +58,6 @@ public class SecurityConfig {
 		return http.build();
 	}
 
-	// Cors 설정
 	@Bean
 	public Customizer<CorsConfigurer<HttpSecurity>> getCors() {
 
@@ -79,7 +76,6 @@ public class SecurityConfig {
 		};
 	}
 
-	// 요청별 인가 설정
 	private Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> getAuthorizeRequests() {
 		return (http) -> http
 			.antMatchers("/auth/test").hasRole("USER")
@@ -87,7 +83,6 @@ public class SecurityConfig {
 			.anyRequest().permitAll();
 	}
 
-	// JWT 필터가 유저네임 패스워드 자리에 들어가고 이후에 Refresh필터와 인증필터 추가
 	public class CustomFilterConfigurer extends AbstractHttpConfigurer<CustomFilterConfigurer, HttpSecurity> {
 		@Override
 		public void configure(HttpSecurity builder) {
@@ -122,9 +117,4 @@ public class SecurityConfig {
 	public PasswordEncoder passwordEncoder() {
 		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
 	}
-
-	// @Bean
-	// public InMemoryClientRegistrationRepository inMemoryClientRegistrationRepository() {
-	// 	return new InMemoryClientRegistrationRepository();
-	// }
 }
