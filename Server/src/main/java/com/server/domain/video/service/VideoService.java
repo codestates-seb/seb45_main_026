@@ -1,5 +1,8 @@
 package com.server.domain.video.service;
 
+import com.server.domain.category.entity.Category;
+import com.server.domain.category.entity.CategoryRepository;
+import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
@@ -9,12 +12,25 @@ import com.server.domain.video.service.dto.request.VideoUpdateServiceRequest;
 import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
 import com.server.domain.video.service.dto.response.VideoDetailResponse;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
+import com.server.domain.watch.entity.Watch;
+import com.server.domain.watch.repository.WatchRepository;
+import com.server.global.exception.businessexception.categoryexception.CategoryNotFoundException;
+import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
+import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
+import com.server.global.exception.businessexception.videoexception.VideoFileNameNotMatchException;
+import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
+import com.server.global.exception.businessexception.videoexception.VideoUploadNotRequestException;
+import com.server.module.redis.service.RedisService;
+import com.server.module.s3.service.AwsService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -24,10 +40,20 @@ public class VideoService {
 
     private final VideoRepository videoRepository;
     private final MemberRepository memberRepository;
+    private final WatchRepository watchRepository;
+    private final CategoryRepository categoryRepository;
+    private final AwsService awsService;
+    private final RedisService redisService;
 
-    public VideoService(VideoRepository videoRepository, MemberRepository memberRepository) {
+    public VideoService(VideoRepository videoRepository, MemberRepository memberRepository,
+                        WatchRepository watchRepository, CategoryRepository categoryRepository,
+                        AwsService awsService, RedisService redisService) {
         this.videoRepository = videoRepository;
         this.memberRepository = memberRepository;
+        this.watchRepository = watchRepository;
+        this.categoryRepository = categoryRepository;
+        this.awsService = awsService;
+        this.redisService = redisService;
     }
 
     public Page<VideoPageResponse> getVideos(Long loginMemberId, int page, int size, String sort, String category, boolean subscribe) {
@@ -40,36 +66,91 @@ public class VideoService {
 
         List<Boolean> isSubscribeInOrder = isSubscribeInOrder(loginMemberId, video.getContent(), subscribe);
 
-        return VideoPageResponse.of(video, isPurchaseInOrder, isSubscribeInOrder);
+        List<String[]> urlsInOrder = getThumbnailAndImageUrlsInOrder(video.getContent());
+
+        return VideoPageResponse.of(video, isPurchaseInOrder, isSubscribeInOrder, urlsInOrder);
     }
 
+    @Transactional
     public VideoDetailResponse getVideo(Long loginMemberId, Long videoId) {
-        return null;
+
+        Video video = existVideo(videoId);
+
+        Member member = verifiedMemberOrNull(loginMemberId);
+
+        watch(member, video);
+
+        Boolean subscribed = isSubscribed(member, video);
+
+        Map<String, Boolean> isPurchaseAndIsReplied = getIsPurchaseAndIsReplied(member, videoId);
+
+        Map<String, String> urls = getVideoUrls(video);
+
+        return VideoDetailResponse.of(video, subscribed, urls, isPurchaseAndIsReplied);
     }
 
     @Transactional
     public VideoCreateUrlResponse getVideoCreateUrl(Long loginMemberId, VideoCreateUrlServiceRequest request) {
-        return null;
+
+        verifiedMember(loginMemberId);
+
+        redisService.setExpire(String.valueOf(loginMemberId), request.getFileName(), 60 * 15); // 15분
+
+        return VideoCreateUrlResponse.builder()
+                .videoUrl(awsService.getUploadVideoUrl(loginMemberId, request.getFileName()))
+                .thumbnailUrl(awsService.getUploadThumbnailUrl(loginMemberId, request.getFileName(), request.getImageType()))
+                .build();
     }
 
     @Transactional
     public Long createVideo(Long loginMemberId, VideoCreateServiceRequest request) {
-        return null;
+
+        verifiedMember(loginMemberId);
+
+        checkFileName(loginMemberId, request.getVideoName());
+
+        List<Category> categories = verifiedCategories(request.getCategories());
+
+        Video video = Video.createVideo(request.getVideoName(), request.getPrice(), request.getDescription(), categories);
+
+        return videoRepository.save(video).getVideoId();
     }
 
     @Transactional
     public void updateVideo(Long loginMemberId, VideoUpdateServiceRequest request) {
-        return;
+
+        //todo : testcase 작성
+
+        Video video = verifedVideo(loginMemberId, request.getVideoId());
+
+        List<Category> categories = verifiedCategories(request.getCategories());
+
+        video.updateVideo(request.getVideoName(), request.getPrice(), request.getDescription());
+
+        video.updateCategory(categories);
     }
 
     @Transactional
     public Boolean changeCart(Long loginMemberId, Long videoId) {
-        return null;
+
+        //todo : testcase 작성
+
+        Video video = existVideo(videoId);
+
+        Member member = verifiedMember(loginMemberId);
+
+        //todo : createOrDeleteCart 구현
+        return createOrDeleteCart(member, video);
     }
 
     @Transactional
     public void deleteVideo(Long loginMemberId, Long videoId) {
-        return;
+
+        //todo : testcase 작성
+
+        Video video = verifedVideo(loginMemberId, videoId);
+
+        videoRepository.delete(video);
     }
 
     private List<Boolean> isPurchaseInOrder(Long loginMemberId, List<Video> content) {
@@ -94,5 +175,141 @@ public class VideoService {
                 .collect(Collectors.toList());
 
         return memberRepository.checkMemberSubscribeChannel(loginMemberId, memberIds);
+    }
+
+    private List<String[]> getThumbnailAndImageUrlsInOrder(List<Video> content) {
+
+        return content.stream()
+                .map(video -> {
+                    Member member = video.getChannel().getMember();
+                    String[] urls = new String[2];
+                    urls[0] = getThumbnailUrl(member.getMemberId(), video);
+                    urls[1] = getImageUrl(member);
+                    return urls;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private Map<String, String> getVideoUrls(Video video) {
+
+        Map<String, String> urls = new HashMap<>();
+
+        Member owner = video.getChannel().getMember();
+
+        urls.put("videoUrl", awsService.getVideoUrl(owner.getMemberId(), video.getVideoFile()));
+        urls.put("thumbnailUrl", getThumbnailUrl(owner.getMemberId(), video));
+        urls.put("imageUrl", getImageUrl(owner));
+
+        return urls;
+    }
+
+    private String getImageUrl(Member member) {
+        return awsService.getImageUrl(member.getImageFile());
+    }
+
+    private String getThumbnailUrl(Long memberId, Video video) {
+        return awsService.getThumbnailUrl(memberId, video.getThumbnailFile());
+    }
+
+    private Member verifiedMemberOrNull(Long loginMemberId) {
+        return memberRepository.findById(loginMemberId)
+                .orElse(null);
+    }
+
+    private Member verifiedMember(Long loginMemberId) {
+        return memberRepository.findById(loginMemberId).orElseThrow(MemberNotFoundException::new);
+    }
+
+    private Video existVideo(Long videoId) {
+        return videoRepository.findVideoDetail(videoId)
+                .orElseThrow(VideoNotFoundException::new);
+    }
+
+    private Video verifedVideo(Long memberId, Long videoId) {
+        Video video = videoRepository.findVideoDetail(videoId)
+                .orElseThrow(VideoNotFoundException::new);
+
+        if(video.getChannel().getMember().getMemberId() != memberId) {
+            throw new VideoAccessDeniedException();
+        }
+
+        return video;
+    }
+
+    private void watch(Member member, Video video) {
+
+        video.addView();
+        if(member == null) return;
+
+        getOrCreateWatch(member, video);
+    }
+
+    private void getOrCreateWatch(Member member, Video video) {
+        Watch watch = watchRepository.findByMemberAndVideo(member, video)
+                .orElseGet(() -> watchRepository.save(Watch.createWatch(member, video)));
+
+        watch.setLastWatchedTime(LocalDateTime.now());
+    }
+
+    private Map<String, Boolean> getIsPurchaseAndIsReplied(Member member, Long videoId) {
+
+        if(member == null) {
+            return Map.of("isPurchased", false, "isReplied", false);
+        }
+
+        Long loginMemberId = member.getMemberId();
+
+        List<Boolean> purchasedAndIsReplied = videoRepository.isPurchasedAndIsReplied(loginMemberId, videoId);
+
+        HashMap<String, Boolean> isPurchaseAndIsReplied = new HashMap<>();
+        isPurchaseAndIsReplied.put("isPurchased", purchasedAndIsReplied.get(0));
+        isPurchaseAndIsReplied.put("isReplied", purchasedAndIsReplied.get(1));
+
+        return isPurchaseAndIsReplied;
+    }
+
+    private Boolean isSubscribed(Member member, Video video) {
+
+        if(member == null) return false;
+
+        return memberRepository.checkMemberSubscribeChannel(
+                member.getMemberId(),
+                List.of(video.getChannel().getMember().getMemberId())).get(0);
+    }
+
+    private void checkFileName(Long memberId, String requestFileName) {
+
+        String savedFileName = redisService.getData(String.valueOf(memberId));
+
+        if(savedFileName == null) {
+            throw new VideoUploadNotRequestException();
+        }
+
+        if(!savedFileName.equals(requestFileName)) {
+            throw new VideoFileNameNotMatchException();
+        }
+
+        redisService.deleteData(String.valueOf(memberId));
+    }
+
+    private List<Category> verifiedCategories(List<String> categoryNames) {
+        List<Category> categories = categoryRepository.findByCategoryNameIn(categoryNames);
+
+        if(categories.size() != categoryNames.size()) {
+            throw new CategoryNotFoundException();
+        }
+
+        return categories;
+    }
+
+    private Boolean createOrDeleteCart(Member member, Video video) {
+
+        //todo : member, video 에 해당하는 cart 가 있는지 확인
+
+        //todo : cart 가 있으면 삭제하고 false 리턴
+
+        //todo : cart 가 없으면 생성하고 true 리턴
+
+        return null;
     }
 }

@@ -39,3 +39,4 @@ out/
 ### secret ###
 application-secret.yml
 prometheus.pem
+spy.log

@@ -1,5 +1,6 @@
 package com.server.domain.video.repository;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -8,6 +9,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.category.entity.QCategory;
 import com.server.domain.member.entity.QMember;
+import com.server.domain.reply.entity.QReply;
 import com.server.domain.video.entity.QVideo;
 import com.server.domain.video.entity.Video;
 import com.server.domain.videoCategory.entity.QVideoCategory;
@@ -21,7 +23,10 @@ import java.util.Optional;
 import static com.server.domain.category.entity.QCategory.*;
 import static com.server.domain.channel.entity.QChannel.channel;
 import static com.server.domain.member.entity.QMember.member;
+import static com.server.domain.order.entity.QOrder.order;
+import static com.server.domain.order.entity.QOrderVideo.orderVideo;
 import static com.server.domain.question.entity.QQuestion.question;
+import static com.server.domain.reply.entity.QReply.*;
 import static com.server.domain.subscribe.entity.QSubscribe.subscribe1;
 import static com.server.domain.video.entity.QVideo.video;
 import static com.server.domain.videoCategory.entity.QVideoCategory.*;
@@ -42,6 +47,20 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                         .selectFrom(video)
                         .join(video.channel, channel).fetchJoin()
                         .join(channel.member, member).fetchJoin()
+                        .where(video.videoId.eq(videoId))
+                        .fetchOne()
+        );
+    }
+
+    @Override
+    public Optional<Video> findVideoDetail(Long videoId) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(video)
+                        .join(video.channel, channel).fetchJoin()
+                        .join(channel.member, member).fetchJoin()
+                        .join(video.videoCategories, videoCategory).fetchJoin()
+                        .join(videoCategory.category, category).fetchJoin()
                         .where(video.videoId.eq(videoId))
                         .fetchOne()
         );
@@ -98,6 +117,30 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
         long totalCount = countQuery.fetchCount();
 
         return new PageImpl<>(query.fetch(), pageable, totalCount);
+    }
+
+    @Override
+    public List<Boolean> isPurchasedAndIsReplied(Long memberId, Long videoId) {
+
+        Tuple tuple = queryFactory.select(video.videoId, reply.replyId)
+                .from(member)
+                .join(member.orders, order)
+                .join(order.orderVideos, orderVideo)
+                .join(orderVideo.video, video)
+                .leftJoin(member.replies, reply).on(reply.video.videoId.eq(videoId))
+                .where(member.memberId.eq(memberId).and(video.videoId.eq(videoId))).fetchOne();
+
+        List<Boolean> results = new ArrayList<>();
+
+        if(tuple == null) {
+            results.add(false); // 구매 여부
+            results.add(false); // 댓글 여부
+        } else {
+            results.add(tuple.get(video.videoId) != null);
+            results.add(tuple.get(reply.replyId) != null);
+        }
+
+        return results;
     }
 
     private OrderSpecifier<?> getOrderSpecifier(String sort) {

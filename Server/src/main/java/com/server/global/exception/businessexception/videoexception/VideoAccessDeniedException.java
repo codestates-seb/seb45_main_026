@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class VideoAccessDeniedException extends OrderException {
+public class VideoAccessDeniedException extends VideoException {
 
     public static final String MESSAGE = "강의를 구매하지 않았습니다.";
     public static final String CODE = "VIDEO-403";

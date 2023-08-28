@@ -55,6 +55,7 @@ public abstract class RepositoryTest {
                 .build();
 
         em.persist(video);
+        em.flush();
 
         return video;
     }
