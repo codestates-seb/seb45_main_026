@@ -37,7 +37,7 @@ public class ChannelController {
         try{
             imageUrl = awsService.getImageUrl(channelInfo.getImageUrl());
         } catch (Exception e){
-            imageUrl = "...?";
+            imageUrl = "...?"; //여기도..
         }
 
         channelInfo.setImageUrl(imageUrl);
@@ -70,7 +70,7 @@ public class ChannelController {
     @GetMapping("/{member-id}/videos")
     public ResponseEntity<List<ChannelDto.ChannelVideoResponseDto>> getChannelVideos(
             @PathVariable("member-id") @LoginId Long memberId,
-            @PathVariable("logged-in-member-id") Long loggedInMemberId,
+            @PathVariable("logged-in-member-id") Long loggedInMemberId, // 이 부분..
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "sort", defaultValue = "createdAt") String sort,
             @RequestParam(value = "category", required = false) String category) {
