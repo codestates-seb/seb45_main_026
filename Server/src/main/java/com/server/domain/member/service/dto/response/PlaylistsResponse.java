@@ -7,13 +7,13 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class CartsResponse {
+public class PlaylistsResponse {
 	private Long videoId;
 	private String videoName;
-	private String thumbnailUrl;
-	private int views;
-	private LocalDateTime createdDate;
+	private String thumbnailFile;
+	private Float star;
 	private int price;
+	private LocalDateTime modifiedDate;
 	private Channel channel;
 
 	@Getter
@@ -21,7 +21,5 @@ public class CartsResponse {
 	public static class Channel {
 		private Long memberId;
 		private String channelName;
-		private int subscribes;
-		private String imageUrl;
 	}
 }
