@@ -17,7 +17,6 @@ import com.server.module.email.service.MailService;
 public class MemberService {
 
 	private final MemberRepository memberRepository;
-	private final
 	private final MailService mailService;
 	private final ChannelService channelService;
 	private final PasswordEncoder passwordEncoder;

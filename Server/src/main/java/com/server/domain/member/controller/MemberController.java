@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.server.domain.member.controller.dto.MemberApiRequest;
+import com.server.domain.member.entity.Grade;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.MemberService;
 import com.server.global.annotation.LoginId;
@@ -75,7 +76,7 @@ public class MemberController {
 													@RequestParam("page") int page,
 													@RequestParam("month") int month) {
 		memberService.getPays(memberId, page, month);
-
+		Grade.DIAMOND.getDescription();
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
