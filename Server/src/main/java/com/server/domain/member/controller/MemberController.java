@@ -60,6 +60,7 @@ public class MemberController {
 		return ResponseEntity.ok(ApiSingleResponse.ok(new Object(), "test"));
 	}
 
+	// 좋아요 기능은 구현하지 않을 예정
 	@GetMapping("/{member-id}/likes")
 	public ResponseEntity<ApiPageResponse> getLikes(@PathVariable("member-id") Long memberId,
 													@RequestParam("page") int page) {
@@ -76,12 +77,11 @@ public class MemberController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@GetMapping("/{member-id}/pays")
-	public ResponseEntity<ApiPageResponse> getPays(@PathVariable("member-id") Long memberId,
+	@GetMapping("/{member-id}/playlists")
+	public ResponseEntity<ApiPageResponse> getPlaylists(@PathVariable("member-id") Long memberId,
 													@RequestParam("page") int page,
-													@RequestParam("month") int month) {
-		memberService.getPays(memberId, page, month);
-		Grade.DIAMOND.getDescription();
+													@RequestParam("sort") String sort) {
+		memberService.getPlaylists(memberId, page, sort);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -95,7 +95,7 @@ public class MemberController {
 	}
 
 	@PatchMapping("/{member-id}")
-	public ResponseEntity<ApiSingleResponse> updateNickname(@PathVariable("member-id") Long memberId,
+	public ResponseEntity<Void> updateNickname(@PathVariable("member-id") Long memberId,
 														@RequestBody MemberApiRequest.Nickname request) {
 		memberService.updateNickname(request.toServiceRequest());
 		return ResponseEntity.noContent().build();

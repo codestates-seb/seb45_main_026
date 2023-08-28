@@ -53,7 +53,8 @@ public class Member extends BaseEntity {
 	private int reward;
 
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-	private List<Order> orders;
+	@Builder.Default
+	private List<Order> orders = new ArrayList<>();
 
 	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
 	private Channel channel;

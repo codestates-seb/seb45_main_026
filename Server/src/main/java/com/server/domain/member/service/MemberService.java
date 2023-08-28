@@ -63,7 +63,7 @@ public class MemberService {
 
 	}
 
-	public void getPays(Long memberId, int page, int month) {
+	public void getPlaylists(Long memberId, int page, String sort) {
 
 	}
 

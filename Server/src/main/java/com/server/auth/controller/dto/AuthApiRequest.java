@@ -85,6 +85,7 @@ public class AuthApiRequest {
 		private String code;
 	}
 
+	@Getter
 	public static class Reset {
 		@NotBlank
 		@Email
