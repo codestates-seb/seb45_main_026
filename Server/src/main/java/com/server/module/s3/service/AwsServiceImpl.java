@@ -5,6 +5,7 @@ import com.server.global.exception.businessexception.s3exception.S3FileNotVaildE
 import com.server.global.exception.businessexception.s3exception.S3KeyException;
 import com.server.module.s3.service.dto.ImageType;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
@@ -36,7 +37,9 @@ public class AwsServiceImpl implements AwsService {
     CloudFrontUtilities cloudFrontUtilities = CloudFrontUtilities.create();
     private final String CLOUDFRONT_URL = "http://d3ofjtp6m9wsg6.cloudfront.net/";
     private final String KEY_PAIR_ID = "K2LLBSJU34F9A";
-    private final String PRIVATE_KEY_PATH = "src/main/resources/prometheus.pem";
+
+    @Value("${pem.location}")
+    private  String PRIVATE_KEY_PATH;
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
