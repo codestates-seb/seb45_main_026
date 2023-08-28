@@ -4,6 +4,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
+import com.server.module.s3.service.dto.ImageType;
 
 import lombok.Getter;
 
@@ -22,7 +23,8 @@ public class MemberApiRequest {
 
 	@Getter
 	public static class Image {
-		private MultipartFile image;
+		private String imageName;
+		private ImageType imageType;
 	}
 
 	public static class Password {

@@ -3,10 +3,12 @@ package com.server.domain.member.controller;
 import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,15 +24,18 @@ import com.server.domain.member.service.MemberService;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
+import com.server.module.s3.service.AwsService;
 
 @RestController
 @RequestMapping("/members")
 public class MemberController {
 
 	private final MemberService memberService;
+	private final AwsService awsService;
 
-	public MemberController(MemberService memberService) {
+	public MemberController(MemberService memberService, AwsService awsService) {
 		this.memberService = memberService;
+		this.awsService = awsService;
 	}
 
 	@GetMapping("/{member-id}")
@@ -99,8 +104,13 @@ public class MemberController {
 	@PatchMapping("/{member-id}/image")
 	public ResponseEntity<ApiSingleResponse> updateImage(@PathVariable("member-id") Long memberId,
 		@RequestBody MemberApiRequest.Image request) {
-		memberService.updateImage(request.getImage());
-		return ResponseEntity.noContent().build();
+		// 주소 생성 및 파일명을 해당 멤버에 저장
+		memberService.updateImage(request.getImageName());
+		String presignedUrl = awsService.getUploadImageUrl(request.getImageName(), request.getImageType());
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Location", presignedUrl);
+
+		return ResponseEntity.ok().headers(headers).build();
 	}
 
 	@PatchMapping("/password")

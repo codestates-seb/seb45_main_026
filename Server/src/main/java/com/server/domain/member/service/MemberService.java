@@ -79,7 +79,7 @@ public class MemberService {
 
 	}
 
-	public void updateImage(MultipartFile image) {
+	public void updateImage(String imageName) {
 
 	}
 
