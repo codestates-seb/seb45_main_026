@@ -1,5 +1,7 @@
 package com.server.domain.member.controller;
 
+import java.time.LocalDateTime;
+
 import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
 
@@ -21,6 +23,7 @@ import com.server.domain.member.controller.dto.MemberApiRequest;
 import com.server.domain.member.entity.Grade;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.MemberService;
+import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -39,12 +42,12 @@ public class MemberController {
 	}
 
 	@GetMapping("/{member-id}")
-	public ResponseEntity<ApiSingleResponse> getMember(@PathVariable("member-id") Long memberId,
+	public ResponseEntity<ApiSingleResponse<ProfileResponse>> getMember(@PathVariable("member-id") Long memberId,
 														@LoginId Long loginId) {
 
-		memberService.getMember(memberId, loginId);
+		ProfileResponse profileResponse = memberService.getMember(memberId, loginId);
 
-		return ResponseEntity.ok(ApiSingleResponse.ok(new Object(), "test"));
+		return ResponseEntity.ok(ApiSingleResponse.ok(profileResponse, "프로필 조회 성공"));
 	}
 
 	@GetMapping("/{member-id}/rewards")
