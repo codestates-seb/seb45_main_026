@@ -17,13 +17,13 @@ public class VideoChannelResponse {
     private Boolean isSubscribed;
     private String imageUrl;
 
-    public static VideoChannelResponse of(Member member, boolean isSubscribed) {
+    public static VideoChannelResponse of(Channel channel, boolean isSubscribed, String imageUrl) {
         return VideoChannelResponse.builder()
-                .memberId(member.getMemberId())
-                .channelName(member.getChannel().getChannelName())
-                .subscribes(member.getChannel().getSubscribers())
+                .memberId(channel.getMember().getMemberId())
+                .channelName(channel.getChannelName())
+                .subscribes(channel.getSubscribers())
                 .isSubscribed(isSubscribed)
-                .imageUrl(member.getImageFile())
+                .imageUrl(imageUrl)
                 .build();
     }
 }

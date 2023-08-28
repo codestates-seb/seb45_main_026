@@ -4,7 +4,6 @@ import com.server.domain.video.entity.Video;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.aspectj.lang.annotation.Aspect;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
@@ -26,24 +25,26 @@ public class VideoPageResponse {
     private VideoChannelResponse channel;
     private LocalDateTime createdDate;
 
-    public static Page<VideoPageResponse> of(Page<Video> videos, List<Boolean> isPurchaseInOrder, List<Boolean> isSubscribeInOrder) {
+    public static Page<VideoPageResponse> of(Page<Video> videos, List<Boolean> isPurchaseInOrder, List<Boolean> isSubscribeInOrder, List<String[]> urlsInOrder) {
         return videos.map(video
                 -> of(video,
                 isPurchaseInOrder.get(videos.getContent().indexOf(video)),
-                isSubscribeInOrder.get(videos.getContent().indexOf(video))));
+                isSubscribeInOrder.get(videos.getContent().indexOf(video)),
+                urlsInOrder.get(videos.getContent().indexOf(video))
+        ));
     }
 
-    private static VideoPageResponse of(Video video, boolean isPurchased, boolean isSubscribed) {
+    private static VideoPageResponse of(Video video, boolean isPurchased, boolean isSubscribed, String[] urls) {
         return VideoPageResponse.builder()
                 .videoId(video.getVideoId())
                 .videoName(video.getVideoName())
-                .thumbnailUrl(video.getThumbnailFile())
+                .thumbnailUrl(urls[0])
                 .views(video.getView())
                 .price(video.getPrice())
                 .star(video.getStar())
                 .isPurchased(isPurchased)
                 .categories(VideoCategoryResponse.of(video.getVideoCategories()))
-                .channel(VideoChannelResponse.of(video.getChannel().getMember(), isSubscribed))
+                .channel(VideoChannelResponse.of(video.getChannel(), isSubscribed, urls[1]))
                 .createdDate(video.getCreatedDate())
                 .build();
     }

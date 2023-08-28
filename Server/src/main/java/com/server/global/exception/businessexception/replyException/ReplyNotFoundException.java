@@ -3,7 +3,7 @@ package com.server.global.exception.businessexception.replyException;
 import com.server.global.exception.businessexception.channelException.ChannelException;
 import org.springframework.http.HttpStatus;
 
-public class ReplyNotFoundException extends ChannelException {
+public class ReplyNotFoundException extends ReplyException {
     private static final String CODE = "REPLY-401";
     private static final String MESSAGE = "존재하지않는 댓글입니다.";
 

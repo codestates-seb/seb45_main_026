@@ -1,5 +1,6 @@
 package com.server.global.testhelper;
 
+import com.server.domain.answer.repository.AnswerRepository;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.entity.CategoryRepository;
 import com.server.domain.channel.entity.Channel;
@@ -9,15 +10,22 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.repository.OrderRepository;
+import com.server.domain.reply.entity.Reply;
+import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.subscribe.repository.SubscribeRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.videoCategory.entity.VideoCategoryRepository;
+import com.server.domain.watch.repository.WatchRepository;
+import com.server.module.redis.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Profile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -36,17 +44,12 @@ public abstract class ServiceTest {
     @Autowired protected VideoCategoryRepository videoCategoryRepository;
     @Autowired protected CategoryRepository categoryRepository;
     @Autowired protected SubscribeRepository subscribeRepository;
+    @Autowired protected AnswerRepository answerRepository;
+    @Autowired protected WatchRepository watchRepository;
+    @Autowired protected ReplyRepository replyRepository;
     @Autowired protected EntityManager em;
 
-    protected void flush(){
-        memberRepository.flush();
-        videoRepository.flush();
-        orderRepository.flush();
-        channelRepository.flush();
-        videoCategoryRepository.flush();
-        categoryRepository.flush();
-        subscribeRepository.flush();
-    }
+    @MockBean protected RedisService redisService;
 
     protected Member createAndSaveMember() {
         Member member = Member.builder()
@@ -84,7 +87,6 @@ public abstract class ServiceTest {
                 .build();
 
         videoRepository.save(video);
-        videoRepository.flush();
 
         return video;
     }
@@ -155,5 +157,16 @@ public abstract class ServiceTest {
         subscribeRepository.save(subscribe);
 
         return subscribe;
+    }
+
+    protected Reply createAndSaveReply(Member member, Video video) {
+        Reply reply = new Reply();
+        reply.setMember(member);
+        reply.setVideo(video);
+        reply.setContent("content");
+
+        replyRepository.save(reply);
+
+        return reply;
     }
 }
