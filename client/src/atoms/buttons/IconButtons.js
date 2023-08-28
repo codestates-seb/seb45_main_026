@@ -1,8 +1,8 @@
 import React from 'react';
 import { styled } from 'styled-components';
-import closeBlack from '../assets/images/icons/close/closeBlack.svg';
-import closeWihte from '../assets/images/icons/close/closeWhite.svg'
-import tokens from '../styles/tokens.json'
+import closeBlack from '../../assets/images/icons/close/closeBlack.svg';
+import closeWihte from '../../assets/images/icons/close/closeWhite.svg'
+import tokens from '../../styles/tokens.json'
 
 const globalTokens = tokens.global;
 
