@@ -22,6 +22,7 @@ public class VideoDetailResponse {
     private Integer price;
     private Integer reward;
     private Boolean isReplied;
+    private Boolean isPurchased;
     private List<VideoCategoryResponse> categories;
     private VideoChannelResponse channel;
     private LocalDateTime createdDate;

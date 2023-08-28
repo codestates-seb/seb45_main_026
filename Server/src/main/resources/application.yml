@@ -15,6 +15,9 @@ spring:
   jpa:
     database: h2
     database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
   mail:
     host: smtp.naver.com
     port: 465

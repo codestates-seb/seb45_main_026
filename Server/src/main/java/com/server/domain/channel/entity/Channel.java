@@ -33,7 +33,7 @@ public class Channel extends BaseEntity {
     private String imageUrl;
 
     @OneToMany(mappedBy = "channel")
-    private List<Subscribe> subscribeList = new ArrayList<>();
+    private List<Subscribe> subscribes = new ArrayList<>();
 
     private int subscribers;
 

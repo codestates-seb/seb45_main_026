@@ -7,6 +7,7 @@ import com.server.domain.channel.service.dto.ChannelDto;
 import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
+import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.PageInfo;
@@ -100,10 +101,10 @@ public class ChannelService {
         List<Video> videos = videoPage.getContent();
         for (Video video : videos) {
             List<String> categoryNames = new ArrayList<>();
-            List<Category> categories = video.getVideoCategories();
-            for (Category category : categories) {
-                categoryNames.add(category.getCategoryName());
-            }
+            List<VideoCategory> categories = video.getVideoCategories();
+//            for (Category category : categories) {
+//                categoryNames.add(category.getCategoryName());
+//            }
 
             ChannelDto.VideoResponse videoResponse = new ChannelDto.VideoResponse(
                     video.getVideoId(),

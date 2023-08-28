@@ -56,7 +56,7 @@ public abstract class ServiceTest {
                 .thumbnailFile("thumbnailFile")
                 .videoFile("videoFile")
                 .view(0)
-                .star(0)
+                .star(0.0F)
                 .price(1000)
                 .channel(channel)
                 .build();
@@ -73,7 +73,7 @@ public abstract class ServiceTest {
                 .thumbnailFile("thumbnailFile")
                 .videoFile("videoFile")
                 .view(0)
-                .star(0)
+                .star(0.0F)
                 .price(1000)
                 .channel(channel)
                 .build();

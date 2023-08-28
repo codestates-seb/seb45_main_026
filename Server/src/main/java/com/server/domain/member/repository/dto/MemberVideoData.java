@@ -25,7 +25,7 @@ public class MemberVideoData {
 
     private int view;
 
-    private int star;
+    private Float star;
 
     private int price;
 
@@ -38,7 +38,7 @@ public class MemberVideoData {
     private String channelName;
 
     @QueryProjection
-    public MemberVideoData(Long videoId, String orderId, String videoName, String description, String thumbnailFile, String videoFile, int view, int star, int price, OrderStatus orderStatus, LocalDateTime purchasedDate, Long channelId, String channelName) {
+    public MemberVideoData(Long videoId, String orderId, String videoName, String description, String thumbnailFile, String videoFile, int view, Float star, int price, OrderStatus orderStatus, LocalDateTime purchasedDate, Long channelId, String channelName) {
         this.videoId = videoId;
         this.orderId = orderId;
         this.videoName = videoName;
