@@ -11,6 +11,7 @@ import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.subscribe.entity.repository.SubscribeRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
+import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
@@ -143,9 +144,11 @@ public class ChannelService {
         List<ChannelDto.ChannelVideoResponseDto> videoResponses = new ArrayList<>();
         for (Video video : videoPage.getContent()) {
             List<String> categoryNames = new ArrayList<>();
-            for (Category category : video.getVideoCategories()) {
-                categoryNames.add(category.getCategoryName());
-            }
+            List<VideoCategory> categories = video.getVideoCategories();
+//            for (Category category : categories) {
+//                categoryNames.add(category.getCategoryName());
+//            }
+
 
             String imageUrl;
             try {

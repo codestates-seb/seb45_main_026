@@ -150,6 +150,7 @@ public class VideoStubAop {
 
             VideoChannelResponse channel = i % 2 == 0 ? channel1 : channel2;
             String videoThumbnailUrl = i % 2 == 0 ? videoThumbnailUrl1 : videoThumbnailUrl2;
+            boolean isPurchased = i % 2 == 0;
 
             VideoPageResponse video = VideoPageResponse.builder()
                     .videoId((long) i)
@@ -158,6 +159,7 @@ public class VideoStubAop {
                     .views(i * 100)
                     .price(i * 1000)
                     .star(4.5F)
+                    .isPurchased(isPurchased)
                     .categories(categories)
                     .channel(channel)
                     .createdDate(LocalDateTime.now())
@@ -206,6 +208,7 @@ public class VideoStubAop {
                 .price(1000)
                 .reward(10)
                 .isReplied(false)
+                .isPurchased(false)
                 .categories(categories)
                 .channel(channel)
                 .createdDate(LocalDateTime.now())
@@ -256,7 +259,4 @@ public class VideoStubAop {
 
         return ResponseEntity.noContent().build();
     }
-
-
-
 }

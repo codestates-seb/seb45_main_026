@@ -1,10 +1,13 @@
 package com.server.global.testhelper;
 
+import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
+import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
+import com.server.domain.videoCategory.entity.VideoCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
@@ -47,7 +50,41 @@ public abstract class RepositoryTest {
                 .videoFile("videoFile")
                 .channel(channel)
                 .view(0)
-                .star(0)
+                .star(0.0F)
+                .price(1000)
+                .build();
+
+        em.persist(video);
+
+        return video;
+    }
+
+    protected Video createAndSaveVideo(Channel channel, int view) {
+        Video video = Video.builder()
+                .videoName("title")
+                .description("description")
+                .thumbnailFile("thumbnailFile")
+                .videoFile("videoFile")
+                .channel(channel)
+                .view(view)
+                .star(0.0F)
+                .price(1000)
+                .build();
+
+        em.persist(video);
+
+        return video;
+    }
+
+    protected Video createAndSaveVideo(Channel channel, Float star) {
+        Video video = Video.builder()
+                .videoName("title")
+                .description("description")
+                .thumbnailFile("thumbnailFile")
+                .videoFile("videoFile")
+                .channel(channel)
+                .view(0)
+                .star(star)
                 .price(1000)
                 .build();
 
@@ -63,5 +100,44 @@ public abstract class RepositoryTest {
         em.persist(order);
 
         return order;
+    }
+
+    protected Order createAndSaveOrderComplete(Member member, List<Video> video) {
+
+        Order order = Order.createOrder(member, video, 500);
+        order.completeOrder();
+        em.persist(order);
+
+        return order;
+    }
+
+    protected Category createAndSaveCategory(String categoryName) {
+        Category category = Category.builder()
+                .categoryName(categoryName)
+                .build();
+
+        em.persist(category);
+
+        return category;
+    }
+
+    protected VideoCategory createAndSaveVideoCategory(Video video, Category category) {
+        VideoCategory videoCategory = VideoCategory.builder()
+                .video(video)
+                .category(category)
+                .build();
+
+        em.persist(videoCategory);
+
+        return videoCategory;
+    }
+
+    protected void createAndSaveSubscribe(Member member, Channel channel) {
+        Subscribe subscribe = Subscribe.builder()
+                .member(member)
+                .channel(channel)
+                .build();
+
+        em.persist(subscribe);
     }
 }

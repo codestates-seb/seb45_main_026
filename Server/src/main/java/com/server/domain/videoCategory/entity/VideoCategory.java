@@ -4,11 +4,14 @@ package com.server.domain.videoCategory.entity;
 import com.server.domain.category.entity.Category;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
-import lombok.Getter;
+import lombok.*;
 
 import javax.persistence.*;
 @Getter
 @Entity
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class VideoCategory extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id

@@ -6,6 +6,7 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
+import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.entity.BaseEntity;
 import lombok.*;
@@ -44,7 +45,7 @@ public class Video extends BaseEntity {
     private int view;
 
     @Column(nullable = false)
-    private int star;
+    private Float star;
 
     @Column(nullable = false)
     private int price;
@@ -65,11 +66,20 @@ public class Video extends BaseEntity {
     @OneToMany(mappedBy = "video")
     private List<Question> questions = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "videoCategories")
-    private List<Category> videoCategories = new ArrayList<>();
+    @OneToMany(mappedBy = "video")
+    private List<VideoCategory> videoCategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "video")
     private List<OrderVideo> orderVideos = new ArrayList<>();
+
+    public void addView(){
+        this.view++;
+    }
+
+    public void caculateStar(){
+        double average = this.replies.stream().mapToDouble(Reply::getStar).average().orElse(0);
+        float roundedValue = (float) (Math.round(average * 10.0) / 10.0);
+    }
 
 
 
