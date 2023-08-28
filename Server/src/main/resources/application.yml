@@ -62,3 +62,15 @@ decorator:
   datasource:
     p6spy:
       enable-logging: true
+
+pem:
+  location: src/main/resources/prometheus.pem
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+pem:
+  location: /prometheus.pem
