@@ -84,6 +84,7 @@ public abstract class ServiceTest {
                 .build();
 
         videoRepository.save(video);
+        videoRepository.flush();
 
         return video;
     }
