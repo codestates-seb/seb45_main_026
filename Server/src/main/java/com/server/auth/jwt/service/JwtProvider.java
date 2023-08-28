@@ -48,7 +48,6 @@ public class JwtProvider {
 		secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(key));
 	}
 
-	// 액세스 토큰 생성
 	public String createAccessToken(Authentication authentication, Long tokenExpireTime) {
 
 		return Jwts.builder()
@@ -60,7 +59,6 @@ public class JwtProvider {
 			.compact();
 	}
 
-	// 리프래쉬 토큰 생성
 	public String createRefreshToken(Authentication authentication, long tokenExpireTime){
 
 		return Jwts.builder()
@@ -71,7 +69,6 @@ public class JwtProvider {
 			.compact();
 	}
 
-	// 리프래쉬 토큰으로 액세스 토큰 리필
 	public String refillAccessToken(String refreshToken, long tokenExpireTime) {
 		Claims claims = getClaims(refreshToken);
 		String username = claims.getSubject();

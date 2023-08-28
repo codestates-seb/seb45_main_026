@@ -25,7 +25,6 @@ import com.server.auth.jwt.service.JwtProvider;
 
 import lombok.SneakyThrows;
 
-// 아이디와 패스워드로 액세스 토큰과 리프래시 토큰을 생성하는 필터
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	private final JwtProvider jwtProvider;

@@ -26,7 +26,6 @@ import com.server.global.exception.businessexception.BusinessException;
 
 import io.jsonwebtoken.Claims;
 
-// 토큰을 검증하는 필터 (인증과 리프래시 필터 뒤에 있어야 함)
 public class JwtVerificationFilter extends OncePerRequestFilter {
 	private final JwtProvider jwtProvider;
 

@@ -26,7 +26,7 @@ public enum OAuthProvider implements BaseEnum {
 			.build();
 	});
 
-	private final String registrationId; // 서비스 제공자
+	private final String registrationId;
 	private final Function<Map<String, Object>, MemberProfile> of;
 
 	OAuthProvider(String registrationId, Function<Map<String, Object>, MemberProfile> of) {
@@ -35,11 +35,11 @@ public enum OAuthProvider implements BaseEnum {
 	}
 
 	public static MemberProfile extract(String registrationId, Map<String, Object> attributes) {
-		return Arrays.stream(values()) // 모든 enum을 스트림을 열고
-			.filter(provider -> registrationId.equals(provider.registrationId)) // 전달 받은 제공자와 일치하는 것만 선택
+		return Arrays.stream(values())
+			.filter(provider -> registrationId.equals(provider.registrationId))
 			.findFirst()
-			.orElseThrow(IllegalArgumentException::new) // 일치하지 않으면 예외 던지기 (구글 카카오 깃헙 로그인이 아닌 경우)
-			.of.apply(attributes); // of 생성자로 멤버프로필 생성
+			.orElseThrow(IllegalArgumentException::new)
+			.of.apply(attributes);
 	}
 
 	@Override
