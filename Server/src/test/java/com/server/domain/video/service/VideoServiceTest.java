@@ -92,7 +92,7 @@ class VideoServiceTest extends ServiceTest {
                     //구매 여부
                     videos.getContent().forEach(
                             video -> {
-                                if(List.of(1L, 5L).contains(video.getVideoId())){
+                                if(List.of(video1.getVideoId(), video5.getVideoId()).contains(video.getVideoId())){
                                     assertThat(video.getIsPurchased()).isTrue();
                                 }else{
                                     assertThat(video.getIsPurchased()).isFalse();
@@ -103,7 +103,8 @@ class VideoServiceTest extends ServiceTest {
                     //비디오가 속한 채널의 구독 여부
                     videos.getContent().forEach(
                             video -> {
-                                if(List.of(1L, 2L, 3L, 4L).contains(video.getVideoId())){
+                                if(List.of(video1.getVideoId(), video2.getVideoId(), video3.getVideoId(), video4.getVideoId())
+                                        .contains(video.getVideoId())){
                                     assertThat(video.getChannel().getIsSubscribed()).isTrue();
                                 }else{
                                     assertThat(video.getChannel().getIsSubscribed()).isFalse();
@@ -114,9 +115,11 @@ class VideoServiceTest extends ServiceTest {
                     //카테고리가 잘 있는지
                     videos.getContent().forEach(
                             video -> {
-                                if(List.of(2L, 4L, 6L).contains(video.getVideoId())){
+                                if(List.of(video2.getVideoId(), video4.getVideoId(), video6.getVideoId())
+                                        .contains(video.getVideoId())){
                                     assertThat(video.getCategories().get(0).getCategoryName()).isEqualTo(category1.getCategoryName());
-                                }else if(List.of(3L, 5L).contains(video.getVideoId())){
+                                }else if(List.of(video3.getVideoId(), video5.getVideoId())
+                                        .contains(video.getVideoId())){
                                     assertThat(video.getCategories().get(0).getCategoryName()).isEqualTo(category2.getCategoryName());
                                 }else {
                                     assertThat(video.getCategories().get(0).getCategoryName()).isEqualTo(category1.getCategoryName());
