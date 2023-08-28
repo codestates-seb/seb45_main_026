@@ -1,4 +1,5 @@
-import { BigNavyButton, BigRedButton, PositiveTextButton, NegativeTextButton, RegularNavyButton, RegularRedButton, RegularRedTextButton, RoundNavyButton, RoundRedButton, TextButton } from "./Buttons";
+import { BigNavyButton, BigRedButton, PositiveTextButton, NegativeTextButton, RegularNavyButton, RegularRedButton, RoundNavyButton, RoundRedButton, TextButton } from "./Buttons";
+import { CloseIconButton } from "./IconButtons";
 
 const Buttons = ({isDark}) => {
     return (
@@ -12,6 +13,7 @@ const Buttons = ({isDark}) => {
             <TextButton isDark={isDark}>Text Button</TextButton>
             <PositiveTextButton isDark={isDark}>Positive Text Button</PositiveTextButton>
             <NegativeTextButton isDark={isDark}>Negative Text Button</NegativeTextButton>
+            <CloseIconButton  isDark={isDark}/>
         </div>
     );
 }
