@@ -9,6 +9,7 @@ import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
+import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.module.email.service.MailService;
 
@@ -41,8 +42,8 @@ public class MemberService {
 		channelService.createChannel(signMember);
 	}
 
-	public Member getMember(Long memberId, Long loginId) {
-		return new Member();
+	public ProfileResponse getMember(Long memberId, Long loginId) {
+		return ProfileResponse.builder().build();
 	}
 
 	public void getRewards(Long memberId) {

@@ -23,6 +23,11 @@ public class LoginIdConfigure implements HandlerMethodArgumentResolver {
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 		NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
+		// 테스트 시 등록된 회원이 아무도 없을 경우 널포인터 예외 방지를 위해 추가
+		if(SecurityContextHolder.getContext().getAuthentication() == null) {
+			return -1L;
+		}
+
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 		if (principal == "anonymousUser") {
