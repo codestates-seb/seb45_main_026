@@ -35,12 +35,10 @@ const HeaderLogo = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
 
     const onLongPress = () => {
-        console.log('longpress is triggered');
         dispatch(setIsDark(!isDark));
     };
 
     const onClick = () => {
-        console.log('click is triggered');
         navigate('/');
     }
 
