@@ -9,11 +9,12 @@ export const PageContainer = styled.div`
     width: 100vw;
     display: flex;
     flex-direction: row;
+    justify-content: center;
     transition: 300ms;
 `
 export const MainContainer = styled.main`
     width: 100%;
-    max-width: 1100px;
+    max-width: 1170px;
     display: flex;
     flex-direction: column;
     justify-content: start;
