@@ -6,10 +6,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.module.s3.service.dto.ImageType;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 public class MemberApiRequest {
 
+	@Getter
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class Nickname {
 		@NotBlank
 		private String nickname;
@@ -22,11 +27,16 @@ public class MemberApiRequest {
 	}
 
 	@Getter
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class Image {
 		private String imageName;
 		private ImageType imageType;
 	}
 
+	@Getter
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class Password {
 		@NotBlank
 		private String prevPassword;

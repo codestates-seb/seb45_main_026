@@ -11,9 +11,12 @@ import com.server.module.email.service.dto.MailServiceRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 public class AuthApiRequest {
 	@Getter
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class Send {
 		@NotBlank
 		private String email;
@@ -26,6 +29,8 @@ public class AuthApiRequest {
 	}
 
 	@Getter
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class Confirm {
 		@NotBlank
 		private String email;
@@ -42,6 +47,8 @@ public class AuthApiRequest {
 	}
 
 	@Getter
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class SignUp {
 		@NotBlank
 		@Email(message = "이메일 양식을 확인하세요.")
@@ -80,12 +87,17 @@ public class AuthApiRequest {
 	}
 
 	@Getter
+	@Setter
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class OAuth {
 		private OAuthProvider provider;
 		private String code;
 	}
 
 	@Getter
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class Reset {
 		@NotBlank
 		@Email

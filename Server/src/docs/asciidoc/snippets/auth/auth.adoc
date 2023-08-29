@@ -1,0 +1,34 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Member]]
+= 인증 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 로컬 로그인
+=== HTTP Request
+include::{snippets}/auth/login/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/login/request-body.adoc[]
+=== HTTP Response
+include::{snippets}/auth/login/http-response.adoc[]
+=== Response Header
+include::{snippets}/auth/login/response-headers.adoc[]
+==== Response Body
+include::{snippets}/auth/login/response-body.adoc[]
+
+== OAuth2 로그인
+=== HTTP Request
+include::{snippets}/auth/oauth/http-request.adoc[]
+==== Request Path Parameter
+include::{snippets}/auth/oauth/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/auth/oauth/http-response.adoc[]
+=== Response Header
+include::{snippets}/auth/oauth/response-headers.adoc[]

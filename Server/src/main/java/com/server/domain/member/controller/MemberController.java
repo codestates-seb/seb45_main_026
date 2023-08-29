@@ -80,6 +80,14 @@ public class MemberController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
+	@GetMapping("/{member-id}/orders")
+	public ResponseEntity<ApiPageResponse> getOrders(@PathVariable("member-id") Long memberId,
+													@RequestParam("page") int page,
+													@RequestParam("month") int month) {
+
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
 	@GetMapping("/{member-id}/playlists")
 	public ResponseEntity<ApiPageResponse> getPlaylists(@PathVariable("member-id") Long memberId,
 													@RequestParam("page") int page,
