@@ -9,6 +9,7 @@ export const PageContainer = styled.div`
     width: 100vw;
     display: flex;
     flex-direction: row;
+    transition: 300ms;
 `
 export const MainContainer = styled.main`
     width: 100%;
