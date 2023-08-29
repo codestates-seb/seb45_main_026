@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { styled } from 'styled-components';
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsDark } from '../../redux/createSlice/UISettingSlice'
 import { BodyTextTypo } from '../../atoms/typographys/Typographys';
 import logo from '../../assets/images/logos/logo.png'
+import lightLogo from  '../../assets/images/logos/lightLogo.png'
 import tokens from '../../styles/tokens.json'
 import { useLongPress } from '../../hooks/useLongPress';
 
@@ -27,6 +28,7 @@ export const HeaderLogoTitle = styled(BodyTextTypo)`
 `
 export const HeaderLogoImg = styled.img`
     width: 50px;
+    transition: 300ms;
 `
 
 const HeaderLogo = () => {
@@ -52,7 +54,7 @@ const HeaderLogo = () => {
     return (
         <HeaderLogoContainer {...longPressEvent}>
             <HeaderLogoTitle isDark={isDark}>IT Prometheus</HeaderLogoTitle>
-            <HeaderLogoImg src={logo}/>
+            <HeaderLogoImg src={isDark?lightLogo:logo}/>
         </HeaderLogoContainer>
     );
 };

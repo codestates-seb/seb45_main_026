@@ -13,7 +13,12 @@ export const HeaderContainer = styled.header`
     display: flex;
     flex-direction: row;
     align-items: center;
-    box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.15);
+    box-shadow: 
+        ${(props)=>props.isDark ? globalTokens.RegularWhiteShadow.value.x : globalTokens.RegularShadow.value.x}px 
+        ${(props)=>props.isDark ? globalTokens.RegularWhiteShadow.value.y : globalTokens.RegularShadow.value.y}px 
+        ${(props)=>props.isDark ? globalTokens.RegularWhiteShadow.value.blur : globalTokens.RegularShadow.value.blur}px 
+        ${(props)=>props.isDark ? globalTokens.RegularWhiteShadow.value.spread : globalTokens.RegularShadow.value.spread}px 
+        ${(props)=>props.isDark ? globalTokens.RegularWhiteShadow.value.color : globalTokens.RegularShadow.value.color };
     transition: 300ms;
 `
 
