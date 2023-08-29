@@ -37,7 +37,7 @@ public class ChannelStubAop {
         int page = (int) args[1];
         int size = (int) args[2];
 
-        PageRequest pageRequest = PageRequest.of(page, size);
+        PageRequest pageRequest = PageRequest.of(page - 1, size);
 
         AnnouncementResponse response1 = AnnouncementResponse.builder()
                 .announcementId(3L)
