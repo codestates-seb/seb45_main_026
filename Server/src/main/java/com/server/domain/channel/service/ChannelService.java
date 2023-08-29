@@ -190,12 +190,14 @@ public class ChannelService {
     }
 
     private boolean isSubscribed(Member member, Channel channel){
-        Subscribe subscribe = subscribeRepository.findByMemberAndChannel(member, channel);
+        Subscribe subscribe =
+                subscribeRepository.findByMemberAndChannel(member, channel).orElse(null);
         return subscribe != null;
     }
 
     private void unsubscribe(Member member, Channel channel){
-        Subscribe subscribe = subscribeRepository.findByMemberAndChannel(member, channel);
+        Subscribe subscribe =
+                subscribeRepository.findByMemberAndChannel(member, channel).orElse(null);
         if(subscribe != null){
             subscribeRepository.delete(subscribe);
         }
