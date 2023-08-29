@@ -30,12 +30,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class AwsServiceImpl implements AwsService {
 
     private static final String IMAGE_PATH = "images/";
-    private static final String THUMBNAIL_PATH = "thumbnails/";
     private static final String VIDEO_TYPE = "video/mp4";
-    private static final String BUCKET_NAME = "itprometheus-videos";
+    private static final String VIDEO_BUCKET_NAME = "itprometheus-videos";
+    private static final String IMAGE_BUCKET_NAME = "itprometheus-images";
 
     CloudFrontUtilities cloudFrontUtilities = CloudFrontUtilities.create();
-    private final String CLOUDFRONT_URL = "http://d3ofjtp6m9wsg6.cloudfront.net/";
+    private final String VIDEO_CLOUDFRONT_URL = "https://d3ofjtp6m9wsg6.cloudfront.net/";
+    private final String IMAGE_CLOUDFRONT_URL = "https://d2ouhv9pc4idoe.cloudfront.net/";
+
     private final String KEY_PAIR_ID = "K2LLBSJU34F9A";
 
     @Value("${pem.location}")
@@ -58,11 +60,7 @@ public class AwsServiceImpl implements AwsService {
 
         checkValidFile(fileName);
 
-        Instant tenSecondsLater = getInstantDuration(60);
-
-        SignedUrl signedUrlWithCustomPolicy = getFileUrl(IMAGE_PATH + fileName, tenSecondsLater);
-
-        return URLDecoder.decode(signedUrlWithCustomPolicy.url(), UTF_8);
+        return getPublicImageUrl(IMAGE_PATH + fileName);
     }
 
 
@@ -73,7 +71,7 @@ public class AwsServiceImpl implements AwsService {
 
         Duration duration = Duration.ofMinutes(10);
 
-        URL presignedPutObjectUrl = getPresignedPutObjectUrl(
+        URL presignedPutObjectUrl = getPresignedPutImageObjectUrl(
                         IMAGE_PATH + fileName,
                         imageType.getDescription(),
                         duration);
@@ -86,7 +84,7 @@ public class AwsServiceImpl implements AwsService {
 
         checkValidFile(fileName);
 
-        deleteFile(IMAGE_PATH + fileName);
+        deleteImageFile(IMAGE_PATH + fileName);
     }
 
     @Override
@@ -95,13 +93,7 @@ public class AwsServiceImpl implements AwsService {
 
         checkValidFile(fileName);
 
-        Instant tenSecondsLater = getInstantDuration(60);
-
-        String location = memberId + "/" + THUMBNAIL_PATH + fileName;
-
-        SignedUrl signedUrlWithCustomPolicy = getFileUrl(location, tenSecondsLater);
-
-        return URLDecoder.decode(signedUrlWithCustomPolicy.url(), UTF_8);
+        return getPublicImageUrl(memberId + "/" + fileName);
     }
 
     @Override
@@ -111,9 +103,9 @@ public class AwsServiceImpl implements AwsService {
 
         Duration duration = Duration.ofMinutes(10);
 
-        String location = memberId + "/" + THUMBNAIL_PATH + fileName;
+        String location = memberId + "/" + fileName;
 
-        URL presignedPutObjectUrl = getPresignedPutObjectUrl(
+        URL presignedPutObjectUrl = getPresignedPutImageObjectUrl(
                 location,
                 imageType.getDescription(),
                 duration);
@@ -126,7 +118,7 @@ public class AwsServiceImpl implements AwsService {
 
         checkValidFile(fileName);
 
-        deleteFile(memberId + "/" + THUMBNAIL_PATH + fileName);
+        deleteImageFile(memberId + "/" + fileName);
     }
 
     @Override
@@ -149,7 +141,7 @@ public class AwsServiceImpl implements AwsService {
 
         Duration duration = Duration.ofMinutes(10);
 
-        URL presignedPutObjectUrl = getPresignedPutObjectUrl(
+        URL presignedPutObjectUrl = getPresignedPutVideoObjectUrl(
                 memberId + "/" + fileName,
                 VIDEO_TYPE,
                 duration);
@@ -162,7 +154,7 @@ public class AwsServiceImpl implements AwsService {
 
         checkValidFile(fileName);
 
-        deleteFile(memberId + "/" + fileName);
+        deleteVideoFile(memberId + "/" + fileName);
     }
 
     private void checkValidFile(String fileName) {
@@ -180,7 +172,7 @@ public class AwsServiceImpl implements AwsService {
         CustomSignerRequest customSignerRequest = null;
         try {
             customSignerRequest = CustomSignerRequest.builder()
-                    .resourceUrl(CLOUDFRONT_URL + location)
+                    .resourceUrl(VIDEO_CLOUDFRONT_URL + location)
                     .expirationDate(tenSecondsLater)
                     .keyPairId(KEY_PAIR_ID)
                     .privateKey(Path.of(PRIVATE_KEY_PATH))
@@ -192,9 +184,13 @@ public class AwsServiceImpl implements AwsService {
         return cloudFrontUtilities.getSignedUrlWithCustomPolicy(customSignerRequest);
     }
 
-    private URL getPresignedPutObjectUrl(String fileName, String contentType, Duration duration) {
+    private String getPublicImageUrl(String filePath){
+        return IMAGE_CLOUDFRONT_URL + filePath;
+    }
+
+    private URL getPresignedPutVideoObjectUrl(String fileName, String contentType, Duration duration) {
         PutObjectRequest objectRequest = PutObjectRequest.builder()
-                .bucket(BUCKET_NAME)
+                .bucket(VIDEO_BUCKET_NAME)
                 .key(fileName)
                 .contentType(contentType)
                 .build();
@@ -207,9 +203,24 @@ public class AwsServiceImpl implements AwsService {
         return s3Presigner.presignPutObject(presignRequest).url();
     }
 
-    private void deleteFile(String location) {
+    private URL getPresignedPutImageObjectUrl(String fileName, String contentType, Duration duration) {
+        PutObjectRequest objectRequest = PutObjectRequest.builder()
+                .bucket(IMAGE_BUCKET_NAME)
+                .key(fileName)
+                .contentType(contentType)
+                .build();
+
+        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                .signatureDuration(duration)
+                .putObjectRequest(objectRequest)
+                .build();
+
+        return s3Presigner.presignPutObject(presignRequest).url();
+    }
+
+    private void deleteVideoFile(String location) {
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                .bucket(BUCKET_NAME)
+                .bucket(VIDEO_BUCKET_NAME)
                 .key(location)
                 .build();
 
@@ -217,6 +228,19 @@ public class AwsServiceImpl implements AwsService {
 
         check204Response(deleteObjectResponse);
     }
+
+    private void deleteImageFile(String location) {
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(IMAGE_BUCKET_NAME)
+                .key(location)
+                .build();
+
+        DeleteObjectResponse deleteObjectResponse = s3Client.deleteObject(deleteObjectRequest);
+
+        check204Response(deleteObjectResponse);
+    }
+
+
 
     private void check204Response(DeleteObjectResponse deleteObjectResponse) {
         if (deleteObjectResponse.sdkHttpResponse().statusCode() != 204) {
