@@ -10,6 +10,7 @@ export const PageContainer = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: center;
+    transition: 300ms;
 `
 export const MainContainer = styled.main`
     width: 100%;
