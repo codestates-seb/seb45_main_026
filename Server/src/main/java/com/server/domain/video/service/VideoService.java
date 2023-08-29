@@ -1,5 +1,7 @@
 package com.server.domain.video.service;
 
+import com.server.domain.cart.entity.Cart;
+import com.server.domain.cart.repository.CartRepository;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.entity.CategoryRepository;
 import com.server.domain.member.entity.Member;
@@ -42,16 +44,18 @@ public class VideoService {
     private final MemberRepository memberRepository;
     private final WatchRepository watchRepository;
     private final CategoryRepository categoryRepository;
+    private final CartRepository cartRepository;
     private final AwsService awsService;
     private final RedisService redisService;
 
     public VideoService(VideoRepository videoRepository, MemberRepository memberRepository,
                         WatchRepository watchRepository, CategoryRepository categoryRepository,
-                        AwsService awsService, RedisService redisService) {
+                        CartRepository cartRepository, AwsService awsService, RedisService redisService) {
         this.videoRepository = videoRepository;
         this.memberRepository = memberRepository;
         this.watchRepository = watchRepository;
         this.categoryRepository = categoryRepository;
+        this.cartRepository = cartRepository;
         this.awsService = awsService;
         this.redisService = redisService;
     }
@@ -119,8 +123,6 @@ public class VideoService {
     @Transactional
     public void updateVideo(Long loginMemberId, VideoUpdateServiceRequest request) {
 
-        //todo : testcase 작성
-
         Video video = verifedVideo(loginMemberId, request.getVideoId());
 
         List<Category> categories = verifiedCategories(request.getCategories());
@@ -133,20 +135,15 @@ public class VideoService {
     @Transactional
     public Boolean changeCart(Long loginMemberId, Long videoId) {
 
-        //todo : testcase 작성
-
         Video video = existVideo(videoId);
 
         Member member = verifiedMember(loginMemberId);
 
-        //todo : createOrDeleteCart 구현
         return createOrDeleteCart(member, video);
     }
 
     @Transactional
     public void deleteVideo(Long loginMemberId, Long videoId) {
-
-        //todo : testcase 작성
 
         Video video = verifedVideo(loginMemberId, videoId);
 
@@ -229,7 +226,7 @@ public class VideoService {
         Video video = videoRepository.findVideoDetail(videoId)
                 .orElseThrow(VideoNotFoundException::new);
 
-        if(video.getChannel().getMember().getMemberId() != memberId) {
+        if(!video.getChannel().getMember().getMemberId().equals(memberId)) {
             throw new VideoAccessDeniedException();
         }
 
@@ -304,12 +301,18 @@ public class VideoService {
 
     private Boolean createOrDeleteCart(Member member, Video video) {
 
-        //todo : member, video 에 해당하는 cart 가 있는지 확인
+        Cart cart = cartRepository.findByMemberAndVideo(member, video).orElse(null);
 
-        //todo : cart 가 있으면 삭제하고 false 리턴
+        return cart == null ? createCart(member, video) : deleteCart(cart);
+    }
 
-        //todo : cart 가 없으면 생성하고 true 리턴
+    private boolean deleteCart(Cart cart) {
+        cartRepository.delete(cart);
+        return false;
+    }
 
-        return null;
+    private boolean createCart(Member member, Video video) {
+        cartRepository.save(Cart.createCart(member, video, video.getPrice()));
+        return true;
     }
 }
