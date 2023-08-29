@@ -1,5 +1,7 @@
 package com.server.domain.channel.controller;
 
+import com.server.domain.announcement.service.AnnouncementService;
+import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
 import com.server.domain.channel.service.ChannelService;
 import com.server.domain.channel.service.dto.ChannelDto;
 import com.server.domain.member.entity.Member;
@@ -10,22 +12,25 @@ import com.server.global.reponse.ApiSingleResponse;
 import com.server.module.s3.service.AwsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 
 @RestController
 @RequestMapping("/channels")
+@Validated
 public class ChannelController {
     private final ChannelService channelService;
     private final AwsService awsService;
+    private final AnnouncementService announcementService;
 
-    public ChannelController(ChannelService channelService, AwsService awsService){
+    public ChannelController(ChannelService channelService, AwsService awsService, AnnouncementService announcementService){
         this.channelService = channelService;
         this.awsService = awsService;
+        this.announcementService = announcementService;
     }
 
     @GetMapping("/{member-id}")
@@ -82,5 +87,26 @@ public class ChannelController {
         List<ChannelDto.ChannelVideoResponseDto> videoResponses = channelService.getChannelVideos(loggedInMemberId, memberId, page, sort);
 
         return ResponseEntity.ok(videoResponses);
+    }
+
+    @PostMapping("/{member-id}/announcements")
+    public ResponseEntity<ApiSingleResponse<Void>> createAnnouncement(
+            @PathVariable("member-id") @Positive Long memberId,
+            @LoginId Long loginMemberId
+    ) {
+
+
+        return null;
+    }
+
+    @GetMapping("/{member-id}/announcements")
+    public ResponseEntity<ApiPageResponse<AnnouncementResponse>> getAnnouncements(
+            @PathVariable("member-id") @Positive Long memberId,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+
+
+        return null;
     }
 }

@@ -1,5 +1,6 @@
 package com.server.domain.channel.entity;
 
+import com.server.domain.announcement.entity.Announcement;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.member.entity.Member;
 import com.server.global.entity.BaseEntity;
@@ -43,6 +44,9 @@ public class Channel extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL)
+    private List<Announcement> announcements = new ArrayList<>();
 
     public static Channel createChannel(String memberNickname) {
         return Channel.builder()

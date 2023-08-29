@@ -71,6 +71,14 @@ spring:
   config:
     activate:
       on-profile: prod
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://sixman-rds.c2bhjqsi4ogs.ap-northeast-2.rds.amazonaws.com/sixmandb?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
 
 pem:
   location: /prometheus.pem
