@@ -1,0 +1,8 @@
+.+/members/{member-id}+
+|===
+|파라미터|설명
+
+|`+member-id+`
+|조회할 회원의 ID
+
+|===

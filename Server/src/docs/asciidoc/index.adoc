@@ -1,0 +1,37 @@
+= Prometheus API Document
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+include::overview.adoc[]
+
+[[API-List]]
+== APIs
+
+// === Overview
+// * link:/overview.html[개요, onclick="window.location.href='overview.html'"]
+
+=== Auth API
+
+=== Member API
+* link:snippets/member/getmember.html[프로필 조회, onclick="window.location.href='snippets/member/getmember.html'"]
+
+=== Channel API
+
+=== Order API
+
+=== Video API
+
+=== Reply API
+
+=== Question API
+
+=== Answer API
+
+
+
+
