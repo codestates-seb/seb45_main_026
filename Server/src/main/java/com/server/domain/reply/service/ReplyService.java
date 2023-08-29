@@ -31,13 +31,13 @@ public class ReplyService {
         int replyList = 10;
 
         Pageable pageable = PageRequest.of(page, replyList, sort);
-        Page<Reply> replyPage = replyRepository.findReplyBy(new Reply(), pageable);
+        Page<Reply> replyPage = replyRepository.findReplyBy(new Reply(), pageable); //수정
 
-        return ApiPageResponse.ok(replyPage);
+        return ApiPageResponse.ok(replyPage); //컨트롤러에서 .replyResponse 생성해서 반환하기
     }
 
 
-    public Reply createReply(Long memberId, Long loginMemberId, ReplyDto replyDto) {
+    public Reply createReply(Long memberId, Long loginMemberId, ReplyDto replyDto) { //videoId 받기, 구한 사용자만 댓글 남길 수 잇음, memberRepository, reply 중복 확인, 비디오 존재여부 확인
         if(memberId.equals(loginMemberId)) {
             Member member = memberRepository.findById(replyDto.getMemberId())
                     .orElseThrow(MemberNotFoundException::new);
@@ -48,11 +48,11 @@ public class ReplyService {
             reply.setMember(member);
             return replyRepository.save(reply);
 
-        } else throw new MemberAccessDeniedException();
+        } else throw new MemberAccessDeniedException(); //setter 수정
     }
 
 
-    public Reply updateReply(Long replyId, ReplyDto replyDto) {
+    public Reply updateReply(Long replyId, ReplyDto replyDto) { //member 수정 권한 확인,
         Reply reply = replyRepository.findById(replyId)
                 .orElseThrow(ReplyNotFoundException::new);
 
@@ -62,7 +62,7 @@ public class ReplyService {
         return replyRepository.save(reply);
     }
 
-    public void deleteReply(Long replyId) {
+    public void deleteReply(Long replyId) { //작성자만 삭제 할 수 잇음
         Reply reply = replyRepository.findById(replyId)
                 .orElseThrow(ReplyNotFoundException::new);
 
