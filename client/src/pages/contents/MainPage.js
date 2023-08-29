@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLocation } from '../../redux/createSlice/UISettingSlice';
-import { MainPageContainer, LightContainer, DarkContainer } from './MainPage.style';
+import { MainPageContainer, LightContainer, DarkContainer, FirstPageBackgroundContainer } from './MainPage.style';
+import MainPageFirstItem from '../../components/mainPageItems/MainPageItems';
 
 const MainPage = () => {
     const dispatch = useDispatch();
@@ -90,7 +91,11 @@ const MainPage = () => {
 
     return (
         <MainPageContainer ref={outerRef}>
-           <LightContainer isDark={isDark}>1</LightContainer>
+           <LightContainer isDark={isDark}>
+                <FirstPageBackgroundContainer>
+                    <MainPageFirstItem/>
+                </FirstPageBackgroundContainer>
+           </LightContainer>
            <DarkContainer isDark={isDark}>2</DarkContainer>
            <LightContainer isDark={isDark}>3</LightContainer>
            <DarkContainer isDark={isDark}>4</DarkContainer>
