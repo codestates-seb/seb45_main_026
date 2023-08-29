@@ -1,12 +1,9 @@
 package com.server.domain.question.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-
-import com.server.domain.question.entity.QQuestion;
 import com.server.domain.question.entity.Question;
 import com.server.domain.question.repository.dto.QQuestionData;
 import com.server.domain.question.repository.dto.QuestionData;
-import com.server.domain.selection.entity.QSelection;
 import com.server.domain.video.entity.Video;
 
 import javax.persistence.EntityManager;
@@ -17,8 +14,7 @@ import java.util.stream.Collectors;
 import static com.server.domain.answer.entity.QAnswer.answer;
 import static com.server.domain.channel.entity.QChannel.channel;
 import static com.server.domain.member.entity.QMember.member;
-import static com.server.domain.question.entity.QQuestion.*;
-import static com.server.domain.selection.entity.QSelection.*;
+import static com.server.domain.question.entity.QQuestion.question;
 import static com.server.domain.video.entity.QVideo.video;
 
 public class QuestionRepositoryImpl implements QuestionRepositoryCustom{

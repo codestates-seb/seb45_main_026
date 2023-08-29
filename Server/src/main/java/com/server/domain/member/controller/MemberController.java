@@ -1,5 +1,7 @@
 package com.server.domain.member.controller;
 
+import java.time.LocalDateTime;
+
 import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
 
@@ -21,6 +23,7 @@ import com.server.domain.member.controller.dto.MemberApiRequest;
 import com.server.domain.member.entity.Grade;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.MemberService;
+import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -39,12 +42,12 @@ public class MemberController {
 	}
 
 	@GetMapping("/{member-id}")
-	public ResponseEntity<ApiSingleResponse> getMember(@PathVariable("member-id") Long memberId,
+	public ResponseEntity<ApiSingleResponse<ProfileResponse>> getMember(@PathVariable("member-id") Long memberId,
 														@LoginId Long loginId) {
 
-		memberService.getMember(memberId, loginId);
+		ProfileResponse profileResponse = memberService.getMember(memberId, loginId);
 
-		return ResponseEntity.ok(ApiSingleResponse.ok(new Object(), "test"));
+		return ResponseEntity.ok(ApiSingleResponse.ok(profileResponse, "프로필 조회 성공"));
 	}
 
 	@GetMapping("/{member-id}/rewards")
@@ -60,6 +63,7 @@ public class MemberController {
 		return ResponseEntity.ok(ApiSingleResponse.ok(new Object(), "test"));
 	}
 
+	// 좋아요 기능은 구현하지 않을 예정
 	@GetMapping("/{member-id}/likes")
 	public ResponseEntity<ApiPageResponse> getLikes(@PathVariable("member-id") Long memberId,
 													@RequestParam("page") int page) {
@@ -76,12 +80,19 @@ public class MemberController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@GetMapping("/{member-id}/pays")
-	public ResponseEntity<ApiPageResponse> getPays(@PathVariable("member-id") Long memberId,
+	@GetMapping("/{member-id}/orders")
+	public ResponseEntity<ApiPageResponse> getOrders(@PathVariable("member-id") Long memberId,
 													@RequestParam("page") int page,
 													@RequestParam("month") int month) {
-		memberService.getPays(memberId, page, month);
-		Grade.DIAMOND.getDescription();
+
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@GetMapping("/{member-id}/playlists")
+	public ResponseEntity<ApiPageResponse> getPlaylists(@PathVariable("member-id") Long memberId,
+													@RequestParam("page") int page,
+													@RequestParam("sort") String sort) {
+		memberService.getPlaylists(memberId, page, sort);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -95,7 +106,7 @@ public class MemberController {
 	}
 
 	@PatchMapping("/{member-id}")
-	public ResponseEntity<ApiSingleResponse> updateNickname(@PathVariable("member-id") Long memberId,
+	public ResponseEntity<Void> updateNickname(@PathVariable("member-id") Long memberId,
 														@RequestBody MemberApiRequest.Nickname request) {
 		memberService.updateNickname(request.toServiceRequest());
 		return ResponseEntity.noContent().build();

@@ -7,10 +7,10 @@ import lombok.*;
 
 import javax.persistence.*;
 @Getter
-@Builder
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Entity
+@Builder
 public class Subscribe extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id

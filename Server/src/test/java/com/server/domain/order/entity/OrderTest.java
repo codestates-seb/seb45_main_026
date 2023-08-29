@@ -52,7 +52,7 @@ class OrderTest {
                 .thumbnailFile("thumbnailFile")
                 .videoFile("videoFile")
                 .view(0)
-                .star(0)
+                .star(0.0F)
                 .price(1000)
                 .build();
     }

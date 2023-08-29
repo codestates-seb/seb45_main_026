@@ -1,22 +1,19 @@
 package com.server.domain.channel.controller;
 
-import com.server.domain.channel.entity.Channel;
+import com.server.domain.announcement.service.AnnouncementService;
+import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
 import com.server.domain.channel.service.ChannelService;
 import com.server.domain.channel.service.dto.ChannelDto;
 import com.server.domain.member.entity.Member;
 import com.server.global.annotation.LoginId;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
-import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
-import com.server.global.reponse.PageInfo;
 import com.server.module.s3.service.AwsService;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Positive;
@@ -25,12 +22,17 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/channels")
+@Validated
 public class ChannelController {
 
     private final ChannelService channelService;
+    private final AwsService awsService;
+    private final AnnouncementService announcementService;
 
-    public ChannelController(ChannelService channelService) {
+    public ChannelController(ChannelService channelService, AwsService awsService, AnnouncementService announcementService){
         this.channelService = channelService;
+        this.awsService = awsService;
+        this.announcementService = announcementService;
     }
 
     @GetMapping("/{channelId}")
@@ -45,8 +47,7 @@ public class ChannelController {
 
     @PostMapping("/{memberId}")
     public ResponseEntity<Void> createChannel( //채널 생성 시, memberId를 받아서 채널 생성
-            @PathVariable Long memberId,
-            @RequestBody Member member) {
+                                               @PathVariable Long memberId, @RequestBody Member member) {
 
         if (!member.getMemberId().equals(memberId)) {
             throw new MemberAccessDeniedException();
@@ -82,5 +83,26 @@ public class ChannelController {
                 channelService.getChannelVideos(loggedInMemberId, memberId, page, sort);
 
         return ResponseEntity.ok(videoResponse);
+    }
+
+    @PostMapping("/{member-id}/announcements")
+    public ResponseEntity<ApiSingleResponse<Void>> createAnnouncement(
+            @PathVariable("member-id") @Positive Long memberId,
+            @LoginId Long loginMemberId
+    ) {
+
+
+        return null;
+    }
+
+    @GetMapping("/{member-id}/announcements")
+    public ResponseEntity<ApiPageResponse<AnnouncementResponse>> getAnnouncements(
+            @PathVariable("member-id") @Positive Long memberId,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+
+
+        return null;
     }
 }

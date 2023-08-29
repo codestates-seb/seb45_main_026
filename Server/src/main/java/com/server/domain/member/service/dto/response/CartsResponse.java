@@ -8,15 +8,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class CartsResponse {
-	/*
-	{
-      "videoId":1,
-      "videoName":"vlog first day",
-      "thumbnailUrl":"https://s3_thumbnailUrl1",
-      "views":5000,
-      "price":20000
-	 */
-
 	private Long videoId;
 	private String videoName;
 	private String thumbnailUrl;

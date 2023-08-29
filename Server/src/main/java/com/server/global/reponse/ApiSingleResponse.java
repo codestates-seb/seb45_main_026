@@ -31,6 +31,10 @@ public class ApiSingleResponse<T> {
 	private String status;
 	private String message;
 
+	public static <T> ApiSingleResponse<T> ok(T data) {
+		return ApiSingleResponse.of(data, HttpStatus.OK);
+	}
+
 	public static <T> ApiSingleResponse<T> ok(T data, String message) {
 		return ApiSingleResponse.of(data, HttpStatus.OK, message);
 	}

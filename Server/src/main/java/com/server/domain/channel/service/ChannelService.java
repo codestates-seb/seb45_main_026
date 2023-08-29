@@ -7,10 +7,11 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.subscribe.entity.Subscribe;
-import com.server.domain.subscribe.entity.repository.SubscribeRepository;
+import com.server.domain.subscribe.repository.SubscribeRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.video.service.dto.request.VideoUpdateServiceRequest;
+import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
@@ -18,7 +19,6 @@ import com.server.global.exception.businessexception.videoexception.VideoNotFoun
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.PageInfo;
 import com.server.module.s3.service.AwsService;
-import lombok.Builder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Transactional
 @Service
@@ -185,13 +184,13 @@ public class ChannelService {
     // 구독...?..
     private void subscribe(Member member, Channel channel) {
         Subscribe subscribe = new Subscribe(member, channel);
-        channel.getSubscribeList().add(subscribe);
+        channel.getSubscribes().add(subscribe);
         channel.setSubscribers(channel.getSubscribers() + 1); // 구독자 수 증가
     }
 
     // 구독 취소
     private void unsubscribe(Member member, Channel channel) {
-        List<Subscribe> subscribeList = channel.getSubscribeList();
+        List<Subscribe> subscribeList = channel.getSubscribes();
         for (Subscribe subscribe : subscribeList) {
             if (subscribe.getMember().equals(member)) {
                 subscribeList.remove(subscribe);
@@ -237,6 +236,12 @@ public class ChannelService {
             if (!isPurchased) {
                 continue;
             }
+            List<String> categoryNames = new ArrayList<>();
+            List<VideoCategory> categories = video.getVideoCategories();
+//            for (Category category : categories) {
+//                categoryNames.add(category.getCategoryName());
+//            }
+
 
         }
 

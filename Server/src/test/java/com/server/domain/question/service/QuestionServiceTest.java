@@ -16,6 +16,7 @@ import com.server.global.exception.businessexception.answerexception.AnswerCount
 import com.server.global.exception.businessexception.questionexception.QuestionNotFoundException;
 import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
+import com.server.global.exception.businessexception.videoexception.VideoNotPurchasedException;
 import com.server.global.testhelper.ServiceTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
@@ -66,8 +67,8 @@ class QuestionServiceTest extends ServiceTest {
     }
 
     @Test
-    @DisplayName("해당 문제가 속한 비디오를 구매하지 않으면 문제를 조회할 수 없다. (VideoAccessDeniedException)")
-    void getQuestionVideoAccessDeniedException() {
+    @DisplayName("해당 문제가 속한 비디오를 구매하지 않으면 문제를 조회할 수 없다. (VideoNotPurchasedException)")
+    void getQuestionVideoNotPurchasedException() {
         //given
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
@@ -79,7 +80,7 @@ class QuestionServiceTest extends ServiceTest {
         //when & then
         assertThatThrownBy(() ->
                 questionService.getQuestion(member.getMemberId(), question.getQuestionId()))
-                .isInstanceOf(VideoAccessDeniedException.class);
+                .isInstanceOf(VideoNotPurchasedException.class);
     }
 
     @Test
@@ -120,8 +121,8 @@ class QuestionServiceTest extends ServiceTest {
     }
 
     @Test
-    @DisplayName("해당 Video 를 구매하지 않으면 비디오의 Question 를 조회할 수 없다. (VideoAccessDeniedException)")
-    void getQuestionsVideoAccessDeniedException() {
+    @DisplayName("해당 Video 를 구매하지 않으면 비디오의 Question 를 조회할 수 없다. (VideoNotPurchasedException)")
+    void getQuestionsVideoNotPurchasedException() {
         //given
         Member channelOwner = createAndSaveMember();
         Channel channel = createAndSaveChannel(channelOwner);
@@ -134,7 +135,7 @@ class QuestionServiceTest extends ServiceTest {
         //when & then
         assertThatThrownBy(() ->
                 questionService.getQuestions(member.getMemberId(), video.getVideoId()))
-                .isInstanceOf(VideoAccessDeniedException.class);
+                .isInstanceOf(VideoNotPurchasedException.class);
     }
 
     @Test
@@ -481,7 +482,7 @@ class QuestionServiceTest extends ServiceTest {
 
     @Test
     @DisplayName("강의를 구매하지 않았으면 Question 을 풀 수 없다.")
-    void solveAnswerVideoAccessDeniedException() {
+    void solveAnswerVideoNotPurchasedException() {
         //given
         Member channelOwner = createAndSaveMember();
         Channel channel = createAndSaveChannel(channelOwner);
@@ -500,7 +501,7 @@ class QuestionServiceTest extends ServiceTest {
         //when & then
         assertThatThrownBy(() ->
                 questionService.solveQuestion(member.getMemberId(), request))
-                .isInstanceOf(VideoAccessDeniedException.class);
+                .isInstanceOf(VideoNotPurchasedException.class);
     }
 
     @Test
@@ -556,7 +557,7 @@ class QuestionServiceTest extends ServiceTest {
     }
 
     @Test
-    @DisplayName("Video 를 구매하지 않으면 Question 을 풀 수 없다. (VideoAccessDeniedException)")
+    @DisplayName("Video 를 구매하지 않으면 Question 을 풀 수 없다. (VideoNotPurchasedException)")
     void solveQuestionsVideoAccessDeniedException() {
         //given
         Member channelOwner = createAndSaveMember();
@@ -576,7 +577,7 @@ class QuestionServiceTest extends ServiceTest {
         //when & then
         assertThatThrownBy(() ->
                 questionService.solveQuestions(member.getMemberId(), video.getVideoId(), myAnswer))
-                .isInstanceOf(VideoAccessDeniedException.class);
+                .isInstanceOf(VideoNotPurchasedException.class);
 
         //then (answer 는 하나도 저장되지 않는다.)
         assertThat(answerRepository.count()).isEqualTo(0);

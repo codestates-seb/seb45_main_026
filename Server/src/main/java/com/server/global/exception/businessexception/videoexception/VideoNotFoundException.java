@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class VideoNotFoundException extends OrderException {
+public class VideoNotFoundException extends VideoException {
 
     public static final String MESSAGE = "강의를 찾을 수 없습니다.";
     public static final String CODE = "VIDEO-404";

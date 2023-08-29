@@ -15,6 +15,9 @@ spring:
   jpa:
     database: h2
     database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
   mail:
     host: smtp.naver.com
     port: 465
@@ -59,3 +62,23 @@ decorator:
   datasource:
     p6spy:
       enable-logging: true
+
+pem:
+  location: src/main/resources/prometheus.pem
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://sixman-rds.c2bhjqsi4ogs.ap-northeast-2.rds.amazonaws.com/sixmandb?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+
+pem:
+  location: /prometheus.pem
