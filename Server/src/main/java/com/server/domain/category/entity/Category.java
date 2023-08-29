@@ -10,6 +10,8 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static javax.persistence.FetchType.LAZY;
+
 @Getter
 @Entity
 public class Category extends BaseEntity {
@@ -20,12 +22,8 @@ public class Category extends BaseEntity {
     @Column(nullable = false)
     private String categoryName;
 
-    @ManyToMany
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "videoCategory")
-    private List<Video> videoCategories = new ArrayList<>();
-
-    public String getCategoryName(){
-        return categoryName;
-    }
+    private Category videoCategories;
 
 }

@@ -1,10 +1,8 @@
 package com.server.domain.channel.service;
 
-import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.channel.service.dto.ChannelDto;
-import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.subscribe.entity.Subscribe;
@@ -14,8 +12,6 @@ import com.server.domain.video.repository.VideoRepository;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
-import com.server.global.reponse.ApiPageResponse;
-import com.server.global.reponse.PageInfo;
 import com.server.module.s3.service.AwsService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Transactional
 @Service
@@ -52,18 +49,14 @@ public class ChannelService {
     }
 
     @Transactional(readOnly = true)
-    public ChannelDto.ChannelInfo getChannelInfo(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+    public ChannelDto.ChannelInfo getChannelInfo(Long channelId) {
 
-        Channel channel = channelRepository.findByMember(member);
+        Member member = new Member();
+
+        Channel channel = channelRepository.findByChannelId(channelId);
+
         if (channel == null) {
             throw new ChannelNotFoundException();
-        }
-        String imageUrl;
-        try {
-            imageUrl = awsService.getImageUrl(channel.getMember().getImageFile());
-        } catch (Exception e) {
-            imageUrl = "";
         }
 
         ChannelDto.ChannelInfo channelInfo = new ChannelDto.ChannelInfo();
@@ -72,48 +65,55 @@ public class ChannelService {
         channelInfo.setSubscribers(channel.getSubscribers());
         channelInfo.setDescription(channel.getDescription());
         channelInfo.setCreatedDate(channel.getCreatedDate());
-        channelInfo.setImageUrl(imageUrl);
+        channelInfo.setImageUrl(member.getImageFile());
 
         return channelInfo;
     }
 
-    public void updateChannel(Long memberId, ChannelDto.UpdateInfo updateInfo, Member member) {
+    public void updateChannel(Long memberId,
+                              Long loginMemberId) {
 
-        Long loggedInMember = member.getMemberId();
+        Member member = new Member();
 
-        if(!loggedInMember.equals(memberId)){
+        Channel channel = member.getChannel();
+
+        ChannelDto.UpdateInfo updateInfo = new ChannelDto.UpdateInfo();
+
+        if (!loginMemberId.equals(memberId)) { //로그인했는지 여부
             throw new MemberAccessDeniedException();
         }
 
-        Channel channel = channelRepository.findByMember(member);
 
-        if(!isChannelOwner(memberId, member) && !isAdmin(member)){
+        if (!isChannelOwner(channel.getChannelId(), channel) && !isLoggedInMember(loginMemberId, memberId)) { //로그인도 안했고 채널주인도 아니면
             throw new MemberAccessDeniedException();
         }
 
-        if (updateInfo != null) {
-            if (updateInfo.getChannelName() != null) {
-                channel.setChannelName(updateInfo.getChannelName());
-            }
-            if (updateInfo.getDescription() != null) {
-                channel.setDescription(updateInfo.getDescription());
-            }
 
-        }
+        Optional.ofNullable(updateInfo.getChannelName())
+                .ifPresent(channel::setChannelName);
+
+        Optional.ofNullable(updateInfo.getDescription())
+                .ifPresent(channel::setDescription);
+
     }
 
-    public boolean updateSubscribe(Long memberId) {
+    public boolean updateSubscribe(Long memberId, Long loginMemberId) {
 
-        Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+        Member member =memberRepository.findById(memberId)
+                .orElseThrow(MemberNotFoundException::new);
 
-        Channel channel = channelRepository.findByMember(member);
+        Channel channel = member.getChannel();
+
+        if(!memberId.equals(loginMemberId)){
+            throw new MemberAccessDeniedException();
+        }
 
         if(channel == null){
             throw new ChannelNotFoundException();
         }
 
-        if(isSubscribed(member, channel)){
-            unsubscribe(member, channel);
+        if(isSubscribed(memberId, channel)){
+            unsubscribe(memberId, channel);
             return false;
         } else
             subscribe(member, channel);
@@ -121,54 +121,61 @@ public class ChannelService {
     }
 
 
-    //todo : 로그인한 사용자 정보를 받아서 memberId 와 비교하는 로직 필요
-    public List<ChannelDto.ChannelVideoResponseDto> getChannelVideos(Long loggedInMemberId, Long memberId, int page, String sort) {
+    public List<ChannelDto.ChannelVideoResponseDto> getChannelVideos( //apiReponse로 반환타입 맞추기가 어려움..
+            Long loggedInMemberId,
+            Long memberId,
+            int page,
+            Sort sort) {
+
         if (!loggedInMemberId.equals(memberId)) {
             throw new MemberAccessDeniedException();
         }
 
-        Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(MemberNotFoundException::new);
 
-        Channel channel = channelRepository.findByMember(member);
-
-        PageRequest pageRequest;
-        if ("createdAt".equals(sort)) {
-            pageRequest = PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdDate");
-        } else {
-            pageRequest = PageRequest.of(page - 1, 10, Sort.Direction.DESC, sort);
+        Channel channel = member.getChannel();
+        if (channel == null) {
+            throw new ChannelNotFoundException();
         }
 
+        PageRequest pageRequest = PageRequest.of(page - 1, 10, Sort.Direction.DESC, String.valueOf(sort));
         Page<Video> videoPage = videoRepository.findByChannel(channel, pageRequest);
 
         List<ChannelDto.ChannelVideoResponseDto> videoResponses = new ArrayList<>();
         for (Video video : videoPage.getContent()) {
-            List<String> categoryNames = new ArrayList<>();
-            for (Category category : video.getVideoCategories()) {
-                categoryNames.add(category.getCategoryName());
-            }
+            String imageUrl = awsService.getImageUrl(member.getImageFile());
 
-            String imageUrl;
-            try {
-                imageUrl = awsService.getImageUrl(channel.getMember().getImageFile());
-            } catch (Exception e) {
-                imageUrl = "";
-            }
-
-            ChannelDto.ChannelVideoResponseDto videoResponse = new ChannelDto.ChannelVideoResponseDto();
-            videoResponse.setVideoId(video.getVideoId());
-            videoResponse.setVideoName(video.getVideoName());
-            videoResponse.setThumbnailUrl(imageUrl);
-            videoResponse.setViews(video.getView());
-            videoResponse.setPrice(video.getPrice());
-            videoResponse.setCategories(categoryNames);
-            videoResponse.setCreatedDate(video.getCreatedDate().toLocalDate());
-
+            ChannelDto.ChannelVideoResponseDto videoResponse = getVideoResponseDto(video, imageUrl);
             videoResponses.add(videoResponse);
         }
 
         return videoResponses;
     }
 
+    private ChannelDto.ChannelVideoResponseDto getVideoResponseDto(Video video, String imageUrl) {
+        ChannelDto.ChannelVideoResponseDto videoResponse = new ChannelDto.ChannelVideoResponseDto();
+        videoResponse.setVideoId(video.getVideoId());
+        videoResponse.setVideoName(video.getVideoName());
+        videoResponse.setThumbnailUrl(imageUrl);
+        videoResponse.setViews(video.getView());
+        videoResponse.setPrice(video.getPrice());
+        videoResponse.setCategories(new ArrayList<>()); // Assuming categoryNames are not used
+        videoResponse.setCreatedDate(video.getCreatedDate().toLocalDate());
+        return videoResponse;
+    }
+
+    private static ChannelDto.ChannelVideoResponseDto getVideoResponseDto(Video video, String imageUrl, List<ChannelDto.Category> categoryNames) {
+        ChannelDto.ChannelVideoResponseDto videoResponse = new ChannelDto.ChannelVideoResponseDto();
+        videoResponse.setVideoId(video.getVideoId());
+        videoResponse.setVideoName(video.getVideoName());
+        videoResponse.setThumbnailUrl(imageUrl);
+        videoResponse.setViews(video.getView());
+        videoResponse.setPrice(video.getPrice());
+        videoResponse.setCategories(categoryNames);
+        videoResponse.setCreatedDate(video.getCreatedDate().toLocalDate());
+        return videoResponse;
+    }
 
 
     public void createChannel(Member signMember) {
@@ -178,21 +185,27 @@ public class ChannelService {
         channelRepository.save(channel);
     }
 
-    private boolean isChannelOwner(Long channelId, Member member){
-        return member.getChannel() != null && member.getChannel().getChannelId().equals(channelId);
+    boolean isLoggedInMember(Long loginMemberId, Long adminId) {
+        Member adminMember = memberRepository.findById(adminId).orElse(null);
+        if (adminMember != null) {
+            return loginMemberId.equals(adminMember.getMemberId());
+        }
+        return false;
     }
 
-    private boolean isAdmin(Member member){
-        return member.getAuthority() == Authority.ROLE_ADMIN;
+    private boolean isChannelOwner(Long memberId, Channel channel) {
+        return channel.getMember().getMemberId().equals(memberId);
     }
 
-    private boolean isSubscribed(Member member, Channel channel){
-        Subscribe subscribe = subscribeRepository.findByMemberAndChannel(member, channel);
+
+
+    private boolean isSubscribed(Long memberId, Channel channel){
+        Subscribe subscribe = subscribeRepository.findSubscribeByChannel(channel);
         return subscribe != null;
     }
 
-    private void unsubscribe(Member member, Channel channel){
-        Subscribe subscribe = subscribeRepository.findByMemberAndChannel(member, channel);
+    private void unsubscribe(Long memberId, Channel channel){
+        Subscribe subscribe = subscribeRepository.findSubscribeByChannel(channel);
         if(subscribe != null){
             subscribeRepository.delete(subscribe);
         }
@@ -203,4 +216,6 @@ public class ChannelService {
 
         subscribeRepository.save(subscribe);
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.server.domain.channel.service.dto;
 
+import com.server.domain.category.entity.Category;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,31 +18,19 @@ public class ChannelDto {
         private Long memberId;
         private String channelName;
         private int subscribers;
+        private boolean isSubscribed;
         private String description;
         private String imageUrl;
         private LocalDateTime createdDate;
     }
 
-    public static class SubscribeStatus {
-        private boolean data;
-    }
-
-    public static class VideoResponse {
-        private Long videoId;
-        private String videoName;
-        private String thumbnailUrl;
-        private int views;
-        private int price;
-        private List<String> categories;
-        private LocalDate createdDate;
-    }
-
-    public static class CategoryInfo {
+    public static class Category {
         private Long categoryId;
         private String categoryName;
     }
 
     @Getter
+    @Setter
     public static class UpdateInfo {
         private String channelName;
         private String description;
@@ -55,7 +44,7 @@ public class ChannelDto {
         private String thumbnailUrl;
         private int views;
         private int price;
-        private List<String> categories;
+        private List<Category> categories;
         private LocalDate createdDate;
     }
 }
