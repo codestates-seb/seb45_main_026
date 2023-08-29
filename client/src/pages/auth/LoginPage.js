@@ -1,16 +1,9 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { PageContainer } from '../../atoms/layouts/PageContainer';
-import { useDispatch, useSelector } from 'react-redux';
-import { setLocation } from '../../redux/createSlice/UISettingSlice';
+import { useSelector } from 'react-redux';
 
 const LoginPage = () => {
-    const dispatch = useDispatch();
     const isDark = useSelector(state=>state.uiSetting.isDark);
-
-    useMemo(()=>{
-        dispatch(setLocation('/login'));
-
-    },[]);
 
     return (
         <PageContainer isDark={isDark}>
