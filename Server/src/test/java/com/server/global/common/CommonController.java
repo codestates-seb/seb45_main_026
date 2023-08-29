@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.server.auth.oauth.service.OAuthProvider;
 import com.server.global.entity.BaseEnum;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.reponse.ApiPageResponse;
@@ -67,7 +66,6 @@ public class CommonController {
 	@PostMapping("/enums")
 	public ResponseEntity<Map<String, Map<String, String>>> findEnums(@RequestBody List<String> paths) throws Exception {
 
-		//ocp 를 위한 온몸 비틀기
 		Map<String,Map<String, String>> enums = new HashMap<>();
 
 		for(String path : paths) {

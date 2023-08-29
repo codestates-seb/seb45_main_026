@@ -35,7 +35,6 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     //oAuth2
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    testImplementation 'org.projectlombok:lombok:1.18.28'
     //H2
     runtimeOnly 'com.h2database:h2'
     //MYSQL
@@ -43,6 +42,8 @@ dependencies {
     //롬복
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
     //Validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     //AsciiDoctor

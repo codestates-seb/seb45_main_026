@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>Prometheus API Document</title>
+<title>Untitled</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,104 +436,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<script>
-    function ready(callbackFunc) {
-        if (document.readyState !== 'loading') {
-            // Document is already ready, call the callback directly
-            callbackFunc();
-        } else if (document.addEventListener) {
-            // All modern browsers to register DOMContentLoaded
-            document.addEventListener('DOMContentLoaded', callbackFunc);
-        } else {
-            // Old IE browsers
-            document.attachEvent('onreadystatechange', function () {
-                if (document.readyState === 'complete') {
-                    callbackFunc();
-                }
-            });
-        }
-    }
-
-    function openPopup(event) {
-
-        const target = event.target;
-        if (target.className !== "popup") {
-            return;
-        }
-
-        event.preventDefault();
-        const screenX = event.screenX;
-        const screenY = event.screenY;
-        window.open(target.href, target.text, `left=${screenX}, top=${screenY}, width=500, height=600, status=no, menubar=no, toolbar=no, resizable=no`);
-    }
-
-    ready(function () {
-        const el = document.getElementById("content");
-        el.addEventListener("click", event => openPopup(event), false);
-    });
-</script>
 </head>
-<body class="book toc2 toc-left">
+<body class="book">
 <div id="header">
-<h1>Prometheus API Document</h1>
-<div class="details">
-<span id="revnumber">version 0.0.1-SNAPSHOT</span>
-</div>
-<div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#overview">Overview</a>
-<ul class="sectlevel2">
-<li><a href="#overview-host">Host</a></li>
-<li><a href="#overview-http-status-codes">HTTP status codes</a></li>
-</ul>
-</li>
-<li><a href="#API-List">APIs</a>
-<ul class="sectlevel2">
-<li><a href="#_auth_api">Auth API</a></li>
-<li><a href="#_member_api">Member API</a></li>
-<li><a href="#_channel_api">Channel API</a></li>
-<li><a href="#_order_api">Order API</a></li>
-<li><a href="#_video_api">Video API</a></li>
-<li><a href="#_reply_api">Reply API</a></li>
-<li><a href="#_question_api">Question API</a></li>
-<li><a href="#_answer_api">Answer API</a></li>
-</ul>
-</li>
-</ul>
-</div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="overview"><a class="link" href="#overview">Overview</a></h2>
+<div id="preamble">
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="overview-host"><a class="link" href="#overview-host">Host</a></h3>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">환경</th>
-<th class="tableblock halign-left valign-top">Host</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">프론트</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="https://www.itprometheus.net" class="bare">https://www.itprometheus.net</a></code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">백엔드</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="https://api.itprometheus.net" class="bare">https://api.itprometheus.net</a></code></p></td>
-</tr>
-</tbody>
-</table>
+<div id="authority" class="paragraph">
+<p>OAuthProvider</p>
 </div>
-<div class="sect2">
-<h3 id="overview-http-status-codes"><a class="link" href="#overview-http-status-codes">HTTP status codes</a></h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -541,98 +453,33 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">상태 코드</th>
+<th class="tableblock halign-left valign-top">ENUM</th>
 <th class="tableblock halign-left valign-top">설명</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>200 OK</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">성공</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GITHUB</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">github</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>400 Bad Request</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">잘못된 요청</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>KAKAO</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">kakao</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>401 Unauthorized</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">비인증 상태</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>403 Forbidden</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">권한 거부</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>404 Not Found</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">존재하지 않는 요청 리소스</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>500 Internal Server Error</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">서버 에러</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GOOGLE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">google</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="API-List"><a class="link" href="#API-List">APIs</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_auth_api"><a class="link" href="#_auth_api">Auth API</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="snippets/auth/auth.html">인증 관련 API (로그인 / 회원가입 등)</a></p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_member_api"><a class="link" href="#_member_api">Member API</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="snippets/member/getmember.html">회원 정보 조회 API</a></p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_channel_api"><a class="link" href="#_channel_api">Channel API</a></h3>
-
-</div>
-<div class="sect2">
-<h3 id="_order_api"><a class="link" href="#_order_api">Order API</a></h3>
-
-</div>
-<div class="sect2">
-<h3 id="_video_api"><a class="link" href="#_video_api">Video API</a></h3>
-
-</div>
-<div class="sect2">
-<h3 id="_reply_api"><a class="link" href="#_reply_api">Reply API</a></h3>
-
-</div>
-<div class="sect2">
-<h3 id="_question_api"><a class="link" href="#_question_api">Question API</a></h3>
-
-</div>
-<div class="sect2">
-<h3 id="_answer_api"><a class="link" href="#_answer_api">Answer API</a></h3>
-
-</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2023-08-29 19:35:53 +0900
+Last updated 2023-08-29 19:28:00 +0900
 </div>
 </div>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
-<script>hljs.initHighlighting()</script>
 </body>
 </html>

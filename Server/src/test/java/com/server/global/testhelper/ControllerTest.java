@@ -61,6 +61,7 @@ import com.server.domain.reply.controller.ReplyController;
 import com.server.domain.reply.service.ReplyService;
 import com.server.domain.video.controller.VideoController;
 import com.server.domain.video.service.VideoService;
+import com.server.global.common.CommonController;
 import com.server.module.email.service.MailService;
 import com.server.module.s3.service.AwsService;
 
@@ -68,6 +69,7 @@ import com.server.module.s3.service.AwsService;
 @WebMvcTest({
 	AuthController.class,
 	ChannelController.class,
+	CommonController.class,
 	MemberController.class,
 	QuestionController.class,
 	OrderController.class,
