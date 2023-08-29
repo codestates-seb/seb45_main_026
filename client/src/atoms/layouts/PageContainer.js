@@ -19,4 +19,5 @@ export const MainContainer = styled.main`
     justify-content: start;
     align-items: center;
     flex-wrap: wrap;
+    border: solid 1px black;
 `

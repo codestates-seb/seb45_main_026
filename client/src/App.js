@@ -7,6 +7,7 @@ import LoginPage from './pages/auth/LoginPage';
 import MyProfilePage from './pages/userInfo/MyProfilePage';
 import Header from './components/headers/Header';
 import Footer from './components/footers/Footer';
+import ChannelPage from './pages/contents/ChannelPage';
 
 function App() {
   const dispatch = useDispatch();
@@ -23,13 +24,13 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Header/>
+      <Header />
       <Routes>
-        <Route path="/" element={<MainPage/>}/>
-        <Route path="/login" element={<LoginPage/>}/>
-        <Route path="/MyProfile" element={<MyProfilePage/>}/>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/MyProfile" element={<MyProfilePage />} />
       </Routes>
-      <Footer/>
+      <Footer />
     </BrowserRouter>
   );
 }
