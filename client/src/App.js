@@ -7,6 +7,7 @@ import LoginPage from './pages/auth/LoginPage';
 import MyProfilePage from './pages/userInfo/MyProfilePage';
 import Header from './components/headers/Header';
 import Footer from './components/footers/Footer';
+import DetailPage from './pages/contents/DetailPage/DetailPage';
 
 function App() {
   const dispatch = useDispatch();
@@ -28,6 +29,7 @@ function App() {
         <Route path="/" element={<MainPage/>}/>
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/MyProfile" element={<MyProfilePage/>}/>
+        <Route path="/videos/1" element={<DetailPage/>}/>
       </Routes>
       <Footer/>
     </BrowserRouter>
