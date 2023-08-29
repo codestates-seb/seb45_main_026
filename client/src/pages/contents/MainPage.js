@@ -1,17 +1,11 @@
-import React, { useEffect, useMemo, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setLocation } from '../../redux/createSlice/UISettingSlice';
+import React, { useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import { MainPageContainer, LightContainer, DarkContainer, FirstPageBackgroundContainer } from './MainPage.style';
 import MainPageFirstItem from '../../components/mainPageItems/MainPageItems';
 
 const MainPage = () => {
-    const dispatch = useDispatch();
     const isDark = useSelector(state=>state.uiSetting.isDark);
     const outerRef = useRef();
-
-    useMemo(()=>{
-        dispatch(setLocation('/'));
-    },[]);
 
     useEffect(()=>{
         const wheelHandler = (e) => {
