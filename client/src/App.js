@@ -7,6 +7,7 @@ import LoginPage from './pages/auth/LoginPage';
 import MyProfilePage from './pages/userInfo/MyProfilePage';
 import Header, { MainPageHeader } from './components/headers/Header';
 import Footer from './components/footers/Footer';
+import ChannelPage from './pages/contents/ChannelPage';
 import DetailPage from './pages/contents/DetailPage/DetailPage';
 import './App.css'
 
