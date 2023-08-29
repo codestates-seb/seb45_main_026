@@ -496,6 +496,42 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_response_header_2">Response Header</a></li>
 </ul>
 </li>
+<li><a href="#_회원가입_인증_이메일_전송">회원가입 인증 이메일 전송</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_3">HTTP Request</a></li>
+<li><a href="#_http_response_3">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_패스워드_찾기_인증_이메일_전송">패스워드 찾기 인증 이메일 전송</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_4">HTTP Request</a></li>
+<li><a href="#_http_response_4">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_회원가입_이메일_인증_확인">회원가입 이메일 인증 확인</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_5">HTTP Request</a></li>
+<li><a href="#_http_response_5">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_패스워드_찾기_이메일_인증_확인">패스워드 찾기 이메일 인증 확인</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_6">HTTP Request</a></li>
+<li><a href="#_http_response_6">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_회원가입">회원가입</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_7">HTTP Request</a></li>
+<li><a href="#_http_response_7">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_비밀번호_초기화">비밀번호 초기화</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_8">HTTP Request</a></li>
+<li><a href="#_http_response_8">HTTP Response</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -545,8 +581,8 @@ Host: localhost:8080
 Vary: Origin
 Vary: Access-Control-Request-Method
 Vary: Access-Control-Request-Headers
-Authorization: BEARER eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGVtYWlsLmNvbSIsImlkIjoxLCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjkzMzA5MzA4fQ.pGRo6a5rr1sZ0PPnQA1Y5oToeNOTIRXp2rPNpZC9ekAPlDiGMrCY3_kwvHxRiC80dCxM3tikOkzY7rRlThMHYQ
-Refresh: BEARER eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGVtYWlsLmNvbSIsImlkIjoxLCJleHAiOjE2OTQ1MTUzMDh9.3NBeGJvXGgpz4-HhcbGqmvVquX2A_-fwMjXPf23TMFEWf6E_Wzvn-_4XT5KuBgjK4tRP15ChbnO4k_n5DKtNMQ
+Authorization: BEARER eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGVtYWlsLmNvbSIsImlkIjoxLCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjkzMzI3MTEyfQ.3MF9QYNOGQdWFMAN3DqmpuU8iTwjR9GCrJ751U-PVPkUVoH_BD04EphwxNzaNQcDR-9hZka7anDD698UGpyVOQ
+Refresh: BEARER eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGVtYWlsLmNvbSIsImlkIjoxLCJleHAiOjE2OTQ1MzMxMTJ9.9lNZPxj4RS3CTPMNiSVAf8Jjl8nR0eTLZs5t--PImb60izQXVALxjf6QcKj22xEuF9pt8bXbQYTy-eKoltWyoQ
 Content-Type: application/json;charset=UTF-8
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
@@ -642,8 +678,8 @@ Host: localhost:8080</code></pre>
 Vary: Origin
 Vary: Access-Control-Request-Method
 Vary: Access-Control-Request-Headers
-Authorization: BEARER Bearer aaa.bbb.ccc
-Refresh: BEARER Bearer ddd.eee.fff
+Authorization: BEARER eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkYTlkYWNAZ21haWwuY29tIiwiaWQiOjEsImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2OTMxMzgzODF9.jJoeYVybHPom1aUJZhLBJ2v1yc0kYZ6Wq15tDuIMU67VKB_ogqxc30E1TQibuI0F-qg20gBtmxA5LxaRPT-c1w
+Refresh: BEARER eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkYTlkYWNAZ21haWwuY29tIiwiaWQiOjEsImV4cCI6MTY5NDI3MjQ4Nn0.TDg6ZiSOCKtzkTkrXaue1JxNKHkcD2dlucojVmz9iR0dSQQqKFjXtmLVAUB7wMsubADd39Mrp6empmoEvFl38A
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
@@ -680,11 +716,518 @@ X-Frame-Options: DENY</code></pre>
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_회원가입_인증_이메일_전송"><a class="link" href="#_회원가입_인증_이메일_전송">회원가입 인증 이메일 전송</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_3"><a class="link" href="#_http_request_3">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">POST /auth/signup/email HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 34
+Host: localhost:8080
+
+{
+  "email" : "abcd@email.com"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_body_2"><a class="link" href="#_request_body_2">Request Body</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-none hljs">{
+  "email" : "abcd@email.com"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_fields"><a class="link" href="#_request_fields">Request Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">필드명</th>
+<th class="tableblock halign-left valign-top">타입</th>
+<th class="tableblock halign-left valign-top">설명</th>
+<th class="tableblock halign-left valign-top">제약조건</th>
+<th class="tableblock halign-left valign-top">필수여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_3"><a class="link" href="#_http_response_3">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 204 No Content
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_패스워드_찾기_인증_이메일_전송"><a class="link" href="#_패스워드_찾기_인증_이메일_전송">패스워드 찾기 인증 이메일 전송</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_4"><a class="link" href="#_http_request_4">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">POST /auth/password/email HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 34
+Host: localhost:8080
+
+{
+  "email" : "abcd@email.com"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_body_3"><a class="link" href="#_request_body_3">Request Body</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-none hljs">{
+  "email" : "abcd@email.com"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_fields_2"><a class="link" href="#_request_fields_2">Request Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">필드명</th>
+<th class="tableblock halign-left valign-top">타입</th>
+<th class="tableblock halign-left valign-top">설명</th>
+<th class="tableblock halign-left valign-top">제약조건</th>
+<th class="tableblock halign-left valign-top">필수여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_4"><a class="link" href="#_http_response_4">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 204 No Content
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_회원가입_이메일_인증_확인"><a class="link" href="#_회원가입_이메일_인증_확인">회원가입 이메일 인증 확인</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_5"><a class="link" href="#_http_request_5">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">POST /auth/signup/confirm HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 61
+Host: localhost:8080
+
+{
+  "email" : "confirm@email.com",
+  "code" : "code1234"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_body_4"><a class="link" href="#_request_body_4">Request Body</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-none hljs">{
+  "email" : "confirm@email.com",
+  "code" : "code1234"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_fields_3"><a class="link" href="#_request_fields_3">Request Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">필드명</th>
+<th class="tableblock halign-left valign-top">타입</th>
+<th class="tableblock halign-left valign-top">설명</th>
+<th class="tableblock halign-left valign-top">제약조건</th>
+<th class="tableblock halign-left valign-top">필수여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이메일로 받은 인증번호</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_5"><a class="link" href="#_http_response_5">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 204 No Content
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_패스워드_찾기_이메일_인증_확인"><a class="link" href="#_패스워드_찾기_이메일_인증_확인">패스워드 찾기 이메일 인증 확인</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_6"><a class="link" href="#_http_request_6">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">POST /auth/password/confirm HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 61
+Host: localhost:8080
+
+{
+  "email" : "confirm@email.com",
+  "code" : "code1234"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_body_5"><a class="link" href="#_request_body_5">Request Body</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-none hljs">{
+  "email" : "confirm@email.com",
+  "code" : "code1234"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_fields_4"><a class="link" href="#_request_fields_4">Request Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">필드명</th>
+<th class="tableblock halign-left valign-top">타입</th>
+<th class="tableblock halign-left valign-top">설명</th>
+<th class="tableblock halign-left valign-top">제약조건</th>
+<th class="tableblock halign-left valign-top">필수여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이메일로 받은 인증번호</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_6"><a class="link" href="#_http_response_6">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 204 No Content
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_회원가입"><a class="link" href="#_회원가입">회원가입</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_7"><a class="link" href="#_http_request_7">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">POST /auth/signup HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 89
+Host: localhost:8080
+
+{
+  "email" : "coding@joa.com",
+  "password" : "asdf1234!",
+  "nickname" : "당근"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_body_6"><a class="link" href="#_request_body_6">Request Body</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-none hljs">{
+  "email" : "coding@joa.com",
+  "password" : "asdf1234!",
+  "nickname" : "당근"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_fields_5"><a class="link" href="#_request_fields_5">Request Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">필드명</th>
+<th class="tableblock halign-left valign-top">타입</th>
+<th class="tableblock halign-left valign-top">설명</th>
+<th class="tableblock halign-left valign-top">제약조건</th>
+<th class="tableblock halign-left valign-top">필수여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">패스워드</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>nickname</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">닉네임(기본 채널명)</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_7"><a class="link" href="#_http_response_7">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 201 Created
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_비밀번호_초기화"><a class="link" href="#_비밀번호_초기화">비밀번호 초기화</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_8"><a class="link" href="#_http_request_8">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">PATCH /auth/password HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Content-Length: 63
+Host: localhost:8080
+
+{
+  "email" : "coding@joa.com",
+  "password" : "asdf1234!"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_body_7"><a class="link" href="#_request_body_7">Request Body</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-none hljs">{
+  "email" : "coding@joa.com",
+  "password" : "asdf1234!"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_fields_6"><a class="link" href="#_request_fields_6">Request Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">필드명</th>
+<th class="tableblock halign-left valign-top">타입</th>
+<th class="tableblock halign-left valign-top">설명</th>
+<th class="tableblock halign-left valign-top">제약조건</th>
+<th class="tableblock halign-left valign-top">필수여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">변경할 패스워드</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_8"><a class="link" href="#_http_response_8">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 204 No Content
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2023-08-29 16:03:38 +0900
+Last updated 2023-08-30 00:34:47 +0900
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">

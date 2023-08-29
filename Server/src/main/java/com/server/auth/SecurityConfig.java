@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -53,7 +54,8 @@ public class SecurityConfig {
 			.accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN))
 			.authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "인증되지 않은 사용자입니다."))
 			.and()
-			.authorizeRequests(getAuthorizeRequests());
+			.authorizeRequests()
+			.anyRequest().permitAll();
 
 		return http.build();
 	}
@@ -78,9 +80,26 @@ public class SecurityConfig {
 
 	private Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> getAuthorizeRequests() {
 		return (http) -> http
-			.antMatchers("/auth/test").hasRole("USER")
-			.antMatchers("/auth/**").permitAll()
-			.anyRequest().permitAll();
+			.antMatchers("/members/*").permitAll()
+			.antMatchers("/members/**").hasRole("USER")
+
+			.antMatchers(HttpMethod.GET, "/channels/**").permitAll()
+			.antMatchers("/channels/**").hasRole("USER")
+
+			.antMatchers(HttpMethod.GET, "/videos/*/questions").hasRole("USER")
+			.antMatchers(HttpMethod.GET, "/videos/**").permitAll()
+			.antMatchers("/videos/**").hasRole("USER")
+
+			.antMatchers(HttpMethod.GET, "/replies/*").permitAll()
+			.antMatchers("/replies/**").hasRole("USER")
+
+			.antMatchers("/questions/**").hasRole("USER")
+			.antMatchers("/orders/**").hasRole("USER")
+
+			.antMatchers(HttpMethod.GET, "/announcements/*").permitAll()
+			.antMatchers("/announcements/**").hasRole("USER")
+
+			.antMatchers("/auth/**").permitAll();
 	}
 
 	public class CustomFilterConfigurer extends AbstractHttpConfigurer<CustomFilterConfigurer, HttpSecurity> {

@@ -32,3 +32,63 @@ include::{snippets}/auth/oauth/request-parameters.adoc[]
 include::{snippets}/auth/oauth/http-response.adoc[]
 === Response Header
 include::{snippets}/auth/oauth/response-headers.adoc[]
+
+== 회원가입 인증 이메일 전송
+=== HTTP Request
+include::{snippets}/auth/signup/email/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/signup/email/request-body.adoc[]
+==== Request Fields
+include::{snippets}/auth/signup/email/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/signup/email/http-response.adoc[]
+
+== 패스워드 찾기 인증 이메일 전송
+=== HTTP Request
+include::{snippets}/auth/password/email/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/password/email/request-body.adoc[]
+==== Request Fields
+include::{snippets}/auth/password/email/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/password/email/http-response.adoc[]
+
+== 회원가입 이메일 인증 확인
+=== HTTP Request
+include::{snippets}/auth/signup/confirm/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/signup/confirm/request-body.adoc[]
+==== Request Fields
+include::{snippets}/auth/signup/confirm/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/signup/confirm/http-response.adoc[]
+
+== 패스워드 찾기 이메일 인증 확인
+=== HTTP Request
+include::{snippets}/auth/password/confirm/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/password/confirm/request-body.adoc[]
+==== Request Fields
+include::{snippets}/auth/password/confirm/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/password/confirm/http-response.adoc[]
+
+== 회원가입
+=== HTTP Request
+include::{snippets}/auth/signup/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/signup/request-body.adoc[]
+==== Request Fields
+include::{snippets}/auth/signup/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/signup/http-response.adoc[]
+
+== 비밀번호 초기화
+=== HTTP Request
+include::{snippets}/auth/password/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/password/request-body.adoc[]
+==== Request Fields
+include::{snippets}/auth/password/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/password/http-response.adoc[]
