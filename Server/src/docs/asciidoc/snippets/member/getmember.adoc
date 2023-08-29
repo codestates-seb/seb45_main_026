@@ -1,0 +1,24 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Member]]
+= 회원 정보 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 프로필 조회
+=== HTTP Request
+include::{snippets}/member/getmember/http-request.adoc[]
+==== Request Path Parameter
+include::{snippets}/member/getmember/path-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/member/getmember/http-response.adoc[]
+==== Response Body
+include::{snippets}/member/getmember/response-body.adoc[]
+==== Response Fields
+include::{snippets}/member/getmember/response-fields.adoc[]
