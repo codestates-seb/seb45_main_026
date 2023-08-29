@@ -24,4 +24,12 @@ public class Cart extends BaseEntity {
     @Column(nullable = false)
     private int price;
 
+    public static Cart createCart(Member member, Video video, int price) {
+        Cart cart = new Cart();
+        cart.member = member;
+        cart.video = video;
+        cart.price = price;
+        return cart;
+    }
+
 }

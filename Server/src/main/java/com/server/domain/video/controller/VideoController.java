@@ -77,7 +77,7 @@ public class VideoController {
                 CREATED);
     }
 
-    @GetMapping //비디오 전체 조회
+    @GetMapping
     public ResponseEntity<ApiPageResponse<VideoPageResponse>> getVideos(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                         @RequestParam(value = "size", defaultValue = "10") int size,
                                                                         @RequestParam(value = "sort", defaultValue = "createdAt") String sort,
@@ -90,7 +90,7 @@ public class VideoController {
         return ResponseEntity.ok(ApiPageResponse.ok(videos, "비디오 목록 조회 성공"));
     }
 
-    @GetMapping("/{video-id}") //비디오 하나 조회
+    @GetMapping("/{video-id}")
     public ResponseEntity<ApiSingleResponse<VideoDetailResponse>> getVideo(
                                           @PathVariable("video-id") Long videoId,
                                           @LoginId Long loginMemberId) {
@@ -100,7 +100,7 @@ public class VideoController {
         return ResponseEntity.ok(ApiSingleResponse.ok(video, "비디오 조회 성공"));
     }
 
-    @PostMapping("/presigned-url") //비디오 업로드 url 생성
+    @PostMapping("/presigned-url")
     public ResponseEntity<ApiSingleResponse<VideoCreateUrlResponse>> getVideoCreateUrl(
             @RequestBody @Valid VideoCreateUrlApiRequest request,
             @LoginId Long loginMemberId) {
@@ -110,7 +110,7 @@ public class VideoController {
         return ResponseEntity.ok(ApiSingleResponse.ok(videoCreateUrl, "put url 생성 성공"));
     }
 
-    @PostMapping //비디오 생성
+    @PostMapping
     public ResponseEntity<Void> createVideo(@RequestBody @Valid VideoCreateApiRequest request,
                                             @LoginId Long loginMemberId) {
 
@@ -121,7 +121,7 @@ public class VideoController {
         return ResponseEntity.created(uri).build();
     }
 
-    @PatchMapping("/{video-id}") //비디오 수정
+    @PatchMapping("/{video-id}")
     public ResponseEntity<Void> updateVideo(@RequestBody @Valid VideoUpdateApiRequest request,
                                             @PathVariable("video-id") Long videoId,
                                             @LoginId Long loginMemberId) {
@@ -131,7 +131,7 @@ public class VideoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{video-id}/carts") //비디오 장바구니 담기, 취소
+    @PatchMapping("/{video-id}/carts")
     public ResponseEntity<ApiSingleResponse<Boolean>> changeCart(@PathVariable("video-id") Long videoId,
                                                @LoginId Long loginMemberId) {
 
@@ -141,7 +141,7 @@ public class VideoController {
         return ResponseEntity.ok(ApiSingleResponse.ok(isInCart, message));
     }
 
-    @DeleteMapping("/{video-id}") //비디오 삭제
+    @DeleteMapping("/{video-id}")
     public ResponseEntity<Void> deleteVideo(@PathVariable("video-id") Long videoId,
                                             @LoginId Long loginMemberId) {
 
