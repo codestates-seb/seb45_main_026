@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react"
 
+//꾹 눌렀을 때 onLongPress, 클릭했을 때 onClick을 실행하는 custom hook
 export const useLongPress = (
     onLongPress, 
     onClick, 
