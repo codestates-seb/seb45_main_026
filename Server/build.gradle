@@ -35,6 +35,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     //oAuth2
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    testImplementation 'org.projectlombok:lombok:1.18.28'
     //H2
     runtimeOnly 'com.h2database:h2'
     //MYSQL

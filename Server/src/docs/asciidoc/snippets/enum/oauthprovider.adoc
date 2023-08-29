@@ -1,0 +1,8 @@
+// :doctype: book
+// :icons: font
+//
+// [[authority]]
+//
+//
+// include::{snippets}/common/enums/custom-response-fields-OAuthProvider.adoc[]
+// * 미 설정 시 기본 값 : CREATED_DATE
