@@ -1,8 +1,11 @@
 import React from "react";
 import styled from "styled-components"
 import tokens from "../../styles/tokens.json";
+import yellowStar from "../../assets/images/icons/star/starYellow.svg"
+import blankStar from "../../assets/images/icons/star/starWhite.svg"
 
 const globalTokens = tokens.global;
+
 const ComponentBody = styled.li`
     width: 270px;
     height: 300px;
@@ -34,11 +37,19 @@ const ItemInfors = styled.div`
     justify-content: space-between;
     align-items: end;
 `
-const InforContainer = styled.div`
+const InforContainerLeft = styled.div`
     height: 60px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    align-items: start;
+`
+const InforContainerRight = styled.div`
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: end;
 `
 const AuthorInfor = styled.div`
     max-width: 150px;
@@ -56,22 +67,34 @@ const DateInfor = styled.div`
 const DateBold = styled.span`
   font-weight: ${globalTokens.Bold.value};
 `;
+const StarImage = styled.img`
+    height: 20px;
+    width: 20px;
+`
 
 export default function VerticalItem() { 
     return (
-        <ComponentBody>
-            <ImageContainer />
-            <ItemTitle>대충 영상 제목</ItemTitle>
-            <ItemInfors>
-                <InforContainer>
-                    <AuthorInfor>123</AuthorInfor>
-                    <PriceInfor>32450원</PriceInfor>
-                </InforContainer>
-                <InforContainer>
-                    <div>123</div>
-                    <DateInfor><DateBold>8월 29일</DateBold> 업로드됨</DateInfor>
-                </InforContainer>
-            </ItemInfors>
-        </ComponentBody>
-    )
+      <ComponentBody>
+        <ImageContainer />
+        <ItemTitle>대충 영상 제목</ItemTitle>
+        <ItemInfors>
+          <InforContainerLeft>
+            <AuthorInfor>스터디파이</AuthorInfor>
+            <PriceInfor>32450원</PriceInfor>
+          </InforContainerLeft>
+          <InforContainerRight>
+            <div>
+              <StarImage src={yellowStar}/>
+              <StarImage src={yellowStar}/>
+              <StarImage src={yellowStar}/>
+              <StarImage src={yellowStar}/>
+              <StarImage src={yellowStar}/>
+            </div>
+            <DateInfor>
+              <DateBold>8월 29일</DateBold> 업로드됨
+            </DateInfor>
+          </InforContainerRight>
+        </ItemInfors>
+      </ComponentBody>
+    );
 }
