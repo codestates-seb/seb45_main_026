@@ -29,6 +29,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
@@ -83,6 +84,7 @@ public abstract class ServiceTest {
                 .view(0)
                 .star(0.0F)
                 .price(1000)
+                .videoCategories(new ArrayList<>())
                 .channel(channel)
                 .build();
 

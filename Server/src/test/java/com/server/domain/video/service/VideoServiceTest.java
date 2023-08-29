@@ -1,17 +1,21 @@
 package com.server.domain.video.service;
 
+import com.server.domain.cart.repository.CartRepository;
 import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
+import com.server.domain.video.service.dto.request.VideoUpdateServiceRequest;
 import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
 import com.server.domain.video.service.dto.response.VideoDetailResponse;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
+import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
 import com.server.global.exception.businessexception.videoexception.VideoFileNameNotMatchException;
+import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import com.server.global.exception.businessexception.videoexception.VideoUploadNotRequestException;
 import com.server.global.testhelper.ServiceTest;
 import com.server.module.s3.service.dto.ImageType;
@@ -40,6 +44,7 @@ import static org.mockito.BDDMockito.given;
 class VideoServiceTest extends ServiceTest {
 
     @Autowired VideoService videoService;
+    @Autowired CartRepository cartRepository;
 
     @TestFactory
     @DisplayName("page, size, sort, category, memberId, subscribe 를 받아서 비디오 리스트를 반환한다.")
@@ -389,5 +394,231 @@ class VideoServiceTest extends ServiceTest {
         //when & then
         assertThatThrownBy(() -> videoService.getVideoCreateUrl(requestMemberId, request))
                 .isInstanceOf(MemberNotFoundException.class);
+    }
+    
+    @Test
+    @DisplayName("videoName, price, description, categories 를 받아서 비디오를 수정한다.")
+    void updateVideo() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+
+        Category category1 = createAndSaveCategory("java");
+        Category category2 = createAndSaveCategory("spring");
+        Category category3 = createAndSaveCategory("react");
+
+        createAndSaveVideoCategory(video, category1); // video1 은 java, spring 카테고리
+        createAndSaveVideoCategory(video, category2);
+
+        VideoUpdateServiceRequest request = VideoUpdateServiceRequest.builder()
+                .videoId(video.getVideoId())
+                .videoName("update videoName")
+                .price(11111)
+                .description("update description")
+                .categories(List.of(category1.getCategoryName(), category3.getCategoryName())) // java, react 카테고리로 변경
+                .build();
+
+        em.flush();
+        em.clear();
+
+        //when
+        videoService.updateVideo(owner.getMemberId(), request);
+
+        //then
+        Video updatedVideo = videoRepository.findById(video.getVideoId()).orElseThrow();
+
+        assertThat(updatedVideo.getVideoName()).isEqualTo("update videoName");
+        assertThat(updatedVideo.getPrice()).isEqualTo(11111);
+        assertThat(updatedVideo.getDescription()).isEqualTo("update description");
+        assertThat(updatedVideo.getVideoCategories()).hasSize(2)
+                .extracting("category")
+                .extracting("categoryName")
+                .containsExactlyInAnyOrder("java", "react");
+    }
+
+    @Test
+    @DisplayName("video 수정 시 수정 권한이 없는 memberId 면 VideoAccessDeniedException 이 발생한다.")
+    void updateVideoVideoAccessDeniedException() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+
+        Category category = createAndSaveCategory("java");
+
+        VideoUpdateServiceRequest request = VideoUpdateServiceRequest.builder()
+                .videoId(video.getVideoId())
+                .videoName("update videoName")
+                .price(11111)
+                .description("update description")
+                .categories(List.of(category.getCategoryName()))
+                .build();
+
+        em.flush();
+        em.clear();
+
+        //when & then (없는 memberId 로 요청)
+        assertThatThrownBy(() -> videoService.updateVideo(owner.getMemberId() + 999L, request))
+                .isInstanceOf(VideoAccessDeniedException.class);
+
+        //then (업데이트가 되지 않았는지 확인)
+        Video updatedVideo = videoRepository.findById(video.getVideoId()).orElseThrow();
+
+        assertThat(updatedVideo.getVideoName()).isNotEqualTo("update videoName");
+        assertThat(updatedVideo.getPrice()).isNotEqualTo(11111);
+        assertThat(updatedVideo.getDescription()).isNotEqualTo("update description");
+        assertThat(updatedVideo.getVideoCategories()).hasSize(0);
+    }
+
+    @Test
+    @DisplayName("video 수정 시 존재하지 않는 videoId 면 VideoNotFoundException 이 발생한다.")
+    void updateVideoVideoNotFoundException() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+
+        Category category = createAndSaveCategory("java");
+
+        VideoUpdateServiceRequest request = VideoUpdateServiceRequest.builder()
+                .videoId(video.getVideoId() + 999L) // 존재하지 않는 videoId
+                .videoName("update videoName")
+                .price(11111)
+                .description("update description")
+                .categories(List.of(category.getCategoryName()))
+                .build();
+
+        em.flush();
+        em.clear();
+
+        //when & then (없는 videoId 로 요청)
+        assertThatThrownBy(() -> videoService.updateVideo(owner.getMemberId(), request))
+                .isInstanceOf(VideoNotFoundException.class);
+
+        //then (업데이트가 되지 않았는지 확인)
+        Video updatedVideo = videoRepository.findById(video.getVideoId()).orElseThrow();
+
+        assertThat(updatedVideo.getVideoName()).isNotEqualTo("update videoName");
+        assertThat(updatedVideo.getPrice()).isNotEqualTo(11111);
+        assertThat(updatedVideo.getDescription()).isNotEqualTo("update description");
+        assertThat(updatedVideo.getVideoCategories()).hasSize(0);
+    }
+
+    @TestFactory
+    @DisplayName("장바구니에 video 를 추가/삭제한다.")
+    Collection<DynamicTest> changeCart() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+
+        Member loginMember = createAndSaveMember();
+
+        return List.of(
+                dynamicTest("loginMember 의 장바구니에 video 를 추가한다.", ()-> {
+                    //when
+                    videoService.changeCart(loginMember.getMemberId(), video.getVideoId());
+
+                    //then
+                    assertThat(cartRepository.findByMemberAndVideo(loginMember, video)).isNotNull();
+                }),
+                dynamicTest("loginMember 의 장바구니에 video 를 삭제한다.", ()-> {
+                    //when
+                    videoService.changeCart(loginMember.getMemberId(), video.getVideoId());
+
+                    //then
+                    assertThat(cartRepository.findByMemberAndVideo(loginMember, video).isEmpty()).isTrue();
+                })
+        );
+    }
+
+    @Test
+    @DisplayName("장바구니 추가 시 없는 video 로 요청하면 VideoNotFoundException 이 발생한다.")
+    void changeCartVideoNotFoundException() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+
+        Member loginMember = createAndSaveMember();
+
+        //when & then (없는 videoId 로 요청)
+        assertThatThrownBy(() -> videoService.changeCart(loginMember.getMemberId(), video.getVideoId() + 999L))
+                .isInstanceOf(VideoNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("장바구니 추가 시 없는 memberId 로 요청하면 MemberNotFoundException 이 발생한다.")
+    void changeCartMemberNotFoundException() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+
+        Member loginMember = createAndSaveMember();
+
+        //when & then (없는 memberId 로 요청)
+        assertThatThrownBy(() -> videoService.changeCart(loginMember.getMemberId() + 999L, video.getVideoId()))
+                .isInstanceOf(MemberNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("video 소유자는 video 를 삭제할 수 있다.")
+    void deleteVideo() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+
+        //when
+        videoService.deleteVideo(owner.getMemberId(), video.getVideoId());
+
+        //then
+        assertThat(videoRepository.findById(video.getVideoId()).isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("video 소유자가 아니면 video 삭제 시 VideoAccessDeniedException 이 발생한다.")
+    void deleteVideoVideoAccessDeniedException() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+
+        Member loginMember = createAndSaveMember(); // video 소유자가 아닌 다른 멤버
+
+        //when & then
+        assertThatThrownBy(() -> videoService.deleteVideo(loginMember.getMemberId(), video.getVideoId()))
+                .isInstanceOf(VideoAccessDeniedException.class);
+
+        //then (삭제가 되지 않았는지 확인)
+        assertThat(videoRepository.findById(video.getVideoId()).isEmpty()).isFalse();
+    }
+
+    @Test
+    @DisplayName("video 삭제 시 존재하지 않는 videoId 면 VideoNotFoundException 이 발생한다.")
+    void deleteVideoVideoNotFoundException() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+
+        //when & then
+        assertThatThrownBy(() -> videoService.deleteVideo(owner.getMemberId(), video.getVideoId() + 999L))
+                .isInstanceOf(VideoNotFoundException.class);
+
+        //then (삭제가 되지 않았는지 확인)
+        assertThat(videoRepository.findById(video.getVideoId()).isEmpty()).isFalse();
+
     }
 }

@@ -59,8 +59,8 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                         .selectFrom(video)
                         .join(video.channel, channel).fetchJoin()
                         .join(channel.member, member).fetchJoin()
-                        .join(video.videoCategories, videoCategory).fetchJoin()
-                        .join(videoCategory.category, category).fetchJoin()
+                        .leftJoin(video.videoCategories, videoCategory).fetchJoin()
+                        .leftJoin(videoCategory.category, category).fetchJoin()
                         .where(video.videoId.eq(videoId))
                         .fetchOne()
         );

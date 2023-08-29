@@ -19,6 +19,7 @@ import com.server.global.exception.businessexception.memberexception.MemberNotFo
 import com.server.global.exception.businessexception.questionexception.QuestionNotFoundException;
 import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
+import com.server.global.exception.businessexception.videoexception.VideoNotPurchasedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -161,7 +162,7 @@ public class QuestionService {
                 .orElseThrow(QuestionNotFoundException::new);
 
         Boolean isPurchased = memberRepository.checkMemberPurchaseVideo(loginMemberId, video.getVideoId());
-        if(!isPurchased) throw new VideoAccessDeniedException();
+        if(!isPurchased) throw new VideoNotPurchasedException();
     }
 
     private void checkVideoPurchased(Long loginMemberId, Long videoId) {
@@ -169,7 +170,7 @@ public class QuestionService {
                 .orElseThrow(VideoNotFoundException::new);
 
         Boolean isPurchased = memberRepository.checkMemberPurchaseVideo(loginMemberId, video.getVideoId());
-        if(!isPurchased) throw new VideoAccessDeniedException();
+        if(!isPurchased) throw new VideoNotPurchasedException();
     }
 
     private void checkQuestionAuthority(Long loginMemberId, Long questionId) {
