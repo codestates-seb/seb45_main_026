@@ -8,8 +8,10 @@ const globalTokens = tokens.global;
 
 export const HeaderContainer = styled.header`
     height: 60px;
-    background-color: ${(props)=>props.isDark ? globalTokens.BackgroundDark.value : globalTokens.Header.value};
+    background-color: ${(props)=>props.isDark ? globalTokens.Black.value : globalTokens.Header.value};
     position: sticky;
+    top: 0;
+    z-index: 999;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -21,8 +23,24 @@ export const HeaderContainer = styled.header`
         ${(props)=>props.isDark ? globalTokens.RegularWhiteShadow.value.color : globalTokens.RegularShadow.value.color };
     transition: 300ms;
 `
+export const MainPageHeaderContainer = styled(HeaderContainer)`
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0,0,0,0);
+    box-shadow: none;
+`
+export const MainPageHeader = () => {
+    const isDark = useSelector(state=>state.uiSetting.isDark);
 
-const Header = () => {
+    return (
+        <MainPageHeaderContainer isDark={isDark}>
+            <HeaderLogo/>
+        </MainPageHeaderContainer>
+    );
+}
+
+export const Header = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
 
     return (

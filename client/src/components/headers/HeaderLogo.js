@@ -17,8 +17,12 @@ export const HeaderLogoContainer = styled.section`
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    padding: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing12.value}px
-`
+    padding: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing12.value}px;
+    transition: 1000ms;
+    &:active {
+        opacity: 0.3;
+    }
+    `
 export const HeaderLogoTitle = styled(BodyTextTypo)`
     height: 50px;
     text-align: end;

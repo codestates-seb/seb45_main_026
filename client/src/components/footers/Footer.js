@@ -9,7 +9,7 @@ import logo from '../../assets/images/logos/logo.png';
 const globalTokens = tokens.global;
 
 export const FooterContainer = styled.footer`
-    min-height: 100px;
+    min-height: 10vh;
     padding: ${globalTokens.Spacing20.value}px;
     background-color: ${(props)=>props.isDark?globalTokens.Black.value:globalTokens.DarkGray.value};
     transition: 300ms;
