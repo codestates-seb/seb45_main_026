@@ -28,6 +28,8 @@ include::overview.adoc[]
 * link:snippets/announcement/announcementcud.html[공지사항 생성/수정/삭제 API, onclick="window.location.href='snippets/announcement/announcementcud.html'"]
 
 === Order API
+* link:snippets/order/createorder.html[주문 생성/요청 API, onclick="window.location.href='snippets/order/createorder.html'"]
+* link:snippets/order/cancelorder.html[주문 취소 API, onclick="window.location.href='snippets/order/cancelorder.html'"]
 
 === Video API
 * link:snippets/video/getvideo.html[비디오 조회 API, onclick="window.location.href='snippets/video/getvideo.html'"]

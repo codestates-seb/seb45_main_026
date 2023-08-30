@@ -1,0 +1,20 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Order]]
+= 주문 취소 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 주문 취소
+=== HTTP Request
+include::{snippets}/order/cancelorder/http-request.adoc[]
+==== Request Headers
+include::{snippets}/order/cancelorder/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/order/cancelorder/http-response.adoc[]

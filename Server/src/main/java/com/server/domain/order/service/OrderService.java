@@ -34,7 +34,7 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 public class OrderService {
 
     private final MemberRepository memberRepository;
@@ -52,7 +52,6 @@ public class OrderService {
         this.restTemplate = restTemplate;
     }
 
-    @Transactional
     public PaymentServiceResponse requestFinalPayment(Long memberId, String paymentKey, String orderId, int amount) {
 
         orderCompleteProcess(memberId, paymentKey, orderId, amount);
@@ -81,7 +80,6 @@ public class OrderService {
         return response.getBody();
     }
 
-    @Transactional
     public void deleteOrder(Long memberId, String orderId) {
 
         Member member = verifedMember(memberId);
@@ -93,7 +91,6 @@ public class OrderService {
         order.deleteOrder();
     }
 
-    @Transactional
     public OrderResponse createOrder(Long memberId, OrderCreateServiceRequest request) {
 
         Member member = verifedMember(memberId);
