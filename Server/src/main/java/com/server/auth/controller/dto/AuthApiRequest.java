@@ -4,6 +4,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import com.server.auth.oauth.service.OAuthProvider;
 import com.server.auth.service.dto.AuthServiceRequest;
@@ -98,7 +99,7 @@ public class AuthApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class OAuth {
-		@NotBlank(message = "{validation.auth.provider}")
+		@NotNull(message = "{validation.auth.provider}")
 		private OAuthProvider provider;
 		private String code;
 	}

@@ -1,10 +1,12 @@
 package com.server.domain.member.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ import com.server.domain.member.entity.Grade;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.MemberService;
 import com.server.domain.member.service.dto.response.ProfileResponse;
+import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -41,79 +44,78 @@ public class MemberController {
 		this.awsService = awsService;
 	}
 
-	@GetMapping("/{member-id}")
-	public ResponseEntity<ApiSingleResponse<ProfileResponse>> getMember(@PathVariable("member-id") Long memberId,
-														@LoginId Long loginId) {
+	@GetMapping
+	public ResponseEntity<ApiSingleResponse<ProfileResponse>> getMember(@LoginId Long loginId) {
 
-		ProfileResponse profileResponse = memberService.getMember(memberId, loginId);
+		ProfileResponse profileResponse = memberService.getMember(loginId);
 
 		return ResponseEntity.ok(ApiSingleResponse.ok(profileResponse, "프로필 조회 성공"));
 	}
 
-	@GetMapping("/{member-id}/rewards")
-	public ResponseEntity<ApiSingleResponse> getRewards(@PathVariable("member-id") Long memberId) {
-		memberService.getRewards(memberId);
-		return ResponseEntity.ok(ApiSingleResponse.ok(new Object(), "test"));
+	@GetMapping("/rewards")
+	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(@LoginId Long loginId) {
+		Page<RewardsResponse> responses = memberService.getRewards(loginId);
+		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
-	@GetMapping("/{member-id}/subscribes")
-	public ResponseEntity<ApiSingleResponse> getSubscribes(@PathVariable("member-id") Long memberId) {
-		memberService.getSubscribes(memberId);
+	@GetMapping("/subscribes")
+	public ResponseEntity<ApiPageResponse> getSubscribes(@LoginId Long loginId) {
+		memberService.getSubscribes(loginId);
 
-		return ResponseEntity.ok(ApiSingleResponse.ok(new Object(), "test"));
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	// 좋아요 기능은 구현하지 않을 예정
-	@GetMapping("/{member-id}/likes")
-	public ResponseEntity<ApiPageResponse> getLikes(@PathVariable("member-id") Long memberId,
+	@GetMapping("/likes")
+	public ResponseEntity<ApiPageResponse> getLikes(@LoginId Long loginId,
 													@RequestParam("page") int page) {
-		memberService.getLikes(memberId, page);
+		memberService.getLikes(loginId, page);
 
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@GetMapping("/{member-id}/carts")
-	public ResponseEntity<ApiPageResponse> getCarts(@PathVariable("member-id") Long memberId,
+	@GetMapping("/carts")
+	public ResponseEntity<ApiPageResponse> getCarts(@LoginId Long loginId,
 													@RequestParam("page") int page) {
-		memberService.getCarts(memberId, page);
+		memberService.getCarts(loginId, page);
 
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@GetMapping("/{member-id}/orders")
-	public ResponseEntity<ApiPageResponse> getOrders(@PathVariable("member-id") Long memberId,
+	@GetMapping("/orders")
+	public ResponseEntity<ApiPageResponse> getOrders(@LoginId Long loginId,
 													@RequestParam("page") int page,
 													@RequestParam("month") int month) {
 
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@GetMapping("/{member-id}/playlists")
-	public ResponseEntity<ApiPageResponse> getPlaylists(@PathVariable("member-id") Long memberId,
+	@GetMapping("/playlists")
+	public ResponseEntity<ApiPageResponse> getPlaylists(@LoginId Long loginId,
 													@RequestParam("page") int page,
 													@RequestParam("sort") String sort) {
-		memberService.getPlaylists(memberId, page, sort);
+		memberService.getPlaylists(loginId, page, sort);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@GetMapping("/{member-id}/watchs")
-	public ResponseEntity<ApiPageResponse> getWatchs(@PathVariable("member-id") Long memberId,
+	@GetMapping("/watchs")
+	public ResponseEntity<ApiPageResponse> getWatchs(@LoginId Long loginId,
 													@RequestParam("page") int page,
 													@RequestParam("day") int day) {
-		memberService.getWatchs(memberId, page, day);
+		memberService.getWatchs(loginId, page, day);
 
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@PatchMapping("/{member-id}")
-	public ResponseEntity<Void> updateNickname(@PathVariable("member-id") Long memberId,
-														@RequestBody MemberApiRequest.Nickname request) {
+	@PatchMapping
+	public ResponseEntity<Void> updateNickname(@LoginId Long loginId,
+												@RequestBody MemberApiRequest.Nickname request) {
 		memberService.updateNickname(request.toServiceRequest());
 		return ResponseEntity.noContent().build();
 	}
 
-	@PatchMapping("/{member-id}/image")
-	public ResponseEntity<ApiSingleResponse> updateImage(@PathVariable("member-id") Long memberId,
+	@PatchMapping("/image")
+	public ResponseEntity<ApiSingleResponse> updateImage(@LoginId Long loginId,
 		@RequestBody MemberApiRequest.Image request) {
 		// 주소 생성 및 파일명을 해당 멤버에 저장
 		memberService.updateImage(request.getImageName());
@@ -134,7 +136,7 @@ public class MemberController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@DeleteMapping("/{member-id}")
+	@DeleteMapping
 	public ResponseEntity<Void> deleteMember(@PathVariable("member-id") Long memberId) {
 		memberService.deleteMember(memberId);
 
