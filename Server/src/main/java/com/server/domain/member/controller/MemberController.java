@@ -53,7 +53,8 @@ public class MemberController {
 	}
 
 	@GetMapping("/rewards")
-	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(@LoginId Long loginId) {
+	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(@RequestParam("page") int page,
+																		@LoginId Long loginId) {
 		Page<RewardsResponse> responses = memberService.getRewards(loginId);
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
