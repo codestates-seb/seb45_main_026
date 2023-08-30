@@ -72,7 +72,7 @@ public class MemberController {
 
 	// 좋아요 기능은 구현하지 않을 예정
 	@GetMapping("/likes")
-	public ResponseEntity<ApiPageResponse> getLikes(@LoginId Long loginId,
+	public ResponseEntity<ApiPageResponse<Void>> getLikes(@LoginId Long loginId,
 													@RequestParam("page") int page) {
 		memberService.getLikes(loginId, page);
 
