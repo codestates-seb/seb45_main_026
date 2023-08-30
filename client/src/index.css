@@ -5,7 +5,8 @@
   padding: 0;
 }
 button {
-  border-style : none;
+  border-style: none;
+  background: none;
   cursor: pointer;
 }
 ol,ul {

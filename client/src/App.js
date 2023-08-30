@@ -9,7 +9,7 @@ import Header, { MainPageHeader } from "./components/headers/Header";
 import Footer from "./components/footers/Footer";
 import ChannelPage from "./pages/contents/ChannelPage";
 import DetailPage from "./pages/contents/DetailPage/DetailPage";
-import CartItemPage from "./pages/contents/CartItemPage/CartItemPage";
+import CartPage from "./pages/contents/CartPage/CartPage";
 import "./App.css";
 
 function App() {
@@ -32,7 +32,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/MyProfile" element={<MyProfilePage />} />
         <Route path="/videos/1" element={<DetailPage />} />
-        <Route path="/cartitems" element={<CartItemPage />} />
+        <Route path="/carts" element={<CartPage />} />
       </Routes>
       {url.pathname === "/" || <Footer />}
     </BrowserRouter>

@@ -16,10 +16,16 @@ const DetailContent = () => {
       <Content isOpened={isOpened}>
         Create React App 덕분에 React 개발환경 구축이 쉬워진 것처럼 Redux
         toolkit 을 사용하면 Redux 개발환경 구축을 쉽게 할 수 있습니다.
-        <Category>#JavaScript #React #Web</Category>
+        <Category>
+          <CategoryLists>#JavaScript</CategoryLists>
+          <CategoryLists>#React</CategoryLists>
+          <CategoryLists>#Web</CategoryLists>
+        </Category>
       </Content>
 
-      <ContentBtn onClick={() => setOpened(!isOpened)}>{!isOpened ? "...더보기" : "간략히"}</ContentBtn>
+      <ContentBtn onClick={() => setOpened(!isOpened)}>
+        {!isOpened ? "...더보기" : "간략히"}
+      </ContentBtn>
     </ContentInfo>
   );
 };
@@ -70,13 +76,18 @@ export const Content = styled.div`
 `;
 
 export const Category = styled.ul`
+  display: flex;
+  justify-content: start;
+  align-items: center;
   margin: 5px 0px;
+`;
+
+export const CategoryLists = styled.li`
+  margin-right: 10px;
   font-size: small;
   color: gray;
   font-size: 16px;
 `;
-
-export const CategoryLists = styled.li``;
 
 export const ContentBtn = styled.button`
   background: none;
