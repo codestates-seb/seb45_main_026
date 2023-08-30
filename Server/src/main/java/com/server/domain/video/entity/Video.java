@@ -54,21 +54,27 @@ public class Video extends BaseEntity {
     @JoinColumn(name = "channel_id")
     private Channel channel;
 
+    @Builder.Default
     @OneToMany(mappedBy = "video")
     private List<Reply> replies = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "video")
     private List<Watch> watches = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "video")
     private List<Cart> carts = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "video")
     private List<Question> questions = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
     private List<VideoCategory> videoCategories = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "video")
     private List<OrderVideo> orderVideos = new ArrayList<>();
 
