@@ -13,7 +13,7 @@ export const MainPageContainer = styled(PageContainer)`
     height: 100vh;
 `
 export const LightContainer = styled.div`
-    background-color: ${(props)=>props.isDark ? globalTokens.Black.value : globalTokens.LightGray.value};
+    background-color: ${(props)=>props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
     width: 100vw;
     height: 100vh;
     display: flex;
@@ -23,7 +23,7 @@ export const LightContainer = styled.div`
     transition: 300ms;
 `
 export const DarkContainer = styled.div`
-    background-color: ${(props)=>props.isDark ? globalTokens.DarkGray.value :globalTokens.Gray.value};
+    background-color: ${(props)=>props.isDark ? globalTokens.DarkGray.value :globalTokens.MainOrange.value};
     width: 100vw;
     height: 100vh;
     display: flex;

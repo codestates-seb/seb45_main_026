@@ -25,14 +25,14 @@ function App() {
 
   return (
     <BrowserRouter>
-      { url.pathname==='/'?<MainPageHeader/>:<Header/> }
+      <Header/>
       <Routes>
         <Route path="/" element={<MainPage/>}/>
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/MyProfile" element={<MyProfilePage/>}/>
         <Route path="/videos/1" element={<DetailPage/>}/>
       </Routes>
-      { url.pathname==='/'||<Footer/> }
+      <Footer/>
     </BrowserRouter>
   );
 }
