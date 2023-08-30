@@ -23,6 +23,10 @@ include::overview.adoc[]
 
 === Channel API
 
+=== Announcement API
+* link:snippets/member/getmember.html[공지사항 조회 API, onclick="window.location.href='snippets/announcement/getannouncement.html'"]
+* link:snippets/member/getmember.html[공지사항 생성, 수정, 삭제 API, onclick="window.location.href='snippets/announcement/announcementcud.html'"]
+
 === Order API
 
 === Video API
