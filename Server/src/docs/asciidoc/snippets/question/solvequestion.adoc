@@ -7,11 +7,11 @@
 :docinfo: shared-head
 
 [[Question]]
-= 질문 풀기 API
+= 문제 풀기 API
 
 link:/index.html[APIs, onclick="window.location.href='index.html'"]
 
-== 질문 풀기
+== 문제 전체 풀기
 === HTTP Request
 include::{snippets}/video/solvequestions/http-request.adoc[]
 ==== Request Headers
@@ -27,8 +27,20 @@ include::{snippets}/video/solvequestions/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/video/solvequestions/response-fields.adoc[]
 
-== 질문 수정
-
-== 질문 삭제
+== 문제 개별 풀기
+=== HTTP Request
+include::{snippets}/question/solvequestion/http-request.adoc[]
+==== Request Headers
+include::{snippets}/question/solvequestion/request-headers.adoc[]
+==== Request Body
+include::{snippets}/question/solvequestion/request-body.adoc[]
+==== Request Fields
+include::{snippets}/question/solvequestion/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/question/solvequestion/http-response.adoc[]
+==== Response Body
+include::{snippets}/question/solvequestion/response-body.adoc[]
+==== Response Fields
+include::{snippets}/question/solvequestion/response-fields.adoc[]
 
 

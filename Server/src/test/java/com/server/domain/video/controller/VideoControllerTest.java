@@ -42,7 +42,7 @@ class VideoControllerTest extends ControllerTest {
 
         List<QuestionResponse> responses = createQuestionResponses(5);
 
-        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(responses, "질문 목록 조회 성공"));
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(responses, "문제 목록 조회 성공"));
 
         given(questionService.getQuestions(anyLong(), anyLong()))
                 .willReturn(responses);
@@ -66,17 +66,20 @@ class VideoControllerTest extends ControllerTest {
                 requestHeaders(
                         headerWithName(AUTHORIZATION).description("액세스 토큰")
                 ),
+                pathParameters(
+                        parameterWithName("video-id").description("문제를 조회할 비디오 ID")
+                ),
                 responseFields(
-                        fieldWithPath("data").description("질문 리스트"),
-                        fieldWithPath("data[].questionId").description("질문 ID"),
-                        fieldWithPath("data[].position").description("질문 순서"),
-                        fieldWithPath("data[].content").description("질문 내용"),
+                        fieldWithPath("data").description("문제 리스트"),
+                        fieldWithPath("data[].questionId").description("문제 ID"),
+                        fieldWithPath("data[].position").description("문제 순서"),
+                        fieldWithPath("data[].content").description("문제 내용"),
                         fieldWithPath("data[].myAnswer").description("나의 답변"),
                         fieldWithPath("data[].questionAnswer").description("정답"),
                         fieldWithPath("data[].answerStatus").description(generateLinkCode(AnswerStatus.class)),
-                        fieldWithPath("data[].description").description("질문에 대한 답변 설명"),
-                        fieldWithPath("data[].selections").description("질문에 대한 선택지"),
-                        fieldWithPath("data[].solvedDate").description("질문 풀이 날짜"),
+                        fieldWithPath("data[].description").description("문제에 대한 답변 설명"),
+                        fieldWithPath("data[].selections").description("문제에 대한 선택지"),
+                        fieldWithPath("data[].solvedDate").description("문제 풀이 날짜"),
                         fieldWithPath("code").description("응답 코드"),
                         fieldWithPath("status").description("응답 상태"),
                         fieldWithPath("message").description("응답 메시지")
@@ -136,7 +139,7 @@ class VideoControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("비디오의 질문 전체 생성 API")
+    @DisplayName("비디오의 문제 전체 생성 API")
     void createQuestions() throws Exception {
         //given
         Long videoId = 1L;
@@ -145,7 +148,7 @@ class VideoControllerTest extends ControllerTest {
 
         List<Long> createdIds = List.of(1L, 2L, 3L, 4L, 5L);
 
-        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.of(createdIds, CREATED, "질문 생성 성공"));
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.of(createdIds, CREATED, "문제 생성 성공"));
 
         given(questionService.createQuestions(anyLong(), anyLong(), anyList()))
                 .willReturn(createdIds);
@@ -174,16 +177,16 @@ class VideoControllerTest extends ControllerTest {
                                 headerWithName(AUTHORIZATION).description("액세스 토큰")
                         ),
                         requestFields(
-                                fieldWithPath("[]").description("질문 생성 요청 리스트"),
-                                fieldWithPath("[].content").description("질문 내용").attributes(getConstraint("content")),
-                                fieldWithPath("[].position").description("질문 순서").attributes(getConstraint("position")),
+                                fieldWithPath("[]").description("문제 생성 요청 리스트"),
+                                fieldWithPath("[].content").description("문제 내용").attributes(getConstraint("content")),
+                                fieldWithPath("[].position").description("문제 순서").attributes(getConstraint("position")),
                                 fieldWithPath("[].questionAnswer").description("정답").attributes(getConstraint("questionAnswer")),
-                                fieldWithPath("[].description").description("질문에 대한 답변 설명").attributes(getConstraint("description")),
-                                fieldWithPath("[].selections").description("질문에 대한 선택지").attributes(getConstraint("selections"))
+                                fieldWithPath("[].description").description("문제에 대한 답변 설명").attributes(getConstraint("description")),
+                                fieldWithPath("[].selections").description("문제에 대한 선택지").attributes(getConstraint("selections"))
                         ),
                         responseFields(
-                                fieldWithPath("data").description("질문 ID 리스트"),
-                                fieldWithPath("data[]").description("질문 ID"),
+                                fieldWithPath("data").description("문제 ID 리스트"),
+                                fieldWithPath("data[]").description("문제 ID"),
                                 fieldWithPath("code").description("응답 코드"),
                                 fieldWithPath("status").description("응답 상태"),
                                 fieldWithPath("message").description("응답 메시지")
