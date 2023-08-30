@@ -1,0 +1,36 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Video]]
+= 비디오 수정 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 비디오 수정
+=== HTTP Request
+include::{snippets}/video/updatevideo/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/updatevideo/request-headers.adoc[]
+==== Request Body
+include::{snippets}/video/updatevideo/request-body.adoc[]
+==== Request Fields
+include::{snippets}/video/updatevideo/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/video/updatevideo/http-response.adoc[]
+
+== 비디오 삭제
+=== HTTP Request
+include::{snippets}/video/deletevideo/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/deletevideo/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/video/deletevideo/http-response.adoc[]
+
+
+
+

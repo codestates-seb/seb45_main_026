@@ -215,7 +215,7 @@ class VideoControllerTest extends ControllerTest {
                         .param("category", "spring")
                         .param("subscribe", "true")
                         .accept(APPLICATION_JSON)
-                        .header("Authorization", "Bearer token")
+                        .header(AUTHORIZATION, TOKEN)
         );
 
         //then

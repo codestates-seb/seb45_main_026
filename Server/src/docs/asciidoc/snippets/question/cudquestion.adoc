@@ -1,0 +1,34 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Question]]
+= 질문 생성, 수정, 삭제 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 비디오에 대한 질문 목록 생성
+=== HTTP Request
+include::{snippets}/video/createquestions/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/createquestions/request-headers.adoc[]
+==== Request Body
+include::{snippets}/video/createquestions/request-body.adoc[]
+==== Request Fields
+include::{snippets}/video/createquestions/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/video/createquestions/http-response.adoc[]
+==== Response Body
+include::{snippets}/video/createquestions/response-body.adoc[]
+==== Response Fields
+include::{snippets}/video/createquestions/response-fields.adoc[]
+
+== 질문 수정
+
+== 질문 삭제
+
+

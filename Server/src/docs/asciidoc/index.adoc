@@ -24,18 +24,22 @@ include::overview.adoc[]
 === Channel API
 
 === Announcement API
-* link:snippets/member/getmember.html[공지사항 조회 API, onclick="window.location.href='snippets/announcement/getannouncement.html'"]
-* link:snippets/member/getmember.html[공지사항 생성, 수정, 삭제 API, onclick="window.location.href='snippets/announcement/announcementcud.html'"]
+* link:snippets/announcement/getannouncement.html[공지사항 조회 API, onclick="window.location.href='snippets/announcement/getannouncement.html'"]
+* link:snippets/announcement/announcementcud.html[공지사항 생성/수정/삭제 API, onclick="window.location.href='snippets/announcement/announcementcud.html'"]
 
 === Order API
 
 === Video API
+* link:snippets/video/getvideo.html[비디오 조회 API, onclick="window.location.href='snippets/video/getvideo.html'"]
+* link:snippets/video/createvideo.html[비디오 생성 API, onclick="window.location.href='snippets/video/createvideo.html'"]
+* link:snippets/video/updatedeletevideo.html[비디오 수정/삭제 API, onclick="window.location.href='snippets/video/updatedeletevideo.html'"]
 
 === Reply API
 
 === Question API
-
-=== Answer API
+* link:snippets/question/getquestion.html[비디오 내 문제 조회 API, onclick="window.location.href='snippets/question/getquestion.html'"]
+* link:snippets/question/cudquestion.html[문제 생성/수정/삭제 API, onclick="window.location.href='snippets/question/cudquestion.html'"]
+* link:snippets/question/solvequestion.html[문제 풀기 API, onclick="window.location.href='snippets/question/solvequestion.html'"]
 
 
 

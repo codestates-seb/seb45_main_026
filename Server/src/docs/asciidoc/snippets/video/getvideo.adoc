@@ -1,0 +1,42 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Video]]
+= 비디오 조회 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 비디오 목록 조회
+=== HTTP Request
+include::{snippets}/video/getvideos/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/getvideos/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/video/getvideos/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/video/getvideos/http-response.adoc[]
+==== Response Body
+include::{snippets}/video/getvideos/response-body.adoc[]
+==== Response Fields
+include::{snippets}/video/getvideos/response-fields.adoc[]
+
+== 비디오 세부 조회
+=== HTTP Request
+include::{snippets}/video/getvideo/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/getvideo/request-headers.adoc[]
+==== Request Path Parameters
+include::{snippets}/video/getvideo/path-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/video/getvideo/http-response.adoc[]
+==== Response Body
+include::{snippets}/video/getvideo/response-body.adoc[]
+==== Response Fields
+include::{snippets}/video/getvideo/response-fields.adoc[]
+
+
