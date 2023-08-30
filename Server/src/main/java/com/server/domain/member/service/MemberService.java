@@ -42,7 +42,7 @@ public class MemberService {
 		channelService.createChannel(signMember);
 	}
 
-	public ProfileResponse getMember(Long memberId, Long loginId) {
+	public ProfileResponse getMember(Long loginId) {
 		return ProfileResponse.builder().build();
 	}
 

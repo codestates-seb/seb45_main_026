@@ -37,11 +37,8 @@ public class MemberStubAop {
 
 	@Around("execution(* com.server.domain.member.controller.MemberController.getMember(..))")
 	public ResponseEntity<ApiSingleResponse<ProfileResponse>> getMember(ProceedingJoinPoint joinPoint) {
-		Object[] args = joinPoint.getArgs();
-		Long memberId = (Long) args[0];
-
 		ProfileResponse profileResponse = ProfileResponse.builder()
-			.memberId(memberId)
+			.memberId(1L)
 			.email("stub@email.com")
 			.nickname("stubName")
 			.imageUrl(awsService.getImageUrl("test"))
