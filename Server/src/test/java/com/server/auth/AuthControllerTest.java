@@ -158,7 +158,7 @@ public class AuthControllerTest {
 		actions
 			.andDo(
 				document(
-					"/auth/oauth",
+					"auth/oauth",
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestParameters(
@@ -195,7 +195,7 @@ public class AuthControllerTest {
 		signup
 			.andDo(
 				document(
-					"/auth/signup/email",
+					"auth/signup/email",
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
@@ -217,7 +217,7 @@ public class AuthControllerTest {
 		password
 			.andDo(
 				document(
-					"/auth/password/email",
+					"auth/password/email",
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
@@ -250,7 +250,7 @@ public class AuthControllerTest {
 			.andExpect(status().isNoContent())
 			.andDo(
 				document(
-				"/auth/signup/confirm",
+				"auth/signup/confirm",
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
@@ -271,7 +271,7 @@ public class AuthControllerTest {
 			.andExpect(status().isNoContent())
 			.andDo(
 				document(
-					"/auth/password/confirm",
+					"auth/password/confirm",
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
@@ -308,7 +308,7 @@ public class AuthControllerTest {
 		actions
 			.andDo(
 				document(
-					"/auth/signup",
+					"auth/signup",
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
@@ -346,7 +346,7 @@ public class AuthControllerTest {
 		actions
 			.andDo(
 				document(
-					"/auth/password",
+					"auth/password",
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
