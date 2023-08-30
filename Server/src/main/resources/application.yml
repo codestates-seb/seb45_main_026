@@ -37,16 +37,16 @@ spring:
         registration:
           google:
             scope: email
-            redirect-uri: https://www.itprometheus.net/login
+            redirect-uri: https://localhost:3000/login
           github:
             scope: user:email, read:user
-            redirect-uri: https://www.itprometheus.net/login
+            redirect-uri: http://localhost:3000/login
           kakao:
             client-authentication-method: POST
             authorization-grant-type: authorization_code
             scope: profile_nickname, account_email
             client-name: Kakao
-            redirect-uri: https://www.itprometheus.net/login
+            redirect-uri: http://localhost:3000/login
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
