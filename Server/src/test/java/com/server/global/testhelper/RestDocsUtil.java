@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.payload.ResponseFieldsSnippet;
 
 public class RestDocsUtil {
 	private static final FieldDescriptor[] pageInfoFields = new FieldDescriptor[]{
@@ -33,5 +34,15 @@ public class RestDocsUtil {
 		allFields.addAll(Arrays.asList(pageInfoFields));
 		allFields.addAll(Arrays.asList(responseStatusFields));
 		return allFields.toArray(new FieldDescriptor[0]);
+	}
+
+	public static ResponseFieldsSnippet pageResponseFields(FieldDescriptor... responseFields) {
+
+		List<FieldDescriptor> allFields = new ArrayList<>();
+		allFields.addAll(Arrays.asList(responseFields));
+		allFields.addAll(Arrays.asList(pageInfoFields));
+		allFields.addAll(Arrays.asList(responseStatusFields));
+
+		return responseFields(allFields);
 	}
 }
