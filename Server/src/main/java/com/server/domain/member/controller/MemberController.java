@@ -26,6 +26,7 @@ import com.server.domain.member.entity.Grade;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.MemberService;
 import com.server.domain.member.service.dto.response.CartsResponse;
+import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
@@ -90,11 +91,13 @@ public class MemberController {
 	}
 
 	@GetMapping("/orders")
-	public ResponseEntity<ApiPageResponse> getOrders(@LoginId Long loginId,
+	public ResponseEntity<ApiPageResponse<OrdersResponse>> getOrders(@LoginId Long loginId,
 													@RequestParam("page") int page,
 													@RequestParam("month") int month) {
 
-		return new ResponseEntity<>(HttpStatus.OK);
+		Page<OrdersResponse> responses = memberService.getOrders(loginId, page, month);
+
+		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@GetMapping("/playlists")

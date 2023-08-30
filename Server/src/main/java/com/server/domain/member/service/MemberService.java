@@ -13,6 +13,7 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.CartsResponse;
+import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
@@ -65,6 +66,10 @@ public class MemberService {
 	}
 
 	public Page<CartsResponse> getCarts(Long memberId, int page) {
+		return null;
+	}
+
+	public Page<OrdersResponse> getOrders(Long loginId, int page, int month) {
 		return null;
 	}
 
