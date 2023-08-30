@@ -57,4 +57,13 @@ public class RestDocsUtil {
 
 		return responseFields(allFields);
 	}
+
+	public static ResponseFieldsSnippet singleResponseFields(FieldDescriptor... responseFields) {
+
+		List<FieldDescriptor> allFields = new ArrayList<>();
+		allFields.addAll(Arrays.asList(responseFields));
+		allFields.addAll(Arrays.asList(responseStatusFields));
+
+		return responseFields(allFields);
+	}
 }
