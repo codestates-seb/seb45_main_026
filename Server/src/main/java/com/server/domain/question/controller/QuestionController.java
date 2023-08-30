@@ -25,14 +25,14 @@ public class QuestionController {
         this.questionService = questionService;
     }
 
-    @GetMapping("/{question-id}") //개별 질문 조회 사용 x
+    @GetMapping("/{question-id}") //개별 문제 조회 사용 x
     public ResponseEntity<ApiSingleResponse<QuestionResponse>> getQuestion(
             @PathVariable("question-id") @Positive Long questionId,
             @LoginId Long loginMemberId) {
 
         QuestionResponse questionResponse = questionService.getQuestion(loginMemberId, questionId);
 
-        return ResponseEntity.ok(ApiSingleResponse.ok(questionResponse, "질문 조회 성공"));
+        return ResponseEntity.ok(ApiSingleResponse.ok(questionResponse, "문제 조회 성공"));
     }
 
     @PatchMapping("/{question-id}")
@@ -56,7 +56,6 @@ public class QuestionController {
         return ResponseEntity.noContent().build();
     }
 
-    //질문 풀기
     @PostMapping("/{question-id}/answers")
     public ResponseEntity<ApiSingleResponse<Boolean>> solveQuestion(
             @PathVariable("question-id") @Positive Long questionId,
