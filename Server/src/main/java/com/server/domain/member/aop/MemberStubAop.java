@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import com.server.domain.member.entity.Grade;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.LikesResponse;
-import com.server.domain.member.service.dto.response.PaysResponse;
+import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
@@ -197,27 +197,27 @@ public class MemberStubAop {
 	}
 
 	@Around("execution(* com.server.domain.member.controller.MemberController.getOrders(..))")
-	public ResponseEntity<ApiPageResponse<PaysResponse>> getOrders(ProceedingJoinPoint joinPoint) {
-		List<PaysResponse> responses = List.of(
-			PaysResponse.builder()
+	public ResponseEntity<ApiPageResponse<OrdersResponse>> getOrders(ProceedingJoinPoint joinPoint) {
+		List<OrdersResponse> responses = List.of(
+			OrdersResponse.builder()
 				.orderId("aBzd031dpf414")
 				.reward(300)
 				.orderCount(4)
 				.orderStatus(OrderStatus.ORDERED)
 				.build(),
-			PaysResponse.builder()
+			OrdersResponse.builder()
 				.orderId("dfghkdf908sd023")
 				.reward(400)
 				.orderCount(6)
 				.orderStatus(OrderStatus.CANCELED)
 				.build(),
-			PaysResponse.builder()
+			OrdersResponse.builder()
 				.orderId("fd932jkfdgklgdf")
 				.reward(200)
 				.orderCount(3)
 				.orderStatus(OrderStatus.COMPLETED)
 				.build(),
-			PaysResponse.builder()
+			OrdersResponse.builder()
 				.orderId("nvbio328sdfhs13")
 				.reward(100)
 				.orderCount(7)
@@ -225,7 +225,7 @@ public class MemberStubAop {
 				.build()
 		);
 
-		PageImpl<PaysResponse> page = new PageImpl<>(responses);
+		PageImpl<OrdersResponse> page = new PageImpl<>(responses);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(page));
 	}

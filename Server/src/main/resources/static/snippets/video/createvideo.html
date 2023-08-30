@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>회원 정보 API</title>
+<title>비디오 생성 API</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,20 +436,62 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script>
+    function ready(callbackFunc) {
+        if (document.readyState !== 'loading') {
+            // Document is already ready, call the callback directly
+            callbackFunc();
+        } else if (document.addEventListener) {
+            // All modern browsers to register DOMContentLoaded
+            document.addEventListener('DOMContentLoaded', callbackFunc);
+        } else {
+            // Old IE browsers
+            document.attachEvent('onreadystatechange', function () {
+                if (document.readyState === 'complete') {
+                    callbackFunc();
+                }
+            });
+        }
+    }
+
+    function openPopup(event) {
+
+        const target = event.target;
+        if (target.className !== "popup") {
+            return;
+        }
+
+        event.preventDefault();
+        const screenX = event.screenX;
+        const screenY = event.screenY;
+        window.open(target.href, target.text, `left=${screenX}, top=${screenY}, width=500, height=600, status=no, menubar=no, toolbar=no, resizable=no`);
+    }
+
+    ready(function () {
+        const el = document.getElementById("content");
+        el.addEventListener("click", event => openPopup(event), false);
+    });
+</script>
 </head>
-<body id="Member" class="book toc2 toc-left">
+<body id="Video" class="book toc2 toc-left">
 <div id="header">
-<h1>회원 정보 API</h1>
+<h1>비디오 생성 API</h1>
 <div class="details">
 <span id="revnumber">version 0.0.1-SNAPSHOT</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_프로필_조회">프로필 조회</a>
+<li><a href="#_비디오_upload_url_생성">비디오 Upload Url 생성</a>
 <ul class="sectlevel2">
 <li><a href="#_http_request">HTTP Request</a></li>
 <li><a href="#_http_response">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_비디오_생성">비디오 생성</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_2">HTTP Request</a></li>
+<li><a href="#_http_response_2">HTTP Response</a></li>
 </ul>
 </li>
 </ul>
@@ -464,20 +506,27 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="_프로필_조회"><a class="link" href="#_프로필_조회">프로필 조회</a></h2>
+<h2 id="_비디오_upload_url_생성"><a class="link" href="#_비디오_upload_url_생성">비디오 Upload Url 생성</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_http_request"><a class="link" href="#_http_request">HTTP Request</a></h3>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">GET /members HTTP/1.1
-Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">POST /videos/presigned-url HTTP/1.1
+Content-Type: application/json;charset=UTF-8
 Accept: application/json
-Host: localhost:8080</code></pre>
+Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+Content-Length: 56
+Host: localhost:8080
+
+{
+  "imageType" : "JPG",
+  "fileName" : "videoName"
+}</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_request_header"><a class="link" href="#_request_header">Request Header</a></h4>
+<h4 id="_request_headers"><a class="link" href="#_request_headers">Request Headers</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -492,7 +541,55 @@ Host: localhost:8080</code></pre>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">액세스 토큰</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Access Token</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_request_body"><a class="link" href="#_request_body">Request Body</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-none hljs">{
+  "imageType" : "JPG",
+  "fileName" : "videoName"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_fields"><a class="link" href="#_request_fields">Request Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">필드명</th>
+<th class="tableblock halign-left valign-top">타입</th>
+<th class="tableblock halign-left valign-top">설명</th>
+<th class="tableblock halign-left valign-top">제약조건</th>
+<th class="tableblock halign-left valign-top">필수여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>imageType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../common/imagetype.html" class="popup">ImageType 값 보기</a></p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fileName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">파일 이름</p></td>
+<td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
 </tr>
 </tbody>
@@ -505,21 +602,16 @@ Host: localhost:8080</code></pre>
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 200 OK
 Content-Type: application/json;charset=UTF-8
-Content-Length: 356
+Content-Length: 265
 
 {
   "data" : {
-    "memberId" : 1,
-    "email" : "stub@email.com",
-    "nickname" : "stubName",
-    "imageUrl" : "https://d2ouhv9pc4idoe.cloudfront.net/images/test",
-    "grade" : "PLATINUM",
-    "reward" : 777,
-    "createdDate" : "2023-08-30T23:41:36.4713449"
+    "thumbnailUrl" : "https://s3.ap-northeast-2.amazonaws.com/prometheus-images/1",
+    "videoUrl" : "https://s3.ap-northeast-2.amazonaws.com/prometheus-videos/1"
   },
   "code" : 200,
   "status" : "OK",
-  "message" : "프로필 조회 성공"
+  "message" : "put url 생성 성공"
 }</code></pre>
 </div>
 </div>
@@ -529,17 +621,12 @@ Content-Length: 356
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-none hljs">{
   "data" : {
-    "memberId" : 1,
-    "email" : "stub@email.com",
-    "nickname" : "stubName",
-    "imageUrl" : "https://d2ouhv9pc4idoe.cloudfront.net/images/test",
-    "grade" : "PLATINUM",
-    "reward" : 777,
-    "createdDate" : "2023-08-30T23:41:36.4713449"
+    "thumbnailUrl" : "https://s3.ap-northeast-2.amazonaws.com/prometheus-images/1",
+    "videoUrl" : "https://s3.ap-northeast-2.amazonaws.com/prometheus-videos/1"
   },
   "code" : 200,
   "status" : "OK",
-  "message" : "프로필 조회 성공"
+  "message" : "put url 생성 성공"
 }</code></pre>
 </div>
 </div>
@@ -559,39 +646,19 @@ Content-Length: 356
 <td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.memberId</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">회원 아이디</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">put url 정보</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.videoUrl</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">회원 이메일</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">비디오 put url</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.nickname</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.thumbnailUrl</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">회원 닉네임</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.imageUrl</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">회원 프로필 이미지</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.grade</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">회원 등급</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.reward</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">보유 중인 리워드</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.createdDate</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">가입일</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">섬네일 put url</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
@@ -614,11 +681,152 @@ Content-Length: 356
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_비디오_생성"><a class="link" href="#_비디오_생성">비디오 생성</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_2"><a class="link" href="#_http_request_2">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">POST /videos HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Accept: application/json
+Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+Content-Length: 126
+Host: localhost:8080
+
+{
+  "videoName" : "videoName",
+  "price" : 10000,
+  "description" : "description",
+  "categories" : [ "java", "react" ]
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_headers_2"><a class="link" href="#_request_headers_2">Request Headers</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">헤더명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Access Token</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_request_body_2"><a class="link" href="#_request_body_2">Request Body</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-none hljs">{
+  "videoName" : "videoName",
+  "price" : 10000,
+  "description" : "description",
+  "categories" : [ "java", "react" ]
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_fields_2"><a class="link" href="#_request_fields_2">Request Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">필드명</th>
+<th class="tableblock halign-left valign-top">타입</th>
+<th class="tableblock halign-left valign-top">설명</th>
+<th class="tableblock halign-left valign-top">제약조건</th>
+<th class="tableblock halign-left valign-top">필수여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>videoName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">비디오 제목</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>price</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">가격</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">비디오 설명</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>categories</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">카테고리 목록</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_2"><a class="link" href="#_http_response_2">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 201 Created
+Location: /videos/1</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_header"><a class="link" href="#_response_header">Response Header</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Location</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">생성된 비디오 URL</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2023-08-30 11:40:55 +0900
+Last updated 2023-08-30 22:09:43 +0900
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">

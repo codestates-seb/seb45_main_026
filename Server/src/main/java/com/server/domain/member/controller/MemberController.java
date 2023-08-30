@@ -26,6 +26,8 @@ import com.server.domain.member.entity.Grade;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.MemberService;
 import com.server.domain.member.service.dto.response.CartsResponse;
+import com.server.domain.member.service.dto.response.OrdersResponse;
+import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
@@ -90,19 +92,23 @@ public class MemberController {
 	}
 
 	@GetMapping("/orders")
-	public ResponseEntity<ApiPageResponse> getOrders(@LoginId Long loginId,
+	public ResponseEntity<ApiPageResponse<OrdersResponse>> getOrders(@LoginId Long loginId,
 													@RequestParam("page") int page,
 													@RequestParam("month") int month) {
 
-		return new ResponseEntity<>(HttpStatus.OK);
+		Page<OrdersResponse> responses = memberService.getOrders(loginId, page, month);
+
+		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@GetMapping("/playlists")
-	public ResponseEntity<ApiPageResponse> getPlaylists(@LoginId Long loginId,
+	public ResponseEntity<ApiPageResponse<PlaylistsResponse>> getPlaylists(@LoginId Long loginId,
 													@RequestParam("page") int page,
 													@RequestParam("sort") String sort) {
-		memberService.getPlaylists(loginId, page, sort);
-		return new ResponseEntity<>(HttpStatus.OK);
+
+		Page<PlaylistsResponse> responses = memberService.getPlaylists(loginId, page, sort);
+
+		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@GetMapping("/watchs")
