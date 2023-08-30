@@ -128,11 +128,6 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
-
-	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
 	}

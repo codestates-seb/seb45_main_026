@@ -18,6 +18,7 @@ import com.server.global.exception.businessexception.orderexception.OrderNotVali
 import com.server.global.exception.businessexception.orderexception.RewardNotEnoughException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import net.minidev.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -39,27 +40,24 @@ public class OrderService {
     private final MemberRepository memberRepository;
     private final VideoRepository videoRepository;
     private final OrderRepository orderRepository;
+    private final RestTemplate restTemplate;
 
-    public OrderService(MemberRepository memberRepository, VideoRepository videoRepository, OrderRepository orderRepository) {
+    @Value("${order.payment-secret-key}")
+    private String paymentSecretKey;
+
+    public OrderService(MemberRepository memberRepository, VideoRepository videoRepository, OrderRepository orderRepository, RestTemplate restTemplate) {
         this.memberRepository = memberRepository;
         this.videoRepository = videoRepository;
         this.orderRepository = orderRepository;
+        this.restTemplate = restTemplate;
     }
 
     @Transactional
     public PaymentServiceResponse requestFinalPayment(Long memberId, String paymentKey, String orderId, int amount) {
 
-        Member member = verifedMember(memberId);
+        orderCompleteProcess(memberId, paymentKey, orderId, amount);
 
-        Order order = verifedOrder(member, orderId);
-
-        order.checkValidOrder(amount);
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        String paymentSecretKey = "test_sk_26DlbXAaV0odbdDk9Kq3qY50Q9RB:";
-
-        String encodedAuth = new String(Base64.getEncoder().encode(paymentSecretKey.getBytes(UTF_8)));
+        String encodedAuth = new String(Base64.getEncoder().encode((paymentSecretKey + ":").getBytes(UTF_8)));
 
         HttpHeaders headers = new HttpHeaders();
 
@@ -71,12 +69,6 @@ public class OrderService {
         param.put("orderId", orderId);
         param.put("amount", amount);
 
-        //todo: 장바구니에서 삭제하는 로직
-
-        order.completeOrder();
-
-        member.minusReward(amount);
-
         ResponseEntity<PaymentServiceResponse> response = restTemplate.postForEntity(
                 "https://api.tosspayments.com/v1/payments/" + paymentKey,
                 new HttpEntity<>(param, headers),
@@ -86,8 +78,6 @@ public class OrderService {
         if(response.getStatusCode().value() != 200)
             throw new OrderNotValidException();
 
-        order.setPaymentKey(paymentKey);
-
         return response.getBody();
     }
 
@@ -96,7 +86,7 @@ public class OrderService {
 
         Member member = verifedMember(memberId);
         Order order = verifedOrder(member, orderId);
-        
+
         if(order.getOrderStatus().equals(OrderStatus.COMPLETED))
             member.addReward(order.getReward());
 
@@ -119,6 +109,23 @@ public class OrderService {
         orderRepository.save(order);
 
         return OrderResponse.of(order);
+    }
+
+    private void orderCompleteProcess(Long memberId, String paymentKey, String orderId, int amount) {
+
+        Member member = verifedMember(memberId);
+
+        Order order = verifedOrder(member, orderId);
+
+        order.checkValidOrder(amount);
+
+        deleteCartFrom(memberId, orderId);
+
+        order.completeOrder();
+
+        order.setPaymentKey(paymentKey);
+
+        member.minusReward(amount);
     }
 
     private void checkDuplicateOrder(Member member, List<Video> toBuyVideos) {
@@ -147,6 +154,10 @@ public class OrderService {
     private void checkEnoughReward(int retainReward, Integer requestReward) {
         if(retainReward < requestReward)
             throw new RewardNotEnoughException();
+    }
+
+    private void deleteCartFrom(Long memberId, String orderId) {
+        orderRepository.deleteCartByMemberAndOrderId1(memberId, orderId);
     }
 
     private Member verifedMember(Long memberId) {
