@@ -3,6 +3,8 @@ import { styled } from "styled-components";
 import { useSelector } from "react-redux";
 import { PageContainer,MainContainer } from "../../atoms/layouts/PageContainer";
 import tokens from "../../styles/tokens.json";
+import VerticalItem from "../../components/contentListItem/VerticalItem";
+import HorizonItem from "../../components/contentListItem/HorizonItem";
 
 const globalTokens = tokens.global;
 
@@ -10,27 +12,36 @@ const ProfileContainer = styled.div`
     display: flex;
     flex-direction: row;
     gap: ${globalTokens.Spacing20.value}px;
+    width: 100%;
+    padding: ${globalTokens.Spacing32.value}px;
 `
 const ProfileImg = styled.img`
     max-height: 130px;
-    max-width: 130px;
     height: auto;
     width: auto;
 `
 const ImgContainer = styled.div`
     width: 130px;
     height: 130px;
-    border-radius: ${globalTokens.PrifileRadius.value}px;
+    border-radius: ${globalTokens.ProfileRadius.value}px;
     background-color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    border: 1px solid black;
 `
 const InforContainer = styled.div`
     height: 130px;
     flex-grow: 1;
+    padding: 5px;
     border: 1px solid black;
+`
+const ChannelTitle = styled.h1`
+  height: 30px;
+  font-size: ${globalTokens.Heading4.value}px;
+  font-weight: ${globalTokens.Bold.value};
+  
 `
 
 export default function ChannelPage() {
@@ -40,9 +51,11 @@ export default function ChannelPage() {
         <MainContainer>
           <ProfileContainer>
             <ImgContainer>
-                <ProfileImg src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg" />
+              <ProfileImg src="https://avatars.githubusercontent.com/u/50258232?v=4" />
             </ImgContainer>
-            <InforContainer></InforContainer>
+            <InforContainer>
+              <ChannelTitle>HyerimKimm</ChannelTitle>
+            </InforContainer>
           </ProfileContainer>
         </MainContainer>
       </PageContainer>
