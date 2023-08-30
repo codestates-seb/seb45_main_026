@@ -4,21 +4,21 @@ import tokens from '../../styles/tokens.json'
 const globalTokens = tokens.global;
 
 export const BigRedButton = styled.button`
-    padding: ${globalTokens.Spacing12.value}px ${globalTokens.Spacing20.value}px;
+    padding: ${globalTokens.Spacing8.value}px ${globalTokens.Spacing20.value}px;
     border-radius: ${globalTokens.RegularRadius.value}px;
     border: ${globalTokens.ThinHeight.value}px solid ${(props)=>props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
-    background-color: ${globalTokens.LightRed.value};
+    background-color: ${(props)=>props.isDark? globalTokens.MainRed.value : globalTokens.LightRed.value};
     color: ${globalTokens.White.value};
     font-size: ${globalTokens.Heading5.value}px;
     font-weight: ${globalTokens.Bold.value};
     transition: 300ms;
 
     &:hover {
-        background-color: ${globalTokens.MainRed.value};
+        background-color: ${(props)=>props.isDark? globalTokens.LightRed.value : globalTokens.MainRed.value};
     }
 `
 export const BigNavyButton = styled.button`
-    padding: ${globalTokens.Spacing12.value}px ${globalTokens.Spacing20.value}px;
+    padding: ${globalTokens.Spacing8.value}px ${globalTokens.Spacing20.value}px;
     border-radius: ${globalTokens.RegularRadius.value}px;
     border: ${globalTokens.ThinHeight.value}px solid ${(props)=>props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
     background-color: ${globalTokens.LightNavy.value};
@@ -32,20 +32,20 @@ export const BigNavyButton = styled.button`
     }
 `
 export const RegularRedButton = styled.button`
-    padding: ${globalTokens.Spacing8.value}px ${globalTokens.Spacing12.value}px;
+    padding: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing12.value}px;
     border-radius: ${globalTokens.RegularRadius.value}px;
     border: ${globalTokens.ThinHeight.value}px solid ${(props)=>props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
-    background-color: ${globalTokens.LightRed.value};
+    background-color: ${(props)=>props.isDark? globalTokens.MainRed.value : globalTokens.LightRed.value};
     color: ${globalTokens.White.value};
     font-size: ${globalTokens.BodyText.value}px;
     transition: 300ms;
 
     &:hover {
-        background-color: ${globalTokens.MainRed.value};
+        background-color: ${(props)=>props.isDark? globalTokens.LightRed.value : globalTokens.MainRed.value};
     }
 `
 export const RegularNavyButton = styled.button`
-    padding: ${globalTokens.Spacing8.value}px ${globalTokens.Spacing12.value}px;
+    padding: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing12.value}px;
     border-radius: ${globalTokens.RegularRadius.value}px;
     border: ${globalTokens.ThinHeight.value}px solid ${(props)=>props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
     background-color: ${globalTokens.LightNavy.value};
@@ -58,20 +58,20 @@ export const RegularNavyButton = styled.button`
     }
 `
 export const RoundRedButton = styled.button`
-    padding: ${globalTokens.Spacing8.value}px ${globalTokens.Spacing12.value}px;
+    padding: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing12.value}px;
     border-radius: ${globalTokens.BigRadius.value}px;
     border: ${globalTokens.ThinHeight.value}px solid ${(props)=>props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
-    background-color: ${globalTokens.LightRed.value};
+    background-color: ${(props)=>props.isDark? globalTokens.MainRed.value : globalTokens.LightRed.value};
     color: ${globalTokens.White.value};
     font-size: ${globalTokens.BodyText.value}px;
     transition: 300ms;
 
     &:hover {
-        background-color: ${globalTokens.MainRed.value};
+        background-color: ${(props)=>props.isDark? globalTokens.LightRed.value : globalTokens.MainRed.value};
     }
 `
 export const RoundNavyButton = styled.button`
-    padding: ${globalTokens.Spacing8.value}px ${globalTokens.Spacing12.value}px;
+    padding: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing12.value}px;
     border-radius: ${globalTokens.BigRadius.value}px;
     border: ${globalTokens.ThinHeight.value}px solid ${(props)=>props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
     background-color: ${globalTokens.LightNavy.value};

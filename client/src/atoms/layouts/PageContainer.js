@@ -5,7 +5,7 @@ import tokens from '../../styles/tokens.json'
 const globalTokens = tokens.global;
 
 export const PageContainer = styled.div`
-    background-color: ${(props)=>props.isDark ? globalTokens.BackgroundDark.value : globalTokens.Background.value};
+    background-color: ${(props)=>props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
     width: 100vw;
     display: flex;
     flex-direction: row;

@@ -26,15 +26,16 @@ function App() {
 
   return (
     <BrowserRouter>
-      {url.pathname === "/" ? <MainPageHeader /> : <Header />}
+      <Header/>
       <Routes>
-        <Route path="/" element={<MainPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/MyProfile" element={<MyProfilePage />} />
-        <Route path="/videos/1" element={<DetailPage />} />
+        <Route path="/" element={<MainPage/>}/>
+        <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/MyProfile" element={<MyProfilePage/>}/>
+        <Route path="/videos/1" element={<DetailPage/>}/>
+        <Route path="/channels/1" element={<ChannelPage/>}/>
         <Route path="/carts" element={<CartPage />} />
       </Routes>
-      {url.pathname === "/" || <Footer />}
+      <Footer/>
     </BrowserRouter>
   );
 }
