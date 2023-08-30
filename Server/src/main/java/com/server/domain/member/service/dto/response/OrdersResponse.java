@@ -1,11 +1,11 @@
 package com.server.domain.member.service.dto.response;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.aspectj.weaver.ast.Or;
 
-import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.order.entity.OrderVideo;
 
@@ -14,18 +14,21 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PaysResponse {
+public class OrdersResponse {
 	private String orderId;
 	private int reward;
 	private int orderCount;
 	private OrderStatus orderStatus;
+	private LocalDateTime createdDate;
+	private List<OrderVideo> orderVideos;
 
-	// private OrderVideos orderVideos;
-
-	// @Getter
-	// @Builder
-	// public static class OrderVideos {
-	// 	@Builder.Default
-	// 	private List<OrderVideo> orderVideos = new ArrayList<>();
-	// }
+	@Getter
+	@Builder
+	public static class OrderVideo {
+		private Long videoId;
+		private String videoName;
+		private String thumbnailFile;
+		private String channelName;
+		private int price; //OrderVideo의 가격
+	}
 }
