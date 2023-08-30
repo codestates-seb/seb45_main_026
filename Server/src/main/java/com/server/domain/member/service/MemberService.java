@@ -12,6 +12,7 @@ import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
+import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
@@ -51,11 +52,11 @@ public class MemberService {
 		return ProfileResponse.builder().build();
 	}
 
-	public Page<RewardsResponse> getRewards(Long memberId) {
+	public Page<RewardsResponse> getRewards(Long loginId, int page) {
 		return null;
 	}
 
-	public Page<SubscribesResponse> getSubscribes(Long memberId) {
+	public Page<SubscribesResponse> getSubscribes(Long loginId, int page) {
 		return null;
 	}
 
@@ -63,8 +64,8 @@ public class MemberService {
 
 	}
 
-	public void getCarts(Long memberId, int page) {
-
+	public Page<CartsResponse> getCarts(Long memberId, int page) {
+		return null;
 	}
 
 	public void getPlaylists(Long memberId, int page, String sort) {

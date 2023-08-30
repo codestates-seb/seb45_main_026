@@ -25,6 +25,7 @@ import com.server.domain.member.controller.dto.MemberApiRequest;
 import com.server.domain.member.entity.Grade;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.MemberService;
+import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
@@ -57,15 +58,16 @@ public class MemberController {
 	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(@RequestParam("page") int page,
 																		@LoginId Long loginId) {
 
-		Page<RewardsResponse> responses = memberService.getRewards(loginId);
+		Page<RewardsResponse> responses = memberService.getRewards(loginId, page);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@GetMapping("/subscribes")
-	public ResponseEntity<ApiPageResponse<SubscribesResponse>> getSubscribes(@LoginId Long loginId) {
+	public ResponseEntity<ApiPageResponse<SubscribesResponse>> getSubscribes(@RequestParam("page") int page,
+																			@LoginId Long loginId) {
 
-		Page<SubscribesResponse> responses = memberService.getSubscribes(loginId);
+		Page<SubscribesResponse> responses = memberService.getSubscribes(loginId, page);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
@@ -80,11 +82,11 @@ public class MemberController {
 	}
 
 	@GetMapping("/carts")
-	public ResponseEntity<ApiPageResponse> getCarts(@LoginId Long loginId,
+	public ResponseEntity<ApiPageResponse<CartsResponse>> getCarts(@LoginId Long loginId,
 													@RequestParam("page") int page) {
-		memberService.getCarts(loginId, page);
+		Page<CartsResponse> responses = memberService.getCarts(loginId, page);
 
-		return new ResponseEntity<>(HttpStatus.OK);
+		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@GetMapping("/orders")
