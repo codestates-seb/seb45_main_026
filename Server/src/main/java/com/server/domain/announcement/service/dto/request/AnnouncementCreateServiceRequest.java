@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 public class AnnouncementCreateServiceRequest {
 
-    private Long announcementId;
+    private Long memberId;
     private String content;
 
 }

@@ -13,6 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 @Entity
+@Builder
 public class Announcement extends BaseEntity {
 
     @Id
@@ -25,4 +26,16 @@ public class Announcement extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id")
     private Channel channel;
+
+    public static Announcement createAnnouncement(Channel channel, String content) {
+
+            return Announcement.builder()
+                    .channel(channel)
+                    .content(content)
+                    .build();
+    }
+
+    public void updateAnnouncement(String content) {
+        this.content = content == null ? this.content : content;
+    }
 }
