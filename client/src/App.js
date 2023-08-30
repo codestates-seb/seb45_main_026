@@ -31,6 +31,7 @@ function App() {
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/MyProfile" element={<MyProfilePage/>}/>
         <Route path="/videos/1" element={<DetailPage/>}/>
+        <Route path="/channels/1" element={<ChannelPage/>}/>
       </Routes>
       { url.pathname==='/'||<Footer/> }
     </BrowserRouter>

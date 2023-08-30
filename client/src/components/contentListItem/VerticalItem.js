@@ -52,7 +52,9 @@ const InforContainerRight = styled.div`
     align-items: end;
 `
 const AuthorInfor = styled.div`
-    max-width: 150px;
+    max-width: 130px;
+    height: 20px;
+    padding-top: ${globalTokens.Spacing4.value}px;
     font-size: ${globalTokens.SmallText.value}px;
     font-weight: ${globalTokens.Bold.value};
     overflow: hidden;
@@ -71,6 +73,15 @@ const StarImage = styled.img`
     height: 20px;
     width: 20px;
 `
+const ScoreContainer = styled.div`
+  height: 20px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+`
+const ScoreText = styled.span`
+  font-size: ${globalTokens.SmallText.value}px;
+`
 
 export default function VerticalItem() { 
     return (
@@ -80,19 +91,20 @@ export default function VerticalItem() {
         <ItemInfors>
           <InforContainerLeft>
             <AuthorInfor>스터디파이</AuthorInfor>
-            <PriceInfor>32450원</PriceInfor>
-          </InforContainerLeft>
-          <InforContainerRight>
-            <div>
-              <StarImage src={yellowStar}/>
-              <StarImage src={yellowStar}/>
-              <StarImage src={yellowStar}/>
-              <StarImage src={yellowStar}/>
-              <StarImage src={yellowStar}/>
-            </div>
             <DateInfor>
               <DateBold>8월 29일</DateBold> 업로드됨
             </DateInfor>
+          </InforContainerLeft>
+          <InforContainerRight>
+            <ScoreContainer>
+              <ScoreText>4.6</ScoreText>
+              <StarImage src={yellowStar}/>
+              <StarImage src={yellowStar}/>
+              <StarImage src={yellowStar}/>
+              <StarImage src={yellowStar}/>
+              <StarImage src={yellowStar}/>
+            </ScoreContainer>
+            <PriceInfor>32,450원</PriceInfor>
           </InforContainerRight>
         </ItemInfors>
       </ComponentBody>
