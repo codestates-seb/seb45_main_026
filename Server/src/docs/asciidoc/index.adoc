@@ -16,9 +16,10 @@ include::overview.adoc[]
 // * link:/overview.html[개요, onclick="window.location.href='overview.html'"]
 
 === Auth API
+* link:snippets/auth/auth.html[인증 관련 API (로그인 / 회원가입 등), onclick="window.location.href='snippets/auth/auth.html'"]
 
 === Member API
-* link:snippets/member/getmember.html[프로필 조회, onclick="window.location.href='snippets/member/getmember.html'"]
+* link:snippets/member/getmember.html[회원 정보 조회 API, onclick="window.location.href='snippets/member/getmember.html'"]
 
 === Channel API
 

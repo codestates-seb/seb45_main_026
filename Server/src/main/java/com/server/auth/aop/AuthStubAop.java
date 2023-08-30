@@ -2,16 +2,34 @@ package com.server.auth.aop;
 
 import static com.server.auth.util.AuthConstant.*;
 
+import java.net.URI;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
 public class AuthStubAop {
+
+	@Around("execution(* com.server.auth.controller.AuthController.sendEmail(..))")
+	public ResponseEntity<Void> sendEmail(ProceedingJoinPoint pjp) {
+		return ResponseEntity.noContent().build();
+	}
+
+	@Around("execution(* com.server.auth.controller.AuthController.confirmEmail(..))")
+	public ResponseEntity<Void> confirmEmail(ProceedingJoinPoint pjp) {
+		return ResponseEntity.noContent().build();
+	}
+	@Around("execution(* com.server.auth.controller.AuthController.signup(..))")
+	public ResponseEntity<Void> signup(ProceedingJoinPoint pjp) {
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+
 	@Around("execution(* com.server.auth.controller.AuthController.oauth(..))")
 	public ResponseEntity<Void> oauth(ProceedingJoinPoint pjp) {
 		HttpHeaders headers = new HttpHeaders();

@@ -61,6 +61,7 @@ import com.server.domain.reply.controller.ReplyController;
 import com.server.domain.reply.service.ReplyService;
 import com.server.domain.video.controller.VideoController;
 import com.server.domain.video.service.VideoService;
+import com.server.global.common.CommonController;
 import com.server.module.email.service.MailService;
 import com.server.module.s3.service.AwsService;
 
@@ -68,6 +69,7 @@ import com.server.module.s3.service.AwsService;
 @WebMvcTest({
 	AuthController.class,
 	ChannelController.class,
+	CommonController.class,
 	MemberController.class,
 	QuestionController.class,
 	OrderController.class,
@@ -213,7 +215,7 @@ public class ControllerTest {
 
 	// 문서에서 값 보기 버튼을 클릭 했을 시 어떻게 열지 링크를 설정하는 메서드
 	// 예) link:../common/member.html[Member 값 보기,role="popup"]
-	protected static String generateLinkCode(Class<?> clazz) {
+	public static String generateLinkCode(Class<?> clazz) {
 		return String.format("link:../common/%s.html[%s 값 보기,role=\"popup\"]",
 			clazz.getSimpleName().toLowerCase(), clazz.getSimpleName());
 	}

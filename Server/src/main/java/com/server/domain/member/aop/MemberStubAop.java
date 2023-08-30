@@ -14,11 +14,13 @@ import org.springframework.stereotype.Component;
 import com.server.domain.member.entity.Grade;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.LikesResponse;
+import com.server.domain.member.service.dto.response.PaysResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
+import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.reward.entity.RewardType;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -197,6 +199,40 @@ public class MemberStubAop {
 		return ResponseEntity.ok(ApiPageResponse.ok(page));
 	}
 
+	@Around("execution(* com.server.domain.member.controller.MemberController.getOrders(..))")
+	public ResponseEntity<ApiPageResponse<PaysResponse>> getOrders(ProceedingJoinPoint joinPoint) {
+		List<PaysResponse> responses = List.of(
+			PaysResponse.builder()
+				.orderId("aBzd031dpf414")
+				.reward(300)
+				.orderCount(4)
+				.orderStatus(OrderStatus.ORDERED)
+				.build(),
+			PaysResponse.builder()
+				.orderId("dfghkdf908sd023")
+				.reward(400)
+				.orderCount(6)
+				.orderStatus(OrderStatus.CANCELED)
+				.build(),
+			PaysResponse.builder()
+				.orderId("fd932jkfdgklgdf")
+				.reward(200)
+				.orderCount(3)
+				.orderStatus(OrderStatus.COMPLETED)
+				.build(),
+			PaysResponse.builder()
+				.orderId("nvbio328sdfhs13")
+				.reward(100)
+				.orderCount(7)
+				.orderStatus(OrderStatus.ORDERED)
+				.build()
+		);
+
+		PageImpl<PaysResponse> page = new PageImpl<>(responses);
+
+		return ResponseEntity.ok(ApiPageResponse.ok(page));
+	}
+
 	@Around("execution(* com.server.domain.member.controller.MemberController.getPlaylists(..))")
 	public ResponseEntity<ApiPageResponse<PlaylistsResponse>> getPlaylists(ProceedingJoinPoint joinPoint) {
 		List<PlaylistsResponse> responses = List.of(
@@ -334,6 +370,11 @@ public class MemberStubAop {
 
 	@Around("execution(* com.server.domain.member.controller.MemberController.deleteMember(..))")
 	public ResponseEntity<Void> deleteMember(ProceedingJoinPoint joinPoint) {
+		return ResponseEntity.noContent().build();
+	}
+
+	@Around("execution(* com.server.domain.member.controller.MemberController.deleteMember(..))")
+	public ResponseEntity<Void> confirmEmail(ProceedingJoinPoint pjp) {
 		return ResponseEntity.noContent().build();
 	}
 }
