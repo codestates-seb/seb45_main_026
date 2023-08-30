@@ -27,9 +27,8 @@ public class RestDocsUtil {
 		fieldWithPath("message").description("응답 메시지")
 	};
 
-	private static List<FieldDescriptor> allFields = new ArrayList<>();
-
 	public static FieldDescriptor[] getPageResponseFields(FieldDescriptor[] responseFields) {
+		List<FieldDescriptor> allFields = new ArrayList<>();
 		allFields.addAll(Arrays.asList(responseFields));
 		allFields.addAll(Arrays.asList(pageInfoFields));
 		allFields.addAll(Arrays.asList(responseStatusFields));

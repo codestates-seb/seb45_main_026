@@ -147,6 +147,14 @@ public class MemberControllerTest extends ControllerTest {
 			.andExpect(jsonPath("$.pageInfo.page").value(1))
 			.andExpect(jsonPath("$.pageInfo.size").value(responses.size()));
 
+		FieldDescriptor[] responseFields = new FieldDescriptor[]{
+			fieldWithPath("data[]").description("리워드 목록"),
+			fieldWithPath("data[].entityId").description("리워드를 획득한 엔티티의 ID"),
+			fieldWithPath("data[].rewardType").description("리워드 타입"),
+			fieldWithPath("data[].rewardPoint").description("지급된 리워드"),
+			fieldWithPath("data[].date").description("리워드 지급 날짜")
+		};
+
 		actions
 			.andDo(
 				documentHandler.document(
@@ -157,23 +165,7 @@ public class MemberControllerTest extends ControllerTest {
 						parameterWithName("page").description("조회할 리워드 목록 페이지")
 					),
 					responseFields(
-						fieldWithPath("data[]").description("리워드 목록"),
-						fieldWithPath("data[].entityId").description("리워드를 획득한 엔티티의 ID"),
-						fieldWithPath("data[].rewardType").description("리워드 타입"),
-						fieldWithPath("data[].rewardPoint").description("지급된 리워드"),
-						fieldWithPath("data[].date").description("리워드 지급 날짜"),
-						fieldWithPath("pageInfo").description("페이지네이션 정보"),
-						fieldWithPath("pageInfo.page").description("현재 페이지"),
-						fieldWithPath("pageInfo.size").description("페이지 사이즈"),
-						fieldWithPath("pageInfo.totalPage").description("전체 페이지 수"),
-						fieldWithPath("pageInfo.totalSize").description("전체 데이터 개수"),
-						fieldWithPath("pageInfo.first").description("첫 페이지 여부"),
-						fieldWithPath("pageInfo.last").description("마지막 페이지 여부"),
-						fieldWithPath("pageInfo.hasNext").description("다음 페이지 존재 여부"),
-						fieldWithPath("pageInfo.hasPrevious").description("이전 페이지 존재 여부"),
-						fieldWithPath("code").description("응답 코드"),
-						fieldWithPath("status").description("응답 상태"),
-						fieldWithPath("message").description("응답 메시지")
+						RestDocsUtil.getPageResponseFields(responseFields)
 					)
 				)
 			);
@@ -229,6 +221,14 @@ public class MemberControllerTest extends ControllerTest {
 			.andExpect(jsonPath("$.pageInfo.page").value(1))
 			.andExpect(jsonPath("$.pageInfo.size").value(responses.size()));
 
+		FieldDescriptor[] responseFields = new FieldDescriptor[]{
+			fieldWithPath("data[]").description("구독 목록"),
+			fieldWithPath("data[].memberId").description("구독한 채널의 ID"),
+			fieldWithPath("data[].channelName").description("구독한 채널명"),
+			fieldWithPath("data[].subscribes").description("채널의 구독자 수"),
+			fieldWithPath("data[].imageUrl").description("채널 소유자의 프로필 이미지"),
+		};
+
 		actions
 			.andDo(
 				documentHandler.document(
@@ -239,23 +239,7 @@ public class MemberControllerTest extends ControllerTest {
 						parameterWithName("page").description("조회할 구독 목록 페이지")
 					),
 					responseFields(
-						fieldWithPath("data[]").description("구독 목록"),
-						fieldWithPath("data[].memberId").description("구독한 채널의 ID"),
-						fieldWithPath("data[].channelName").description("구독한 채널명"),
-						fieldWithPath("data[].subscribes").description("채널의 구독자 수"),
-						fieldWithPath("data[].imageUrl").description("채널 소유자의 프로필 이미지"),
-						fieldWithPath("pageInfo").description("페이지네이션 정보"),
-						fieldWithPath("pageInfo.page").description("현재 페이지"),
-						fieldWithPath("pageInfo.size").description("페이지 사이즈"),
-						fieldWithPath("pageInfo.totalPage").description("전체 페이지 수"),
-						fieldWithPath("pageInfo.totalSize").description("전체 데이터 개수"),
-						fieldWithPath("pageInfo.first").description("첫 페이지 여부"),
-						fieldWithPath("pageInfo.last").description("마지막 페이지 여부"),
-						fieldWithPath("pageInfo.hasNext").description("다음 페이지 존재 여부"),
-						fieldWithPath("pageInfo.hasPrevious").description("이전 페이지 존재 여부"),
-						fieldWithPath("code").description("응답 코드"),
-						fieldWithPath("status").description("응답 상태"),
-						fieldWithPath("message").description("응답 메시지")
+						RestDocsUtil.getPageResponseFields(responseFields)
 					)
 				)
 			);
@@ -316,6 +300,21 @@ public class MemberControllerTest extends ControllerTest {
 			.andExpect(jsonPath("$.pageInfo.page").value(1))
 			.andExpect(jsonPath("$.pageInfo.size").value(responses.size()));
 
+		FieldDescriptor[] responseFields = new FieldDescriptor[]{
+			fieldWithPath("data[]").description("장바구니 목록"),
+			fieldWithPath("data[].videoId").description("장바구니에 담은 영상 ID"),
+			fieldWithPath("data[].videoName").description("장바구니에 담은 영상명"),
+			fieldWithPath("data[].thumbnailUrl").description("영상의 썸네일 이미지 주소"),
+			fieldWithPath("data[].views").description("영상 조회수"),
+			fieldWithPath("data[].createdDate").description("영상 업로드 날짜"),
+			fieldWithPath("data[].price").description("영상의 가격"),
+			fieldWithPath("data[].channel").description("영상 업로더의 채널 정보"),
+			fieldWithPath("data[].channel.memberId").description("업로더 아이디"),
+			fieldWithPath("data[].channel.channelName").description("업로더의 채널명"),
+			fieldWithPath("data[].channel.subscribes").description("업로더의 구독자 수"),
+			fieldWithPath("data[].channel.imageUrl").description("업로더의 프로필 이미지 주소")
+		};
+
 		actions
 			.andDo(
 				documentHandler.document(
@@ -326,30 +325,7 @@ public class MemberControllerTest extends ControllerTest {
 						parameterWithName("page").description("조회할 장바구니 페이지")
 					),
 					responseFields(
-						fieldWithPath("data[]").description("장바구니 목록"),
-						fieldWithPath("data[].videoId").description("장바구니에 담은 영상 ID"),
-						fieldWithPath("data[].videoName").description("장바구니에 담은 영상명"),
-						fieldWithPath("data[].thumbnailUrl").description("영상의 썸네일 이미지 주소"),
-						fieldWithPath("data[].views").description("영상 조회수"),
-						fieldWithPath("data[].createdDate").description("영상 업로드 날짜"),
-						fieldWithPath("data[].price").description("영상의 가격"),
-						fieldWithPath("data[].channel").description("영상 업로더의 채널 정보"),
-						fieldWithPath("data[].channel.memberId").description("업로더 아이디"),
-						fieldWithPath("data[].channel.channelName").description("업로더의 채널명"),
-						fieldWithPath("data[].channel.subscribes").description("업로더의 구독자 수"),
-						fieldWithPath("data[].channel.imageUrl").description("업로더의 프로필 이미지 주소"),
-						fieldWithPath("pageInfo").description("페이지네이션 정보"),
-						fieldWithPath("pageInfo.page").description("현재 페이지"),
-						fieldWithPath("pageInfo.size").description("페이지 사이즈"),
-						fieldWithPath("pageInfo.totalPage").description("전체 페이지 수"),
-						fieldWithPath("pageInfo.totalSize").description("전체 데이터 개수"),
-						fieldWithPath("pageInfo.first").description("첫 페이지 여부"),
-						fieldWithPath("pageInfo.last").description("마지막 페이지 여부"),
-						fieldWithPath("pageInfo.hasNext").description("다음 페이지 존재 여부"),
-						fieldWithPath("pageInfo.hasPrevious").description("이전 페이지 존재 여부"),
-						fieldWithPath("code").description("응답 코드"),
-						fieldWithPath("status").description("응답 상태"),
-						fieldWithPath("message").description("응답 메시지")
+						RestDocsUtil.getPageResponseFields(responseFields)
 					)
 				)
 			);
@@ -483,6 +459,21 @@ public class MemberControllerTest extends ControllerTest {
 			.andExpect(jsonPath("$.pageInfo.page").value(1))
 			.andExpect(jsonPath("$.pageInfo.size").value(responses.size()));
 
+		FieldDescriptor[] responseFields = new FieldDescriptor[]{
+			fieldWithPath("data[]").description("결제 목록"),
+			fieldWithPath("data[].orderId").description("장바구니에 담은 영상 ID"),
+			fieldWithPath("data[].reward").description("장바구니에 담은 영상명"),
+			fieldWithPath("data[].orderCount").description("영상의 썸네일 이미지 주소"),
+			fieldWithPath("data[].orderStatus").description("영상 조회수"),
+			fieldWithPath("data[].createdDate").description("영상 업로드 날짜"),
+			fieldWithPath("data[].orderVideos[]").description("총 결제 금액"),
+			fieldWithPath("data[].orderVideos[].videoId").description("영상 업로더의 채널 정보"),
+			fieldWithPath("data[].orderVideos[].videoName").description("업로더 아이디"),
+			fieldWithPath("data[].orderVideos[].thumbnailFile").description("업로더의 채널명"),
+			fieldWithPath("data[].orderVideos[].channelName").description("업로더의 구독자 수"),
+			fieldWithPath("data[].orderVideos[].price").description("업로더의 프로필 이미지 주소")
+		};
+
 		actions
 			.andDo(
 				documentHandler
@@ -495,30 +486,7 @@ public class MemberControllerTest extends ControllerTest {
 							parameterWithName("month").description("조회할 범위 지정(월 단위)")
 						),
 						responseFields(
-							fieldWithPath("data[]").description("결제 목록"),
-							fieldWithPath("data[].orderId").description("장바구니에 담은 영상 ID"),
-							fieldWithPath("data[].reward").description("장바구니에 담은 영상명"),
-							fieldWithPath("data[].orderCount").description("영상의 썸네일 이미지 주소"),
-							fieldWithPath("data[].orderStatus").description("영상 조회수"),
-							fieldWithPath("data[].createdDate").description("영상 업로드 날짜"),
-							fieldWithPath("data[].orderVideos[]").description("총 결제 금액"),
-							fieldWithPath("data[].orderVideos[].videoId").description("영상 업로더의 채널 정보"),
-							fieldWithPath("data[].orderVideos[].videoName").description("업로더 아이디"),
-							fieldWithPath("data[].orderVideos[].thumbnailFile").description("업로더의 채널명"),
-							fieldWithPath("data[].orderVideos[].channelName").description("업로더의 구독자 수"),
-							fieldWithPath("data[].orderVideos[].price").description("업로더의 프로필 이미지 주소"),
-							fieldWithPath("pageInfo").description("페이지네이션 정보"),
-							fieldWithPath("pageInfo.page").description("현재 페이지"),
-							fieldWithPath("pageInfo.size").description("페이지 사이즈"),
-							fieldWithPath("pageInfo.totalPage").description("전체 페이지 수"),
-							fieldWithPath("pageInfo.totalSize").description("전체 데이터 개수"),
-							fieldWithPath("pageInfo.first").description("첫 페이지 여부"),
-							fieldWithPath("pageInfo.last").description("마지막 페이지 여부"),
-							fieldWithPath("pageInfo.hasNext").description("다음 페이지 존재 여부"),
-							fieldWithPath("pageInfo.hasPrevious").description("이전 페이지 존재 여부"),
-							fieldWithPath("code").description("응답 코드"),
-							fieldWithPath("status").description("응답 상태"),
-							fieldWithPath("message").description("응답 메시지")
+							RestDocsUtil.getPageResponseFields(responseFields)
 						)
 					)
 			);
