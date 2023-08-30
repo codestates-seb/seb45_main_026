@@ -25,8 +25,10 @@ import com.server.domain.member.controller.dto.MemberApiRequest;
 import com.server.domain.member.entity.Grade;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.MemberService;
+import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
+import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -53,21 +55,26 @@ public class MemberController {
 	}
 
 	@GetMapping("/rewards")
-	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(@LoginId Long loginId) {
-		Page<RewardsResponse> responses = memberService.getRewards(loginId);
+	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(@RequestParam("page") int page,
+																		@LoginId Long loginId) {
+
+		Page<RewardsResponse> responses = memberService.getRewards(loginId, page);
+
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@GetMapping("/subscribes")
-	public ResponseEntity<ApiPageResponse> getSubscribes(@LoginId Long loginId) {
-		memberService.getSubscribes(loginId);
+	public ResponseEntity<ApiPageResponse<SubscribesResponse>> getSubscribes(@RequestParam("page") int page,
+																			@LoginId Long loginId) {
 
-		return new ResponseEntity<>(HttpStatus.OK);
+		Page<SubscribesResponse> responses = memberService.getSubscribes(loginId, page);
+
+		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	// 좋아요 기능은 구현하지 않을 예정
 	@GetMapping("/likes")
-	public ResponseEntity<ApiPageResponse> getLikes(@LoginId Long loginId,
+	public ResponseEntity<ApiPageResponse<Void>> getLikes(@LoginId Long loginId,
 													@RequestParam("page") int page) {
 		memberService.getLikes(loginId, page);
 
@@ -75,11 +82,11 @@ public class MemberController {
 	}
 
 	@GetMapping("/carts")
-	public ResponseEntity<ApiPageResponse> getCarts(@LoginId Long loginId,
+	public ResponseEntity<ApiPageResponse<CartsResponse>> getCarts(@LoginId Long loginId,
 													@RequestParam("page") int page) {
-		memberService.getCarts(loginId, page);
+		Page<CartsResponse> responses = memberService.getCarts(loginId, page);
 
-		return new ResponseEntity<>(HttpStatus.OK);
+		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@GetMapping("/orders")

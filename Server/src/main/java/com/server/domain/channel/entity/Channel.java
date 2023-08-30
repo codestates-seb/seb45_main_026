@@ -30,16 +30,10 @@ public class Channel extends BaseEntity {
     @Lob
     private String description;
 
-    //todo : 빼기
-    private String imageUrl;
-
     @OneToMany(mappedBy = "channel")
     private List<Subscribe> subscribes = new ArrayList<>();
 
     private int subscribers;
-
-    //todo : 빼기
-    private boolean isSubscribed; //구독여부
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
