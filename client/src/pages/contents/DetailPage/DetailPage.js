@@ -1,8 +1,7 @@
-import React from "react";
 import { styled } from "styled-components";
-import { PageContainer } from "../../../atoms/layouts/PageContainer";
 import { useSelector } from "react-redux";
 import tokens from "../../../styles/tokens.json";
+import { PageContainer } from "../../../atoms/layouts/PageContainer";
 import DetailVideo from "./DetailVideo";
 import DetailReview from "./DetailReview";
 import DetailContent from "./DetailContent";
@@ -17,8 +16,6 @@ export const DetailContainer = styled.div`
   justify-content: start;
   align-items: center;
   flex-wrap: wrap;
-
-  border: 1px solid black;
 `;
 
 const DetailPage = () => {
