@@ -48,7 +48,7 @@ public class VideoController {
     @PostMapping("/{video-id}/answers")
     public ResponseEntity<ApiSingleResponse<List<Boolean>>> solveQuestions(
             @PathVariable("video-id") Long videoId,
-            @RequestBody AnswersCreateApiRequest request,
+            @RequestBody @Valid AnswersCreateApiRequest request,
             @LoginId Long loginMemberId) {
 
         List<Boolean> answers = questionService.solveQuestions(loginMemberId, videoId, request.getMyAnswers());
@@ -59,7 +59,7 @@ public class VideoController {
     @PostMapping("/{video-id}/questions")
     public ResponseEntity<ApiSingleResponse<List<Long>>> createQuestions(
             @PathVariable("video-id") Long videoId,
-            @RequestBody List<QuestionCreateApiRequest> requests,
+            @RequestBody @Valid List<QuestionCreateApiRequest> requests,
             @LoginId Long loginMemberId) {
 
 

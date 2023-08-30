@@ -1,0 +1,6 @@
+:doctype: book
+:icons: font
+
+[[answerStatus]]
+
+include::{snippets}/common/enums/custom-response-fields-ImageType.adoc[]

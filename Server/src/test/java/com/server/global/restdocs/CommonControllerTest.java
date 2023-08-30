@@ -1,5 +1,9 @@
 package com.server.global.restdocs;
 
+import com.server.domain.answer.entity.AnswerStatus;
+import com.server.domain.order.entity.OrderStatus;
+import com.server.domain.video.controller.dto.request.VideoSort;
+import com.server.module.s3.service.dto.ImageType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.restdocs.payload.FieldDescriptor;
@@ -147,7 +151,11 @@ public class CommonControllerTest extends ControllerTest {
 		// 문서화할 enum 클래스들을 모두 파라미터로 전달
 		List<String> enumValues = creatEnumRequest(
 			Authority.class,
-			OAuthProvider.class
+			OAuthProvider.class,
+			VideoSort.class,
+			OrderStatus.class,
+			AnswerStatus.class,
+			ImageType.class
 		);
 
 		// Enum의 이름값들을 요청 데이터로 사용하기 위해 Json 형태로 변환
