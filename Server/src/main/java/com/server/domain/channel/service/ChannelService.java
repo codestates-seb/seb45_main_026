@@ -104,7 +104,8 @@ public class ChannelService {
     }
 
     public boolean hasPurchasedVideos(Long memberId, Channel channel) {
-        return videoRepository.findVideosBy(memberId, channel);
+//        return videoRepository.findVideosBy(memberId, channel);
+        return false;
     }
 
 
@@ -133,8 +134,9 @@ public class ChannelService {
     }
 
     public boolean isPurchasedVideo(Long memberId, Video video) { //구매여부
-        List<Video> OrderVideos = videoRepository.findVideoBy(memberId, video);
-        return OrderVideos.contains(video);
+//        List<Video> OrderVideos = videoRepository.findVideoBy(memberId, video);
+//        return OrderVideos.contains(video);
+        return false;
     }
 
     public boolean isVideoOwner(Long memberId, Video video) { //소유자 확인
