@@ -14,6 +14,7 @@ import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
+import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.module.email.service.MailService;
 
@@ -54,8 +55,8 @@ public class MemberService {
 		return null;
 	}
 
-	public void getSubscribes(Long memberId) {
-
+	public Page<SubscribesResponse> getSubscribes(Long memberId) {
+		return null;
 	}
 
 	public void getLikes(Long memberId, int page) {
