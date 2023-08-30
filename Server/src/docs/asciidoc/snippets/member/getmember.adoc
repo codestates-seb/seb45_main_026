@@ -18,7 +18,17 @@ include::{snippets}/member/getmember/http-request.adoc[]
 include::{snippets}/member/getmember/request-headers.adoc[]
 === HTTP Response
 include::{snippets}/member/getmember/http-response.adoc[]
-==== Response Body
-include::{snippets}/member/getmember/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/member/getmember/response-fields.adoc[]
+
+== 장바구니(찜 목록) 조회
+=== HTTP Request
+include::{snippets}/member/getcarts/http-request.adoc[]
+==== Request Header
+include::{snippets}/member/getcarts/request-headers.adoc[]
+==== Request Parameter
+include::{snippets}/member/getcarts/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/member/getcarts/http-response.adoc[]
+==== Response Fields
+include::{snippets}/member/getcarts/response-fields.adoc[]
