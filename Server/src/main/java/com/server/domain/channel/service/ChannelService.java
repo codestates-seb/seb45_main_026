@@ -68,7 +68,7 @@ public class ChannelService {
         boolean hasPurchasedVideos = false;
 
         if (memberId != null) {
-            Member member = memberRepository.findById(memberId)
+            Member member = memberRepository.findById(memberId) //구독중인지 아닌지 판별해야하니까 필요
                     .orElseThrow(MemberNotFoundException::new);
 
             isSubscribed = isSubscribed(memberId, channel);
@@ -90,7 +90,7 @@ public class ChannelService {
     }
 
 
-    private boolean isSubscribed(Long memberId, Channel channel){
+    private boolean isSubscribed(Long memberId, Channel channel){ //구독여부 검증
        Member member = memberRepository.findById(memberId)
                .orElseThrow(MemberNotFoundException::new);
        List<Subscribe> subscribeList = member.getSubscribes();
@@ -103,7 +103,7 @@ public class ChannelService {
        return false;
     }
 
-    public boolean hasPurchasedVideos(Long memberId, Channel channel) {
+    public boolean hasPurchasedVideos(Long memberId, Channel channel) { //구매여부 검증
         return videoRepository.findVideosBy(memberId, channel);
     }
 
@@ -123,7 +123,7 @@ public class ChannelService {
                 .orElseThrow(MemberNotFoundException::new); //내가 구매한 동영상인지, 동영상 소유자인지 확인해야 하니까
 
         Video video = videoRepository.findById(videoId)
-                .orElseThrow(VideoNotFoundException::new);//이 부분 memberId의 비디오 채널로 가지고 와야함
+                .orElseThrow(VideoNotFoundException::new);//이 부분 memberId의 비디오 채널로 가지고 와야함, 지피티한테 물어보긴 햇는데..
 
         if (!isPurchasedVideo(memberId, video) || !isVideoOwner(memberId, video)) {
             throw new MemberAccessDeniedException();
