@@ -1,6 +1,5 @@
 package com.server.domain.announcement.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.server.domain.announcement.controller.dto.request.AnnouncementUpdateApiRequest;
 import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -26,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class AnnouncementControllerTest extends ControllerTest {
 
-    private final String ANNOUNCEMENT_API_URL = "/announcements";
+    private final String BASE_URL = "/announcements";
 
     @Test
     @DisplayName("공지사항 단건 조회 API")
@@ -46,7 +45,7 @@ class AnnouncementControllerTest extends ControllerTest {
 
         //when
         ResultActions actions = mockMvc.perform(
-                get(ANNOUNCEMENT_API_URL+"/{announcement-id}", announcementId)
+                get(BASE_URL +"/{announcement-id}", announcementId)
                         .accept(APPLICATION_JSON)
         );
 
@@ -83,7 +82,7 @@ class AnnouncementControllerTest extends ControllerTest {
 
         //when
         ResultActions actions = mockMvc.perform(
-                patch(ANNOUNCEMENT_API_URL + "/{announcement-id}", announcementId)
+                patch(BASE_URL + "/{announcement-id}", announcementId)
                         .contentType(APPLICATION_JSON)
                         .header(AUTHORIZATION, TOKEN)
                         .content(objectMapper.writeValueAsString(request))
@@ -117,7 +116,7 @@ class AnnouncementControllerTest extends ControllerTest {
 
         //when
         ResultActions actions = mockMvc.perform(
-                delete(ANNOUNCEMENT_API_URL + "/{announcement-id}", announcementId)
+                delete(BASE_URL + "/{announcement-id}", announcementId)
                         .contentType(APPLICATION_JSON)
                         .header(AUTHORIZATION, TOKEN)
         );

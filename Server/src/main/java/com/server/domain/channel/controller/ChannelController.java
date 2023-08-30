@@ -10,13 +10,16 @@ import com.server.global.exception.businessexception.memberexception.MemberAcces
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.module.s3.service.AwsService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.net.URI;
 import java.util.List;
 
 
@@ -88,9 +91,15 @@ public class ChannelController {
     @PostMapping("/{member-id}/announcements")
     public ResponseEntity<ApiSingleResponse<Void>> createAnnouncement(
             @PathVariable("member-id") Long memberId,
+            @RequestBody @Valid ChannelDto.CreateAnnouncementApiRequest request,
             @LoginId Long loginMemberId
     ) {
-        return null;
+        Long announcementId =
+                announcementService.createAnnouncement(loginMemberId, request.toServiceRequest(memberId));
+
+        URI uri = URI.create("/announcements/" + announcementId);
+
+        return ResponseEntity.created(uri).build();
     }
 
     @GetMapping("/{member-id}/announcements")
@@ -99,6 +108,9 @@ public class ChannelController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
-        return null;
+
+        Page<AnnouncementResponse> announcements = announcementService.getAnnouncements(memberId, page - 1, size);
+
+        return ResponseEntity.ok(ApiPageResponse.ok(announcements, "공지사항 목록 조회 성공"));
     }
 }

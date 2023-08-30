@@ -5,6 +5,7 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -24,6 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
@@ -271,5 +275,9 @@ public class ControllerTest {
 
 		SecurityContextImpl securityContext = new SecurityContextImpl(authenticationToken);
 		SecurityContextHolder.setContext(securityContext);
+	}
+
+	protected <T> Page<T> createPage(List<T> contents, int page, int size, int totalElements) {
+		return new PageImpl<>(contents, PageRequest.of(page, size), totalElements);
 	}
 }
