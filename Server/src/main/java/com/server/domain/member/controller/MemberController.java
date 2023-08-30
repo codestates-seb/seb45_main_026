@@ -31,6 +31,7 @@ import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
+import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -112,12 +113,13 @@ public class MemberController {
 	}
 
 	@GetMapping("/watchs")
-	public ResponseEntity<ApiPageResponse> getWatchs(@LoginId Long loginId,
+	public ResponseEntity<ApiPageResponse<WatchsResponse>> getWatchs(@LoginId Long loginId,
 													@RequestParam("page") int page,
 													@RequestParam("day") int day) {
-		memberService.getWatchs(loginId, page, day);
 
-		return new ResponseEntity<>(HttpStatus.OK);
+		Page<WatchsResponse> responses = memberService.getWatchs(loginId, page, day);
+
+		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@PatchMapping
@@ -129,7 +131,7 @@ public class MemberController {
 
 	@PatchMapping("/image")
 	public ResponseEntity<ApiSingleResponse> updateImage(@LoginId Long loginId,
-		@RequestBody MemberApiRequest.Image request) {
+														@RequestBody MemberApiRequest.Image request) {
 		// 주소 생성 및 파일명을 해당 멤버에 저장
 		memberService.updateImage(request.getImageName());
 		String presignedUrl = awsService.getUploadImageUrl(request.getImageName(), request.getImageType());
@@ -142,16 +144,15 @@ public class MemberController {
 	@PatchMapping("/password")
 	public ResponseEntity<Void> updatePassword(@LoginId Long loginId,
 												@RequestBody @Valid MemberApiRequest.Password request) {
-		request.setLoginId(loginId);
 
-		memberService.updatePassword(request.toServiceRequest());
+		memberService.updatePassword(request.toServiceRequest(loginId));
 
 		return ResponseEntity.noContent().build();
 	}
 
 	@DeleteMapping
-	public ResponseEntity<Void> deleteMember(@PathVariable("member-id") Long memberId) {
-		memberService.deleteMember(memberId);
+	public ResponseEntity<Void> deleteMember(@LoginId Long loginId) {
+		memberService.deleteMember(loginId);
 
 		return ResponseEntity.noContent().build();
 	}

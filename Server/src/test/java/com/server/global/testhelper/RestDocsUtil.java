@@ -1,6 +1,8 @@
 package com.server.global.testhelper;
 
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,6 +10,7 @@ import java.util.List;
 
 import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.restdocs.payload.ResponseFieldsSnippet;
+import org.springframework.test.web.servlet.ResultActions;
 
 public class RestDocsUtil {
 	private static final FieldDescriptor[] pageInfoFields = new FieldDescriptor[]{
@@ -36,11 +39,29 @@ public class RestDocsUtil {
 		return allFields.toArray(new FieldDescriptor[0]);
 	}
 
+	public static void assertPageResponse(ResultActions actions, int expectedSize) throws Exception {
+		actions
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data").isArray())
+			.andExpect(jsonPath("$.pageInfo.page").value(1))
+			.andExpect(jsonPath("$.pageInfo.size").value(expectedSize));
+	}
+
 	public static ResponseFieldsSnippet pageResponseFields(FieldDescriptor... responseFields) {
 
 		List<FieldDescriptor> allFields = new ArrayList<>();
 		allFields.addAll(Arrays.asList(responseFields));
 		allFields.addAll(Arrays.asList(pageInfoFields));
+		allFields.addAll(Arrays.asList(responseStatusFields));
+
+		return responseFields(allFields);
+	}
+
+	public static ResponseFieldsSnippet singleResponseFields(FieldDescriptor... responseFields) {
+
+		List<FieldDescriptor> allFields = new ArrayList<>();
+		allFields.addAll(Arrays.asList(responseFields));
 		allFields.addAll(Arrays.asList(responseStatusFields));
 
 		return responseFields(allFields);
