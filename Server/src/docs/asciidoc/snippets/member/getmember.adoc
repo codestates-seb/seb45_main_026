@@ -14,8 +14,8 @@ link:/index.html[APIs, onclick="window.location.href='index.html'"]
 == 프로필 조회
 === HTTP Request
 include::{snippets}/member/getmember/http-request.adoc[]
-==== Request Path Parameter
-include::{snippets}/member/getmember/path-parameters.adoc[]
+==== Request Header
+include::{snippets}/member/getmember/request-headers.adoc[]
 === HTTP Response
 include::{snippets}/member/getmember/http-response.adoc[]
 ==== Response Body

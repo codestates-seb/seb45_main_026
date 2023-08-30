@@ -1,7 +1,9 @@
 package com.server.domain.member.controller;
 
+import static com.server.auth.util.AuthConstant.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.http.MediaType.*;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
@@ -30,7 +32,7 @@ import com.server.global.testhelper.ControllerTest;
 public class MemberControllerTest extends ControllerTest {
 
 	@Test
-	@DisplayName("프로필 조회 API")
+	@DisplayName("프로필 조회 성공 테스트")
 	void getMember() throws Exception {
 		// given
 		Long memberId = 1L;
@@ -47,11 +49,12 @@ public class MemberControllerTest extends ControllerTest {
 
 		String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(response, "프로필 조회 성공"));
 
-		given(memberService.getMember(Mockito.anyLong(), Mockito.anyLong())).willReturn(response);
+		given(memberService.getMember(Mockito.anyLong())).willReturn(response);
 
 		// when
 		ResultActions actions = mockMvc.perform(
-			get("/members/{member-id}", memberId)
+			get("/members")
+				.header(AUTHORIZATION, "Bearer aaa.bbb.ccc")
 				.accept(APPLICATION_JSON)
 		);
 
@@ -62,8 +65,8 @@ public class MemberControllerTest extends ControllerTest {
 
 		// restdocs
 		actions.andDo(documentHandler.document(
-			pathParameters(
-				parameterWithName("member-id").description("조회할 회원의 ID")
+			requestHeaders(
+				headerWithName(AUTHORIZATION).description("액세스 토큰")
 			),
 			responseFields(
 				fieldWithPath("data.memberId").description("회원 아이디"),
@@ -78,5 +81,12 @@ public class MemberControllerTest extends ControllerTest {
 				fieldWithPath("message").description("응답 메시지")
 			)
 		));
+	}
+
+	@Test
+	@DisplayName("리워드 목록 조회 성공 테스트")
+	void getRewards() {
+		//given
+
 	}
 }

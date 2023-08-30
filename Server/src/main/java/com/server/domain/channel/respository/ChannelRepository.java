@@ -10,4 +10,5 @@ public interface ChannelRepository extends JpaRepository<Channel, Long>, Channel
 
     Channel findByMember(Member member);
 
+    Channel findByChannelId(Long channelId);
 }

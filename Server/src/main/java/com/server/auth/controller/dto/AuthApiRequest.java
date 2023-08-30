@@ -1,7 +1,10 @@
 package com.server.auth.controller.dto;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import com.server.auth.oauth.service.OAuthProvider;
 import com.server.auth.service.dto.AuthServiceRequest;
@@ -18,7 +21,8 @@ public class AuthApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Send {
-		@NotBlank
+		@NotBlank(message = "{validation.notblank}")
+		@Email(message = "{validation.auth.email}")
 		private String email;
 
 		public AuthServiceRequest.Send toServiceRequest() {
@@ -32,10 +36,11 @@ public class AuthApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Confirm {
-		@NotBlank
+		@NotBlank(message = "{validation.notblank}")
+		@Email(message = "{validation.auth.email}")
 		private String email;
 
-		@NotBlank
+		@NotBlank(message = "{validation.auth.code}")
 		private String code;
 
 		public MailServiceRequest.Confirm toServiceRequest() {
@@ -50,14 +55,14 @@ public class AuthApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class SignUp {
-		@NotBlank
-		@Email(message = "이메일 양식을 확인하세요.")
+		@NotBlank(message = "{validation.notblank}")
+		@Email(message = "{validation.auth.email}")
 		private String email;
 
-		@NotBlank
+		@NotBlank(message = "{validation.auth.password}")
 		private String password;
 
-		@NotBlank
+		@NotBlank(message = "{validation.auth.nickname}")
 		private String nickname;
 
 		public MemberServiceRequest.Create toServiceRequest() {
@@ -73,7 +78,10 @@ public class AuthApiRequest {
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class Login {
+		@NotBlank(message = "{validation.notblank}")
+		@Email(message = "{validation.auth.email}")
 		private String email;
+		@NotBlank(message = "{validation.notblank}")
 		private String password;
 	}
 
@@ -91,6 +99,7 @@ public class AuthApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class OAuth {
+		@NotNull(message = "{validation.auth.provider}")
 		private OAuthProvider provider;
 		private String code;
 	}
@@ -99,10 +108,10 @@ public class AuthApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Reset {
-		@NotBlank
-		@Email
+		@NotBlank(message = "{validation.notblank}")
+		@Email(message = "{validation.auth.email}")
 		private String email;
-		@NotBlank
+		@NotBlank(message = "{validation.notblank}")
 		private String password;
 
 		public AuthServiceRequest.Reset toServiceRequest() {

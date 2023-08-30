@@ -10,6 +10,7 @@ import com.server.global.exception.businessexception.memberexception.MemberAcces
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.module.s3.service.AwsService;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -23,6 +24,7 @@ import java.util.List;
 @RequestMapping("/channels")
 @Validated
 public class ChannelController {
+
     private final ChannelService channelService;
     private final AwsService awsService;
     private final AnnouncementService announcementService;
@@ -33,80 +35,70 @@ public class ChannelController {
         this.announcementService = announcementService;
     }
 
-    @GetMapping("/{member-id}")
-    public ResponseEntity<ApiSingleResponse<ChannelDto.ChannelInfo>> getChannelInfo(@PathVariable("member-id") @LoginId Long memberId){
-        ChannelDto.ChannelInfo channelInfo = channelService.getChannelInfo(memberId);
+    @GetMapping("/{channel-id}")
+    public ResponseEntity<ChannelDto.ChannelInfo> getChannelInfo( //채널 단건 조회
+                                                                  @PathVariable("channel-id") Long channelId,
+                                                                  @RequestParam(required = false) Long memberId) {
 
-        String imageUrl;
+        ChannelDto.ChannelInfo channelInfo = channelService.getChannelInfo(memberId, channelId);
 
-        try{
-            imageUrl = awsService.getImageUrl(channelInfo.getImageUrl());
-        } catch (Exception e){
-            imageUrl = "...?"; //여기도..
-        }
-
-        channelInfo.setImageUrl(imageUrl);
-
-        return ResponseEntity.ok(ApiSingleResponse.ok(channelInfo, "정보 불러오기가 완료되었습니다."));
+        return ResponseEntity.ok(channelInfo);
     }
 
-    @PatchMapping("/{member-id}")
-    public ResponseEntity<ApiSingleResponse<Void>> updateChannelInfo(@PathVariable("member-id") @LoginId Long memberId,
-                                                                     @RequestBody ChannelDto.UpdateInfo updateInfo,
-                                                                     Member member){
+    @PostMapping("/{member-id}")
+    public ResponseEntity<Void> createChannel(
+            @PathVariable("member-id") Long memberId, @RequestBody Member member) {
 
-        if (!memberId.equals(member.getMemberId())) {
-            throw new MemberAccessDeniedException();
-        }
-        channelService.updateChannel(memberId, updateInfo, member);
-        return ResponseEntity.noContent().build();
-    }
-
-
-    @PatchMapping("/{member-id}/subscribe")
-    public ResponseEntity<Void> updateSubscribeOrUnsubscribe(@PathVariable("member-id") @LoginId Long memberId) {
-        boolean isSubscribed = channelService.updateSubscribe(memberId);
-
-        HttpStatus status = isSubscribed ? HttpStatus.OK : HttpStatus.NO_CONTENT;
-        return ResponseEntity.status(status).build();
-    }
-
-
-    @GetMapping("/{member-id}/videos")
-    public ResponseEntity<List<ChannelDto.ChannelVideoResponseDto>> getChannelVideos(
-            @PathVariable("member-id") @LoginId Long memberId,
-            @PathVariable("logged-in-member-id") Long loggedInMemberId, // 이 부분..
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "sort", defaultValue = "createdAt") String sort,
-            @RequestParam(value = "category", required = false) String category) {
-
-        if (!loggedInMemberId.equals(memberId)) {
+        if (!member.getMemberId().equals(memberId)) {
             throw new MemberAccessDeniedException();
         }
 
-        List<ChannelDto.ChannelVideoResponseDto> videoResponses = channelService.getChannelVideos(loggedInMemberId, memberId, page, sort);
+        channelService.createChannel(member);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 
-        return ResponseEntity.ok(videoResponses);
+
+    @PutMapping("/{member-id}/subscribe")
+    public ResponseEntity<Void> updateSubscribe( //구독상태 업데이트
+                                                 @PathVariable("member-id") Long memberId,
+                                                 @RequestParam Long loginMemberId) {
+
+        boolean isSubscribed = channelService.updateSubscribe(memberId, loginMemberId);
+
+        if (isSubscribed) {
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+    }
+
+    @GetMapping("/{member-id}/videos") //여러개 조회
+    public ResponseEntity<ApiPageResponse<ChannelDto.ChannelVideoResponseDto>> getChannelVideos(
+            @PathVariable("member-id") Long memberId,
+            @RequestParam Long loggedInMemberId,
+            @RequestParam int page,
+            @RequestParam Sort sort) {
+
+        ApiPageResponse<ChannelDto.ChannelVideoResponseDto> videoResponse =
+                channelService.getChannelVideos(loggedInMemberId, memberId, page, sort);
+
+        return ResponseEntity.ok(videoResponse);
     }
 
     @PostMapping("/{member-id}/announcements")
     public ResponseEntity<ApiSingleResponse<Void>> createAnnouncement(
-            @PathVariable("member-id") @Positive Long memberId,
+            @PathVariable("member-id") Long memberId,
             @LoginId Long loginMemberId
     ) {
-
-
         return null;
     }
 
     @GetMapping("/{member-id}/announcements")
     public ResponseEntity<ApiPageResponse<AnnouncementResponse>> getAnnouncements(
-            @PathVariable("member-id") @Positive Long memberId,
+            @PathVariable("member-id") Long memberId,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
-
-
         return null;
     }
 }
