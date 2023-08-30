@@ -11,7 +11,7 @@ const globalTokens = tokens.global;
 export const FooterContainer = styled.footer`
     min-height: 10vh;
     padding: ${globalTokens.Spacing20.value}px;
-    background-color: ${(props)=>props.isDark?globalTokens.Black.value:globalTokens.DarkGray.value};
+    background-color: ${globalTokens.DarkGray.value};
     transition: 300ms;
     display: flex;
     flex-direction: column;
@@ -32,10 +32,10 @@ const Footer = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
 
     return (
-        <FooterContainer isDark={isDark}>
+        <FooterContainer>
             <FooterLogo src={isDark ? lightLogo : logo}/>
-            <FooterInfo isDark={isDark}>(주)오펜하이머    |   사업자번호 : 809-27-01650</FooterInfo>
-            <FooterInfo isDark={isDark}>@Oppenheimer All Right Reserve.</FooterInfo>
+            <FooterInfo>(주)오펜하이머    |   사업자번호 : 809-27-01650</FooterInfo>
+            <FooterInfo>@Oppenheimer All Right Reserve.</FooterInfo>
         </FooterContainer>
     );
 };

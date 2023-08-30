@@ -25,7 +25,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      { url.pathname==='/'?<MainPageHeader/>:<Header/> }
+      <Header/>
       <Routes>
         <Route path="/" element={<MainPage/>}/>
         <Route path="/login" element={<LoginPage/>}/>
@@ -33,7 +33,7 @@ function App() {
         <Route path="/videos/1" element={<DetailPage/>}/>
         <Route path="/channels/1" element={<ChannelPage/>}/>
       </Routes>
-      { url.pathname==='/'||<Footer/> }
+      <Footer/>
     </BrowserRouter>
   );
 }
