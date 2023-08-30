@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.payload.ResponseFieldsSnippet;
 import org.springframework.test.web.servlet.ResultActions;
 
 public class RestDocsUtil {
@@ -45,5 +46,15 @@ public class RestDocsUtil {
 			.andExpect(jsonPath("$.data").isArray())
 			.andExpect(jsonPath("$.pageInfo.page").value(1))
 			.andExpect(jsonPath("$.pageInfo.size").value(expectedSize));
+	}
+
+	public static ResponseFieldsSnippet pageResponseFields(FieldDescriptor... responseFields) {
+
+		List<FieldDescriptor> allFields = new ArrayList<>();
+		allFields.addAll(Arrays.asList(responseFields));
+		allFields.addAll(Arrays.asList(pageInfoFields));
+		allFields.addAll(Arrays.asList(responseStatusFields));
+
+		return responseFields(allFields);
 	}
 }

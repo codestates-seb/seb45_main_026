@@ -1,6 +1,7 @@
 package com.server.domain.member.controller;
 
 import static com.server.auth.util.AuthConstant.*;
+import static com.server.global.testhelper.RestDocsUtil.pageResponseFields;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
@@ -146,14 +147,6 @@ public class MemberControllerTest extends ControllerTest {
 		//then
 		RestDocsUtil.assertPageResponse(actions, responses.size());
 
-		FieldDescriptor[] responseFields = new FieldDescriptor[]{
-			fieldWithPath("data[]").description("리워드 목록"),
-			fieldWithPath("data[].entityId").description("리워드를 획득한 엔티티의 ID"),
-			fieldWithPath("data[].rewardType").description("리워드 타입"),
-			fieldWithPath("data[].rewardPoint").description("지급된 리워드"),
-			fieldWithPath("data[].date").description("리워드 지급 날짜")
-		};
-
 		actions
 			.andDo(
 				documentHandler.document(
@@ -163,8 +156,12 @@ public class MemberControllerTest extends ControllerTest {
 					requestParameters(
 						parameterWithName("page").description("조회할 리워드 목록 페이지")
 					),
-					responseFields(
-						RestDocsUtil.getPageResponseFields(responseFields)
+					pageResponseFields(
+						fieldWithPath("data[]").description("리워드 목록"),
+						fieldWithPath("data[].entityId").description("리워드를 획득한 엔티티의 ID"),
+						fieldWithPath("data[].rewardType").description("리워드 타입"),
+						fieldWithPath("data[].rewardPoint").description("지급된 리워드"),
+						fieldWithPath("data[].date").description("리워드 지급 날짜")
 					)
 				)
 			);
