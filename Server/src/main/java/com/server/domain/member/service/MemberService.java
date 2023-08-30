@@ -1,5 +1,8 @@
 package com.server.domain.member.service;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +13,7 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.ProfileResponse;
+import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.module.email.service.MailService;
 
@@ -46,10 +50,8 @@ public class MemberService {
 		return ProfileResponse.builder().build();
 	}
 
-	public void getRewards(Long memberId) {
-		// Member member = new Member();
-		// // 클래스명 가져와서 리워드 타입으로 하면 될거 같기도...
-		// System.out.println(member.getClass().getSimpleName().toUpperCase());
+	public Page<RewardsResponse> getRewards(Long memberId) {
+		return null;
 	}
 
 	public void getSubscribes(Long memberId) {

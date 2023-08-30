@@ -1,10 +1,12 @@
 package com.server.domain.member.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ import com.server.domain.member.entity.Grade;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.MemberService;
 import com.server.domain.member.service.dto.response.ProfileResponse;
+import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -50,9 +53,9 @@ public class MemberController {
 	}
 
 	@GetMapping("/rewards")
-	public ResponseEntity<ApiPageResponse> getRewards(@LoginId Long loginId) {
-		memberService.getRewards(loginId);
-		return new ResponseEntity<>(HttpStatus.OK);
+	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(@LoginId Long loginId) {
+		Page<RewardsResponse> responses = memberService.getRewards(loginId);
+		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@GetMapping("/subscribes")

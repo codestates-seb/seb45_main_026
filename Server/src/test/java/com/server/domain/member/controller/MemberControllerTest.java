@@ -32,7 +32,7 @@ import com.server.global.testhelper.ControllerTest;
 public class MemberControllerTest extends ControllerTest {
 
 	@Test
-	@DisplayName("프로필 조회 API")
+	@DisplayName("프로필 조회 성공 테스트")
 	void getMember() throws Exception {
 		// given
 		Long memberId = 1L;
@@ -81,5 +81,12 @@ public class MemberControllerTest extends ControllerTest {
 				fieldWithPath("message").description("응답 메시지")
 			)
 		));
+	}
+
+	@Test
+	@DisplayName("리워드 목록 조회 성공 테스트")
+	void getRewards() {
+		//given
+
 	}
 }
