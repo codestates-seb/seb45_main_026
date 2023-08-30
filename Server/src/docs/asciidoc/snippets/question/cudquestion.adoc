@@ -11,7 +11,7 @@
 
 link:/index.html[APIs, onclick="window.location.href='index.html'"]
 
-== 비디오에 대한 질문 목록 생성
+== 비디오에 대한 문제 목록 생성
 === HTTP Request
 include::{snippets}/video/createquestions/http-request.adoc[]
 ==== Request Headers
@@ -28,7 +28,27 @@ include::{snippets}/video/createquestions/response-body.adoc[]
 include::{snippets}/video/createquestions/response-fields.adoc[]
 
 == 질문 수정
+=== HTTP Request
+include::{snippets}/question/updatequestion/http-request.adoc[]
+==== Request Headers
+include::{snippets}/question/updatequestion/request-headers.adoc[]
+==== Request Path Parameters
+include::{snippets}/question/updatequestion/path-parameters.adoc[]
+==== Request Body
+include::{snippets}/question/updatequestion/request-body.adoc[]
+==== Request Fields
+include::{snippets}/question/updatequestion/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/question/updatequestion/http-response.adoc[]
 
 == 질문 삭제
+=== HTTP Request
+include::{snippets}/question/deletequestion/http-request.adoc[]
+==== Request Headers
+include::{snippets}/question/deletequestion/request-headers.adoc[]
+==== Request Path Parameters
+include::{snippets}/question/deletequestion/path-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/question/deletequestion/http-response.adoc[]
 
 

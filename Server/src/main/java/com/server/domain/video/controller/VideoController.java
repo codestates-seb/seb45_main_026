@@ -42,7 +42,7 @@ public class VideoController {
 
         List<QuestionResponse> questions = questionService.getQuestions(loginMemberId, videoId);
 
-        return ResponseEntity.ok(ApiSingleResponse.ok(questions, "질문 목록 조회 성공"));
+        return ResponseEntity.ok(ApiSingleResponse.ok(questions, "문제 목록 조회 성공"));
     }
 
     @PostMapping("/{video-id}/answers")
@@ -72,7 +72,7 @@ public class VideoController {
         headers.add("Location", "/videos/" + videoId + "/questions");
 
         return new ResponseEntity<>(
-                ApiSingleResponse.of(questionIds, CREATED, "질문 생성 성공"),
+                ApiSingleResponse.of(questionIds, CREATED, "문제 생성 성공"),
                 headers,
                 CREATED);
     }
