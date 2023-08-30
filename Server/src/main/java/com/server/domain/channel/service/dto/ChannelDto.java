@@ -41,16 +41,21 @@ public class ChannelDto {
     @Getter
     public static class ChannelVideoResponseDto {
         private Long videoId;
+        private Long categoryId;
+        private String categoryName;
         private String videoName;
         private String thumbnailUrl;
         private int views;
         private int price;
+        private List<Category> categories;
         private LocalDate createdDate;
     }
 
     @Builder
     @Getter
     public static class ChannelVideoListResponseDto {
+        private Long categoryId;
+        private String categoryName;
         private Long videoId;
         private String videoName;
         private String thumbnailUrl;

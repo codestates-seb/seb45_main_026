@@ -24,8 +24,9 @@ public class Category extends BaseEntity {
     @Column(nullable = false)
     private String categoryName;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "videoCategory")
-    private Category videoCategories;
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    private List<VideoCategory> videoCategories = new ArrayList<>();
+
 
 }
+

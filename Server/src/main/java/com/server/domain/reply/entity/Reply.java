@@ -52,5 +52,12 @@ public class Reply extends BaseEntity {
         this.video = video;
     }
 
+
+    public void checkPermission(Member member){
+        if(!this.member.equals(member)){
+            throw new IllegalArgumentException("해당 댓글에 대한 권한이 없습니다.");
+        }
+    }
+
 }
 
