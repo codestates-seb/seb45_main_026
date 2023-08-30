@@ -131,7 +131,6 @@ class VideoControllerTest extends ControllerTest {
                         fieldWithPath("message").description("응답 메시지")
                 )
         ));
-
     }
 
     @Test
@@ -212,10 +211,4 @@ class VideoControllerTest extends ControllerTest {
 
         return responses;
     }
-
-    private <T> Page<T> createPage(List<T> contents, int page, int size, int totalElements) {
-        return new PageImpl<>(contents, PageRequest.of(page, size), totalElements);
-    }
-
-
 }
