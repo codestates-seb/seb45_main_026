@@ -1,6 +1,6 @@
 import { styled } from 'styled-components';
 import tokens from '../../styles/tokens.json'
-import { RoundRedButton } from '../../atoms/buttons/Buttons';
+import { RoundButton } from '../../atoms/buttons/Buttons';
 
 const globalTokens = tokens.global;
 
@@ -34,6 +34,6 @@ export const MainPageHeaderContainer = styled(HeaderContainer)`
     justify-content: space-between;
     align-items: center;
 `
-export const HeaderLoginButton = styled(RoundRedButton)`
+export const HeaderLoginButton = styled(RoundButton)`
     margin: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing32.value}px;
 `
