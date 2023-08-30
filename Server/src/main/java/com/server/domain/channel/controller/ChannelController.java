@@ -45,6 +45,17 @@ public class ChannelController {
         return ResponseEntity.ok(channelInfo);
     }
 
+    @PostMapping("/{member-id}")
+    public ResponseEntity<Void> createChannel(
+            @PathVariable("member-id") Long memberId, @RequestBody Member member) {
+
+        if (!member.getMemberId().equals(memberId)) {
+            throw new MemberAccessDeniedException();
+        }
+
+        channelService.createChannel(member);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 
 
     @PutMapping("/{member-id}/subscribe")
@@ -73,21 +84,6 @@ public class ChannelController {
 
         return ResponseEntity.ok(videoResponse);
     }
-
-
-
-    @PostMapping("/{member-id}")
-    public ResponseEntity<Void> createChannel(
-            @PathVariable("member-id") Long memberId, @RequestBody Member member) {
-
-        if (!member.getMemberId().equals(memberId)) {
-            throw new MemberAccessDeniedException();
-        }
-
-        channelService.createChannel(member);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
 
     @PostMapping("/{member-id}/announcements")
     public ResponseEntity<ApiSingleResponse<Void>> createAnnouncement(

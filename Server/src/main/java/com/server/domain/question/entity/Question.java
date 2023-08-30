@@ -31,11 +31,9 @@ public class Question extends BaseEntity {
 
     private String questionAnswer;
 
-    @Builder.Default
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     private List<Answer> answers = new ArrayList<>();
 
-    @Builder.Default
     @ElementCollection
     private List<String> selections = new ArrayList<>();
 

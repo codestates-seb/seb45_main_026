@@ -9,8 +9,6 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javax.persistence.FetchType.LAZY;
-
 @Getter
 @Entity
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -24,9 +22,6 @@ public class Category extends BaseEntity {
     @Column(nullable = false)
     private String categoryName;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "category")
     private List<VideoCategory> videoCategories = new ArrayList<>();
-
-
 }
-

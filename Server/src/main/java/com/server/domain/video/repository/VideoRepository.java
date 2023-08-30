@@ -1,9 +1,7 @@
 package com.server.domain.video.repository;
 
 import com.server.domain.channel.entity.Channel;
-import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
-import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;

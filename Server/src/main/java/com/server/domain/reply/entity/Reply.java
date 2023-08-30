@@ -3,17 +3,11 @@ package com.server.domain.reply.entity;
 import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 public class Reply extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +29,9 @@ public class Reply extends BaseEntity {
     @JoinColumn(name = "video_id")
     private Video video;
 
+    public void setReplyId(Long replyId){
+        this.replyId = replyId;
+    }
 
     public void setStar(int star){
         this.star = star;
@@ -50,13 +47,6 @@ public class Reply extends BaseEntity {
 
     public void setVideo(Video video){
         this.video = video;
-    }
-
-
-    public void checkPermission(Member member){
-        if(!this.member.equals(member)){
-            throw new IllegalArgumentException("해당 댓글에 대한 권한이 없습니다.");
-        }
     }
 
 }

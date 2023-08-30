@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 @Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 public class Channel extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,12 +30,15 @@ public class Channel extends BaseEntity {
     @Lob
     private String description;
 
-    @Builder.Default
+    //todo : 빼기
+    private String imageUrl;
+
     @OneToMany(mappedBy = "channel")
     private List<Subscribe> subscribes = new ArrayList<>();
 
     private int subscribers;
 
+    //todo : 빼기
     private boolean isSubscribed; //구독여부
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -59,8 +62,7 @@ public class Channel extends BaseEntity {
         this.description = description;
     }
 
-
-    public void setSubscribers(int subscribers){
+    public void subscribers(int subscribers){
         this.subscribers = subscribers;
     }
 
@@ -70,5 +72,13 @@ public class Channel extends BaseEntity {
             this.member.setChannel(this);
         }
     }
+
+
+    public void setSubscribers(int subscribers){
+        this.subscribers = subscribers;
+    }
+
+
+
 
 }
