@@ -17,7 +17,7 @@ const preview = {
       default: 'light',
       values: [
         { name: 'dark', value: `${globalTokens.Black.value}` },
-        { name: 'light', value: `${globalTokens.White.value}` }
+        { name: 'light', value: `${globalTokens.Background.value}` }
       ]
     }
   },

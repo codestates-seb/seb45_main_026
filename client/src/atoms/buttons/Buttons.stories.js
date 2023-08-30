@@ -25,11 +25,13 @@ export default {
     title: 'Atoms/Button',
     component: Buttons,
     argTypes: {
-        isDark: { control: 'boolean' }
+        isDark: { control: 'boolean' },
+        isChecked: { control: 'boolean' },
     }
 }
 
 export const ButtonsTemplate = (args) => <Buttons {...args}/>
 ButtonsTemplate.args = {
-    isDark: false
+    isDark: false,
+    isChecked: false,
 }
