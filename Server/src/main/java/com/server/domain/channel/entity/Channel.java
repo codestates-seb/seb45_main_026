@@ -73,17 +73,12 @@ public class Channel extends BaseEntity {
         }
     }
 
-    public void setSubscribed(boolean subscribed) {
+
+    public void setSubscribers(int subscribers){
+        this.subscribers = subscribers;
     }
 
-    public void incrementSubscribers(){
-        subscribers++;
-    }
-    public void decrementSubscribers(){
-        if(subscribers > 0){
-            subscribers--;
-        }
-    }
+
 
 
 }
