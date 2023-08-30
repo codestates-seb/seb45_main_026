@@ -14,6 +14,6 @@ export const RegularInput = styled.input`
         color: ${(props)=>props.isDark? globalTokens.LightGray.value : globalTokens.Gray.value};
     }
     &:focus {
-        outline: ${globalTokens.RegularHeight.value}px solid ${(props)=>props.isDark ? globalTokens.LightNavy.value : globalTokens.Positive.value};
+        outline: ${globalTokens.RegularHeight.value}px solid ${(props)=>props.isDark ? globalTokens.White.value : globalTokens.Positive.value};
     }
 `

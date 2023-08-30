@@ -7,10 +7,6 @@ import {
     LoginFormInput,
     ErrorTextTypo,
     LoginButton,
-    SNSLoginButtonForGoogle,
-    SNSLoginButtonIcon,
-    SNSLoginButtonText,
-    SNSLoginButtonForGitHub
 } from './LoginForm.style';
 
 export const LoginForm = () => {

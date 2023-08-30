@@ -2,7 +2,7 @@ import { styled } from 'styled-components';
 import tokens from '../../styles/tokens.json'
 import { RegularInput } from '../../atoms/inputs/Inputs';
 import { SmallTextTypo } from '../../atoms/typographys/Typographys';
-import { BigRedButton } from '../../atoms/buttons/Buttons';
+import { BigButton } from '../../atoms/buttons/Buttons';
 
 const globalTokens = tokens.global;
 
@@ -23,7 +23,7 @@ export const ErrorTextTypo = styled(SmallTextTypo)`
     color: ${(props)=>props.isDark ? globalTokens.LightRed.value : globalTokens.Negative.value};
     text-align: end;
 `
-export const LoginButton = styled(BigRedButton)`
+export const LoginButton = styled(BigButton)`
     margin: ${globalTokens.Spacing8.value}px;
     width: 250px;
 `
