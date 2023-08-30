@@ -1,5 +1,6 @@
 package com.server.global.testhelper;
 
+import com.server.domain.announcement.repository.AnnouncementRepository;
 import com.server.domain.answer.repository.AnswerRepository;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.entity.CategoryRepository;
@@ -48,6 +49,7 @@ public abstract class ServiceTest {
     @Autowired protected AnswerRepository answerRepository;
     @Autowired protected WatchRepository watchRepository;
     @Autowired protected ReplyRepository replyRepository;
+    @Autowired protected AnnouncementRepository announcementRepository;
     @Autowired protected EntityManager em;
 
     @MockBean protected RedisService redisService;

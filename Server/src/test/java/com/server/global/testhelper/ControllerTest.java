@@ -118,6 +118,9 @@ public class ControllerTest {
 	// 제약 조건을 포함하고 있는 객체
 	private BeanDescriptor beanDescriptor;
 
+	protected final String AUTHORIZATION = "Authorization";
+	protected final String TOKEN = "Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7";
+
 	// 공통 전처리
 	@BeforeEach
 	void setUp(WebApplicationContext context,
