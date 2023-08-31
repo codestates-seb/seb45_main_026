@@ -10,11 +10,11 @@ import CategoryFilter from "../../components/filters/CategoryFilter";
 const globalTokens = tokens.global;
 
 const ProfileContainer = styled.div`
+    width: 100%;
     display: flex;
     flex-direction: row;
     gap: ${globalTokens.Spacing20.value}px;
-    width: 100%;
-    padding: ${globalTokens.Spacing32.value}px;
+    margin: ${globalTokens.Spacing36.value}px 0;
 `
 const ProfileImg = styled.img`
     max-height: 130px;
@@ -24,24 +24,33 @@ const ProfileImg = styled.img`
 const ImgContainer = styled.div`
     width: 130px;
     height: 130px;
+    min-width: 130px;
     border-radius: ${globalTokens.ProfileRadius.value}px;
-    background-color: white;
+    background-color: ${globalTokens.White.value};
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    border: 1px solid black;
 `
 const InforContainer = styled.div`
     height: 130px;
     flex-grow: 1;
-    padding: 5px;
-    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: ${globalTokens.Spacing8.value}px;
 `
 const ChannelTitle = styled.h1`
   height: 30px;
   font-size: ${globalTokens.Heading4.value}px;
   font-weight: ${globalTokens.Bold.value};
+`
+const ChannelDescription = styled.div`
+  height: 80px;
+  flex-grow: 1;
+  padding: ${globalTokens.Spacing4.value}px;
+  background-color: lightgray;
+  border-radius: ${globalTokens.RegularRadius.value}px;
 `
 const JustDiv = styled.div`
   height: 300px;
@@ -59,10 +68,13 @@ export default function ChannelPage() {
             </ImgContainer>
             <InforContainer>
               <ChannelTitle>HyerimKimm</ChannelTitle>
+              <ChannelDescription>
+                안녕하세요 안녕하세요 안녕하세요 안녕하세요 안녕하세요
+                안녕하세요 안녕하세요
+                안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요
+              </ChannelDescription>
             </InforContainer>
           </ProfileContainer>
-          <VerticalItem />
-          <HorizonItem />
           <CategoryFilter />
           <JustDiv></JustDiv>
         </MainContainer>

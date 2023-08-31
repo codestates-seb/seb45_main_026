@@ -35,7 +35,7 @@ export default function FilterDropdown({ options, actionName }) {
     };
     return (
         <DropdownContainer>
-            {options.map((el,idx)=><ListContainer onClick={()=>dispatch(actionMap[actionName](el))}>{el.text}</ListContainer>)}
+            {options.map((el,idx)=><ListContainer key={idx} onClick={()=>dispatch(actionMap[actionName](el))}>{el.text}</ListContainer>)}
         </DropdownContainer>
   );
 }
