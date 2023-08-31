@@ -75,18 +75,19 @@ public class MemberController {
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
-	// 좋아요 기능은 구현하지 않을 예정
-	@GetMapping("/likes")
-	public ResponseEntity<ApiPageResponse<Void>> getLikes(@LoginId Long loginId,
-													@RequestParam("page") int page) {
-		memberService.getLikes(loginId, page);
-
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
+	// 좋아요 기능은 구현하지 않기로 함
+	// @GetMapping("/likes")
+	// public ResponseEntity<ApiPageResponse<Void>> getLikes(@LoginId Long loginId,
+	// 												@RequestParam("page") int page) {
+	// 	memberService.getLikes(loginId, page);
+	//
+	// 	return new ResponseEntity<>(HttpStatus.OK);
+	// }
 
 	@GetMapping("/carts")
 	public ResponseEntity<ApiPageResponse<CartsResponse>> getCarts(@LoginId Long loginId,
 													@RequestParam("page") int page) {
+
 		Page<CartsResponse> responses = memberService.getCarts(loginId, page);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
@@ -125,16 +126,18 @@ public class MemberController {
 	@PatchMapping
 	public ResponseEntity<Void> updateNickname(@LoginId Long loginId,
 												@RequestBody MemberApiRequest.Nickname request) {
-		memberService.updateNickname(request.toServiceRequest());
+		memberService.updateNickname(request.toServiceRequest(), loginId);
 		return ResponseEntity.noContent().build();
 	}
 
 	@PatchMapping("/image")
-	public ResponseEntity<ApiSingleResponse> updateImage(@LoginId Long loginId,
+	public ResponseEntity<Void> updateImage(@LoginId Long loginId,
 														@RequestBody MemberApiRequest.Image request) {
-		// 주소 생성 및 파일명을 해당 멤버에 저장
-		memberService.updateImage(request.getImageName());
+
+		memberService.updateImage(loginId);
+
 		String presignedUrl = awsService.getUploadImageUrl(request.getImageName(), request.getImageType());
+
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Location", presignedUrl);
 
@@ -145,7 +148,7 @@ public class MemberController {
 	public ResponseEntity<Void> updatePassword(@LoginId Long loginId,
 												@RequestBody @Valid MemberApiRequest.Password request) {
 
-		memberService.updatePassword(request.toServiceRequest(loginId));
+		memberService.updatePassword(request.toServiceRequest(loginId), loginId);
 
 		return ResponseEntity.noContent().build();
 	}

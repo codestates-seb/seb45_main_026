@@ -1,6 +1,7 @@
 package com.server.domain.member.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,8 +20,13 @@ import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
+import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
+import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
+import com.server.global.exception.businessexception.memberexception.MemberNotUpdatedException;
+import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
 import com.server.module.email.service.MailService;
+import com.server.module.s3.service.AwsService;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,13 +35,15 @@ public class MemberService {
 	private final MemberRepository memberRepository;
 	private final MailService mailService;
 	private final ChannelService channelService;
+	private final AwsService awsService;
 	private final PasswordEncoder passwordEncoder;
 
 	public MemberService(MemberRepository memberRepository, MailService mailService, ChannelService channelService,
-		PasswordEncoder passwordEncoder) {
+		AwsService awsService, PasswordEncoder passwordEncoder) {
 		this.memberRepository = memberRepository;
 		this.mailService = mailService;
 		this.channelService = channelService;
+		this.awsService = awsService;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -52,7 +60,10 @@ public class MemberService {
 	}
 
 	public ProfileResponse getMember(Long loginId) {
-		return ProfileResponse.builder().build();
+		validateLoginId(loginId);
+		Member member = findMemberBy(loginId);
+
+		return ProfileResponse.getMember(member, awsService.getImageUrl(member.getImageFile()));
 	}
 
 	public Page<RewardsResponse> getRewards(Long loginId, int page) {
@@ -63,11 +74,12 @@ public class MemberService {
 		return null;
 	}
 
-	public void getLikes(Long memberId, int page) {
+	// 좋아요 기능은 구현하지 않기로 함
+	// public void getLikes(Long memberId, int page) {
+	//
+	// }
 
-	}
-
-	public Page<CartsResponse> getCarts(Long memberId, int page) {
+	public Page<CartsResponse> getCarts(Long loginId, int page) {
 		return null;
 	}
 
@@ -75,28 +87,94 @@ public class MemberService {
 		return null;
 	}
 
-	public Page<PlaylistsResponse> getPlaylists(Long memberId, int page, String sort) {
+	public Page<PlaylistsResponse> getPlaylists(Long loginId, int page, String sort) {
 		return null;
 	}
 
-	public Page<WatchsResponse> getWatchs(Long memberId, int page, int day) {
+	public Page<WatchsResponse> getWatchs(Long loginId, int page, int day) {
+		validateLoginId(loginId);
+
+
+
 		return null;
 	}
 
-	public void updatePassword(MemberServiceRequest.Password request) {
+	@Transactional
+	public void updatePassword(MemberServiceRequest.Password request, Long loginId) {
+		validateLoginId(loginId);
 
+		Member member = findMemberBy(loginId);
+
+		String password = member.getPassword();
+		String newPassword = request.getNewPassword();
+
+		validatePassword(request.getPrevPassword(), password);
+
+		if (newPassword == null || newPassword.equals(password)) {
+			throw new MemberNotUpdatedException();
+		}
+		else {
+			member.setPassword(passwordEncoder.encode(newPassword));
+		}
+
+		memberRepository.save(member);
 	}
 
-	public void updateNickname(MemberServiceRequest.Nickname request) {
+	@Transactional
+	public void updateNickname(MemberServiceRequest.Nickname request, Long loginId) {
+		validateLoginId(loginId);
 
+		Member member = findMemberBy(loginId);
+
+		if (request.getNickname() == null) {
+			throw new MemberNotUpdatedException();
+		} else {
+			member.setNickname(request.getNickname());
+		}
+
+		memberRepository.save(member);
 	}
 
-	public void updateImage(String imageName) {
+	@Transactional
+	public void updateImage(Long loginId) {
+		validateLoginId(loginId);
 
+		Member member = findMemberBy(loginId);
+
+		if (member.getImageFile() == null) {
+			Optional.ofNullable(member.getIdFromEmail()).ifPresent(
+				member::setImageFile
+			);
+
+			memberRepository.save(member);
+		}
 	}
 
-	public void deleteMember(Long memberId) {
+	@Transactional
+	public void deleteMember(Long loginId) {
+		validateLoginId(loginId);
 
+		Member member = findMemberBy(loginId);
+
+		memberRepository.delete(member);
+	}
+
+	public Member findMemberBy(Long id) {
+		return memberRepository.findById(id).orElseThrow(
+			MemberNotFoundException::new
+		);
+	}
+
+	public void validatePassword(String password, String encodedPassword) {
+		if(!passwordEncoder.matches(password, encodedPassword)) {
+			throw new MemberPasswordException();
+		}
+	}
+
+	public void validateLoginId(Long loginId) {
+		if (loginId < 1) {
+			throw new MemberAccessDeniedException();
+		}
 	}
 
 	public void checkDuplicationEmail(String email) {

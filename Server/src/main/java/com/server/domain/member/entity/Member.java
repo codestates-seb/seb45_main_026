@@ -121,6 +121,10 @@ public class Member extends BaseEntity {
 		this.reward -= reward;
 	}
 
+	public String getIdFromEmail() {
+		return this.email.substring(0, this.email.indexOf("@"));
+	}
+  
 	public void checkReward(int reward) {
 		checkEnoughReward(reward);
 	}

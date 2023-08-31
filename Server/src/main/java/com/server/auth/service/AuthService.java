@@ -1,16 +1,14 @@
 package com.server.auth.service;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.server.auth.jwt.service.JwtProvider;
 import com.server.auth.service.dto.AuthServiceRequest;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.MemberService;
+import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.module.email.service.MailService;
 
 @Service
@@ -19,10 +17,15 @@ public class AuthService {
 
 	private final MailService mailService;
 	private final MemberService memberService;
+	private final MemberRepository memberRepository;
+	private final PasswordEncoder passwordEncoder;
 
-	public AuthService(MailService mailService, MemberService memberService) {
+	public AuthService(MailService mailService, MemberService memberService, MemberRepository memberRepository,
+		PasswordEncoder passwordEncoder) {
 		this.mailService = mailService;
 		this.memberService = memberService;
+		this.memberRepository = memberRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	public void sendEmail(AuthServiceRequest.Send request) throws Exception {
@@ -32,7 +35,13 @@ public class AuthService {
 		mailService.sendEmail(email);
 	}
 
-	public void resetPassword(AuthServiceRequest.Reset request) {
+	public void updatePassword(AuthServiceRequest.Reset request, Long loginId) {
+		memberService.validateLoginId(loginId);
+		mailService.checkEmailCertify(request.getEmail());
 
+		Member member = memberService.findMemberBy(loginId);
+		member.setPassword(passwordEncoder.encode(request.getPassword()));
+
+		memberRepository.save(member);
 	}
 }
