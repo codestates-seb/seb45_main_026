@@ -11,6 +11,7 @@ import ChannelPage from "./pages/contents/ChannelPage";
 import DetailPage from "./pages/contents/DetailPage/DetailPage";
 import CartPage from "./pages/contents/CartPage/CartPage";
 import "./App.css";
+import SignupPage from "./pages/auth/SignupPage";
 
 function App() {
   const url = new URL(window.location.href);
@@ -30,6 +31,7 @@ function App() {
       <Routes>
         <Route path="/" element={<MainPage/>}/>
         <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/signup" element={<SignupPage/>}/>
         <Route path="/MyProfile" element={<MyProfilePage/>}/>
         <Route path="/videos/1" element={<DetailPage/>}/>
         <Route path="/channels/1" element={<ChannelPage/>}/>
