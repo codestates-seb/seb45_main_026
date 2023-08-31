@@ -98,7 +98,7 @@ asciidoctor {
 }
 
 asciidoctor.doFirst {
-    delete file('src/main/resources/static/docs')
+    delete file('src/main/resources/static')
 }
 
 task createDocument(type: Copy) {
@@ -111,7 +111,7 @@ bootJar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn createDocument
     from("${asciidoctor.outputDir}") {
-        into 'static/docs'
+        into 'static/'
     }
 }
 

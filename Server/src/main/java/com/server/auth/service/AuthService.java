@@ -36,12 +36,11 @@ public class AuthService {
 	}
 
 	public void updatePassword(AuthServiceRequest.Reset request, Long loginId) {
-		memberService.validateLoginId(loginId);
 		mailService.checkEmailCertify(request.getEmail());
 
-		Member member = memberService.findMemberBy(loginId);
+		Member member = memberRepository.findById(loginId).orElseThrow(
+			MemberAccessDeniedException::new
+		);
 		member.setPassword(passwordEncoder.encode(request.getPassword()));
-
-		memberRepository.save(member);
 	}
 }

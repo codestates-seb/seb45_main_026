@@ -144,6 +144,13 @@ public class MemberController {
 		return ResponseEntity.ok().headers(headers).build();
 	}
 
+	@DeleteMapping("/image")
+	public ResponseEntity<Void> deleteImage(@LoginId Long loginId) {
+		memberService.deleteImage(loginId);
+
+		return ResponseEntity.noContent().build();
+	}
+
 	@PatchMapping("/password")
 	public ResponseEntity<Void> updatePassword(@LoginId Long loginId,
 												@RequestBody @Valid MemberApiRequest.Password request) {
