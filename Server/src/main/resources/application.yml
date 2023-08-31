@@ -37,7 +37,7 @@ spring:
         registration:
           google:
             scope: email
-            redirect-uri: https://localhost:3000/login
+            redirect-uri: http://localhost:3000/login
           github:
             scope: user:email, read:user
             redirect-uri: http://localhost:3000/login

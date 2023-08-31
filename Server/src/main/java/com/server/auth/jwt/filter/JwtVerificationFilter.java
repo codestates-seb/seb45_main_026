@@ -20,11 +20,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.auth.jwt.service.CustomUserDetails;
 import com.server.auth.jwt.service.JwtProvider;
 import com.server.global.exception.businessexception.BusinessException;
+import com.server.global.exception.businessexception.authexception.JwtExpiredException;
+import com.server.global.reponse.ApiSingleResponse;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 
 public class JwtVerificationFilter extends OncePerRequestFilter {
 	private final JwtProvider jwtProvider;
@@ -39,7 +43,12 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 		try{
 			Claims claims = verifyClaims(request);
 			setAuthenticationToContext(claims);
-		}catch(BusinessException be){
+		} catch (JwtExpiredException jwtException) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.setContentType("application/json");
+			response.getWriter().write(new ObjectMapper().writeValueAsString(ApiSingleResponse.fail(new JwtExpiredException())));
+			return;
+		} catch(BusinessException be){
 			request.setAttribute(BUSINESS_EXCEPTION, be);
 		}catch(Exception e){
 			request.setAttribute(EXCEPTION, e);
