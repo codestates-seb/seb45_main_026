@@ -1,16 +1,23 @@
 import { styled } from "styled-components";
+import {
+  SubDescribe,
+  RowBox,
+  ColBox,
+} from "../../../pages/contents/UploadPage";
 
 const UploadModal = () => {
   return (
     <div>
-      <div>
+      <RowBox>
         <label>문제 이미지</label>
-        <div>
+        <ColBox>
           <div>문제 이미지를 등록해 주세요.</div>
-          <span>썸네일 이미지는 png, jpg만 등록이 가능합니다.</span>
-          <span>권장 이미지 크기 : 550px &times; 250px</span>
-        </div>
-      </div>
+          <SubDescribe>
+            썸네일 이미지는 png, jpg만 등록이 가능합니다.
+          </SubDescribe>
+          <SubDescribe>권장 이미지 크기 : 550px &times; 250px</SubDescribe>
+        </ColBox>
+      </RowBox>
       <div>
         <div>
           <span>문항</span>

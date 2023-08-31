@@ -11,35 +11,29 @@ export const StarImg = styled.img.attrs((props) => ({
 `;
 
 const ReviewStar = () => {
-  const [isStar, setStar] = useState({
-    1: false,
-    2: false,
-    3: false,
-    4: false,
-    5: false,
-  });
+  const [isStar, setStar] = useState({ star: 0 });
 
   return (
     <div>
       <StarImg
-        isStar={isStar[1]}
-        onClick={() => setStar({ ...isStar, 1: !isStar[1] })}
+        isStar={isStar.star >= 1}
+        onClick={() => setStar({ ...isStar, star: 1 })}
       />
       <StarImg
-        isStar={isStar[2]}
-        onClick={() => setStar({ ...isStar, 2: !isStar[2] })}
+        isStar={isStar.star >= 2}
+        onClick={() => setStar({ ...isStar, star: 2 })}
       />
       <StarImg
-        isStar={isStar[3]}
-        onClick={() => setStar({ ...isStar, 3: !isStar[3] })}
+        isStar={isStar.star >= 3}
+        onClick={() => setStar({ ...isStar, star: 3 })}
       />
       <StarImg
-        isStar={isStar[4]}
-        onClick={() => setStar({ ...isStar, 4: !isStar[4] })}
+        isStar={isStar.star >= 4}
+        onClick={() => setStar({ ...isStar, star: 4 })}
       />
       <StarImg
-        isStar={isStar[5]}
-        onClick={() => setStar({ ...isStar, 5: !isStar[5] })}
+        isStar={isStar.star >= 5}
+        onClick={() => setStar({ ...isStar, star: 5 })}
       />
     </div>
   );
