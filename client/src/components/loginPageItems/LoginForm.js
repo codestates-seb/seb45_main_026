@@ -21,7 +21,7 @@ export const LoginForm = () => {
     const onSubmit = async (data) => {
         const response = await loginService(data);
         if(response.isLogin) {
-            console.log(response)
+            console.log(response);
             const authorization = response.authorization;
             const refresh = response.refresh;
         }
