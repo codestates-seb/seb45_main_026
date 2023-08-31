@@ -2,16 +2,19 @@ package com.server.domain.member.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.*;
 
-import org.junit.jupiter.api.Assertions;
+import java.util.Optional;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
@@ -22,16 +25,21 @@ import com.server.global.exception.businessexception.memberexception.MemberNotFo
 import com.server.global.exception.businessexception.memberexception.MemberNotUpdatedException;
 import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
 import com.server.global.testhelper.ServiceTest;
-import com.server.module.email.service.MailService;
 import com.server.module.s3.service.AwsService;
 
 public class MemberServiceTest extends ServiceTest {
 
-	// @Autowired MailService mailService;
-	// @Autowired ChannelService channelService;
-	// @Autowired AwsService awsService;
 	@Autowired PasswordEncoder passwordEncoder;
 	@Autowired MemberService memberService;
+
+	@Mock
+	private MemberRepository mockMemberRepository;
+
+	@Mock
+	private AwsService awsService;
+
+	@InjectMocks
+	private MemberService mockMemberService;
 
 	@Test
 	@DisplayName("로그인한 사용자의 ID에 맞는 회원 테이블을 삭제한다.")
@@ -47,12 +55,16 @@ public class MemberServiceTest extends ServiceTest {
 	@Test
 	@DisplayName("로그인 아이디가 1보다 작지 않은지 로그인한 회원이 맞는지 검증한다.")
 	void validateLoginId() {
-		Long validLoginId = 123L;
-		Long invalidLoginId = -1L;
+		Member member = createMember();
 
-		assertDoesNotThrow(() -> memberService.validateLoginId(validLoginId));
+		Long validLoginId = member.getMemberId();
+		Long invalidLoginIdA = -1L;
+		Long invalidLoginIdB = 423515L;
 
-		assertThrows(MemberAccessDeniedException.class, () -> memberService.validateLoginId(invalidLoginId));
+		assertDoesNotThrow(() -> memberService.validateMember(validLoginId));
+
+		assertThrows(MemberAccessDeniedException.class, () -> memberService.validateMember(invalidLoginIdA));
+		assertThrows(MemberNotFoundException.class, () -> memberService.validateMember(invalidLoginIdB));
 	}
 
 	@Test
@@ -72,14 +84,14 @@ public class MemberServiceTest extends ServiceTest {
 	@Test
 	@DisplayName("프로필 이미지가 저장되는지 검증한다.")
 	void updateImage() {
-		Member member = createMember();
+		Member member = createNoImageMember();
 
 		Long loginId = member.getMemberId();
-		String imageName = member.getIdFromEmail();
+		String imageName = member.getEmail();
 
 		memberService.updateImage(loginId);
 
-		assertThat(imageName).isEqualTo("test");
+		assertThat(imageName).isEqualTo("test@gmail.com");
 		assertThat(member.getImageFile()).isNotNull().isEqualTo(imageName);
 	}
 
@@ -127,7 +139,37 @@ public class MemberServiceTest extends ServiceTest {
 		assertDoesNotThrow(() -> memberService.checkDuplicationEmail(notExistEmail));
 	}
 
+	@Test
+	@DisplayName("프로필 이미지 삭제 테스트")
+	void deleteImage() {
+		Member member = createMember();
+		Long loginId = member.getMemberId();
+
+		given(mockMemberRepository.findById(Mockito.anyLong())).willReturn(Optional.of(member));
+		doNothing().when(awsService).deleteImage(anyString());
+
+		mockMemberService.deleteImage(loginId);
+
+		verify(awsService).deleteImage("imageName");
+		assertNull(member.getImageFile());
+	}
+
 	private Member createMember() {
+		Member member = Member.builder()
+			.email("test@gmail.com")
+			.password(passwordEncoder.encode("1q2w3e4r!"))
+			.nickname("test")
+			.authority(Authority.ROLE_USER)
+			.reward(1000)
+			.imageFile("imageName")
+			.build();
+
+		memberRepository.save(member);
+
+		return member;
+	}
+
+	private Member createNoImageMember() {
 		Member member = Member.builder()
 			.email("test@gmail.com")
 			.password(passwordEncoder.encode("1q2w3e4r!"))

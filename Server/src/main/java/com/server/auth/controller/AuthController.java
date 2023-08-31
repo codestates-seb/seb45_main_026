@@ -65,8 +65,8 @@ public class AuthController {
 		AuthApiRequest.Token token = oAuthService.login(request.getProvider(), request.getCode());
 
 		HttpHeaders headers = new HttpHeaders();
-		headers.add(AUTHORIZATION, BEARER + " " + token.getAccessToken());
-		headers.add(REFRESH, BEARER + " " + token.getRefreshToken());
+		headers.add(AUTHORIZATION, BEARER + token.getAccessToken());
+		headers.add(REFRESH, BEARER + token.getRefreshToken());
 
 		return ResponseEntity.ok().headers(headers).build();
 	}
