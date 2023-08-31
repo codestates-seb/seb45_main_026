@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.server.domain.category.entity.QCategory.*;
+import static com.server.domain.category.entity.QCategory.category;
 import static com.server.domain.channel.entity.QChannel.channel;
 import static com.server.domain.member.entity.QMember.member;
 import static com.server.domain.order.entity.QOrder.order;
@@ -141,6 +142,47 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
         }
 
         return results;
+    }
+
+    @Override
+    public Page<Video> findChannelVideoByCategoryPaging(Long memberId, String categoryName, Pageable pageable, String sort) {
+
+        List<OrderSpecifier<?>> orders = new ArrayList<>();
+        orders.add(getOrderSpecifier(sort));
+        orders.add(video.createdDate.desc());
+
+        JPAQuery<Video> query = queryFactory
+                .selectFrom(video)
+                .distinct()
+                .join(video.channel, channel).fetchJoin()
+                .join(channel.member, member).fetchJoin()
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .where(member.memberId.eq(memberId))
+                .orderBy(orders.toArray(new OrderSpecifier[0]));
+
+        if (categoryName != null && !categoryName.isEmpty()) {
+            query
+                    .join(video.videoCategories, videoCategory)
+                    .join(videoCategory.category, category)
+                    .where(category.categoryName.eq(categoryName));
+        }
+
+        JPAQuery<Video> countQuery = queryFactory.selectFrom(video)
+                .join(video.channel, channel)
+                .join(channel.member, member)
+                .where(member.memberId.eq(memberId));
+
+        if (categoryName != null && !categoryName.isEmpty()) {
+            countQuery
+                    .join(video.videoCategories, videoCategory)
+                    .join(videoCategory.category, category)
+                    .where(category.categoryName.eq(categoryName));
+        }
+
+        long totalCount = countQuery.fetchCount();
+
+        return new PageImpl<>(query.fetch(), pageable, totalCount);
     }
 
     private OrderSpecifier<?> getOrderSpecifier(String sort) {

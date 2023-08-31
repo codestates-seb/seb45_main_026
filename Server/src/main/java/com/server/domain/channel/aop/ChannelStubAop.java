@@ -1,9 +1,10 @@
 package com.server.domain.channel.aop;
 
 import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
-import com.server.domain.order.service.dto.response.OrderResponse;
+import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
+import com.server.domain.video.service.dto.response.VideoCategoryResponse;
 import com.server.global.reponse.ApiPageResponse;
-import com.server.global.reponse.ApiSingleResponse;
+import com.server.module.s3.service.AwsService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -15,12 +16,33 @@ import org.springframework.stereotype.Component;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Aspect
 @Component
 public class ChannelStubAop {
+
+    private final AwsService awsService;
+
+    public ChannelStubAop(AwsService awsService) {
+        this.awsService = awsService;
+    }
+
+    @Around("execution(* com.server.domain.channel.controller.ChannelController.getChannelVideos(..))")
+    public Object getChannelVideos(ProceedingJoinPoint joinPoint) {
+
+        Object[] args = joinPoint.getArgs();
+        int page = (int) args[1];
+        int size = (int) args[2];
+
+        PageRequest pageRequest = PageRequest.of(page - 1, size);
+
+        Page<ChannelVideoResponse> responses =
+                new PageImpl<>(createChannelVideoResponse(size), pageRequest, 100);
+
+        return ResponseEntity.ok(ApiPageResponse.ok(responses, "채널 비디오 목록 조회 성공"));
+    }
 
     @Around("execution(* com.server.domain.channel.controller.ChannelController.createAnnouncement(..))")
     public Object createAnnouncement(ProceedingJoinPoint joinPoint) {
@@ -77,5 +99,38 @@ public class ChannelStubAop {
         Page<AnnouncementResponse> response = new PageImpl<>(List.of(response1, response2, response3), pageRequest, 100);
 
         return ResponseEntity.ok(ApiPageResponse.ok(response, "공지사항 목록 조회 성공"));
+    }
+
+    private List<ChannelVideoResponse> createChannelVideoResponse(int count) {
+        List<ChannelVideoResponse> responses = new ArrayList<>();
+
+        for(int i = 1; i <= count; i++) {
+            ChannelVideoResponse response = ChannelVideoResponse.builder()
+                    .videoId((long) i)
+                    .videoName("video name" + i)
+                    .thumbnailUrl(awsService.getThumbnailUrl(9999L, "test"))
+                    .views(1000)
+                    .isPurchased(true)
+                    .categories(createVideoCategoryResponse("java", "react"))
+                    .createdDate(LocalDateTime.now())
+                    .build();
+
+            responses.add(response);
+        }
+
+        return responses;
+    }
+
+    private List<VideoCategoryResponse> createVideoCategoryResponse(String... categoryNames) {
+        List<VideoCategoryResponse> responses = new ArrayList<>();
+
+        for (int i = 1; i <= categoryNames.length; i++) {
+            responses.add(VideoCategoryResponse.builder()
+                    .categoryId((long) i)
+                    .categoryName(categoryNames[i - 1])
+                    .build());
+        }
+
+        return responses;
     }
 }

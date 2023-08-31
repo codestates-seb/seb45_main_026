@@ -20,8 +20,6 @@ include::{snippets}/channel/getannouncements/path-parameters.adoc[]
 include::{snippets}/channel/getannouncements/request-parameters.adoc[]
 === HTTP Response
 include::{snippets}/channel/getannouncements/http-response.adoc[]
-==== Response Body
-include::{snippets}/channel/getannouncements/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/channel/getannouncements/response-fields.adoc[]
 
@@ -32,7 +30,5 @@ include::{snippets}/announcement/getannouncement/http-request.adoc[]
 include::{snippets}/announcement/getannouncement/path-parameters.adoc[]
 === HTTP Response
 include::{snippets}/channel/getannouncements/http-response.adoc[]
-==== Response Body
-include::{snippets}/channel/getannouncements/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/channel/getannouncements/response-fields.adoc[]

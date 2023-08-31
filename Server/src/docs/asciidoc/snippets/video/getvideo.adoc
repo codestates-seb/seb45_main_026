@@ -20,8 +20,6 @@ include::{snippets}/video/getvideos/request-headers.adoc[]
 include::{snippets}/video/getvideos/request-parameters.adoc[]
 === HTTP Response
 include::{snippets}/video/getvideos/http-response.adoc[]
-==== Response Body
-include::{snippets}/video/getvideos/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/video/getvideos/response-fields.adoc[]
 
@@ -34,8 +32,6 @@ include::{snippets}/video/getvideo/request-headers.adoc[]
 include::{snippets}/video/getvideo/path-parameters.adoc[]
 === HTTP Response
 include::{snippets}/video/getvideo/http-response.adoc[]
-==== Response Body
-include::{snippets}/video/getvideo/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/video/getvideo/response-fields.adoc[]
 
