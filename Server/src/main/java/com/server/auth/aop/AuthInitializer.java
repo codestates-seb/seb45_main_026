@@ -19,9 +19,7 @@ import java.util.List;
 @Component
 public class AuthInitializer {
 	private final MemberRepository memberRepository;
-	private final CategoryRepository categoryRepository;
 	private final ChannelRepository channelRepository;
-	private final VideoRepository videoRepository;
 	private final PasswordEncoder passwordEncoder;
 
 	public AuthInitializer(MemberRepository memberRepository, CategoryRepository categoryRepository, ChannelRepository channelRepository, VideoRepository videoRepository, PasswordEncoder passwordEncoder) {
@@ -42,17 +40,7 @@ public class AuthInitializer {
 
 		Channel channel = Channel.createChannel("test-channel");
 
-
-		Category category1 = Category.builder().categoryName("test-category1").build();
-		Category category2 = Category.builder().categoryName("test-category2").build();
-
-
-		Video video = Video.createVideo(channel, "test-video", 50000, "test-video.mp4", List.of(category1, category2));
-
 		memberRepository.save(member);
 		channelRepository.save(channel);
-		categoryRepository.save(category1);
-		categoryRepository.save(category2);
-		videoRepository.save(video);
 	}
 }
