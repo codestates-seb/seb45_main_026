@@ -7,7 +7,7 @@ import com.server.domain.announcement.service.dto.request.AnnouncementUpdateServ
 import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.respository.ChannelRepository;
-import com.server.global.exception.announcementexception.AnnouncementNotFoundException;
+import com.server.global.exception.businessexception.announcementexception.AnnouncementNotFoundException;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import org.springframework.data.domain.Page;

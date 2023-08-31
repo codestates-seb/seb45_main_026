@@ -1,6 +1,7 @@
 package com.server.domain.video.entity;
 
 import com.server.domain.category.entity.Category;
+import com.server.domain.channel.entity.Channel;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import org.junit.jupiter.api.*;
@@ -18,6 +19,10 @@ class VideoTest {
     @DisplayName("videoName, price, description, 카테고리 목록으로 Video 를 생성한다.")
     void createVideo() {
         //given
+        Channel channel = Channel.builder()
+                .channelId(1L)
+                .channelName("channelName")
+                .build();
         String videoName = "videoName";
         int price = 1000;
         String description = "description";
@@ -33,9 +38,10 @@ class VideoTest {
         );
 
         //when
-        Video video = Video.createVideo(videoName, price, description, categories);
+        Video video = Video.createVideo(channel, videoName, price, description, categories);
 
         //then
+        assertThat(video.getChannel()).isEqualTo(channel);
         assertThat(video.getVideoName()).isEqualTo(videoName);
         assertThat(video.getPrice()).isEqualTo(price);
         assertThat(video.getDescription()).isEqualTo(description);

@@ -6,12 +6,10 @@ import com.server.domain.announcement.service.dto.request.AnnouncementUpdateServ
 import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
-import com.server.global.exception.announcementexception.AnnouncementNotFoundException;
+import com.server.global.exception.businessexception.announcementexception.AnnouncementNotFoundException;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
-import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.testhelper.ServiceTest;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +20,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class AnnouncementServiceTest extends ServiceTest {
 

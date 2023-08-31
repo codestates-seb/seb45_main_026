@@ -1,8 +1,10 @@
 package com.server.domain.member.repository;
 
+import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.dto.MemberVideoData;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MemberRepositoryCustom {
 
@@ -13,4 +15,6 @@ public interface MemberRepositoryCustom {
     List<Boolean> checkMemberSubscribeChannel(Long memberId, List<Long> ownerMemberIds);
 
     List<MemberVideoData> getMemberPurchaseVideo(Long memberId);
+
+    Optional<Member> findByIdWithChannel(Long memberId);
 }

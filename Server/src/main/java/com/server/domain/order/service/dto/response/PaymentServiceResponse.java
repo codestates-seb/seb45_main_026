@@ -33,7 +33,7 @@ public class PaymentServiceResponse {
     private String cancels;
     private String secret;
     private String type;
-    private String easyPay;
+    private EasyPay easyPay;
     private String country;
     private String failure;
     private Boolean isPartialCancelable;
@@ -79,5 +79,14 @@ public class PaymentServiceResponse {
     @NoArgsConstructor
     public static class Checkout {
         private String url;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    @NoArgsConstructor
+    public static class EasyPay {
+        private String provider;
+        private Integer amount;
+        private Integer discountAmount;
     }
 }

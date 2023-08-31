@@ -11,6 +11,7 @@ import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
+import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.orderexception.OrderExistException;
 import com.server.global.exception.businessexception.orderexception.OrderNotFoundException;
@@ -56,17 +57,9 @@ public class OrderService {
 
         orderCompleteProcess(memberId, paymentKey, orderId, amount);
 
-        String encodedAuth = new String(Base64.getEncoder().encode((paymentSecretKey + ":").getBytes(UTF_8)));
+        HttpHeaders headers = paymentRequestHeader();
 
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.setBasicAuth(encodedAuth);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-
-        JSONObject param = new JSONObject();
-        param.put("orderId", orderId);
-        param.put("amount", amount);
+        JSONObject param = paymentParams(orderId, amount);
 
         ResponseEntity<PaymentServiceResponse> response = restTemplate.postForEntity(
                 "https://api.tosspayments.com/v1/payments/" + paymentKey,
@@ -78,6 +71,41 @@ public class OrderService {
             throw new OrderNotValidException();
 
         return response.getBody();
+    }
+
+    private void orderCompleteProcess(Long memberId, String paymentKey, String orderId, int amount) {
+
+        Member member = verifedMember(memberId);
+
+        Order order = verifedOrder(member, orderId);
+
+        order.checkValidOrder(amount);
+
+        deleteCartFrom(memberId, orderId);
+
+        order.completeOrder();
+
+        order.setPaymentKey(paymentKey);
+
+        member.minusReward(order.getReward());
+    }
+
+    private HttpHeaders paymentRequestHeader() {
+        String encodedAuth = new String(Base64.getEncoder().encode((paymentSecretKey + ":").getBytes(UTF_8)));
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setBasicAuth(encodedAuth);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        return headers;
+    }
+
+    private JSONObject paymentParams(String orderId, int amount) {
+        JSONObject param = new JSONObject();
+        param.put("orderId", orderId);
+        param.put("amount", amount);
+        return param;
     }
 
     public void deleteOrder(Long memberId, String orderId) {
@@ -95,7 +123,7 @@ public class OrderService {
 
         Member member = verifedMember(memberId);
 
-        checkEnoughReward(member.getReward(), request.getReward());
+        member.checkReward(request.getReward());
 
         List<Video> videos = checkValidVideos(request);
 
@@ -108,23 +136,6 @@ public class OrderService {
         return OrderResponse.of(order);
     }
 
-    private void orderCompleteProcess(Long memberId, String paymentKey, String orderId, int amount) {
-
-        Member member = verifedMember(memberId);
-
-        Order order = verifedOrder(member, orderId);
-
-        order.checkValidOrder(amount);
-
-        deleteCartFrom(memberId, orderId);
-
-        order.completeOrder();
-
-        order.setPaymentKey(paymentKey);
-
-        member.minusReward(amount);
-    }
-
     private void checkDuplicateOrder(Member member, List<Video> toBuyVideos) {
         List<MemberVideoData> purchasedVideos = memberRepository.getMemberPurchaseVideo(member.getMemberId());
 
@@ -134,8 +145,6 @@ public class OrderService {
                     throw new OrderExistException();
             });
         }
-
-
     }
 
     private List<Video> checkValidVideos(OrderCreateServiceRequest request) {
@@ -146,11 +155,6 @@ public class OrderService {
             throw new VideoNotFoundException();
 
         return videos;
-    }
-
-    private void checkEnoughReward(int retainReward, Integer requestReward) {
-        if(retainReward < requestReward)
-            throw new RewardNotEnoughException();
     }
 
     private void deleteCartFrom(Long memberId, String orderId) {
@@ -167,9 +171,8 @@ public class OrderService {
                 .orElseThrow(OrderNotFoundException::new);
 
         if(!order.getMember().equals(member))
-            throw new OrderNotValidException();
+            throw new MemberAccessDeniedException();
 
         return order;
     }
-
 }
