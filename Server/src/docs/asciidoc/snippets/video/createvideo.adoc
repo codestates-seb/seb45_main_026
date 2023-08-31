@@ -22,8 +22,6 @@ include::{snippets}/video/getvideocreateurl/request-body.adoc[]
 include::{snippets}/video/getvideocreateurl/request-fields.adoc[]
 === HTTP Response
 include::{snippets}/video/getvideocreateurl/http-response.adoc[]
-==== Response Body
-include::{snippets}/video/getvideocreateurl/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/video/getvideocreateurl/response-fields.adoc[]
 

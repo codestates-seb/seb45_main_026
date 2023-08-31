@@ -2,10 +2,14 @@ package com.server.domain.channel.controller;
 
 import com.server.domain.announcement.service.AnnouncementService;
 import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
+import com.server.domain.channel.controller.dto.request.CreateAnnouncementApiRequest;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.service.ChannelService;
 import com.server.domain.channel.service.dto.ChannelDto;
+import com.server.domain.channel.service.dto.request.ChannelVideoGetServiceRequest;
+import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
 import com.server.domain.member.entity.Member;
+import com.server.domain.video.controller.dto.request.VideoSort;
 import com.server.global.annotation.LoginId;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.reponse.ApiPageResponse;
@@ -72,14 +76,27 @@ public class ChannelController {
         return ResponseEntity.ok(isSubscribed);
     }
 
-    // 전체 채널 조회
-//    @GetMapping
-//    public ResponseEntity<ApiPageResponse<ChannelDto.ChannelResponseDto>> getChannels(Long memberId) {
-//
-//        Page<ChannelDto.ChannelResponseDto> channelInfos = channelService.getAllChannels(memberId);
-//
-//        return ResponseEntity.ok(ApiPageResponse.ok(channelInfos));
-//    }
+    @GetMapping("/{member-id}/videos")
+    public ResponseEntity<ApiPageResponse<ChannelVideoResponse>> getChannelVideos(
+            @PathVariable("member-id") @Positive Long memberId,
+            @RequestParam(value = "page", defaultValue = "1") @Positive int page,
+            @RequestParam(value = "size", defaultValue = "12") @Positive int size,
+            @RequestParam(value = "sort", defaultValue = "created-date") VideoSort sort,
+            @RequestParam(value = "category", defaultValue = "") String category,
+            @LoginId Long loginMemberId
+    ) {
+        ChannelVideoGetServiceRequest request = ChannelVideoGetServiceRequest.builder()
+                .memberId(memberId)
+                .page(page - 1)
+                .size(size)
+                .sort(sort.getSort())
+                .categoryName(category)
+                .build();
+
+        Page<ChannelVideoResponse> responses = channelService.getChannelVideos(loginMemberId, request);
+
+        return ResponseEntity.ok(ApiPageResponse.ok(responses, "채널 비디오 목록 조회 성공"));
+    }
 
 
 
@@ -98,7 +115,7 @@ public class ChannelController {
     @PostMapping("/{member-id}/announcements")
     public ResponseEntity<ApiSingleResponse<Void>> createAnnouncement(
             @PathVariable("member-id") Long memberId,
-            @RequestBody @Valid ChannelDto.CreateAnnouncementApiRequest request,
+            @RequestBody @Valid CreateAnnouncementApiRequest request,
             @LoginId Long loginMemberId
     ) {
         Long announcementId =

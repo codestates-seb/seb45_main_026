@@ -3,20 +3,26 @@ package com.server.domain.channel.service;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.channel.service.dto.ChannelDto;
+import com.server.domain.channel.service.dto.request.ChannelVideoGetServiceRequest;
+import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.repository.MemberRepositoryCustom;
 import com.server.domain.subscribe.repository.SubscribeRepository;
+import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.module.s3.service.AwsService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -150,23 +156,24 @@ public class ChannelService {
     }
 
 
-//    //전체채널 조회,
-//    public Page<ChannelDto.ChannelResponseDto> getAllChannels(Long memberId,
-//                                                              int page,
-//                                                              int size,
-//                                                              String sort,
-//                                                              boolean subscribe) {
-//
-//        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sort).descending());
-//
-//        Page<Channel> channels = channelRepository.findAllBy(pageRequest, sort, memberId, subscribe);
-//
-//        videoRepository.findAllByCategoryPaging(category, pageable, sort, memberId, subscribe);
-//
-//
-//        return Chann
-//
-//    }
+    @Transactional(readOnly = true)
+    public Page<ChannelVideoResponse> getChannelVideos(Long loginMemberId, ChannelVideoGetServiceRequest request) {
+
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
+
+        Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(
+                request.getMemberId(),
+                request.getCategoryName(),
+                pageRequest,
+                request.getSort()
+        );
+
+        List<Boolean> isPurchaseInOrder = isPurchaseInOrder(loginMemberId, videos.getContent());
+
+        List<String> thumbnailUrlsInOrder = getThumbnailUrlsInOrder(videos.getContent());
+
+        return ChannelVideoResponse.of(videos, isPurchaseInOrder, thumbnailUrlsInOrder);
+    }
 
 
     public void createChannel(Member signMember) {
@@ -176,11 +183,30 @@ public class ChannelService {
         channelRepository.save(channel);
     }
 
-
-
     private Channel existChannel(Long memberId) {
         return channelRepository.findByMember(memberId)
                 .orElseThrow(ChannelNotFoundException::new);
+    }
+
+    private List<Boolean> isPurchaseInOrder(Long loginMemberId, List<Video> videos) {
+
+        List<Long> videoIds = videos.stream()
+                .map(Video::getVideoId)
+                .collect(Collectors.toList());
+
+        return memberRepository.checkMemberPurchaseVideos(loginMemberId, videoIds);
+    }
+
+    private List<String> getThumbnailUrlsInOrder(List<Video> videos) {
+
+        return videos.stream()
+                .map(video ->
+                        getThumbnailUrl(video.getChannel().getMember().getMemberId(), video))
+                .collect(Collectors.toList());
+    }
+
+    private String getThumbnailUrl(Long memberId, Video video) {
+        return awsService.getThumbnailUrl(memberId, video.getThumbnailFile());
     }
 
 

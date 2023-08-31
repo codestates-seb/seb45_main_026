@@ -20,6 +20,7 @@ include::overview.adoc[]
 * link:snippets/member/getmember.html[회원 정보 관리 API, onclick="window.location.href='snippets/member/member.html'"]
 
 === Channel API
+* link:snippets/channel/getchannel.html[채널 정보/채널 비디오 목록 조회 API, onclick="window.location.href='snippets/channel/getchannel.html'"]
 
 === Announcement API
 * link:snippets/announcement/getannouncement.html[공지사항 조회 API, onclick="window.location.href='snippets/announcement/getannouncement.html'"]
