@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm } from "react-hook-form"
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { 
     LoginFormContainer,
     LoginFormInputContainer,
@@ -8,18 +8,23 @@ import {
     ErrorTextTypo,
     LoginButton,
 } from './LoginForm.style';
+import { loginService } from '../../services/authServices';
 
 export const LoginForm = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
-    const { 
+    const {
         register, 
-        handleSubmit, 
-        watch, 
+        handleSubmit,
         formState: { errors },
     } = useForm();
 
-    const onSubmit = (data) => {
-        console.log(data)
+    const onSubmit = async (data) => {
+        const response = await loginService(data);
+        if(response.isLogin) {
+            console.log(response)
+            const authorization = response.authorization;
+            const refresh = response.refresh;
+        }
     };
 
     return (
@@ -40,7 +45,6 @@ export const LoginForm = () => {
                 { errors.email && errors.email.type==='pattern' &&
                         <ErrorTextTypo isDark={isDark}>올바르지 않은 이메일 형식입니다.</ErrorTextTypo> }
             </LoginFormInputContainer>
-
             <LoginFormInputContainer>
                 <LoginFormInput 
                     isDark={isDark} 
