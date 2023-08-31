@@ -18,6 +18,7 @@ import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
+import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.module.email.service.MailService;
 
@@ -78,8 +79,8 @@ public class MemberService {
 		return null;
 	}
 
-	public void getWatchs(Long memberId, int page, int day) {
-
+	public Page<WatchsResponse> getWatchs(Long memberId, int page, int day) {
+		return null;
 	}
 
 	public void updatePassword(MemberServiceRequest.Password request) {

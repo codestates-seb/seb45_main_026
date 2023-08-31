@@ -22,10 +22,12 @@ import org.mockito.Mockito;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.server.domain.member.aop.MemberStubAop;
+import com.server.domain.member.controller.dto.MemberApiRequest;
 import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Grade;
 import com.server.domain.member.entity.Member;
@@ -35,11 +37,13 @@ import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
+import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.reward.entity.RewardType;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.global.testhelper.ControllerTest;
 import com.server.global.testhelper.RestDocsUtil;
+import com.server.module.s3.service.dto.ImageType;
 
 // @Import(MemberStubAop.class)
 // @EnableAspectJAutoProxy
@@ -141,12 +145,7 @@ public class MemberControllerTest extends ControllerTest {
 		);
 
 		//then
-		actions
-			.andDo(print())
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data").isArray())
-			.andExpect(jsonPath("$.pageInfo.page").value(1))
-			.andExpect(jsonPath("$.pageInfo.size").value(responses.size()));
+		RestDocsUtil.assertPageResponse(actions, responses.size());
 
 		actions
 			.andDo(
@@ -211,12 +210,7 @@ public class MemberControllerTest extends ControllerTest {
 				.accept(APPLICATION_JSON)
 		);
 
-		actions
-			.andDo(print())
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data").isArray())
-			.andExpect(jsonPath("$.pageInfo.page").value(1))
-			.andExpect(jsonPath("$.pageInfo.size").value(responses.size()));
+		RestDocsUtil.assertPageResponse(actions, responses.size());
 
 		FieldDescriptor[] responseFields = new FieldDescriptor[]{
 			fieldWithPath("data[]").description("구독 목록"),
@@ -290,12 +284,7 @@ public class MemberControllerTest extends ControllerTest {
 		);
 
 		//then
-		actions
-			.andDo(print())
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data").isArray())
-			.andExpect(jsonPath("$.pageInfo.page").value(1))
-			.andExpect(jsonPath("$.pageInfo.size").value(responses.size()));
+		RestDocsUtil.assertPageResponse(actions, responses.size());
 
 		FieldDescriptor[] responseFields = new FieldDescriptor[]{
 			fieldWithPath("data[]").description("장바구니 목록"),
@@ -449,26 +438,21 @@ public class MemberControllerTest extends ControllerTest {
 		);
 
 		//then
-		actions
-			.andDo(print())
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data").isArray())
-			.andExpect(jsonPath("$.pageInfo.page").value(1))
-			.andExpect(jsonPath("$.pageInfo.size").value(responses.size()));
+		RestDocsUtil.assertPageResponse(actions, responses.size());
 
 		FieldDescriptor[] responseFields = new FieldDescriptor[]{
 			fieldWithPath("data[]").description("결제 목록"),
-			fieldWithPath("data[].orderId").description("장바구니에 담은 영상 ID"),
-			fieldWithPath("data[].reward").description("장바구니에 담은 영상명"),
-			fieldWithPath("data[].orderCount").description("영상의 썸네일 이미지 주소"),
-			fieldWithPath("data[].orderStatus").description("영상 조회수"),
-			fieldWithPath("data[].createdDate").description("영상 업로드 날짜"),
-			fieldWithPath("data[].orderVideos[]").description("총 결제 금액"),
-			fieldWithPath("data[].orderVideos[].videoId").description("영상 업로더의 채널 정보"),
-			fieldWithPath("data[].orderVideos[].videoName").description("업로더 아이디"),
-			fieldWithPath("data[].orderVideos[].thumbnailFile").description("업로더의 채널명"),
-			fieldWithPath("data[].orderVideos[].channelName").description("업로더의 구독자 수"),
-			fieldWithPath("data[].orderVideos[].price").description("업로더의 프로필 이미지 주소")
+			fieldWithPath("data[].orderId").description("결제 번호"),
+			fieldWithPath("data[].reward").description("획득한 리워드"),
+			fieldWithPath("data[].orderCount").description("결제한 강의 수"),
+			fieldWithPath("data[].orderStatus").description("주문 상태"),
+			fieldWithPath("data[].createdDate").description("결제일"),
+			fieldWithPath("data[].orderVideos[]").description("결제한 강의 목록"),
+			fieldWithPath("data[].orderVideos[].videoId").description("강의 ID"),
+			fieldWithPath("data[].orderVideos[].videoName").description("강의명"),
+			fieldWithPath("data[].orderVideos[].thumbnailFile").description("강의 썸네일 이미지 주소"),
+			fieldWithPath("data[].orderVideos[].channelName").description("강의 업로더 채널명"),
+			fieldWithPath("data[].orderVideos[].price").description("강의 가격")
 		};
 
 		actions
@@ -499,7 +483,6 @@ public class MemberControllerTest extends ControllerTest {
 				.videoName("가볍게 배우는 알고리즘")
 				.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 				.star(4.7f)
-				.price(20000)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
 					PlaylistsResponse.Channel.builder()
@@ -513,7 +496,6 @@ public class MemberControllerTest extends ControllerTest {
 				.videoName("더 가볍게 배우는 알고리즘")
 				.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 				.star(3.4f)
-				.price(10000)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
 					PlaylistsResponse.Channel.builder()
@@ -527,7 +509,6 @@ public class MemberControllerTest extends ControllerTest {
 				.videoName("많이 가볍게 배우는 알고리즘")
 				.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 				.star(2.9f)
-				.price(25000)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
 					PlaylistsResponse.Channel.builder()
@@ -541,7 +522,6 @@ public class MemberControllerTest extends ControllerTest {
 				.videoName("진짜 가볍게 배우는 알고리즘")
 				.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 				.star(1.8f)
-				.price(32000)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
 					PlaylistsResponse.Channel.builder()
@@ -565,24 +545,18 @@ public class MemberControllerTest extends ControllerTest {
 				.accept(APPLICATION_JSON)
 		);
 
-		actions
-			.andDo(print())
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data").isArray())
-			.andExpect(jsonPath("$.pageInfo.page").value(1))
-			.andExpect(jsonPath("$.pageInfo.size").value(responses.size()));
+		RestDocsUtil.assertPageResponse(actions, responses.size());
 
 		FieldDescriptor[] responseFields = new FieldDescriptor[]{
 			fieldWithPath("data[]").description("구매한 강의 목록"),
-			fieldWithPath("data[].videoId").description("장바구니에 담은 영상 ID"),
-			fieldWithPath("data[].videoName").description("장바구니에 담은 영상명"),
+			fieldWithPath("data[].videoId").description("구매한 영상 ID"),
+			fieldWithPath("data[].videoName").description("구매한 영상명"),
 			fieldWithPath("data[].thumbnailFile").description("영상의 썸네일 이미지 주소"),
-			fieldWithPath("data[].star").description("영상 조회수"),
-			fieldWithPath("data[].price").description("영상 업로드 날짜"),
-			fieldWithPath("data[].modifiedDate").description("영상 업로드 날짜"),
-			fieldWithPath("data[].channel").description("총 결제 금액"),
-			fieldWithPath("data[].channel.memberId").description("영상 업로더의 채널 정보"),
-			fieldWithPath("data[].channel.channelName").description("업로더 아이디")
+			fieldWithPath("data[].star").description("영상 평균 별점"),
+			fieldWithPath("data[].modifiedDate").description("영상 업데이트 날짜"),
+			fieldWithPath("data[].channel").description("영상 업로더의 채널 정보"),
+			fieldWithPath("data[].channel.memberId").description("업로더의 아이디"),
+			fieldWithPath("data[].channel.channelName").description("업로더의 채널명")
 		};
 
 		actions
@@ -598,6 +572,241 @@ public class MemberControllerTest extends ControllerTest {
 						),
 						responseFields(
 							RestDocsUtil.getPageResponseFields(responseFields)
+						)
+					)
+			);
+	}
+
+	@Test
+	@DisplayName("시청 기록 조회 성공 테스트")
+	void getWatchs() throws Exception {
+		//given
+		List<WatchsResponse> responses = List.of(
+			WatchsResponse.builder()
+				.videoId(791L)
+				.videoName("알고리즘")
+				.thumbnailFile(awsService.getImageUrl("test22"))
+				.modifiedDate(LocalDateTime.now())
+				.channel(WatchsResponse.Channel.builder()
+					.memberId(4325L)
+					.channelName("채널1")
+					.build())
+				.build(),
+			WatchsResponse.builder()
+				.videoId(791L)
+				.videoName("리액트")
+				.thumbnailFile(awsService.getImageUrl("test22"))
+				.modifiedDate(LocalDateTime.now())
+				.channel(WatchsResponse.Channel.builder()
+					.memberId(4325L)
+					.channelName("채널2")
+					.build())
+				.build(),
+			WatchsResponse.builder()
+				.videoId(791L)
+				.videoName("스프링")
+				.thumbnailFile(awsService.getImageUrl("test22"))
+				.modifiedDate(LocalDateTime.now())
+				.channel(WatchsResponse.Channel.builder()
+					.memberId(4325L)
+					.channelName("채널3")
+					.build())
+				.build(),
+			WatchsResponse.builder()
+				.videoId(791L)
+				.videoName("자바")
+				.thumbnailFile(awsService.getImageUrl("test22"))
+				.modifiedDate(LocalDateTime.now())
+				.channel(WatchsResponse.Channel.builder()
+					.memberId(4325L)
+					.channelName("채널3")
+					.build())
+				.build()
+		);
+
+		PageImpl<WatchsResponse> page = new PageImpl<>(responses);
+
+		given(memberService.getWatchs(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
+
+		//when
+		ResultActions actions = mockMvc.perform(
+			get("/members/watchs")
+				.header(AUTHORIZATION, TOKEN)
+				.param("page", "1")
+				.param("day", "14")
+		);
+
+		//then
+		RestDocsUtil.assertPageResponse(actions, responses.size());
+
+		FieldDescriptor[] responseFields = new FieldDescriptor[]{
+			fieldWithPath("data[]").description("시청 기록"),
+			fieldWithPath("data[].videoId").description("시청한 영상 ID"),
+			fieldWithPath("data[].videoName").description("시청한 영상명"),
+			fieldWithPath("data[].thumbnailFile").description("영상의 썸네일 이미지 주소"),
+			fieldWithPath("data[].modifiedDate").description("영상 시청일"),
+			fieldWithPath("data[].channel").description("영상 업로더의 채널 정보"),
+			fieldWithPath("data[].channel.memberId").description("업로더의 아이디"),
+			fieldWithPath("data[].channel.channelName").description("업로더의 채널명")
+		};
+
+		actions
+			.andDo(
+				documentHandler
+					.document(
+						requestHeaders(
+							headerWithName(AUTHORIZATION).description("액세스 토큰")
+						),
+						requestParameters(
+							parameterWithName("page").description("조회할 페이지"),
+							parameterWithName("day").description("조회 기간 설정")
+						),
+						responseFields(
+							RestDocsUtil.getPageResponseFields(responseFields)
+						)
+					)
+			);
+	}
+
+	@Test
+	@DisplayName("닉네임 변경 성공 테스트")
+	void updateNickname() throws Exception {
+		//given
+		MemberApiRequest.Nickname nickname = new MemberApiRequest.Nickname("testnickname");
+
+		String content = objectMapper.writeValueAsString(nickname);
+
+		//when
+		ResultActions actions = mockMvc.perform(
+			patch("/members")
+				.header(AUTHORIZATION, TOKEN)
+				.contentType(APPLICATION_JSON)
+				.content(content)
+		);
+
+		actions
+			.andDo(print())
+			.andExpect(status().isNoContent());
+
+		setConstraintClass(MemberApiRequest.Nickname.class);
+
+		actions
+			.andDo(
+				documentHandler
+					.document(
+						requestHeaders(
+							headerWithName(AUTHORIZATION).description("액세스 토큰")
+						),
+						requestFields(
+							fieldWithPath("nickname").description("변경할 닉네임").attributes(getConstraint("nickname"))
+						)
+					)
+			);
+	}
+
+	@Test
+	@DisplayName("프로필 이미지 변경 성공 테스트")
+	void updateImage() throws Exception {
+		//given
+		MemberApiRequest.Image request = new MemberApiRequest.Image(
+			"imageName", ImageType.JPG
+		);
+
+		String content = objectMapper.writeValueAsString(request);
+
+		String presignedUrl = "http://www.uploadUrl.com";
+
+		given(awsService.getUploadImageUrl(request.getImageName(), request.getImageType()))
+			.willReturn(presignedUrl);
+
+		//when
+		ResultActions actions = mockMvc.perform(
+			patch("/members/image")
+				.header(AUTHORIZATION, TOKEN)
+				.contentType(APPLICATION_JSON)
+				.content(content)
+		);
+
+		actions
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(header().string(HttpHeaders.LOCATION, presignedUrl));
+
+		setConstraintClass(MemberApiRequest.Image.class);
+
+		actions
+			.andDo(
+				documentHandler
+					.document(
+						requestHeaders(
+							headerWithName(AUTHORIZATION).description("액세스 토큰")
+						),
+						requestFields(
+							fieldWithPath("imageName").description("업로드할 이미지명").attributes(getConstraint("imageName")),
+							fieldWithPath("imageType").description("이미지 확장자").attributes(getConstraint("imageType"))
+						),
+						responseHeaders(
+							headerWithName(LOCATION).description("이미지 업로드 URL")
+						)
+					)
+			);
+	}
+
+	@Test
+	@DisplayName("패스워드 변경 성공 테스트")
+	void updatePassword() throws Exception {
+		MemberApiRequest.Password request = new MemberApiRequest.Password(
+			"abcd1234", "1234abcd"
+		);
+
+		String content = objectMapper.writeValueAsString(request);
+
+		ResultActions actions = mockMvc.perform(
+			patch("/members/password")
+				.header(AUTHORIZATION, TOKEN)
+				.contentType(APPLICATION_JSON)
+				.content(content)
+		);
+
+		actions
+			.andDo(print())
+			.andExpect(status().isNoContent());
+
+		setConstraintClass(MemberApiRequest.Password.class);
+
+		actions
+			.andDo(
+				documentHandler
+					.document(
+						requestHeaders(
+							headerWithName(AUTHORIZATION).description("액세스 토큰")
+						),
+						requestFields(
+							fieldWithPath("prevPassword").description("이전 패스워드").attributes(getConstraint("prevPassword")),
+							fieldWithPath("newPassword").description("변경할 패스워드").attributes(getConstraint("newPassword"))
+						)
+					)
+			);
+	}
+
+	@Test
+	@DisplayName("회원 탈퇴 성공 테스트")
+	void deleteMember() throws Exception {
+		ResultActions actions = mockMvc.perform(
+			delete("/members")
+				.header(AUTHORIZATION, TOKEN)
+		);
+
+		actions
+			.andDo(print())
+			.andExpect(status().isNoContent());
+
+		actions
+			.andDo(
+				documentHandler
+					.document(
+						requestHeaders(
+							headerWithName(AUTHORIZATION).description("액세스 토큰")
 						)
 					)
 			);

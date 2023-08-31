@@ -1,6 +1,7 @@
 package com.server.domain.member.controller.dto;
 
-import org.hibernate.validator.constraints.NotBlank;
+import javax.validation.constraints.NotBlank;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
@@ -16,7 +17,7 @@ public class MemberApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Nickname {
-		@NotBlank
+		@NotBlank(message = "{validation.not-blank}")
 		private String nickname;
 
 		public MemberServiceRequest.Nickname toServiceRequest() {
@@ -30,7 +31,9 @@ public class MemberApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Image {
+		@NotBlank(message = "{validation.not-blank}")
 		private String imageName;
+		@NotBlank(message = "{validation.not-blank}")
 		private ImageType imageType;
 	}
 
@@ -38,18 +41,12 @@ public class MemberApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Password {
-		@NotBlank
+		@NotBlank(message = "{validation.not-blank}")
 		private String prevPassword;
-		@NotBlank
+		@NotBlank(message = "{validation.not-blank}")
 		private String newPassword;
 
-		private Long loginId;
-
-		public void setLoginId(Long loginId) {
-			this.loginId = loginId;
-		}
-
-		public MemberServiceRequest.Password toServiceRequest() {
+		public MemberServiceRequest.Password toServiceRequest(Long loginId) {
 			return MemberServiceRequest.Password.builder()
 				.prevPassword(prevPassword)
 				.newPassword(newPassword)

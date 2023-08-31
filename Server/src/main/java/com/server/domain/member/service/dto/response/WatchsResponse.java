@@ -11,7 +11,7 @@ public class WatchsResponse {
 	private Long videoId;
 	private String videoName;
 	private String thumbnailFile;
-	private LocalDateTime createdDate;
+	private LocalDateTime modifiedDate;
 	private Channel channel;
 
 	@Getter
