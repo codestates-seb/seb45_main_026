@@ -11,7 +11,7 @@ public class AuthConstant {
 	public static final String LOGIN_URL = "/auth/login";
 	public static Long ACCESS_TOKEN_EXPIRE_TIME;
 	public static Long REFRESH_TOKEN_EXPIRE_TIME;
-	public static final String BEARER = "BEARER";
+	public static final String BEARER = "Bearer";
 	public static final String CLAIM_AUTHORITY = "auth";
 	public static final String CLAIM_ID = "id";
 	public static final String ALLOW = "Allow";

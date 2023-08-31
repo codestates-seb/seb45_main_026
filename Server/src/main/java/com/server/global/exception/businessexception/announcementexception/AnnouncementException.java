@@ -1,4 +1,4 @@
-package com.server.global.exception.announcementexception;
+package com.server.global.exception.businessexception.announcementexception;
 
 import com.server.global.exception.businessexception.BusinessException;
 import org.springframework.http.HttpStatus;
