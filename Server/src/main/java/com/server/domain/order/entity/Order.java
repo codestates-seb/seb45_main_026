@@ -58,6 +58,8 @@ public class Order extends BaseEntity {
 
     public static Order createOrder(Member member, List<Video> videos, Integer reward) {
 
+        member.checkReward(reward);
+
         Order order = new Order(member, reward);
 
         videos.forEach(video -> {

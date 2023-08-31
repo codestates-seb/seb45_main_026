@@ -13,10 +13,7 @@ import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
-import com.server.global.exception.businessexception.orderexception.OrderExistException;
-import com.server.global.exception.businessexception.orderexception.OrderNotFoundException;
-import com.server.global.exception.businessexception.orderexception.OrderNotValidException;
-import com.server.global.exception.businessexception.orderexception.RewardNotEnoughException;
+import com.server.global.exception.businessexception.orderexception.*;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +36,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Transactional
 public class OrderService {
 
+    public static final String TOSS_ORIGIN_URL = "https://api.tosspayments.com/v1/payments/";
     private final MemberRepository memberRepository;
     private final VideoRepository videoRepository;
     private final OrderRepository orderRepository;
@@ -62,7 +61,7 @@ public class OrderService {
         JSONObject param = paymentParams(orderId, amount);
 
         ResponseEntity<PaymentServiceResponse> response = restTemplate.postForEntity(
-                "https://api.tosspayments.com/v1/payments/" + paymentKey,
+                TOSS_ORIGIN_URL + paymentKey,
                 new HttpEntity<>(param, headers),
                 PaymentServiceResponse.class
         );
@@ -113,17 +112,45 @@ public class OrderService {
         Member member = verifedMember(memberId);
         Order order = verifedOrder(member, orderId);
 
-        if(order.getOrderStatus().equals(OrderStatus.COMPLETED))
-            member.addReward(order.getReward());
+        if(isAlreadyCanceled(order)) throw new OrderAlreadyCanceledException();
+
+        if(isCompleted(order)) orderCancelProcess(member, order);
 
         order.deleteOrder();
+    }
+
+    private boolean isCompleted(Order order) {
+        return order.getOrderStatus().equals(OrderStatus.COMPLETED);
+    }
+
+    private boolean isAlreadyCanceled(Order order) {
+        return order.getOrderStatus().equals(OrderStatus.CANCELED);
+    }
+
+    private void orderCancelProcess(Member member, Order order) {
+
+        member.addReward(order.getReward());
+
+        URI uri = URI.create(TOSS_ORIGIN_URL + order.getPaymentKey() + "/cancel");
+
+        HttpHeaders headers = paymentRequestHeader();
+
+        JSONObject param = new JSONObject();
+        param.put("cancelReason", "사용자 취소");
+
+        ResponseEntity<String> responseEntity
+                = restTemplate.postForEntity(
+                        uri,
+                new HttpEntity<>(param, headers),
+                String.class);
+
+        if(responseEntity.getStatusCode().value() != 200)
+            throw new CancelFailException();
     }
 
     public OrderResponse createOrder(Long memberId, OrderCreateServiceRequest request) {
 
         Member member = verifedMember(memberId);
-
-        member.checkReward(request.getReward());
 
         List<Video> videos = checkValidVideos(request);
 

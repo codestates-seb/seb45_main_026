@@ -22,11 +22,9 @@ public class AuthInitializer {
 	private final ChannelRepository channelRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	public AuthInitializer(MemberRepository memberRepository, CategoryRepository categoryRepository, ChannelRepository channelRepository, VideoRepository videoRepository, PasswordEncoder passwordEncoder) {
+	public AuthInitializer(MemberRepository memberRepository, ChannelRepository channelRepository, PasswordEncoder passwordEncoder) {
 		this.memberRepository = memberRepository;
-		this.categoryRepository = categoryRepository;
 		this.channelRepository = channelRepository;
-		this.videoRepository = videoRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
 

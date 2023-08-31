@@ -22,6 +22,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.net.URI;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -141,6 +142,8 @@ class OrderServiceTest extends ServiceTest {
                 .reward(0)
                 .build();
 
+        setCancelResponseEntitySuccess();
+
         //when & then
         OrderResponse response = orderService.createOrder(member.getMemberId(), request);
 
@@ -150,8 +153,35 @@ class OrderServiceTest extends ServiceTest {
 
 
     @Test
-    @DisplayName("주문을 취소하고 order 의 상태를 취소로 변경한다.")
+    @DisplayName("주문을 취소하고 order 의 상태를 취소로 변경하고 member 의 reward 를 추가한다.")
     void deleteOrder() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        int currentReward = member.getReward();
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
+        order.completeOrder(); // 주문 완료
+
+        setCancelResponseEntitySuccess();
+
+        //when
+        orderService.deleteOrder(member.getMemberId(), order.getOrderId());
+
+        //then
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELED);
+
+        Member findMember = memberRepository.findById(member.getMemberId()).orElseThrow();
+        assertThat(findMember.getReward()).isEqualTo(currentReward + order.getReward());
+    }
+
+    @Test
+    @DisplayName("주문을 취소할 때 orderId 가 존재하지 않으면 OrderNotFoundException 이 발생한다.")
+    void deleteOrderOrderNotFoundException() {
         //given
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
@@ -159,15 +189,99 @@ class OrderServiceTest extends ServiceTest {
         Video video1 = createAndSaveVideo(channel);
         Video video2 = createAndSaveVideo(channel);
 
-        Order order = createAndSaveOrder(member, List.of(video1, video2), 0);
+        Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
 
-        orderRepository.save(order);
+        String wrongOrderId = order.getOrderId() + "11"; // 존재하지 않는 orderId
 
-        //when
-        orderService.deleteOrder(member.getMemberId(), order.getOrderId());
+        setCancelResponseEntitySuccess();
 
-        //then
-        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELED);
+        //when & then
+        assertThatThrownBy(() -> orderService.deleteOrder(member.getMemberId(), wrongOrderId))
+                .isInstanceOf(OrderNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("주문을 취소할 때 memberId 가 존재하지 않으면 MemberNotFoundException 이 발생한다.")
+    void deleteOrderMemberNotFoundException() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
+
+        Long wrongMemberId = member.getMemberId() + 9999L; // 존재하지 않는 memberId
+
+        setCancelResponseEntitySuccess();
+
+        //when & then
+        assertThatThrownBy(() -> orderService.deleteOrder(wrongMemberId, order.getOrderId()))
+                .isInstanceOf(MemberNotFoundException.class);
+
+    }
+
+    @Test
+    @DisplayName("주문을 취소할 때 자신의 주문이 아니면 MemberAccessDeniedException 이 발생한다.")
+    void deleteOrderMemberAccessDeniedException() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Member otherMember = createAndSaveMember();
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
+
+        setCancelResponseEntitySuccess();
+
+        //when & then // otherMember 의 id
+        assertThatThrownBy(() -> orderService.deleteOrder(otherMember.getMemberId(), order.getOrderId()))
+                .isInstanceOf(MemberAccessDeniedException.class);
+    }
+
+    @Test
+    @DisplayName("주문을 취소할 때 이미 취소된 주문이면 OrderAlreadyCanceledException 이 발생한다.")
+    void deleteOrderOrderAlreadyCanceledException() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
+        order.deleteOrder(); // 이미 취소된 주문
+
+        setCancelResponseEntitySuccess();
+
+        //when & then
+        assertThatThrownBy(() -> orderService.deleteOrder(member.getMemberId(), order.getOrderId()))
+                .isInstanceOf(OrderAlreadyCanceledException.class);
+    }
+
+    @Test
+    @DisplayName("완료된 주문을 취소할 때 pg 사와 통신에 실패하면 CancelFailException 이 발생한다.")
+    void deleteOrderOrderCancelFailException() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
+        order.completeOrder(); // 완료된 주문
+
+        setCancelResponseEntityFail();
+
+        //when & then
+        assertThatThrownBy(() -> orderService.deleteOrder(member.getMemberId(), order.getOrderId()))
+                .isInstanceOf(CancelFailException.class);
+
     }
     
     @Test
@@ -436,6 +550,25 @@ class OrderServiceTest extends ServiceTest {
                 any(Class.class)
         )).willReturn(new ResponseEntity<>(paymentServiceResponse, HttpStatus.BAD_REQUEST));
     }
+
+    private void setCancelResponseEntitySuccess() {
+
+        given(restTemplate.postForEntity(
+                any(URI.class),
+                any(HttpEntity.class),
+                any(Class.class)
+        )).willReturn(new ResponseEntity<>("", HttpStatus.OK));
+    }
+
+    private void setCancelResponseEntityFail() {
+
+        given(restTemplate.postForEntity(
+                any(URI.class),
+                any(HttpEntity.class),
+                any(Class.class)
+        )).willReturn(new ResponseEntity<>("", HttpStatus.BAD_REQUEST));
+    }
+
 
     private Cart createAndSaveCart(Member member, Video video) {
         Cart cart = Cart.createCart(member, video, video.getPrice());
