@@ -18,8 +18,8 @@ export const CartList = styled.li`
 
 export const VideoImage = styled.div`
   width: 100%;
-  height: 100px;
-  max-width: 300px;
+  max-width: 170px;
+  aspect-ratio: 8 / 5;
   background-color: rgb(200, 200, 200);
   margin: 0px 10px;
 `;
@@ -31,13 +31,11 @@ export const Content = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: start;
-  
+
   border-right: 1px solid rgb(236, 236, 236);
   width: 100%;
-  max-width: 500px;
+  max-width: 400px;
   height: 100px;
-
-  /* border: 1px solid black; */
 `;
 
 export const ItemTitle = styled.span`
@@ -51,7 +49,6 @@ export const ItemName = styled.span`
 `;
 
 export const CancelBtn = styled.button`
-  background: none;
   position: absolute;
   top: 3%;
   right: 3%;
@@ -59,7 +56,7 @@ export const CancelBtn = styled.button`
 
 export const ItemPrice = styled.div`
   width: 100%;
-  max-width: 150px;
+  max-width: 140px;
   height: 100px;
   padding-top: 70px;
   text-align: end;
@@ -69,7 +66,7 @@ export const ItemPrice = styled.div`
 const CartItem = () => {
   return (
     <CartList>
-      <CheckedBtn />
+      <CheckedBtn type="checkbox"/>
       <VideoImage />
       <Content>
         <ItemTitle>TypeScript 고급반 (TypeScript란?)</ItemTitle>
