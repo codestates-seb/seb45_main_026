@@ -23,7 +23,7 @@ export const LightContainer = styled.div`
     transition: 300ms;
 `
 export const DarkContainer = styled.div`
-    background-color: ${(props)=>props.isDark ? globalTokens.DarkGray.value :globalTokens.MainOrange.value};
+    background-color: ${(props)=>props.isDark ? globalTokens.MainNavy.value :globalTokens.LightRed.value};
     width: 100vw;
     height: 100vh;
     display: flex;

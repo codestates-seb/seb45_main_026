@@ -12,15 +12,17 @@ import ChannelPage from "./pages/contents/ChannelPage";
 import DetailPage from "./pages/contents/DetailPage/DetailPage";
 import CartPage from "./pages/contents/CartPage/CartPage";
 import UploadPage from "./pages/contents/UploadPage";
+import SignupPage from "./pages/auth/SignupPage";
+import "./App.css";
 
 function App() {
   const url = new URL(window.location.href);
   const dispatch = useDispatch();
-
+  
   const handleResize = () => {
-    dispatch(setBrowserWidth(window.innerWidth));
+      dispatch(setBrowserWidth(window.innerWidth));
   };
-
+  
   useMemo(() => {
     window.addEventListener("resize", handleResize);
   }, []);
@@ -29,11 +31,12 @@ function App() {
     <BrowserRouter>
       <Header />
       <Routes>
-        <Route path="/" element={<MainPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/MyProfile" element={<MyProfilePage />} />
-        <Route path="/videos/1" element={<DetailPage />} />
-        <Route path="/channels/1" element={<ChannelPage />} />
+        <Route path="/" element={<MainPage/>}/>
+        <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/signup" element={<SignupPage/>}/>
+        <Route path="/MyProfile" element={<MyProfilePage/>}/>
+        <Route path="/videos/1" element={<DetailPage/>}/>
+        <Route path="/channels/1" element={<ChannelPage/>}/>
         <Route path="/carts" element={<CartPage />} />
         <Route path="/upload" element={<UploadPage />} />
       </Routes>
