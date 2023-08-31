@@ -9,8 +9,10 @@ import {
     LoginButton,
 } from './LoginForm.style';
 import { loginService } from '../../services/authServices';
+import { setRefreshToken, setToken } from '../../redux/createSlice/LoginInfoSlice';
 
 export const LoginForm = () => {
+    const dispatch = useDispatch();
     const isDark = useSelector(state=>state.uiSetting.isDark);
     const {
         register, 
@@ -21,9 +23,13 @@ export const LoginForm = () => {
     const onSubmit = async (data) => {
         const response = await loginService(data);
         if(response.isLogin) {
-            console.log(response);
             const authorization = response.authorization;
             const refresh = response.refresh;
+            
+            dispatch(setToken({
+                authorization: authorization,
+                refresh: refresh
+            }));
         }
     };
 
