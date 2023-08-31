@@ -3,8 +3,9 @@ import { styled } from "styled-components";
 import { useSelector } from "react-redux";
 import { PageContainer,MainContainer } from "../../atoms/layouts/PageContainer";
 import tokens from "../../styles/tokens.json";
-import VerticalItem from "../../components/contentListItem/VerticalItem";
-import HorizonItem from "../../components/contentListItem/HorizonItem";
+import VerticalItem from "../../components/contentListItems/VerticalItem";
+import HorizonItem from "../../components/contentListItems/HorizonItem";
+import CategoryFilter from "../../components/filters/CategoryFilter";
 
 const globalTokens = tokens.global;
 
@@ -41,11 +42,14 @@ const ChannelTitle = styled.h1`
   height: 30px;
   font-size: ${globalTokens.Heading4.value}px;
   font-weight: ${globalTokens.Bold.value};
-  
+`
+const JustDiv = styled.div`
+  height: 300px;
 `
 
+
 export default function ChannelPage() {
-    const isDark = useSelector((state) => state.uiSetting.isDark);
+  const isDark = useSelector((state) => state.uiSetting.isDark);
     return (
       <PageContainer isDark={isDark}>
         <MainContainer>
@@ -57,6 +61,10 @@ export default function ChannelPage() {
               <ChannelTitle>HyerimKimm</ChannelTitle>
             </InforContainer>
           </ProfileContainer>
+          <VerticalItem />
+          <HorizonItem />
+          <CategoryFilter />
+          <JustDiv></JustDiv>
         </MainContainer>
       </PageContainer>
     );
