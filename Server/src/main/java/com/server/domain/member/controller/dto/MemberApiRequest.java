@@ -50,7 +50,6 @@ public class MemberApiRequest {
 			return MemberServiceRequest.Password.builder()
 				.prevPassword(prevPassword)
 				.newPassword(newPassword)
-				.loginId(loginId)
 				.build();
 		}
 	}

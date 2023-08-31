@@ -2,23 +2,17 @@ package com.server.auth.controller;
 
 import static com.server.auth.util.AuthConstant.*;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.server.auth.controller.dto.AuthApiRequest;
@@ -78,8 +72,8 @@ public class AuthController {
 	}
 
 	@PatchMapping("/password")
-	public ResponseEntity<Void> updatePassword(@RequestBody @Valid AuthApiRequest.Reset request) {
-		authService.resetPassword(request.toServiceRequest());
+	public ResponseEntity<Void> updatePassword(@RequestBody @Valid AuthApiRequest.Reset request, @LoginId Long loginId) {
+		authService.updatePassword(request.toServiceRequest(), loginId);
 		return ResponseEntity.noContent().build();
 	}
 }

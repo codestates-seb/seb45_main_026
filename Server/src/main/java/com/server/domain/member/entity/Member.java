@@ -118,4 +118,8 @@ public class Member extends BaseEntity {
 	public void minusReward(int reward) {
 		this.reward -= reward;
 	}
+
+	public String getIdFromEmail() {
+		return this.email.substring(0, this.email.indexOf("@"));
+	}
 }
