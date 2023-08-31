@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.server.domain.channel.entity.QChannel.channel;
@@ -106,5 +107,16 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .leftJoin(video.channel, channel)
                 .where(member.memberId.eq(memberId))
                 .fetch();
+    }
+
+    @Override
+    public Optional<Member> findByIdWithChannel(Long memberId) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(member)
+                        .join(member.channel, channel).fetchJoin()
+                        .where(member.memberId.eq(memberId))
+                        .fetchOne()
+        );
     }
 }

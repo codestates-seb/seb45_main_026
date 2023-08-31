@@ -11,6 +11,7 @@ import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.entity.BaseEntity;
 
+import com.server.global.exception.businessexception.orderexception.RewardNotEnoughException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -116,10 +117,19 @@ public class Member extends BaseEntity {
 	}
 
 	public void minusReward(int reward) {
+		checkEnoughReward(reward);
 		this.reward -= reward;
 	}
 
 	public String getIdFromEmail() {
 		return this.email.substring(0, this.email.indexOf("@"));
+	}
+  
+	public void checkReward(int reward) {
+		checkEnoughReward(reward);
+	}
+
+	private void checkEnoughReward(int reward) {
+		if(this.reward - reward < 0) throw new RewardNotEnoughException();
 	}
 }

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Aspect
-@Component
+//@Component
 public class OrderStubAop {
 
     @Around("execution(* com.server.domain.order.controller.OrderController.createOrder(..))")

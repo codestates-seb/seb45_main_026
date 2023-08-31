@@ -11,13 +11,12 @@ import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
+import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
-import com.server.global.exception.businessexception.orderexception.OrderExistException;
-import com.server.global.exception.businessexception.orderexception.OrderNotFoundException;
-import com.server.global.exception.businessexception.orderexception.OrderNotValidException;
-import com.server.global.exception.businessexception.orderexception.RewardNotEnoughException;
+import com.server.global.exception.businessexception.orderexception.*;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import net.minidev.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -26,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -33,52 +33,35 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 public class OrderService {
 
+    public static final String TOSS_ORIGIN_URL = "https://api.tosspayments.com/v1/payments/";
     private final MemberRepository memberRepository;
     private final VideoRepository videoRepository;
     private final OrderRepository orderRepository;
+    private final RestTemplate restTemplate;
 
-    public OrderService(MemberRepository memberRepository, VideoRepository videoRepository, OrderRepository orderRepository) {
+    @Value("${order.payment-secret-key}")
+    private String paymentSecretKey;
+
+    public OrderService(MemberRepository memberRepository, VideoRepository videoRepository, OrderRepository orderRepository, RestTemplate restTemplate) {
         this.memberRepository = memberRepository;
         this.videoRepository = videoRepository;
         this.orderRepository = orderRepository;
+        this.restTemplate = restTemplate;
     }
 
-    @Transactional
     public PaymentServiceResponse requestFinalPayment(Long memberId, String paymentKey, String orderId, int amount) {
 
-        Member member = verifedMember(memberId);
+        orderCompleteProcess(memberId, paymentKey, orderId, amount);
 
-        Order order = verifedOrder(member, orderId);
+        HttpHeaders headers = paymentRequestHeader();
 
-        order.checkValidOrder(amount);
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        String paymentSecretKey = "test_sk_26DlbXAaV0odbdDk9Kq3qY50Q9RB:";
-
-        String encodedAuth = new String(Base64.getEncoder().encode(paymentSecretKey.getBytes(UTF_8)));
-
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.setBasicAuth(encodedAuth);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-
-        JSONObject param = new JSONObject();
-        param.put("orderId", orderId);
-        param.put("amount", amount);
-
-        //todo: 장바구니에서 삭제하는 로직
-
-        order.completeOrder();
-
-        member.minusReward(amount);
+        JSONObject param = paymentParams(orderId, amount);
 
         ResponseEntity<PaymentServiceResponse> response = restTemplate.postForEntity(
-                "https://api.tosspayments.com/v1/payments/" + paymentKey,
+                TOSS_ORIGIN_URL + paymentKey,
                 new HttpEntity<>(param, headers),
                 PaymentServiceResponse.class
         );
@@ -86,29 +69,88 @@ public class OrderService {
         if(response.getStatusCode().value() != 200)
             throw new OrderNotValidException();
 
-        order.setPaymentKey(paymentKey);
-
         return response.getBody();
     }
 
-    @Transactional
+    private void orderCompleteProcess(Long memberId, String paymentKey, String orderId, int amount) {
+
+        Member member = verifedMember(memberId);
+
+        Order order = verifedOrder(member, orderId);
+
+        order.checkValidOrder(amount);
+
+        deleteCartFrom(memberId, orderId);
+
+        order.completeOrder();
+
+        order.setPaymentKey(paymentKey);
+
+        member.minusReward(order.getReward());
+    }
+
+    private HttpHeaders paymentRequestHeader() {
+        String encodedAuth = new String(Base64.getEncoder().encode((paymentSecretKey + ":").getBytes(UTF_8)));
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setBasicAuth(encodedAuth);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        return headers;
+    }
+
+    private JSONObject paymentParams(String orderId, int amount) {
+        JSONObject param = new JSONObject();
+        param.put("orderId", orderId);
+        param.put("amount", amount);
+        return param;
+    }
+
     public void deleteOrder(Long memberId, String orderId) {
 
         Member member = verifedMember(memberId);
         Order order = verifedOrder(member, orderId);
-        
-        if(order.getOrderStatus().equals(OrderStatus.COMPLETED))
-            member.addReward(order.getReward());
+
+        if(isAlreadyCanceled(order)) throw new OrderAlreadyCanceledException();
+
+        if(isCompleted(order)) orderCancelProcess(member, order);
 
         order.deleteOrder();
     }
 
-    @Transactional
+    private boolean isCompleted(Order order) {
+        return order.getOrderStatus().equals(OrderStatus.COMPLETED);
+    }
+
+    private boolean isAlreadyCanceled(Order order) {
+        return order.getOrderStatus().equals(OrderStatus.CANCELED);
+    }
+
+    private void orderCancelProcess(Member member, Order order) {
+
+        member.addReward(order.getReward());
+
+        URI uri = URI.create(TOSS_ORIGIN_URL + order.getPaymentKey() + "/cancel");
+
+        HttpHeaders headers = paymentRequestHeader();
+
+        JSONObject param = new JSONObject();
+        param.put("cancelReason", "사용자 취소");
+
+        ResponseEntity<String> responseEntity
+                = restTemplate.postForEntity(
+                        uri,
+                new HttpEntity<>(param, headers),
+                String.class);
+
+        if(responseEntity.getStatusCode().value() != 200)
+            throw new CancelFailException();
+    }
+
     public OrderResponse createOrder(Long memberId, OrderCreateServiceRequest request) {
 
         Member member = verifedMember(memberId);
-
-        checkEnoughReward(member.getReward(), request.getReward());
 
         List<Video> videos = checkValidVideos(request);
 
@@ -130,8 +172,6 @@ public class OrderService {
                     throw new OrderExistException();
             });
         }
-
-
     }
 
     private List<Video> checkValidVideos(OrderCreateServiceRequest request) {
@@ -144,9 +184,8 @@ public class OrderService {
         return videos;
     }
 
-    private void checkEnoughReward(int retainReward, Integer requestReward) {
-        if(retainReward < requestReward)
-            throw new RewardNotEnoughException();
+    private void deleteCartFrom(Long memberId, String orderId) {
+        orderRepository.deleteCartByMemberAndOrderId1(memberId, orderId);
     }
 
     private Member verifedMember(Long memberId) {
@@ -159,9 +198,8 @@ public class OrderService {
                 .orElseThrow(OrderNotFoundException::new);
 
         if(!order.getMember().equals(member))
-            throw new OrderNotValidException();
+            throw new MemberAccessDeniedException();
 
         return order;
     }
-
 }

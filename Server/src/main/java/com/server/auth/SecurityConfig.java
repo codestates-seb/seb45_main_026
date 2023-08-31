@@ -41,6 +41,8 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
+			.headers().frameOptions().sameOrigin()
+				.and()
 			.httpBasic().disable()
 			.csrf().disable()
 			.cors(getCors())
@@ -125,11 +127,6 @@ public class SecurityConfig {
 	@Bean
 	public DefaultOAuth2UserService defaultOAuth2UserService() {
 		return new DefaultOAuth2UserService();
-	}
-
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
 	}
 
 	@Bean

@@ -2,6 +2,7 @@ package com.server.global.testhelper;
 
 import com.server.domain.announcement.repository.AnnouncementRepository;
 import com.server.domain.answer.repository.AnswerRepository;
+import com.server.domain.cart.repository.CartRepository;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.entity.CategoryRepository;
 import com.server.domain.channel.entity.Channel;
@@ -28,6 +29,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
@@ -50,9 +52,11 @@ public abstract class ServiceTest {
     @Autowired protected WatchRepository watchRepository;
     @Autowired protected ReplyRepository replyRepository;
     @Autowired protected AnnouncementRepository announcementRepository;
+    @Autowired protected CartRepository cartRepository;
     @Autowired protected EntityManager em;
 
     @MockBean protected RedisService redisService;
+    @MockBean protected RestTemplate restTemplate;
 
     protected Member createAndSaveMember() {
         Member member = Member.builder()
