@@ -11,6 +11,7 @@ import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.entity.BaseEntity;
 
+import com.server.global.exception.businessexception.memberexception.MemberNotUpdatedException;
 import com.server.global.exception.businessexception.orderexception.RewardNotEnoughException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -85,15 +86,32 @@ public class Member extends BaseEntity {
 	}
 
 	public void setPassword(String password) {
+		if (password == null || password.equals(this.password)) {
+			throw new MemberNotUpdatedException();
+		}
+
 		this.password = password;
 	}
 
 	public void setNickname(String nickname) {
+		if (nickname == null || nickname.equals(this.nickname)) {
+			throw new MemberNotUpdatedException();
+		}
+
 		this.nickname = nickname;
 	}
 
-	public void setImageFile(String imageFile) {
-		this.imageFile = imageFile;
+	public void updateImageFile(String imageFile) {
+		if(this.imageFile == null && imageFile != null) {
+			this.imageFile = imageFile;
+		}
+		else {
+			throw new MemberNotUpdatedException();
+		}
+	}
+
+	public void deleteImageFile() {
+		this.imageFile = null;
 	}
 
 	public void setChannel(Channel channel) {

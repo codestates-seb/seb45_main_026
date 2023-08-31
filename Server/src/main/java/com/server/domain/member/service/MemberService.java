@@ -1,13 +1,11 @@
 package com.server.domain.member.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Member;
@@ -60,8 +58,7 @@ public class MemberService {
 	}
 
 	public ProfileResponse getMember(Long loginId) {
-		validateLoginId(loginId);
-		Member member = findMemberBy(loginId);
+		Member member = validateMember(loginId);
 
 		return ProfileResponse.getMember(member, awsService.getImageUrl(member.getImageFile()));
 	}
@@ -92,71 +89,49 @@ public class MemberService {
 	}
 
 	public Page<WatchsResponse> getWatchs(Long loginId, int page, int day) {
-		validateLoginId(loginId);
-
-
 
 		return null;
 	}
 
 	@Transactional
 	public void updatePassword(MemberServiceRequest.Password request, Long loginId) {
-		validateLoginId(loginId);
-
-		Member member = findMemberBy(loginId);
+		Member member = validateMember(loginId);
 
 		String password = member.getPassword();
-		String newPassword = request.getNewPassword();
+		String newPassword = passwordEncoder.encode(request.getNewPassword());
 
 		validatePassword(request.getPrevPassword(), password);
 
-		if (newPassword == null || newPassword.equals(password)) {
-			throw new MemberNotUpdatedException();
-		}
-		else {
-			member.setPassword(passwordEncoder.encode(newPassword));
-		}
-
-		memberRepository.save(member);
+		member.setPassword(newPassword);
 	}
 
 	@Transactional
 	public void updateNickname(MemberServiceRequest.Nickname request, Long loginId) {
-		validateLoginId(loginId);
+		Member member = validateMember(loginId);
 
-		Member member = findMemberBy(loginId);
-
-		if (request.getNickname() == null) {
-			throw new MemberNotUpdatedException();
-		} else {
-			member.setNickname(request.getNickname());
-		}
-
-		memberRepository.save(member);
+		member.setNickname(request.getNickname());
 	}
 
 	@Transactional
 	public void updateImage(Long loginId) {
-		validateLoginId(loginId);
+		Member member = validateMember(loginId);
 
-		Member member = findMemberBy(loginId);
-
-		if (member.getImageFile() == null) {
-			Optional.ofNullable(member.getIdFromEmail()).ifPresent(
-				member::setImageFile
-			);
-
-			memberRepository.save(member);
-		}
+		member.updateImageFile(member.getEmail());
 	}
 
 	@Transactional
 	public void deleteMember(Long loginId) {
-		validateLoginId(loginId);
-
-		Member member = findMemberBy(loginId);
+		Member member = validateMember(loginId);
 
 		memberRepository.delete(member);
+	}
+
+	@Transactional
+	public void deleteImage(Long loginId) {
+		Member member = validateMember(loginId);
+
+		awsService.deleteImage(member.getImageFile());
+		member.deleteImageFile();
 	}
 
 	public Member findMemberBy(Long id) {
@@ -171,10 +146,14 @@ public class MemberService {
 		}
 	}
 
-	public void validateLoginId(Long loginId) {
+	public Member validateMember(Long loginId) {
 		if (loginId < 1) {
 			throw new MemberAccessDeniedException();
 		}
+
+		return memberRepository.findById(loginId).orElseThrow(
+			MemberNotFoundException::new
+		);
 	}
 
 	public void checkDuplicationEmail(String email) {

@@ -53,7 +53,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
 		String accessToken = getAccessToken(request);
 
-		return accessToken == null || !accessToken.startsWith(BEARER + " ");
+		return accessToken == null || !accessToken.startsWith(BEARER);
 	}
 
 	private Claims verifyClaims(HttpServletRequest request) {
