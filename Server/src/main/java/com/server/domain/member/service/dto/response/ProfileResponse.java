@@ -3,6 +3,7 @@ package com.server.domain.member.service.dto.response;
 import java.time.LocalDateTime;
 
 import com.server.domain.member.entity.Grade;
+import com.server.domain.member.entity.Member;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -17,4 +18,16 @@ public class ProfileResponse {
 	private Grade grade;
 	private int reward;
 	private LocalDateTime createdDate;
+
+	public static ProfileResponse getMember(Member member, String imageUrl) {
+		return ProfileResponse.builder()
+			.memberId(member.getMemberId())
+			.email(member.getEmail())
+			.nickname(member.getNickname())
+			.imageUrl(imageUrl)
+			.grade(member.getGrade())
+			.reward(member.getReward())
+			.createdDate(member.getCreatedDate())
+			.build();
+	}
 }

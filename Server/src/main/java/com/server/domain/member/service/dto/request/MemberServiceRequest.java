@@ -28,6 +28,5 @@ public class MemberServiceRequest {
 	public static class Password {
 		private String prevPassword;
 		private String newPassword;
-		private Long loginId;
 	}
 }
