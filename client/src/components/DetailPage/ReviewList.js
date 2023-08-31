@@ -39,7 +39,6 @@ export const ReviewPatch = styled.button`
   position: absolute;
   top: 5px;
   right: 10%;
-  background: none;
   color: rgb(260, 100, 120);
   text-decoration: underline;
 `;
@@ -48,7 +47,6 @@ export const ReviewDelete = styled.button`
   position: absolute;
   top: 5px;
   right: 3%;
-  background: none;
   color: rgb(260, 100, 120);
   text-decoration: underline;
 `;

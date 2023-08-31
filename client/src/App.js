@@ -1,3 +1,4 @@
+import "./App.css";
 import { useMemo } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -10,8 +11,9 @@ import Footer from "./components/footers/Footer";
 import ChannelPage from "./pages/contents/ChannelPage";
 import DetailPage from "./pages/contents/DetailPage/DetailPage";
 import CartPage from "./pages/contents/CartPage/CartPage";
-import "./App.css";
+import UploadPage from "./pages/contents/UploadPage";
 import SignupPage from "./pages/auth/SignupPage";
+import "./App.css";
 
 function App() {
   const url = new URL(window.location.href);
@@ -27,7 +29,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Header/>
+      <Header />
       <Routes>
         <Route path="/" element={<MainPage/>}/>
         <Route path="/login" element={<LoginPage/>}/>
@@ -36,8 +38,9 @@ function App() {
         <Route path="/videos/1" element={<DetailPage/>}/>
         <Route path="/channels/1" element={<ChannelPage/>}/>
         <Route path="/carts" element={<CartPage />} />
+        <Route path="/upload" element={<UploadPage />} />
       </Routes>
-      <Footer/>
+      <Footer />
     </BrowserRouter>
   );
 }

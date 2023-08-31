@@ -48,7 +48,7 @@ export const VideoContainer = styled.section`
   align-items: start;
   flex-wrap: wrap;
 
-  padding: 50px 30px 30px 30px;
+  padding: 50px 50px 30px 50px;
   margin-bottom: 20px;
   background-color: white;
 `;
@@ -98,7 +98,8 @@ export const VideoWindow = styled.div`
   position: relative;
   background-color: rgb(230, 230, 230);
   width: 100%;
-  height: 500px;
+  /* height: 500px; */
+  aspect-ratio: 1.8/1;
   margin-top: 5px;
 `;
 export const VideoTitle = styled.h2`

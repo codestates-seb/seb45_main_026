@@ -1,11 +1,11 @@
 import { styled } from "styled-components";
 import { useSelector } from "react-redux";
-import tokens from "../../../styles/tokens.json";
+// import tokens from "../../../styles/tokens.json";
 import { PageContainer } from "../../../atoms/layouts/PageContainer";
 import CartLeft from "./CartLeft";
 import CartRight from "./CartRight";
 
-const globalTokens = tokens.global;
+// const globalTokens = tokens.global;
 
 export const CartContainer = styled.div`
   width: 100%;
@@ -13,7 +13,7 @@ export const CartContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: start;
-  background-color: white;
+  /* background-color: white; */
 `;
 
 export const CartTitle = styled.h2`
@@ -23,11 +23,20 @@ export const CartTitle = styled.h2`
 `;
 
 export const CartContent = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  align-items: center;
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  /* place-items: center; */
   flex-wrap: wrap;
+
+  @media screen and (min-width: 0px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  @media screen and (min-width: 1170px) {
+    grid-template-columns: 790px 350px;
+    grid-column-gap: 30px;
+  }
 `;
 
 const CartPage = () => {
