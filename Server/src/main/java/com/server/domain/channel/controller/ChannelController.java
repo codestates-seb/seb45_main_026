@@ -2,6 +2,7 @@ package com.server.domain.channel.controller;
 
 import com.server.domain.announcement.service.AnnouncementService;
 import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
+import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.service.ChannelService;
 import com.server.domain.channel.service.dto.ChannelDto;
 import com.server.domain.member.entity.Member;
@@ -38,15 +39,49 @@ public class ChannelController {
         this.announcementService = announcementService;
     }
 
-    @GetMapping("/{channel-id}")
-    public ResponseEntity<ChannelDto.ChannelInfo> getChannelInfo( //채널 단건 조회
-                                                                  @PathVariable("channel-id") Long channelId,
-                                                                  @RequestParam(required = false) Long memberId) {
+    // 채널 조회
+    @GetMapping("/{member-Id}")
+    public ResponseEntity<ChannelDto.ChannelInfo> getChannel(@PathVariable("member-id") Long memberId,
+                                                             @LoginId Long loginMemberId) {
 
-        ChannelDto.ChannelInfo channelInfo = channelService.getChannelInfo(memberId, channelId);
+        ChannelDto.ChannelInfo channelInfo = channelService.getChannel(memberId, loginMemberId);
 
         return ResponseEntity.ok(channelInfo);
     }
+
+
+    // 채널 정보 수정
+    @PutMapping("/{member-id}")
+    public ResponseEntity<Void> updateChannelInfo(@PathVariable("member-id") Long memberId,
+                                                  @LoginId Long loginMemberId,
+                                                  @RequestBody ChannelDto.UpdateInfo updateInfo) {
+
+        channelService.updateChannelInfo(memberId, loginMemberId, updateInfo);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    // 구독 여부 업데이트
+    @PatchMapping("/{member-id}/subscribe")
+    public ResponseEntity<Boolean> updateSubscribe(@PathVariable("member-id") Long memberId,
+                                                   @LoginId Long loginMemberId,
+                                                   Channel channel){
+
+        boolean isSubscribed = channelService.updateSubscribe(loginMemberId, channel);
+
+        return ResponseEntity.ok(isSubscribed);
+    }
+
+    // 전체 채널 조회
+//    @GetMapping
+//    public ResponseEntity<ApiPageResponse<ChannelDto.ChannelResponseDto>> getChannels(Long memberId) {
+//
+//        Page<ChannelDto.ChannelResponseDto> channelInfos = channelService.getAllChannels(memberId);
+//
+//        return ResponseEntity.ok(ApiPageResponse.ok(channelInfos));
+//    }
+
+
 
     @PostMapping("/{member-id}")
     public ResponseEntity<Void> createChannel(
@@ -58,34 +93,6 @@ public class ChannelController {
 
         channelService.createChannel(member);
         return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-
-    @PutMapping("/{member-id}/subscribe")
-    public ResponseEntity<Void> updateSubscribe( //구독상태 업데이트
-                                                 @PathVariable("member-id") Long memberId,
-                                                 @RequestParam Long loginMemberId) {
-
-        boolean isSubscribed = channelService.updateSubscribe(memberId, loginMemberId);
-
-        if (isSubscribed) {
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
-    }
-
-    @GetMapping("/{member-id}/videos") //여러개 조회
-    public ResponseEntity<ApiPageResponse<ChannelDto.ChannelVideoResponseDto>> getChannelVideos(
-            @PathVariable("member-id") Long memberId,
-            @RequestParam Long loggedInMemberId,
-            @RequestParam int page,
-            @RequestParam Sort sort) {
-
-        ApiPageResponse<ChannelDto.ChannelVideoResponseDto> videoResponse =
-                channelService.getChannelVideos(loggedInMemberId, memberId, page, sort);
-
-        return ResponseEntity.ok(videoResponse);
     }
 
     @PostMapping("/{member-id}/announcements")
