@@ -4,6 +4,8 @@ import com.server.domain.cart.entity.Cart;
 import com.server.domain.cart.repository.CartRepository;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.entity.CategoryRepository;
+import com.server.domain.channel.entity.Channel;
+import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.video.entity.Video;
@@ -42,6 +44,7 @@ public class VideoService {
 
     private final VideoRepository videoRepository;
     private final MemberRepository memberRepository;
+    private final ChannelRepository channelRepository;
     private final WatchRepository watchRepository;
     private final CategoryRepository categoryRepository;
     private final CartRepository cartRepository;
@@ -49,10 +52,11 @@ public class VideoService {
     private final RedisService redisService;
 
     public VideoService(VideoRepository videoRepository, MemberRepository memberRepository,
-                        WatchRepository watchRepository, CategoryRepository categoryRepository,
+                        ChannelRepository channelRepository, WatchRepository watchRepository, CategoryRepository categoryRepository,
                         CartRepository cartRepository, AwsService awsService, RedisService redisService) {
         this.videoRepository = videoRepository;
         this.memberRepository = memberRepository;
+        this.channelRepository = channelRepository;
         this.watchRepository = watchRepository;
         this.categoryRepository = categoryRepository;
         this.cartRepository = cartRepository;
@@ -109,13 +113,18 @@ public class VideoService {
     @Transactional
     public Long createVideo(Long loginMemberId, VideoCreateServiceRequest request) {
 
-        verifiedMember(loginMemberId);
+        Member member = verifiedMemberWithChannel(loginMemberId);
 
         checkFileName(loginMemberId, request.getVideoName());
 
         List<Category> categories = verifiedCategories(request.getCategories());
 
-        Video video = Video.createVideo(request.getVideoName(), request.getPrice(), request.getDescription(), categories);
+        Video video = Video.createVideo(
+                member.getChannel(),
+                request.getVideoName(),
+                request.getPrice(),
+                request.getDescription(),
+                categories);
 
         return videoRepository.save(video).getVideoId();
     }
@@ -215,6 +224,10 @@ public class VideoService {
 
     private Member verifiedMember(Long loginMemberId) {
         return memberRepository.findById(loginMemberId).orElseThrow(MemberNotFoundException::new);
+    }
+
+    private Member verifiedMemberWithChannel(Long loginMemberId) {
+        return memberRepository.findByIdWithChannel(loginMemberId).orElseThrow(MemberNotFoundException::new);
     }
 
     private Video existVideo(Long videoId) {

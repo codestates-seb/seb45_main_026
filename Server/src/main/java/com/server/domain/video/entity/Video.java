@@ -72,9 +72,10 @@ public class Video extends BaseEntity {
     @OneToMany(mappedBy = "video")
     private List<OrderVideo> orderVideos = new ArrayList<>();
 
-    public static Video createVideo(String videoName, Integer price, String description, List<Category> categories) {
+    public static Video createVideo(Channel channel, String videoName, Integer price, String description, List<Category> categories) {
 
         Video video = Video.builder()
+                .channel(channel)
                 .videoName(videoName)
                 .price(price)
                 .description(description)

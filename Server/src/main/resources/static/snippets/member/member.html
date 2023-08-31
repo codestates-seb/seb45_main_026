@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>Untitled</title>
+<title>회원 정보 API</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -435,18 +435,366 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 #footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body id="Member" class="book toc2 toc-left">
 <div id="header">
+<h1>회원 정보 API</h1>
+<div class="details">
+<span id="revnumber">version 0.0.1-SNAPSHOT</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_닉네임_변경">닉네임 변경</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request">HTTP Request</a></li>
+<li><a href="#_http_response">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_프로필_이미지_변경">프로필 이미지 변경</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_2">HTTP Request</a></li>
+<li><a href="#_http_response_2">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_비밀번호_변경">비밀번호 변경</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_3">HTTP Request</a></li>
+<li><a href="#_http_response_3">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_회원탈퇴">회원탈퇴</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_4">HTTP Request</a></li>
+<li><a href="#_http_response_4">HTTP Response</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="/index.html">APIs</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_닉네임_변경"><a class="link" href="#_닉네임_변경">닉네임 변경</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request"><a class="link" href="#_http_request">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">PATCH /members HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+Content-Length: 35
+Host: localhost:8080
 
+{
+  "nickname" : "testnickname"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_header"><a class="link" href="#_request_header">Request Header</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">헤더명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">액세스 토큰</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_request_field"><a class="link" href="#_request_field">Request Field</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">필드명</th>
+<th class="tableblock halign-left valign-top">타입</th>
+<th class="tableblock halign-left valign-top">설명</th>
+<th class="tableblock halign-left valign-top">제약조건</th>
+<th class="tableblock halign-left valign-top">필수여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>nickname</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">변경할 닉네임</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[NotBlank : 입력값을 다시 확인해주세요.]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response"><a class="link" href="#_http_response">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 204 No Content</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_프로필_이미지_변경"><a class="link" href="#_프로필_이미지_변경">프로필 이미지 변경</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_2"><a class="link" href="#_http_request_2">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">PATCH /members/image HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+Content-Length: 57
+Host: localhost:8080
+
+{
+  "imageName" : "imageName",
+  "imageType" : "JPG"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_header_2"><a class="link" href="#_request_header_2">Request Header</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">헤더명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">액세스 토큰</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_request_field_2"><a class="link" href="#_request_field_2">Request Field</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">필드명</th>
+<th class="tableblock halign-left valign-top">타입</th>
+<th class="tableblock halign-left valign-top">설명</th>
+<th class="tableblock halign-left valign-top">제약조건</th>
+<th class="tableblock halign-left valign-top">필수여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>imageName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">업로드할 이미지명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[NotBlank : 입력값을 다시 확인해주세요.]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>imageType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이미지 확장자</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[NotBlank : 입력값을 다시 확인해주세요.]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_2"><a class="link" href="#_http_response_2">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 200 OK
+Location: http://www.uploadUrl.com</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_비밀번호_변경"><a class="link" href="#_비밀번호_변경">비밀번호 변경</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_3"><a class="link" href="#_http_request_3">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">PATCH /members/password HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+Content-Length: 66
+Host: localhost:8080
+
+{
+  "prevPassword" : "abcd1234",
+  "newPassword" : "1234abcd"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_header_3"><a class="link" href="#_request_header_3">Request Header</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">헤더명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">액세스 토큰</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_request_field_3"><a class="link" href="#_request_field_3">Request Field</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">필드명</th>
+<th class="tableblock halign-left valign-top">타입</th>
+<th class="tableblock halign-left valign-top">설명</th>
+<th class="tableblock halign-left valign-top">제약조건</th>
+<th class="tableblock halign-left valign-top">필수여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>prevPassword</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이전 패스워드</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[NotBlank : 입력값을 다시 확인해주세요.]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>newPassword</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">변경할 패스워드</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[NotBlank : 입력값을 다시 확인해주세요.]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_3"><a class="link" href="#_http_response_3">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 204 No Content</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_회원탈퇴"><a class="link" href="#_회원탈퇴">회원탈퇴</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_4"><a class="link" href="#_http_request_4">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">DELETE /members HTTP/1.1
+Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+Host: localhost:8080</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_header_4"><a class="link" href="#_request_header_4">Request Header</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">헤더명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">액세스 토큰</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_4"><a class="link" href="#_http_response_4">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 204 No Content</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2023-08-29 11:02:19 +0900
+Last updated 2023-08-31 09:53:38 +0900
 </div>
 </div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
 </body>
 </html>

@@ -452,6 +452,48 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_http_response">HTTP Response</a></li>
 </ul>
 </li>
+<li><a href="#_장바구니찜_목록_조회">장바구니(찜 목록) 조회</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_2">HTTP Request</a></li>
+<li><a href="#_http_response_2">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_결제_목록_조회">결제 목록 조회</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_3">HTTP Request</a></li>
+<li><a href="#_http_response_3">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_리워드_목록_조회">리워드 목록 조회</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_4">HTTP Request</a></li>
+<li><a href="#_http_response_4">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_구매한_강의_목록_조회">구매한 강의 목록 조회</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_5">HTTP Request</a></li>
+<li><a href="#_http_response_5">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_구매한_강의_목록_조회_2">구매한 강의 목록 조회</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_6">HTTP Request</a></li>
+<li><a href="#_http_response_6">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_구독한_채널_목록_조회">구독한 채널 목록 조회</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_7">HTTP Request</a></li>
+<li><a href="#_http_response_7">HTTP Response</a></li>
+</ul>
+</li>
+<li><a href="#_시청_기록_조회">시청 기록 조회</a>
+<ul class="sectlevel2">
+<li><a href="#_http_request_8">HTTP Request</a></li>
+<li><a href="#_http_response_8">HTTP Response</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -515,33 +557,12 @@ Content-Length: 356
     "imageUrl" : "https://d2ouhv9pc4idoe.cloudfront.net/images/test",
     "grade" : "PLATINUM",
     "reward" : 777,
-    "createdDate" : "2023-08-30T23:41:36.4713449"
+    "createdDate" : "2023-08-31T12:59:33.4743968"
   },
   "code" : 200,
   "status" : "OK",
   "message" : "프로필 조회 성공"
 }</code></pre>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_response_body"><a class="link" href="#_response_body">Response Body</a></h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-none hljs">{
-  "data" : {
-    "memberId" : 1,
-    "email" : "stub@email.com",
-    "nickname" : "stubName",
-    "imageUrl" : "https://d2ouhv9pc4idoe.cloudfront.net/images/test",
-    "grade" : "PLATINUM",
-    "reward" : 777,
-    "createdDate" : "2023-08-30T23:41:36.4713449"
-  },
-  "code" : 200,
-  "status" : "OK",
-  "message" : "프로필 조회 성공"
-}</code></pre>
-</div>
 </div>
 </div>
 <div class="sect3">
@@ -614,11 +635,1736 @@ Content-Length: 356
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_장바구니찜_목록_조회"><a class="link" href="#_장바구니찜_목록_조회">장바구니(찜 목록) 조회</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_2"><a class="link" href="#_http_request_2">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">GET /members/carts?page=1 HTTP/1.1
+Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+Accept: application/json
+Host: localhost:8080</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_header_2"><a class="link" href="#_request_header_2">Request Header</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">헤더명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">액세스 토큰</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_request_parameter"><a class="link" href="#_request_parameter">Request Parameter</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">파라미터</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">조회할 장바구니 페이지</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_2"><a class="link" href="#_http_response_2">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1127
+
+{
+  "data" : [ {
+    "videoId" : 151,
+    "videoName" : "리눅스 만드는 법",
+    "thumbnailUrl" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+    "views" : 333,
+    "createdDate" : "2023-08-31T12:59:33.9843982",
+    "price" : 100000,
+    "channel" : {
+      "memberId" : 3,
+      "channelName" : "Linus Torvalds",
+      "subscribes" : 8391,
+      "imageUrl" : "https://d2ouhv9pc4idoe.cloudfront.net/images/test"
+    }
+  }, {
+    "videoId" : 9514,
+    "videoName" : "컴활 강의",
+    "thumbnailUrl" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+    "views" : 777,
+    "createdDate" : "2023-08-31T12:59:33.9853975",
+    "price" : 70000,
+    "channel" : {
+      "memberId" : 361,
+      "channelName" : "Bill Gates",
+      "subscribes" : 9999,
+      "imageUrl" : "https://d2ouhv9pc4idoe.cloudfront.net/images/test"
+    }
+  } ],
+  "pageInfo" : {
+    "page" : 1,
+    "size" : 2,
+    "totalPage" : 1,
+    "totalSize" : 2,
+    "first" : true,
+    "last" : true,
+    "hasNext" : false,
+    "hasPrevious" : false
+  },
+  "code" : 200,
+  "status" : "OK",
+  "message" : "OK"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_fields_2"><a class="link" href="#_response_fields_2">Response Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필드명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">타입</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">장바구니 목록</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].videoId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">장바구니에 담은 영상 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].videoName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">장바구니에 담은 영상명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].thumbnailUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상의 썸네일 이미지 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].views</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상 조회수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].createdDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상 업로드 날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].price</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상의 가격</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상 업로더의 채널 정보</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel.memberId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">업로더 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel.channelName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">업로더의 채널명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel.subscribes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">업로더의 구독자 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel.imageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">업로더의 프로필 이미지 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지네이션 정보</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 페이지</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 사이즈</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalPage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 페이지 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 데이터 개수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.first</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">첫 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.last</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">마지막 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasNext</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">다음 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasPrevious</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이전 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 코드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 상태</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_결제_목록_조회"><a class="link" href="#_결제_목록_조회">결제 목록 조회</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_3"><a class="link" href="#_http_request_3">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">GET /members/orders?page=1&amp;month=12 HTTP/1.1
+Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+Accept: application/json
+Host: localhost:8080</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_header_3"><a class="link" href="#_request_header_3">Request Header</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">헤더명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">액세스 토큰</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_request_parameter_2"><a class="link" href="#_request_parameter_2">Request Parameter</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">파라미터</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">조회할 결제 목록 페이지</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>month</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">조회할 범위 지정(월 단위)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_3"><a class="link" href="#_http_response_3">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 2864
+
+{
+  "data" : [ {
+    "orderId" : "aBzd031dpf414",
+    "reward" : 300,
+    "orderCount" : 4,
+    "orderStatus" : "ORDERED",
+    "createdDate" : "2023-08-31T12:59:33.5213973",
+    "orderVideos" : [ {
+      "videoId" : 1,
+      "videoName" : "구매한 영상명1",
+      "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+      "channelName" : "영상 업로드 채널",
+      "price" : 10000
+    }, {
+      "videoId" : 1,
+      "videoName" : "구매한 영상명2",
+      "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+      "channelName" : "영상 업로드 채널",
+      "price" : 20000
+    } ]
+  }, {
+    "orderId" : "dfghkdf908sd023",
+    "reward" : 400,
+    "orderCount" : 6,
+    "orderStatus" : "CANCELED",
+    "createdDate" : "2023-08-31T12:59:33.5223983",
+    "orderVideos" : [ {
+      "videoId" : 1,
+      "videoName" : "구매한 영상명1",
+      "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+      "channelName" : "영상 업로드 채널",
+      "price" : 10000
+    }, {
+      "videoId" : 1,
+      "videoName" : "구매한 영상명2",
+      "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+      "channelName" : "영상 업로드 채널",
+      "price" : 20000
+    } ]
+  }, {
+    "orderId" : "fd932jkfdgklgdf",
+    "reward" : 200,
+    "orderCount" : 3,
+    "orderStatus" : "COMPLETED",
+    "createdDate" : "2023-08-31T12:59:33.5223983",
+    "orderVideos" : [ {
+      "videoId" : 1,
+      "videoName" : "구매한 영상명1",
+      "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+      "channelName" : "영상 업로드 채널",
+      "price" : 10000
+    }, {
+      "videoId" : 1,
+      "videoName" : "구매한 영상명2",
+      "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+      "channelName" : "영상 업로드 채널",
+      "price" : 20000
+    } ]
+  }, {
+    "orderId" : "nvbio328sdfhs13",
+    "reward" : 100,
+    "orderCount" : 7,
+    "orderStatus" : "ORDERED",
+    "createdDate" : "2023-08-31T12:59:33.5223983",
+    "orderVideos" : [ {
+      "videoId" : 1,
+      "videoName" : "구매한 영상명1",
+      "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+      "channelName" : "영상 업로드 채널",
+      "price" : 10000
+    }, {
+      "videoId" : 1,
+      "videoName" : "구매한 영상명2",
+      "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+      "channelName" : "영상 업로드 채널",
+      "price" : 20000
+    } ]
+  } ],
+  "pageInfo" : {
+    "page" : 1,
+    "size" : 4,
+    "totalPage" : 1,
+    "totalSize" : 4,
+    "first" : true,
+    "last" : true,
+    "hasNext" : false,
+    "hasPrevious" : false
+  },
+  "code" : 200,
+  "status" : "OK",
+  "message" : "OK"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_fields_3"><a class="link" href="#_response_fields_3">Response Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필드명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">타입</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">결제 목록</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].orderId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">결제 번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].reward</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">획득한 리워드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].orderCount</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">결제한 강의 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].orderStatus</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">주문 상태</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].createdDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">결제일</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].orderVideos[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">결제한 강의 목록</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].orderVideos[].videoId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">강의 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].orderVideos[].videoName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">강의명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].orderVideos[].thumbnailFile</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">강의 썸네일 이미지 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].orderVideos[].channelName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">강의 업로더 채널명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].orderVideos[].price</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">강의 가격</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지네이션 정보</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 페이지</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 사이즈</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalPage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 페이지 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 데이터 개수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.first</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">첫 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.last</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">마지막 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasNext</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">다음 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasPrevious</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이전 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 코드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 상태</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_리워드_목록_조회"><a class="link" href="#_리워드_목록_조회">리워드 목록 조회</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_4"><a class="link" href="#_http_request_4">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">GET /members/rewards?page=1 HTTP/1.1
+Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+Accept: application/json
+Host: localhost:8080</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_header_4"><a class="link" href="#_request_header_4">Request Header</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">헤더명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">액세스 토큰</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_request_parameter_3"><a class="link" href="#_request_parameter_3">Request Parameter</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">파라미터</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">조회할 리워드 목록 페이지</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_4"><a class="link" href="#_http_response_4">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 783
+
+{
+  "data" : [ {
+    "entityId" : 1,
+    "rewardType" : "VIDEO",
+    "rewardPoint" : 100,
+    "date" : "2023-08-31T12:59:34.1043983"
+  }, {
+    "entityId" : 33,
+    "rewardType" : "QUIZ",
+    "rewardPoint" : 10,
+    "date" : "2023-08-31T12:59:34.1043983"
+  }, {
+    "entityId" : 114,
+    "rewardType" : "VIDEO",
+    "rewardPoint" : 300,
+    "date" : "2023-08-31T12:59:34.1043983"
+  }, {
+    "entityId" : 418,
+    "rewardType" : "QUIZ",
+    "rewardPoint" : 5,
+    "date" : "2023-08-31T12:59:34.1043983"
+  } ],
+  "pageInfo" : {
+    "page" : 1,
+    "size" : 4,
+    "totalPage" : 1,
+    "totalSize" : 4,
+    "first" : true,
+    "last" : true,
+    "hasNext" : false,
+    "hasPrevious" : false
+  },
+  "code" : 200,
+  "status" : "OK",
+  "message" : "OK"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_fields_4"><a class="link" href="#_response_fields_4">Response Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필드명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">타입</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">리워드 목록</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].entityId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">리워드를 획득한 엔티티의 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].rewardType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">리워드 타입</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].rewardPoint</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">지급된 리워드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].date</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">리워드 지급 날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지네이션 정보</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 페이지</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 사이즈</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalPage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 페이지 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 데이터 개수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.first</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">첫 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.last</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">마지막 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasNext</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">다음 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasPrevious</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이전 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 코드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 상태</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_구매한_강의_목록_조회"><a class="link" href="#_구매한_강의_목록_조회">구매한 강의 목록 조회</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_5"><a class="link" href="#_http_request_5">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">GET /members/playlists?page=1&amp;sort=new HTTP/1.1
+Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+Accept: application/json
+Host: localhost:8080</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_header_5"><a class="link" href="#_request_header_5">Request Header</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">헤더명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">액세스 토큰</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_request_parameter_4"><a class="link" href="#_request_parameter_4">Request Parameter</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">파라미터</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">구매한 강의 목록 페이지</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sort</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">정렬 기준(최신순, 평점순, 채널별, 이름순)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_5"><a class="link" href="#_http_response_5">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1595
+
+{
+  "data" : [ {
+    "videoId" : 321,
+    "videoName" : "가볍게 배우는 알고리즘",
+    "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+    "star" : 4.7,
+    "modifiedDate" : "2023-08-31T12:59:32.9983607",
+    "channel" : {
+      "memberId" : 23,
+      "channelName" : "알고리즘 채널"
+    }
+  }, {
+    "videoId" : 2218,
+    "videoName" : "더 가볍게 배우는 알고리즘",
+    "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+    "star" : 3.4,
+    "modifiedDate" : "2023-08-31T12:59:32.9993607",
+    "channel" : {
+      "memberId" : 23,
+      "channelName" : "알고리즘 채널"
+    }
+  }, {
+    "videoId" : 7831,
+    "videoName" : "많이 가볍게 배우는 알고리즘",
+    "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+    "star" : 2.9,
+    "modifiedDate" : "2023-08-31T12:59:32.9993607",
+    "channel" : {
+      "memberId" : 23,
+      "channelName" : "알고리즘 채널"
+    }
+  }, {
+    "videoId" : 321,
+    "videoName" : "진짜 가볍게 배우는 알고리즘",
+    "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+    "star" : 1.8,
+    "modifiedDate" : "2023-08-31T12:59:32.9993607",
+    "channel" : {
+      "memberId" : 23,
+      "channelName" : "알고리즘 채널"
+    }
+  } ],
+  "pageInfo" : {
+    "page" : 1,
+    "size" : 4,
+    "totalPage" : 1,
+    "totalSize" : 4,
+    "first" : true,
+    "last" : true,
+    "hasNext" : false,
+    "hasPrevious" : false
+  },
+  "code" : 200,
+  "status" : "OK",
+  "message" : "OK"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_fields_5"><a class="link" href="#_response_fields_5">Response Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필드명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">타입</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">구매한 강의 목록</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].videoId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">구매한 영상 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].videoName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">구매한 영상명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].thumbnailFile</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상의 썸네일 이미지 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].star</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상 평균 별점</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].modifiedDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상 업데이트 날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상 업로더의 채널 정보</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel.memberId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">업로더의 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel.channelName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">업로더의 채널명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지네이션 정보</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 페이지</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 사이즈</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalPage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 페이지 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 데이터 개수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.first</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">첫 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.last</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">마지막 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasNext</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">다음 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasPrevious</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이전 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 코드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 상태</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_구매한_강의_목록_조회_2"><a class="link" href="#_구매한_강의_목록_조회_2">구매한 강의 목록 조회</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_6"><a class="link" href="#_http_request_6">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">GET /members/playlists?page=1&amp;sort=new HTTP/1.1
+Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+Accept: application/json
+Host: localhost:8080</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_header_6"><a class="link" href="#_request_header_6">Request Header</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">헤더명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">액세스 토큰</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_request_parameter_5"><a class="link" href="#_request_parameter_5">Request Parameter</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">파라미터</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">구매한 강의 목록 페이지</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sort</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">정렬 기준(최신순, 평점순, 채널별, 이름순)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_6"><a class="link" href="#_http_response_6">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1595
+
+{
+  "data" : [ {
+    "videoId" : 321,
+    "videoName" : "가볍게 배우는 알고리즘",
+    "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+    "star" : 4.7,
+    "modifiedDate" : "2023-08-31T12:59:32.9983607",
+    "channel" : {
+      "memberId" : 23,
+      "channelName" : "알고리즘 채널"
+    }
+  }, {
+    "videoId" : 2218,
+    "videoName" : "더 가볍게 배우는 알고리즘",
+    "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+    "star" : 3.4,
+    "modifiedDate" : "2023-08-31T12:59:32.9993607",
+    "channel" : {
+      "memberId" : 23,
+      "channelName" : "알고리즘 채널"
+    }
+  }, {
+    "videoId" : 7831,
+    "videoName" : "많이 가볍게 배우는 알고리즘",
+    "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+    "star" : 2.9,
+    "modifiedDate" : "2023-08-31T12:59:32.9993607",
+    "channel" : {
+      "memberId" : 23,
+      "channelName" : "알고리즘 채널"
+    }
+  }, {
+    "videoId" : 321,
+    "videoName" : "진짜 가볍게 배우는 알고리즘",
+    "thumbnailFile" : "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
+    "star" : 1.8,
+    "modifiedDate" : "2023-08-31T12:59:32.9993607",
+    "channel" : {
+      "memberId" : 23,
+      "channelName" : "알고리즘 채널"
+    }
+  } ],
+  "pageInfo" : {
+    "page" : 1,
+    "size" : 4,
+    "totalPage" : 1,
+    "totalSize" : 4,
+    "first" : true,
+    "last" : true,
+    "hasNext" : false,
+    "hasPrevious" : false
+  },
+  "code" : 200,
+  "status" : "OK",
+  "message" : "OK"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_fields_6"><a class="link" href="#_response_fields_6">Response Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필드명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">타입</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">구매한 강의 목록</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].videoId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">구매한 영상 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].videoName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">구매한 영상명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].thumbnailFile</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상의 썸네일 이미지 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].star</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상 평균 별점</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].modifiedDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상 업데이트 날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상 업로더의 채널 정보</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel.memberId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">업로더의 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel.channelName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">업로더의 채널명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지네이션 정보</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 페이지</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 사이즈</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalPage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 페이지 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 데이터 개수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.first</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">첫 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.last</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">마지막 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasNext</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">다음 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasPrevious</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이전 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 코드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 상태</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_구독한_채널_목록_조회"><a class="link" href="#_구독한_채널_목록_조회">구독한 채널 목록 조회</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_7"><a class="link" href="#_http_request_7">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">GET /members/subscribes?page=1 HTTP/1.1
+Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+Accept: application/json
+Host: localhost:8080</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_header_7"><a class="link" href="#_request_header_7">Request Header</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">헤더명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">액세스 토큰</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_request_parameter_6"><a class="link" href="#_request_parameter_6">Request Parameter</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">파라미터</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">조회할 구독 목록 페이지</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_7"><a class="link" href="#_http_response_7">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 925
+
+{
+  "data" : [ {
+    "memberId" : 23,
+    "channelName" : "vlog channel",
+    "subscribes" : 1004,
+    "imageUrl" : "https://d2ouhv9pc4idoe.cloudfront.net/images/test"
+  }, {
+    "memberId" : 8136,
+    "channelName" : "study channel",
+    "subscribes" : 486,
+    "imageUrl" : "https://d2ouhv9pc4idoe.cloudfront.net/images/test"
+  }, {
+    "memberId" : 931,
+    "channelName" : "music channel",
+    "subscribes" : 333,
+    "imageUrl" : "https://d2ouhv9pc4idoe.cloudfront.net/images/test"
+  }, {
+    "memberId" : 49,
+    "channelName" : "game channel",
+    "subscribes" : 777,
+    "imageUrl" : "https://d2ouhv9pc4idoe.cloudfront.net/images/test"
+  } ],
+  "pageInfo" : {
+    "page" : 1,
+    "size" : 4,
+    "totalPage" : 1,
+    "totalSize" : 4,
+    "first" : true,
+    "last" : true,
+    "hasNext" : false,
+    "hasPrevious" : false
+  },
+  "code" : 200,
+  "status" : "OK",
+  "message" : "OK"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_fields_7"><a class="link" href="#_response_fields_7">Response Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필드명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">타입</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">구독 목록</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].memberId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">구독한 채널의 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channelName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">구독한 채널명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].subscribes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">채널의 구독자 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].imageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">채널 소유자의 프로필 이미지</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지네이션 정보</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 페이지</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 사이즈</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalPage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 페이지 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 데이터 개수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.first</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">첫 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.last</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">마지막 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasNext</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">다음 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasPrevious</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이전 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 코드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 상태</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_시청_기록_조회"><a class="link" href="#_시청_기록_조회">시청 기록 조회</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_8"><a class="link" href="#_http_request_8">HTTP Request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">GET /members/watchs?page=1&amp;day=14 HTTP/1.1
+Authorization: Bearer GBJFIU4BFDASUK41KVR1.FDSKAVF123KVA167FVK.F12B3Y4AVFD6I7
+Host: localhost:8080</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_header_8"><a class="link" href="#_request_header_8">Request Header</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">헤더명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">액세스 토큰</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_request_parameter_7"><a class="link" href="#_request_parameter_7">Request Parameter</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">파라미터</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">조회할 페이지</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>day</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">조회 기간 설정</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필수</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response_8"><a class="link" href="#_http_response_8">HTTP Response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code data-lang="http" class="language-http hljs">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1187
+
+{
+  "data" : [ {
+    "videoId" : 791,
+    "videoName" : "알고리즘",
+    "thumbnailFile" : null,
+    "modifiedDate" : "2023-08-31T12:59:33.7183987",
+    "channel" : {
+      "memberId" : 4325,
+      "channelName" : "채널1"
+    }
+  }, {
+    "videoId" : 791,
+    "videoName" : "리액트",
+    "thumbnailFile" : null,
+    "modifiedDate" : "2023-08-31T12:59:33.7203987",
+    "channel" : {
+      "memberId" : 4325,
+      "channelName" : "채널2"
+    }
+  }, {
+    "videoId" : 791,
+    "videoName" : "스프링",
+    "thumbnailFile" : null,
+    "modifiedDate" : "2023-08-31T12:59:33.7203987",
+    "channel" : {
+      "memberId" : 4325,
+      "channelName" : "채널3"
+    }
+  }, {
+    "videoId" : 791,
+    "videoName" : "자바",
+    "thumbnailFile" : null,
+    "modifiedDate" : "2023-08-31T12:59:33.7203987",
+    "channel" : {
+      "memberId" : 4325,
+      "channelName" : "채널3"
+    }
+  } ],
+  "pageInfo" : {
+    "page" : 1,
+    "size" : 4,
+    "totalPage" : 1,
+    "totalSize" : 4,
+    "first" : true,
+    "last" : true,
+    "hasNext" : false,
+    "hasPrevious" : false
+  },
+  "code" : 200,
+  "status" : "OK",
+  "message" : "OK"
+}</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_response_fields_8"><a class="link" href="#_response_fields_8">Response Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">필드명</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">타입</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">시청 기록</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].videoId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">시청한 영상 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].videoName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">시청한 영상명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].thumbnailFile</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상의 썸네일 이미지 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].modifiedDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상 시청일</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">영상 업로더의 채널 정보</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel.memberId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">업로더의 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[].channel.channelName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">업로더의 채널명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Object</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지네이션 정보</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.page</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 페이지</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">페이지 사이즈</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalPage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 페이지 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.totalSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">전체 데이터 개수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.first</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">첫 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.last</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">마지막 페이지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasNext</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">다음 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pageInfo.hasPrevious</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이전 페이지 존재 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 코드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 상태</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2023-08-30 11:40:55 +0900
+Last updated 2023-08-31 09:53:38 +0900
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">

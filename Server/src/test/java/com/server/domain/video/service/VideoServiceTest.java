@@ -269,6 +269,7 @@ class VideoServiceTest extends ServiceTest {
     Collection<DynamicTest> createVideo() {
         //given
         Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
 
         Category category1 = createAndSaveCategory("category1");
         Category category2 = createAndSaveCategory("category2");
@@ -324,6 +325,7 @@ class VideoServiceTest extends ServiceTest {
     Collection<DynamicTest> createVideoException() {
         //given
         Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
 
         Category category1 = createAndSaveCategory("category1");
         Category category2 = createAndSaveCategory("category2");

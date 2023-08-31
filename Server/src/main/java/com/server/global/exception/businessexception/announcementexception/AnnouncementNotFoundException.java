@@ -1,6 +1,5 @@
-package com.server.global.exception.announcementexception;
+package com.server.global.exception.businessexception.announcementexception;
 
-import com.server.global.exception.businessexception.channelException.ChannelException;
 import org.springframework.http.HttpStatus;
 
 public class AnnouncementNotFoundException extends AnnouncementException {
