@@ -48,21 +48,16 @@ public class Channel extends BaseEntity {
 
     public static Channel createChannel(String memberNickname) {
         return Channel.builder()
-            .channelName(memberNickname)
-            .build();
+                .channelName(memberNickname)
+                .build();
     }
 
-    public void setChannelName(String channelName){
+    public void updateChannel(String channelName, String description){
         this.channelName = channelName;
-    }
-
-    public void setDescription(String description){
         this.description = description;
     }
 
-    public void subscribers(int subscribers){
-        this.subscribers = subscribers;
-    }
+
 
     public void setMember(Member member){
         this.member = member;
@@ -71,10 +66,14 @@ public class Channel extends BaseEntity {
         }
     }
 
-
-    public void setSubscribers(int subscribers){
-        this.subscribers = subscribers;
+    public void addSubscribers(int subscribers){
+        this.subscribers += subscribers;
     }
+
+    public void decreaseSubscribers(int subscribers){
+        this.subscribers -= subscribers;
+    }
+
 
 
 

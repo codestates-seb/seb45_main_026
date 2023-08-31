@@ -13,12 +13,6 @@ public interface VideoRepository extends JpaRepository<Video, Long>, VideoReposi
 
     List<Video> findAllByVideoIdIn(List<Long> videoIds);
 
-    Page<Video> findByChannel(Channel channel, PageRequest pageRequest);
 
-//    @Query("select v from Video v where v.channel = :channel and v.videoName like %:keyword%")
-//    boolean findVideosBy(Long memberId, Channel channel);
-//
-//    @Query("select v from Video v where v.channel = :channel and v.videoName like %:keyword%")
-//    List<Video> findVideoBy(Long memberId, Video video);
 
 }
