@@ -9,8 +9,7 @@ export const UploadContainer = styled.section`
   max-width: 1000px;
   padding: 50px 0px 100px 0px;
   background-color: white;
-  border: 1px solid black;
-
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   justify-content: start;
@@ -27,12 +26,11 @@ export const UploadTypeBtn = styled.button`
   width: 40px;
   height: 40px;
   margin: 10px;
-  border: 2px solid
-    ${(props) => (props.active ? "rgb(255, 200, 200)" : "rgb(255, 200, 200)")};
+  border: 2px solid rgb(255, 100, 100);
   border-radius: 50%;
   background-color: ${(props) =>
-    props.active ? "rgb(255, 200, 200)" : "white"};
-  color: ${(props) => (props.active ? "white" : "rgb(255, 200, 200)")};
+    props.active ? "rgb(255, 100, 100);" : "white"};
+  color: ${(props) => (props.active ? "white" : "rgb(255, 100, 100)")};
   font-weight: bold;
   font-size: 16px;
 `;
@@ -73,9 +71,13 @@ export const NextBtn = styled.button`
   right: 6%;
   width: 100px;
   height: 40px;
-  border-radius: 8px;
-  background-color: rgb(255, 200, 200);
+  color: white;
   font-weight: 600;
+  border-radius: 8px;
+  background-color: rgb(255, 100, 100);
+  &:hover {
+    background-color: rgb(255, 150, 150);
+  }
 `;
 
 const UploadPage = () => {
