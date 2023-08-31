@@ -52,13 +52,37 @@ const InforContainerRight = styled.div`
     align-items: end;
 `
 const AuthorInfor = styled.div`
-    max-width: 130px;
-    height: 20px;
-    padding-top: ${globalTokens.Spacing4.value}px;
-    font-size: ${globalTokens.SmallText.value}px;
-    font-weight: ${globalTokens.Bold.value};
+    width: 120px;
+    height: 30px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+`
+const ProfileImg = styled.img`
+    max-height: 24px;
+    height: auto;
+    width: auto;
+`
+const ImgContainer = styled.span`
+    width: 24px;
+    height: 24px;
+    border-radius: ${globalTokens.CircleRadius.value}px;
+    background-color: ${globalTokens.White.value};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid lightgray;
     overflow: hidden;
 `
+const AuthorName = styled.span`
+  height: 30px;
+  font-size: ${globalTokens.SmallText.value}px;
+  font-weight: ${globalTokens.Bold.value};
+  padding-top: ${globalTokens.Spacing4.value}px;
+  overflow: hidden;
+  white-space: nowrap;
+`;
 const PriceInfor = styled.div`
     font-size: ${globalTokens.BodyText.value}px;
     font-weight: ${globalTokens.Bold.value};
@@ -66,18 +90,14 @@ const PriceInfor = styled.div`
 const DateInfor = styled.div`
     font-size: ${globalTokens.SmallText.value}px;
 `
-const DateBold = styled.span`
-  font-weight: ${globalTokens.Bold.value};
-`;
 const StarImage = styled.img`
     height: 20px;
     width: 20px;
 `
 const ScoreContainer = styled.div`
-  height: 20px;
   display: flex;
   align-items: center;
-  gap: 2px;
+  height: 24px;
 `
 const ScoreText = styled.span`
   font-size: ${globalTokens.SmallText.value}px;
@@ -87,22 +107,25 @@ export default function VerticalItem() {
     return (
       <ComponentBody>
         <ImageContainer />
-        <ItemTitle>대충 영상 제목</ItemTitle>
+        <ItemTitle>대충 영상 제목대충 영상 제목</ItemTitle>
         <ItemInfors>
           <InforContainerLeft>
-            <AuthorInfor>스터디파이</AuthorInfor>
-            <DateInfor>
-              <DateBold>8월 29일</DateBold> 업로드됨
-            </DateInfor>
+            <AuthorInfor>
+              <ImgContainer>
+                <ProfileImg src="https://avatars.githubusercontent.com/u/50258232?v=4" />
+              </ImgContainer>
+              <AuthorName>HyerimKimm</AuthorName>
+            </AuthorInfor>
+            <DateInfor>8월 29일 업로드됨</DateInfor>
           </InforContainerLeft>
           <InforContainerRight>
             <ScoreContainer>
               <ScoreText>4.6</ScoreText>
-              <StarImage src={yellowStar}/>
-              <StarImage src={yellowStar}/>
-              <StarImage src={yellowStar}/>
-              <StarImage src={yellowStar}/>
-              <StarImage src={yellowStar}/>
+              <StarImage src={yellowStar} />
+              <StarImage src={yellowStar} />
+              <StarImage src={yellowStar} />
+              <StarImage src={yellowStar} />
+              <StarImage src={yellowStar} />
             </ScoreContainer>
             <PriceInfor>32,450원</PriceInfor>
           </InforContainerRight>

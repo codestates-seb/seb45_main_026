@@ -16,11 +16,11 @@ import SignupPage from "./pages/auth/SignupPage";
 function App() {
   const url = new URL(window.location.href);
   const dispatch = useDispatch();
-
+  
   const handleResize = () => {
-    dispatch(setBrowserWidth(window.innerWidth));
+      dispatch(setBrowserWidth(window.innerWidth));
   };
-
+  
   useMemo(() => {
     window.addEventListener("resize", handleResize);
   }, []);
