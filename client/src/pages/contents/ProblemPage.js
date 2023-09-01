@@ -1,7 +1,6 @@
 import { styled } from "styled-components";
 import { useState } from "react";
 import { PageContainer } from "../../atoms/layouts/PageContainer";
-import { ColBox } from "./UploadPage";
 
 export const ProblemContainer = styled.section`
   width: 100%;
@@ -13,7 +12,6 @@ export const ProblemContainer = styled.section`
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  border: 1px solid black;
 `;
 
 export const HeaderBox = styled.div`
