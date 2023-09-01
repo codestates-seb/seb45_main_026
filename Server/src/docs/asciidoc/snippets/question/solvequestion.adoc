@@ -22,8 +22,6 @@ include::{snippets}/video/solvequestions/request-body.adoc[]
 include::{snippets}/video/solvequestions/request-fields.adoc[]
 === HTTP Response
 include::{snippets}/video/solvequestions/http-response.adoc[]
-==== Response Body
-include::{snippets}/video/solvequestions/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/video/solvequestions/response-fields.adoc[]
 
@@ -38,8 +36,6 @@ include::{snippets}/question/solvequestion/request-body.adoc[]
 include::{snippets}/question/solvequestion/request-fields.adoc[]
 === HTTP Response
 include::{snippets}/question/solvequestion/http-response.adoc[]
-==== Response Body
-include::{snippets}/question/solvequestion/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/question/solvequestion/response-fields.adoc[]
 

@@ -20,8 +20,6 @@ include::{snippets}/video/getquestions/request-headers.adoc[]
 include::{snippets}/video/getquestions/path-parameters.adoc[]
 === HTTP Response
 include::{snippets}/video/getquestions/http-response.adoc[]
-==== Response Body
-include::{snippets}/video/getquestions/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/video/getquestions/response-fields.adoc[]
 
@@ -34,8 +32,6 @@ include::{snippets}/question/getquestion/request-headers.adoc[]
 include::{snippets}/question/getquestion/path-parameters.adoc[]
 === HTTP Response
 include::{snippets}/question/getquestion/http-response.adoc[]
-==== Response Body
-include::{snippets}/question/getquestion/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/question/getquestion/response-fields.adoc[]
 

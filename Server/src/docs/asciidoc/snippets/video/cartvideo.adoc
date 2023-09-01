@@ -18,8 +18,6 @@ include::{snippets}/video/changecartadd/http-request.adoc[]
 include::{snippets}/video/changecartadd/request-headers.adoc[]
 === HTTP Response
 include::{snippets}/video/changecartadd/http-response.adoc[]
-==== Response Body
-include::{snippets}/video/changecartadd/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/video/changecartadd/response-fields.adoc[]
 
@@ -31,8 +29,6 @@ include::{snippets}/video/changecartcancel/http-request.adoc[]
 include::{snippets}/video/changecartcancel/request-headers.adoc[]
 === HTTP Response
 include::{snippets}/video/changecartcancel/http-response.adoc[]
-==== Response Body
-include::{snippets}/video/changecartcancel/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/video/changecartcancel/response-fields.adoc[]
 

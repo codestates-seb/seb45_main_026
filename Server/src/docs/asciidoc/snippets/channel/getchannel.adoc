@@ -1,0 +1,30 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Channel]]
+= 채널 조회 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 채널 정보 조회
+
+== 채널 비디오 목록 조회
+=== HTTP Request
+include::{snippets}/channel/getchannelvideos/http-request.adoc[]
+==== Request Header
+include::{snippets}/channel/getchannelvideos/request-headers.adoc[]
+==== Request Path Parameters
+include::{snippets}/channel/getchannelvideos/path-parameters.adoc[]
+==== Request Query Parameters
+include::{snippets}/channel/getchannelvideos/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/channel/getchannelvideos/http-response.adoc[]
+==== Response Fields
+include::{snippets}/channel/getchannelvideos/response-fields.adoc[]
+
+

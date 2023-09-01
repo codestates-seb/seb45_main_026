@@ -121,15 +121,16 @@ public abstract class RepositoryTest {
         return category;
     }
 
-    protected VideoCategory createAndSaveVideoCategory(Video video, Category category) {
-        VideoCategory videoCategory = VideoCategory.builder()
-                .video(video)
-                .category(category)
-                .build();
+    protected void createAndSaveVideoCategory(Video video, Category... categorys) {
 
-        em.persist(videoCategory);
+        for (Category category : categorys) {
+            VideoCategory videoCategory = VideoCategory.builder()
+                    .video(video)
+                    .category(category)
+                    .build();
 
-        return videoCategory;
+            em.persist(videoCategory);
+        }
     }
 
     protected void createAndSaveSubscribe(Member member, Channel channel) {

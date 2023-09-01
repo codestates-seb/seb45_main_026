@@ -16,4 +16,6 @@ public interface VideoRepositoryCustom {
     Page<Video> findAllByCategoryPaging(String category, Pageable pageable, String sort, Long memberId, boolean subscribe);
 
     List<Boolean> isPurchasedAndIsReplied(Long memberId, Long videoId);
+
+    Page<Video> findChannelVideoByCategoryPaging(Long memberId, String category, Pageable pageable, String sort);
 }
