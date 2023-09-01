@@ -321,7 +321,7 @@ class OrderServiceTest extends ServiceTest {
 
         //멤버 리워드 변경
         Member findMember = memberRepository.findById(member.getMemberId()).orElseThrow();
-        assertThat(findMember.getReward()).isEqualTo(member.getReward() - order.getReward());
+        assertThat(findMember.getReward()).isEqualTo(member.getReward() - order.getReward() + video1.getPrice() / 100 + video2.getPrice() / 100);
 
         //카트 삭제
         assertThat(cartRepository.findById(cart.getCartId()).isPresent()).isFalse();

@@ -6,6 +6,7 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
+import com.server.domain.reward.entity.Reward;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.entity.BaseEntity;
@@ -63,6 +64,9 @@ public class Video extends BaseEntity {
 
     @OneToMany(mappedBy = "video")
     private List<Cart> carts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "video")
+    private List<Reward> rewards = new ArrayList<>();
 
     @OneToMany(mappedBy = "video")
     private List<Question> questions = new ArrayList<>();

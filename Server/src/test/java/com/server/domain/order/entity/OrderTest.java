@@ -6,6 +6,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -36,6 +37,24 @@ class OrderTest {
                 .extracting("video").containsExactly(video1, video2);
     }
 
+    @Test
+    @DisplayName("order 의 비디오 목록을 가져온다.")
+    void getVideos() {
+        //given
+        Member member = createMember();
+        Video video1 = createVideo("title1");
+        Video video2 = createVideo("title2");
+
+        Order order = createOrder(member, List.of(video1, video2), 0);
+
+        //when
+        List<Video> videos = order.getVideos();
+
+        //then
+        assertThat(videos).hasSize(2)
+                .extracting("videoName").containsExactly("title1", "title2");
+    }
+
     private Member createMember() {
 
         return Member.builder()
@@ -55,5 +74,34 @@ class OrderTest {
                 .star(0.0F)
                 .price(1000)
                 .build();
+    }
+
+    private Video createVideo(String title) {
+        return Video.builder()
+                .videoName(title)
+                .description("description")
+                .thumbnailFile("thumbnailFile")
+                .videoFile("videoFile")
+                .view(0)
+                .star(0.0F)
+                .price(1000)
+                .build();
+    }
+
+    private Order createOrder(Member member, List<Video> videos, int usingReward){
+
+        Order order = Order.builder()
+                .member(member)
+                .reward(usingReward)
+                .orderStatus(OrderStatus.ORDERED)
+                .orderVideos(new ArrayList<>())
+                .build();
+
+        for(Video video : videos){
+            OrderVideo orderVideo = OrderVideo.createOrderVideo(order, video, video.getPrice());
+            order.addOrderVideo(orderVideo);
+        }
+
+        return order;
     }
 }
