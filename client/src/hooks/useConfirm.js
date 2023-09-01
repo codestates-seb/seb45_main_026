@@ -8,7 +8,6 @@ const useConfirm = (message=null, onConfirm=()=>{}, onCancel=()=>{}) => {
             onCancel();
         }
     }
-
     return confirmAction;
 };
 

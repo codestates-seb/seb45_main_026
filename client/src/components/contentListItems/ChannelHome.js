@@ -21,7 +21,7 @@ const HomeTitle = styled.h2`
     margin-left: ${globalTokens.Spacing28.value}px;
     margin-bottom: ${globalTokens.Spacing20.value}px;
 `
-const ItemContainer = styled.div`
+const ItemContainer = styled.ul`
     width: 100%;
     min-height: 400px;
     display: flex;

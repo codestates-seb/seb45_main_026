@@ -9,6 +9,9 @@ export const CheckboxContainer = styled.div`
     height: 25px;
     border-radius: ${globalTokens.RegularRadius.value}px;
     border: ${globalTokens.ThinHeight.value}px solid ${globalTokens.Gray.value};
-    background-color: rgba(255,255,255,0.15);
+    background-color: ${(props)=>
+        props.isChecked&&props.isDark? globalTokens.LightNavy.value
+        :props.isChecked&&!props.isDark? globalTokens.MainRed.value
+        : `rgba(255,255,255,0.15)` };
     cursor: pointer;
 `

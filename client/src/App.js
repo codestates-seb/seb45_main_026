@@ -1,6 +1,6 @@
 import "./App.css";
 import { useEffect, useMemo } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setBrowserWidth } from "./redux/createSlice/UISettingSlice";
 import MainPage from "./pages/contents/MainPage";
@@ -18,12 +18,15 @@ import ProblemPage from "./pages/contents/ProblemPage";
 import LectureListPage from "./pages/contents/LectureListPage";
 import { getUserInfoService } from "./services/userInfoService";
 import { setLoginInfo, setToken } from "./redux/createSlice/LoginInfoSlice";
+import useConfirm from "./hooks/useConfirm";
+import FindPasswordPage from "./pages/auth/FindPasswordPage";
 
 function App() {
   const url = new URL(window.location.href);
-  const dispatch = useDispatch();
-  const tokens = useSelector((state) => state.loginInfo.accessToken);
-
+  const dispatch = useDispatch();  
+  const tokens = useSelector(state=>state.loginInfo.accessToken);
+  const tokenFinishConfirm = useConfirm('토큰이 만료되었건, 서버 오류로 로그아웃 되었습니다.');
+  
   const handleResize = () => {
     dispatch(setBrowserWidth(window.innerWidth));
   };
@@ -68,13 +71,14 @@ function App() {
     <BrowserRouter>
       <Header />
       <Routes>
-        <Route path="/" element={<MainPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/MyProfile" element={<MyProfilePage />} />
-        <Route path="/lecture" element={<LectureListPage />} />
-        <Route path="/videos/1" element={<DetailPage />} />
-        <Route path="/channels/1" element={<ChannelPage />} />
+        <Route path="/" element={<MainPage/>}/>
+        <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/signup" element={<SignupPage/>}/>
+        <Route path="/findPassword" element={<FindPasswordPage/>}/>
+        <Route path="/MyProfile" element={<MyProfilePage/>}/>
+        <Route path="/lecture" element={<LectureListPage/>}/> 
+        <Route path="/videos/1" element={<DetailPage/>}/>
+        <Route path="/channels/1" element={<ChannelPage/>}/>
         <Route path="/carts" element={<CartPage />} />
         <Route path="/upload" element={<UploadPage />} />
         <Route path="/problems" element={<ProblemPage />} />
