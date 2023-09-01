@@ -23,6 +23,8 @@ import com.server.domain.subscribe.entity.QSubscribe;
 import com.server.domain.video.entity.QVideo;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
+import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
 
 import javax.persistence.EntityManager;
 
@@ -48,9 +50,11 @@ import org.springframework.data.domain.Pageable;
 public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+    private final AwsService awsService;
 
-    public MemberRepositoryImpl(EntityManager em) {
+    public MemberRepositoryImpl(EntityManager em, AwsService awsService) {
         this.queryFactory = new JPAQueryFactory(em);
+        this.awsService = awsService;
     }
 
     //order 의 상태가 COMPLETE 인지 확인합니다.
@@ -169,6 +173,14 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
         if (result.isEmpty()) {
             return Page.empty(pageable);
+        }
+
+        for (SubscribesResponse response : result) {
+            String imageUrl = awsService.getFileUrl(
+                response.getMemberId(),
+                response.getImageUrl(),
+                FileType.PROFILE_IMAGE);
+            response.setImageUrl(imageUrl);
         }
 
         return new PageImpl<>(result, pageable, totalCount);
