@@ -6,15 +6,20 @@ import { useNavigate } from 'react-router-dom';
 
 export const MainPageHeader = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
+    const tokens = useSelector(state=>state.loginInfo.accessToken);
     const navigate = useNavigate();
 
     const handleLoginButtonClick = () => {
         navigate('/login');
     }
+
+    console.log(tokens.authorization.length)
     return (
         <MainPageHeaderContainer isDark={isDark}>
             <HeaderLogo/>
-            <HeaderLoginButton isDark={isDark} onClick={handleLoginButtonClick}>로그인</HeaderLoginButton>
+            {
+                tokens.authorization.length===0 &&<HeaderLoginButton isDark={isDark} onClick={handleLoginButtonClick}>로그인</HeaderLoginButton>
+            }
         </MainPageHeaderContainer>
     );
 }
@@ -32,7 +37,7 @@ export const Header = () => {
         <HeaderContainer isDark={isDark}>
             <HeaderLogo/>
             {
-                <HeaderLoginButton isDark={isDark} onClick={handleLoginButtonClick}>로그인</HeaderLoginButton>
+                tokens.authorization.length===0 &&<HeaderLoginButton isDark={isDark} onClick={handleLoginButtonClick}>로그인</HeaderLoginButton>
             }
         </HeaderContainer>
     );

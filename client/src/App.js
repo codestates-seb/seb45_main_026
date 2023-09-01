@@ -1,7 +1,7 @@
 import "./App.css";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setBrowserWidth } from "./redux/createSlice/UISettingSlice";
 import MainPage from "./pages/contents/MainPage";
 import LoginPage from "./pages/auth/LoginPage";
@@ -15,10 +15,12 @@ import UploadPage from "./pages/contents/UploadPage";
 import SignupPage from "./pages/auth/SignupPage";
 import "./App.css";
 import LectureListPage from "./pages/contents/LectureListPage";
+import { getUserInfoService } from "./services/userInfoService";
 
 function App() {
   const url = new URL(window.location.href);
   const dispatch = useDispatch();
+  const tokens = useSelector(state=>state.loginInfo.accessToken);
   
   const handleResize = () => {
       dispatch(setBrowserWidth(window.innerWidth));
@@ -27,6 +29,15 @@ function App() {
   useMemo(() => {
     window.addEventListener("resize", handleResize);
   }, []);
+
+  //웹을 실행했을 때 저장된 토큰이 있으면 토큰을 가지고 프로필 조회를 한다. 
+  useEffect(()=>{
+    if(tokens.authorization) {
+      getUserInfoService(tokens.authorization).then((res)=>{
+        //토큰이 유효하지 않으면 저장된 토큰을 삭제한다. 
+      })
+    }
+  },[])
 
   return (
     <BrowserRouter>

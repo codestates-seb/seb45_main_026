@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const ROOT_URL = 'https://api.itprometheus.net';
+import { ROOT_URL } from '.';
 
 //회원가입 API
 export const signupService = async ({data}) => {
@@ -26,7 +25,7 @@ export const signupService = async ({data}) => {
     }
 }
 
-//email 인증코드 발송, 성공 시 , 실패 시 err return
+//email 인증코드 발송
 export const emailValidationService = async (email) => {
     try {
         const response = await axios.post(
@@ -47,7 +46,7 @@ export const emailValidationService = async (email) => {
     }
 }
 
-//email 인증코드 확인, 성공 시 204 return, 실패 시 err return 
+//email 인증코드 확인
 export const emailValidationConfirmService = async (email, emailCode) => {
     try {
         console.log(`${email}, ${emailCode}`)

@@ -15,9 +15,17 @@ import SignupInput from './SignupInput';
 import { ErrorTextTypo } from '../loginPageItems/LoginForm.style';
 import { emailValidationConfirmService, emailValidationService, signupService } from '../../services/authServices';
 import { useNavigate } from 'react-router-dom';
+import useConfirm from '../../hooks/useConfirm';
 
 export const SignupForm = () => {
     const navigate = useNavigate();
+    const emailCodeSendConfirm = useConfirm('이메일로 인증번호가 발송되었습니다. 확인 후 인증코드를 입력해 주세요.');
+    const successConfirm = useConfirm(
+        '회원가입 성공하였습니다.',
+        ()=>{
+            navigate('/login');
+        },
+        ()=>{});
     const [ isEmailValid, setIsEmailValid ] = useState(false);
     const {
         register,
@@ -31,7 +39,7 @@ export const SignupForm = () => {
         if(isEmailValid){
             const response = await signupService({data:data});
             if(response.status === 'success') {
-                console.log('회원가입 성공!');
+                successConfirm();
                 navigate('/login');
             }
         }
@@ -43,7 +51,7 @@ export const SignupForm = () => {
             //이메일 유효성 검사를 통과했으면 입력한 이메일로 인증코드를 전송함
             const response = await emailValidationService(email);
             if(response.status==='success') {
-                window.confirm('이메일로 인증번호가 발송되었습니다. 확인 후 인증코드를 입력해주세요.')
+                emailCodeSendConfirm();
             } else {
                 window.confirm(`${response.data}`)
             }

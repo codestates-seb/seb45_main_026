@@ -22,10 +22,7 @@ const LoginInfoSlice = createSlice({
       state.loginInfo.nickname = action.payload;
     },
     setToken: (state, action) => {
-      state.loginInfo = {
-        ...state.loginInfo,
-        ...action.payload
-      }
+      state.accessToken = action.payload;
     },
     setProvider: (state, action) => {
       // OAuth에 사용될 provider 값 저장
