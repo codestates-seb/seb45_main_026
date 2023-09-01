@@ -64,9 +64,10 @@ public class MemberController {
 																		@RequestParam(value = "size", defaultValue = "10") int size,
 																		@LoginId Long loginId) {
 
-		Page<RewardsResponse> responses = memberService.getRewards(loginId, page, size);
-
-		return ResponseEntity.ok(ApiPageResponse.ok(responses));
+		// Page<RewardsResponse> responses = memberService.getRewards(loginId, page, size);
+		//
+		// return ResponseEntity.ok(ApiPageResponse.ok(responses));
+		return null;
 	}
 
 	@GetMapping("/subscribes")

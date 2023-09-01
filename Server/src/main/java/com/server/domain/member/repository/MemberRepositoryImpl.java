@@ -356,33 +356,33 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         return new PageImpl<>(watchsResponses, pageable, watchsResponses.size());
     }
 
-    public Page<RewardsResponse> findRewardsByMemberId(Long memberId, Pageable pageable) {
-        QueryResults<Tuple> queryResults = queryFactory
-            .select(
-                reward.entityId, reward.rewardType, reward.rewardPoint, reward.createdDate
-            )
-            .from(reward)
-            .where(reward.member.memberId.eq(memberId))
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetchResults();
-
-        List<Tuple> tuples = queryResults.getResults();
-        long total = queryResults.getTotal();
-
-        if (total == 0) {
-            return Page.empty(pageable);
-        }
-
-        List<RewardsResponse> rewardsResponses = tuples.stream()
-            .map(tuple -> RewardsResponse.builder()
-                .entityId(tuple.get(reward.entityId))
-                .rewardType(tuple.get(reward.rewardType))
-                .rewardPoint(tuple.get(reward.rewardPoint))
-                .createdDate(tuple.get(reward.createdDate))
-                .build())
-            .collect(Collectors.toList());
-
-        return new PageImpl<>(rewardsResponses, pageable, total);
-    }
+    // public Page<RewardsResponse> findRewardsByMemberId(Long memberId, Pageable pageable) {
+    //     QueryResults<Tuple> queryResults = queryFactory
+    //         .select(
+    //             reward.entityId, reward.rewardType, reward.rewardPoint, reward.createdDate
+    //         )
+    //         .from(reward)
+    //         .where(reward.member.memberId.eq(memberId))
+    //         .offset(pageable.getOffset())
+    //         .limit(pageable.getPageSize())
+    //         .fetchResults();
+    //
+    //     List<Tuple> tuples = queryResults.getResults();
+    //     long total = queryResults.getTotal();
+    //
+    //     if (total == 0) {
+    //         return Page.empty(pageable);
+    //     }
+    //
+    //     List<RewardsResponse> rewardsResponses = tuples.stream()
+    //         .map(tuple -> RewardsResponse.builder()
+    //             .entityId(tuple.get(reward.entityId))
+    //             .rewardType(tuple.get(reward.rewardType))
+    //             .rewardPoint(tuple.get(reward.rewardPoint))
+    //             .createdDate(tuple.get(reward.createdDate))
+    //             .build())
+    //         .collect(Collectors.toList());
+    //
+    //     return new PageImpl<>(rewardsResponses, pageable, total);
+    // }
 }

@@ -151,7 +151,7 @@ public abstract class RepositoryTest {
 
     protected Reward createAndSaveVideoReward(Member member, Video video, RewardType rewardType) {
 
-        Reward reward = Reward.createReward(video.getVideoId(), rewardType, 10, member, video);
+        Reward reward = Reward.createReward(rewardType, 10, member, video);
 
         em.persist(reward);
 

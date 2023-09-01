@@ -41,7 +41,6 @@ public class RewardService {
 
 	private void createRewardForVideo(Video video, Member member) {
 		Reward reward = Reward.createReward(
-			video.getVideoId(),
 			RewardType.VIDEO,
 			(int) (video.getPrice() * 0.01),
 			member,
@@ -53,7 +52,6 @@ public class RewardService {
 
 	private void createRewardForAnswer(Answer answer, Video video, Member member) {
 		Reward reward = Reward.createReward(
-			answer.getAnswerId(),
 			RewardType.QUIZ,
 			10,
 			member,

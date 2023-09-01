@@ -72,11 +72,11 @@ public class MemberService {
 			FileType.PROFILE_IMAGE);
 	}
 
-	public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
-		Member member = validateMember(loginId);
-
-		return memberRepository.findRewardsByMemberId(member.getMemberId(), PageRequest.of(page, size));
-	}
+	// public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
+	// 	Member member = validateMember(loginId);
+	//
+	// 	return memberRepository.findRewardsByMemberId(member.getMemberId(), PageRequest.of(page, size));
+	// }
 
 	public Page<SubscribesResponse> getSubscribes(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
