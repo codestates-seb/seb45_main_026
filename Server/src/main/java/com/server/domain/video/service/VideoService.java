@@ -4,7 +4,6 @@ import com.server.domain.cart.entity.Cart;
 import com.server.domain.cart.repository.CartRepository;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.entity.CategoryRepository;
-import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
@@ -26,6 +25,7 @@ import com.server.global.exception.businessexception.videoexception.VideoNotFoun
 import com.server.global.exception.businessexception.videoexception.VideoUploadNotRequestException;
 import com.server.module.redis.service.RedisService;
 import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -44,7 +44,6 @@ public class VideoService {
 
     private final VideoRepository videoRepository;
     private final MemberRepository memberRepository;
-    private final ChannelRepository channelRepository;
     private final WatchRepository watchRepository;
     private final CategoryRepository categoryRepository;
     private final CartRepository cartRepository;
@@ -52,11 +51,10 @@ public class VideoService {
     private final RedisService redisService;
 
     public VideoService(VideoRepository videoRepository, MemberRepository memberRepository,
-                        ChannelRepository channelRepository, WatchRepository watchRepository, CategoryRepository categoryRepository,
+                        WatchRepository watchRepository, CategoryRepository categoryRepository,
                         CartRepository cartRepository, AwsService awsService, RedisService redisService) {
         this.videoRepository = videoRepository;
         this.memberRepository = memberRepository;
-        this.channelRepository = channelRepository;
         this.watchRepository = watchRepository;
         this.categoryRepository = categoryRepository;
         this.cartRepository = cartRepository;
@@ -105,8 +103,8 @@ public class VideoService {
         redisService.setExpire(String.valueOf(loginMemberId), request.getFileName(), 60 * 15); // 15분
 
         return VideoCreateUrlResponse.builder()
-                .videoUrl(awsService.getUploadVideoUrl(loginMemberId, request.getFileName()))
-                .thumbnailUrl(awsService.getUploadThumbnailUrl(loginMemberId, request.getFileName(), request.getImageType()))
+                .videoUrl(getUploadVideoUrl(loginMemberId, request))
+                .thumbnailUrl(getUploadThumbnailUrl(loginMemberId, request))
                 .build();
     }
 
@@ -202,7 +200,7 @@ public class VideoService {
 
         Member owner = video.getChannel().getMember();
 
-        urls.put("videoUrl", awsService.getVideoUrl(owner.getMemberId(), video.getVideoFile()));
+        urls.put("videoUrl", awsService.getFileUrl(owner.getMemberId(), video.getVideoFile(), FileType.VIDEO));
         urls.put("thumbnailUrl", getThumbnailUrl(owner.getMemberId(), video));
         urls.put("imageUrl", getImageUrl(owner));
 
@@ -210,11 +208,23 @@ public class VideoService {
     }
 
     private String getImageUrl(Member member) {
-        return awsService.getImageUrl(member.getImageFile());
+        return awsService.getFileUrl(member.getMemberId(), member.getImageFile(), FileType.PROFILE_IMAGE);
     }
 
     private String getThumbnailUrl(Long memberId, Video video) {
-        return awsService.getThumbnailUrl(memberId, video.getThumbnailFile());
+        return awsService.getFileUrl(memberId, video.getThumbnailFile(), FileType.THUMBNAIL);
+    }
+
+
+    private String getUploadVideoUrl(Long loginMemberId, VideoCreateUrlServiceRequest request) {
+        return awsService.getUploadVideoUrl(loginMemberId, request.getFileName());
+    }
+
+    private String getUploadThumbnailUrl(Long loginMemberId, VideoCreateUrlServiceRequest request) {
+        return awsService.getImageUploadUrl(loginMemberId,
+                request.getFileName(),
+                FileType.THUMBNAIL,
+                request.getImageType());
     }
 
     private Member verifiedMemberOrNull(Long loginMemberId) {

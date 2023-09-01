@@ -1,30 +1,22 @@
 package com.server.domain.member.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
-import com.server.domain.member.service.dto.response.CartsResponse;
-import com.server.domain.member.service.dto.response.OrdersResponse;
-import com.server.domain.member.service.dto.response.PlaylistsResponse;
-import com.server.domain.member.service.dto.response.ProfileResponse;
-import com.server.domain.member.service.dto.response.RewardsResponse;
-import com.server.domain.member.service.dto.response.SubscribesResponse;
-import com.server.domain.member.service.dto.response.WatchsResponse;
-import com.server.domain.order.entity.OrderVideo;
+import com.server.domain.member.service.dto.response.*;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
 import com.server.module.email.service.MailService;
 import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -37,7 +29,7 @@ public class MemberService {
 	private final PasswordEncoder passwordEncoder;
 
 	public MemberService(MemberRepository memberRepository, MailService mailService, ChannelService channelService,
-		AwsService awsService, PasswordEncoder passwordEncoder) {
+						 AwsService awsService, PasswordEncoder passwordEncoder) {
 		this.memberRepository = memberRepository;
 		this.mailService = mailService;
 		this.channelService = channelService;
@@ -51,7 +43,7 @@ public class MemberService {
 		mailService.checkEmailCertify(create.getEmail());
 
 		Member member = Member.createMember(create.getEmail(), passwordEncoder.encode(create.getPassword()),
-			create.getNickname());
+				create.getNickname());
 
 		Member signMember = memberRepository.save(member);
 		channelService.createChannel(signMember);
@@ -60,7 +52,11 @@ public class MemberService {
 	public ProfileResponse getMember(Long loginId) {
 		Member member = validateMember(loginId);
 
-		return ProfileResponse.getMember(member, awsService.getImageUrl(member.getImageFile()));
+		return ProfileResponse.getMember(member,
+				awsService.getFileUrl(
+						member.getMemberId(),
+						member.getImageFile(),
+						FileType.PROFILE_IMAGE));
 	}
 
 	public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
@@ -136,8 +132,14 @@ public class MemberService {
 	public void deleteImage(Long loginId) {
 		Member member = validateMember(loginId);
 
-		awsService.deleteImage(member.getImageFile());
+		awsService.deleteFile(loginId, member.getImageFile(), FileType.PROFILE_IMAGE);
 		member.deleteImageFile();
+	}
+
+	public Member findMemberBy(Long id) {
+		return memberRepository.findById(id).orElseThrow(
+				MemberNotFoundException::new
+		);
 	}
 
 	public void validatePassword(String password, String encodedPassword) {
@@ -152,7 +154,7 @@ public class MemberService {
 		}
 
 		return memberRepository.findById(loginId).orElseThrow(
-			MemberNotFoundException::new
+				MemberNotFoundException::new
 		);
 	}
 

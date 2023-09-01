@@ -3,6 +3,7 @@ package com.server.domain.member.aop;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.server.module.s3.service.dto.FileType;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -35,20 +36,20 @@ public class MemberStubAop {
 		this.awsService = awsService;
 	}
 
-	// @Around("execution(* com.server.domain.member.controller.MemberController.getMember(..))")
-	// public ResponseEntity<ApiSingleResponse<ProfileResponse>> getMember(ProceedingJoinPoint joinPoint) {
-	// 	ProfileResponse profileResponse = ProfileResponse.builder()
-	// 		.memberId(1L)
-	// 		.email("stub@email.com")
-	// 		.nickname("stubName")
-	// 		.imageUrl(awsService.getImageUrl("test"))
-	// 		.grade(Grade.PLATINUM)
-	// 		.reward(777)
-	// 		.createdDate(LocalDateTime.now())
-	// 		.build();
-	//
-	// 	return ResponseEntity.ok(ApiSingleResponse.ok(profileResponse, "프로필 조회 성공"));
-	// }
+//	@Around("execution(* com.server.domain.member.controller.MemberController.getMember(..))")
+//	public ResponseEntity<ApiSingleResponse<ProfileResponse>> getMember(ProceedingJoinPoint joinPoint) {
+//		ProfileResponse profileResponse = ProfileResponse.builder()
+//			.memberId(1L)
+//			.email("stub@email.com")
+//			.nickname("stubName")
+//			.imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
+//			.grade(Grade.PLATINUM)
+//			.reward(777)
+//			.createdDate(LocalDateTime.now())
+//			.build();
+//
+//		return ResponseEntity.ok(ApiSingleResponse.ok(profileResponse, "프로필 조회 성공"));
+//	}
 
 	@Around("execution(* com.server.domain.member.controller.MemberController.getRewards(..))")
 	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(ProceedingJoinPoint joinPoint) {
@@ -91,25 +92,25 @@ public class MemberStubAop {
 				.memberId(23L)
 				.channelName("vlog channel")
 				.subscribes(1004)
-				.imageUrl(awsService.getImageUrl("test"))
+				.imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
 				.build(),
 			SubscribesResponse.builder()
 				.memberId(8136L)
 				.channelName("study channel")
 				.subscribes(486)
-				.imageUrl(awsService.getImageUrl("test"))
+				.imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
 				.build(),
 			SubscribesResponse.builder()
 				.memberId(931L)
 				.channelName("music channel")
 				.subscribes(333)
-				.imageUrl(awsService.getImageUrl("test"))
+				.imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
 				.build(),
 			SubscribesResponse.builder()
 				.memberId(49L)
 				.channelName("game channel")
 				.subscribes(777)
-				.imageUrl(awsService.getImageUrl("test"))
+				.imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
 				.build()
 		);
 
@@ -124,7 +125,7 @@ public class MemberStubAop {
 			LikesResponse.builder()
 				.videoId(151L)
 				.videoName("리눅스 만드는 법")
-				.thumbnailUrl(awsService.getImageUrl("test22"))
+				.thumbnailUrl(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.views(333)
 				.createdDate(LocalDateTime.now())
 				.price(100000)
@@ -133,13 +134,13 @@ public class MemberStubAop {
 					.channelName("Linus Torvalds")
 					.isSubscribed(true)
 					.subscribes(8391)
-					.imageUrl(awsService.getImageUrl("test"))
+					.imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
 					.build())
 				.build(),
 			LikesResponse.builder()
 				.videoId(9514L)
 				.videoName("컴활 강의")
-				.thumbnailUrl(awsService.getImageUrl("test22"))
+				.thumbnailUrl(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.views(777)
 				.createdDate(LocalDateTime.now())
 				.price(70000)
@@ -148,7 +149,7 @@ public class MemberStubAop {
 					.channelName("Bill Gates")
 					.isSubscribed(true)
 					.subscribes(9999)
-					.imageUrl(awsService.getImageUrl("test"))
+					.imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
 					.build())
 				.build()
 		);
@@ -164,7 +165,7 @@ public class MemberStubAop {
 			CartsResponse.builder()
 				.videoId(151L)
 				.videoName("리눅스 만드는 법")
-				.thumbnailUrl(awsService.getImageUrl("test22"))
+				.thumbnailUrl(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.views(333)
 				.createdDate(LocalDateTime.now())
 				.price(100000)
@@ -172,13 +173,13 @@ public class MemberStubAop {
 					.memberId(3L)
 					.channelName("Linus Torvalds")
 					.subscribes(8391)
-					.imageUrl(awsService.getImageUrl("test"))
+					.imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
 					.build())
 				.build(),
 			CartsResponse.builder()
 				.videoId(9514L)
 				.videoName("컴활 강의")
-				.thumbnailUrl(awsService.getImageUrl("test22"))
+				.thumbnailUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
 				.views(777)
 				.createdDate(LocalDateTime.now())
 				.price(70000)
@@ -186,7 +187,7 @@ public class MemberStubAop {
 					.memberId(361L)
 					.channelName("Bill Gates")
 					.subscribes(9999)
-					.imageUrl(awsService.getImageUrl("test"))
+					.imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
 					.build())
 				.build()
 		);
@@ -236,7 +237,7 @@ public class MemberStubAop {
 			PlaylistsResponse.builder()
 				.videoId(321L)
 				.videoName("가볍게 배우는 알고리즘")
-				.thumbnailFile(awsService.getImageUrl("test22"))
+				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.star(4.7f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -249,7 +250,7 @@ public class MemberStubAop {
 			PlaylistsResponse.builder()
 				.videoId(2218L)
 				.videoName("더 가볍게 배우는 알고리즘")
-				.thumbnailFile(awsService.getImageUrl("test22"))
+				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.star(3.4f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -262,7 +263,7 @@ public class MemberStubAop {
 			PlaylistsResponse.builder()
 				.videoId(7831L)
 				.videoName("많이 가볍게 배우는 알고리즘")
-				.thumbnailFile(awsService.getImageUrl("test22"))
+				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.star(2.9f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -275,7 +276,7 @@ public class MemberStubAop {
 			PlaylistsResponse.builder()
 				.videoId(321L)
 				.videoName("진짜 가볍게 배우는 알고리즘")
-				.thumbnailFile(awsService.getImageUrl("test22"))
+				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.star(1.8f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -298,7 +299,7 @@ public class MemberStubAop {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("알고리즘")
-				.thumbnailFile(awsService.getImageUrl("test22"))
+				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -308,7 +309,7 @@ public class MemberStubAop {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("리액트")
-				.thumbnailFile(awsService.getImageUrl("test22"))
+				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -318,7 +319,7 @@ public class MemberStubAop {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("스프링")
-				.thumbnailFile(awsService.getImageUrl("test22"))
+				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -328,7 +329,7 @@ public class MemberStubAop {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("자바")
-				.thumbnailFile(awsService.getImageUrl("test22"))
+				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)

@@ -15,6 +15,7 @@ import com.server.global.exception.businessexception.channelException.ChannelNot
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -206,7 +207,7 @@ public class ChannelService {
     }
 
     private String getThumbnailUrl(Long memberId, Video video) {
-        return awsService.getThumbnailUrl(memberId, video.getThumbnailFile());
+        return awsService.getFileUrl(memberId, video.getThumbnailFile(), FileType.THUMBNAIL);
     }
 
 

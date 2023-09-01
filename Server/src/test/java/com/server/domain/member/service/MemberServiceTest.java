@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.Optional;
 
+import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -146,11 +147,11 @@ public class MemberServiceTest extends ServiceTest {
 		Long loginId = member.getMemberId();
 
 		given(mockMemberRepository.findById(Mockito.anyLong())).willReturn(Optional.of(member));
-		doNothing().when(awsService).deleteImage(anyString());
+		doNothing().when(awsService).deleteFile(anyLong(), anyString(), any(FileType.class));
 
 		mockMemberService.deleteImage(loginId);
 
-		verify(awsService).deleteImage("imageName");
+		verify(awsService).deleteFile(loginId, "imageName", FileType.PROFILE_IMAGE);
 		assertNull(member.getImageFile());
 	}
 

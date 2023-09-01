@@ -5,6 +5,7 @@ import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
 import com.server.domain.video.service.dto.response.VideoCategoryResponse;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -108,7 +109,7 @@ public class ChannelStubAop {
             ChannelVideoResponse response = ChannelVideoResponse.builder()
                     .videoId((long) i)
                     .videoName("video name" + i)
-                    .thumbnailUrl(awsService.getThumbnailUrl(9999L, "test"))
+                    .thumbnailUrl(awsService.getFileUrl(9999L, "test", FileType.THUMBNAIL))
                     .views(1000)
                     .isPurchased(true)
                     .categories(createVideoCategoryResponse("java", "react"))
