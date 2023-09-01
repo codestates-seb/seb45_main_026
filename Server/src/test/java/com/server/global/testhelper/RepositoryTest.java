@@ -1,10 +1,13 @@
 package com.server.global.testhelper;
 
+import com.server.domain.answer.entity.Answer;
+import com.server.domain.answer.entity.AnswerStatus;
 import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
+import com.server.domain.question.entity.Question;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.RewardType;
 import com.server.domain.subscribe.entity.Subscribe;
@@ -149,12 +152,48 @@ public abstract class RepositoryTest {
     }
 
 
-    protected Reward createAndSaveVideoReward(Member member, Video video, RewardType rewardType) {
+    protected Reward createAndSaveVideoReward(Member member, Video video) {
 
-        Reward reward = Reward.createReward(rewardType, 10, member, video);
+        Reward reward = Reward.createReward(RewardType.VIDEO, 10, member, video);
 
         em.persist(reward);
 
         return reward;
+    }
+
+    protected Reward createAndSaveQuestionReward(Member member, Question question) {
+
+        Reward reward = Reward.createReward(RewardType.QUIZ, 10, member, question);
+
+        em.persist(reward);
+
+        return reward;
+    }
+
+    protected Question createAndSaveQuestion(Video video) {
+        Question question = Question.builder()
+                .position(1)
+                .content("content")
+                .questionAnswer("1")
+                .selections(List.of("1", "2", "3", "4", "5"))
+                .video(video)
+                .build();
+
+        em.persist(question);
+
+        return question;
+    }
+
+    protected Answer createAndSaveAnswer(Member member, Question question) {
+        Answer answer = Answer.builder()
+                .member(member)
+                .question(question)
+                .myAnswer("1")
+                .answerStatus(AnswerStatus.WRONG)
+                .build();
+
+        em.persist(answer);
+
+        return answer;
     }
 }

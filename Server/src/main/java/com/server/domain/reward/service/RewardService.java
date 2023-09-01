@@ -11,6 +11,8 @@ import com.server.domain.reward.entity.RewardType;
 import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.video.entity.Video;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class RewardService {
@@ -38,19 +40,23 @@ public class RewardService {
 				video
 		);
 
-		saveAndUpdateReward(reward, member);
+		rewardRepository.save(reward);
 	}
 
-	public void createQuestionReward(Question question, Member member) {
+	public void createQuestionRewardIfNotPresent(Question question, Member member) {
 
-		Reward reward = Reward.createReward(
-				RewardType.QUIZ,
-				getQuestionRewardPolicy(),
-				member,
-				question
-		);
+		rewardRepository.findByQuestionAndMember(question, member)
+				.orElseGet(() -> createQuestionReward(question, member));
+	}
 
-		saveAndUpdateReward(reward, member);
+	public void createQuestionRewardsIfNotPresent(List<Question> questions, Member member) {
+
+		List<Reward> rewards = rewardRepository.findByQuestionsAndMember(questions, member);
+
+		questions.stream()
+				.filter(question -> rewards.stream()
+						.noneMatch(reward -> reward.getQuestion().equals(question)))
+				.forEach(question -> createQuestionReward(question, member));
 	}
 
 	public void cancelReward(Order order) {
@@ -61,8 +67,12 @@ public class RewardService {
 				.forEach(Reward::cancelReward);
 	}
 
-	private void saveAndUpdateReward(Reward reward, Member member) {
-		rewardRepository.save(reward);
-		reward.updateMemberReward(member);
+	private Reward createQuestionReward(Question question, Member member) {
+		Reward reward = Reward.createReward(
+		   RewardType.QUIZ,
+		   getQuestionRewardPolicy(),
+				member,
+				question);
+		return rewardRepository.save(reward);
 	}
 }
