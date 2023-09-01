@@ -12,7 +12,7 @@ const MainPage = () => {
 
     //로그인한 상태이면 lecture page로 이동
     useEffect(()=>{
-        if(tokens.authorization.length>0) {
+        if(!tokens.authorization==='') {
             navigate('/lecture');
         }
     },[]);

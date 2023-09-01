@@ -17,7 +17,7 @@ export const MainPageHeader = () => {
         <MainPageHeaderContainer isDark={isDark}>
             <HeaderLogo/>
             {
-                tokens.authorization.length===0 &&<HeaderLoginButton isDark={isDark} onClick={handleLoginButtonClick}>로그인</HeaderLoginButton>
+                tokens.authorization==='' &&<HeaderLoginButton isDark={isDark} onClick={handleLoginButtonClick}>로그인</HeaderLoginButton>
             }
         </MainPageHeaderContainer>
     );
@@ -36,7 +36,7 @@ export const Header = () => {
         <HeaderContainer isDark={isDark}>
             <HeaderLogo/>
             {
-                tokens.authorization.length===0 
+                tokens.authorization===''
                     ?<HeaderLoginButton isDark={isDark} onClick={handleLoginButtonClick}>로그인</HeaderLoginButton>
                     :<HeaderProfile/>
             }
