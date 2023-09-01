@@ -2,6 +2,7 @@ package com.server.domain.member.service;
 
 import java.util.Optional;
 
+import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class MemberService {
 	private final PasswordEncoder passwordEncoder;
 
 	public MemberService(MemberRepository memberRepository, MailService mailService, ChannelService channelService,
-		AwsService awsService, PasswordEncoder passwordEncoder) {
+						 AwsService awsService, PasswordEncoder passwordEncoder) {
 		this.memberRepository = memberRepository;
 		this.mailService = mailService;
 		this.channelService = channelService;
@@ -51,7 +52,7 @@ public class MemberService {
 		mailService.checkEmailCertify(create.getEmail());
 
 		Member member = Member.createMember(create.getEmail(), passwordEncoder.encode(create.getPassword()),
-			create.getNickname());
+				create.getNickname());
 
 		Member signMember = memberRepository.save(member);
 		channelService.createChannel(signMember);
@@ -60,7 +61,11 @@ public class MemberService {
 	public ProfileResponse getMember(Long loginId) {
 		Member member = validateMember(loginId);
 
-		return ProfileResponse.getMember(member, awsService.getImageUrl(member.getImageFile()));
+		return ProfileResponse.getMember(member,
+				awsService.getFileUrl(
+						member.getMemberId(),
+						member.getImageFile(),
+						FileType.PROFILE_IMAGE));
 	}
 
 	public Page<RewardsResponse> getRewards(Long loginId, int page) {
@@ -130,13 +135,13 @@ public class MemberService {
 	public void deleteImage(Long loginId) {
 		Member member = validateMember(loginId);
 
-		awsService.deleteImage(member.getImageFile());
+		awsService.deleteFile(loginId, member.getImageFile(), FileType.PROFILE_IMAGE);
 		member.deleteImageFile();
 	}
 
 	public Member findMemberBy(Long id) {
 		return memberRepository.findById(id).orElseThrow(
-			MemberNotFoundException::new
+				MemberNotFoundException::new
 		);
 	}
 
@@ -152,7 +157,7 @@ public class MemberService {
 		}
 
 		return memberRepository.findById(loginId).orElseThrow(
-			MemberNotFoundException::new
+				MemberNotFoundException::new
 		);
 	}
 

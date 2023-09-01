@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
 
+import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -136,7 +137,11 @@ public class MemberController {
 
 		memberService.updateImage(loginId);
 
-		String presignedUrl = awsService.getUploadImageUrl(request.getImageName(), request.getImageType());
+		String presignedUrl = awsService.getImageUploadUrl(
+				loginId,
+				request.getImageName(),
+				FileType.PROFILE_IMAGE,
+				request.getImageType());
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Location", presignedUrl);

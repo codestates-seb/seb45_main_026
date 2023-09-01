@@ -1,6 +1,7 @@
  package com.server.module.s3.service;
 
  import com.server.module.ModuleServiceTest;
+ import com.server.module.s3.service.dto.FileType;
  import com.server.module.s3.service.dto.ImageType;
  import org.apache.tomcat.util.http.fileupload.IOUtils;
  import org.junit.jupiter.api.DisplayName;
@@ -39,7 +40,7 @@
          String fileName = "test";
 
          //when
-         String imageUrl = awsService.getImageUrl(fileName);
+         String imageUrl = awsService.getFileUrl(mockMemberId, fileName, FileType.PROFILE_IMAGE);
 
          //then
          System.out.println("imageUrl = " + imageUrl);
@@ -64,7 +65,11 @@
          return List.of(
                  dynamicTest("presignedUrl 을 가져와서 이미지를 업로드 한 후 200 OK 를 확인한다.", ()-> {
                      //when
-                     String uploadUrl = awsService.getUploadImageUrl(fileName, imageType);
+                     String uploadUrl = awsService.getImageUploadUrl(
+                             mockMemberId,
+                             fileName,
+                             FileType.PROFILE_IMAGE,
+                             imageType);
                      URL url = new URL(uploadUrl);
 
                      //then
@@ -83,7 +88,7 @@
                  }),
                  dynamicTest("filename 으로 해당 이미지를 삭제한다.", ()-> {
                      //when & then
-                     awsService.deleteImage(fileName);
+                     awsService.deleteFile(mockMemberId, fileName, FileType.PROFILE_IMAGE);
 
                  })
          );
@@ -96,7 +101,7 @@
          String fileName = "testthumbnail";
 
          //when
-         String thumbnailUrl = awsService.getThumbnailUrl(mockMemberId, fileName);
+         String thumbnailUrl = awsService.getFileUrl(mockMemberId, fileName, FileType.THUMBNAIL);
 
          //then
          System.out.println("thumbnailUrl = " + thumbnailUrl);
@@ -121,7 +126,7 @@
          return List.of(
                  dynamicTest("presignedUrl 을 가져와서 썸네일을 업로드 한 후 200 OK 를 확인한다.", ()-> {
                      //when
-                     String uploadUrl = awsService.getUploadThumbnailUrl(mockMemberId, fileName, imageType);
+                     String uploadUrl = awsService.getImageUploadUrl(mockMemberId, fileName, FileType.THUMBNAIL, imageType);
                      URL url = new URL(uploadUrl);
 
                      //then
@@ -140,7 +145,7 @@
                  }),
                  dynamicTest("filename 으로 해당 이미지를 삭제한다.", ()-> {
                      //when & then
-                     awsService.deleteThumbnail(mockMemberId, fileName);
+                     awsService.deleteFile(mockMemberId, fileName, FileType.THUMBNAIL);
 
                  })
          );
@@ -153,7 +158,7 @@
          String fileName = "test";
 
          //when
-         String videoUrl = awsService.getVideoUrl(mockMemberId, fileName);
+         String videoUrl = awsService.getFileUrl(mockMemberId, fileName, FileType.VIDEO);
 
          //then
          System.out.println("videoUrl = " + videoUrl);
@@ -195,7 +200,7 @@
                 }),
                  dynamicTest("memberId 와 filename 으로 해당 파일을 삭제한다.", ()-> {
                          //when & then
-                         awsService.deleteVideo(mockMemberId, fileName);
+                         awsService.deleteFile(mockMemberId, fileName, FileType.VIDEO);
 
                  })
          );

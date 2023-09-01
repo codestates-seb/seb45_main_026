@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -585,7 +586,7 @@ public class MemberControllerTest extends ControllerTest {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("알고리즘")
-				.thumbnailFile(awsService.getImageUrl("test22"))
+				.thumbnailFile(awsService.getFileUrl(1L, "test22", FileType.PROFILE_IMAGE))
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -595,7 +596,7 @@ public class MemberControllerTest extends ControllerTest {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("리액트")
-				.thumbnailFile(awsService.getImageUrl("test22"))
+				.thumbnailFile(awsService.getFileUrl(1L, "test22", FileType.PROFILE_IMAGE))
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -605,7 +606,7 @@ public class MemberControllerTest extends ControllerTest {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("스프링")
-				.thumbnailFile(awsService.getImageUrl("test22"))
+				.thumbnailFile(awsService.getFileUrl(1L, "test22", FileType.PROFILE_IMAGE))
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -615,7 +616,7 @@ public class MemberControllerTest extends ControllerTest {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("자바")
-				.thumbnailFile(awsService.getImageUrl("test22"))
+				.thumbnailFile(awsService.getFileUrl(1L, "test22", FileType.PROFILE_IMAGE))
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -716,7 +717,7 @@ public class MemberControllerTest extends ControllerTest {
 
 		String presignedUrl = "http://www.uploadUrl.com";
 
-		given(awsService.getUploadImageUrl(request.getImageName(), request.getImageType()))
+		given(awsService.getImageUploadUrl(anyLong(), anyString(), any(FileType.class), any(ImageType.class)))
 			.willReturn(presignedUrl);
 
 		//when
