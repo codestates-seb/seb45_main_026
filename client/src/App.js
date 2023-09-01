@@ -1,7 +1,7 @@
 import "./App.css";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setBrowserWidth } from "./redux/createSlice/UISettingSlice";
 import MainPage from "./pages/contents/MainPage";
 import LoginPage from "./pages/auth/LoginPage";
@@ -16,10 +16,13 @@ import SignupPage from "./pages/auth/SignupPage";
 import "./App.css";
 import ProblemPage from "./pages/contents/ProblemPage";
 import LectureListPage from "./pages/contents/LectureListPage";
+import { getUserInfoService } from "./services/userInfoService";
+import { setLoginInfo, setToken } from "./redux/createSlice/LoginInfoSlice";
 
 function App() {
   const url = new URL(window.location.href);
   const dispatch = useDispatch();
+  const tokens = useSelector(state=>state.loginInfo.accessToken);
   
   const handleResize = () => {
       dispatch(setBrowserWidth(window.innerWidth));
@@ -28,6 +31,32 @@ function App() {
   useMemo(() => {
     window.addEventListener("resize", handleResize);
   }, []);
+
+  //웹을 실행했을 때 저장된 토큰이 있으면 토큰을 가지고 프로필 조회를 한다. 
+  useEffect(()=>{
+    console.log("app.js가 실행됨");
+    if(tokens.authorization) {
+      getUserInfoService(tokens.authorization).then((res)=>{
+        if(res.status==='success') {
+          //토큰이 유효하면 회원 정보를 dispatch한다. 
+          dispatch(setLoginInfo({
+            email: res.data.email,
+            nickname: res.data.nickname
+          }))
+        } else{
+          //토큰이 유효하지 않으면 저장된 토큰을 삭제한다. 
+          dispatch(setToken({
+            authorization: "",
+            refresh: "",
+          },));
+          dispatch(setLoginInfo({
+            email:'',
+            nickname: '',
+          }))
+        }
+      })
+    }
+  },[tokens]);
 
   return (
     <BrowserRouter>

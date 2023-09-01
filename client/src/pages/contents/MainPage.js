@@ -2,10 +2,20 @@ import React, { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { MainPageContainer, LightContainer, DarkContainer, FirstPageBackgroundContainer } from './MainPage.style';
 import MainPageFirstItem from '../../components/mainPageItems/MainPageItems';
+import { useNavigate } from 'react-router-dom';
 
 const MainPage = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
+    const tokens = useSelector(state=>state.loginInfo.accessToken);
     const outerRef = useRef();
+    const navigate = useNavigate();
+
+    //로그인한 상태이면 lecture page로 이동
+    useEffect(()=>{
+        if(tokens.authorization.length>0) {
+            navigate('/lecture');
+        }
+    },[]);
 
     useEffect(()=>{
         const wheelHandler = (e) => {

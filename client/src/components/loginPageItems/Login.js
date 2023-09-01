@@ -5,7 +5,7 @@ import LoginFormLogo from './LoginLogo';
 import LoginForm from './LoginForm';
 import { useSelector } from 'react-redux';
 import { Heading5Typo } from '../../atoms/typographys/Typographys';
-import { GitHubLoginButton, GoogleLoginButton, KaKaoLoginButton } from './SNSLogin';
+import { SNSLogin } from './SNSLogin';
 import { ExtraButton } from './ExtraButton';
 
 const globalTokens = tokens.global;
@@ -37,9 +37,7 @@ export const Login = () => {
             <LoginFormLogo/>
             <LoginTitle isDark={isDark}>로그인</LoginTitle>
             <LoginForm/>
-            <GoogleLoginButton/>
-            <GitHubLoginButton/>
-            <KaKaoLoginButton/>
+            <SNSLogin/>
             <ExtraButton/>
         </LoginContainer>
     );

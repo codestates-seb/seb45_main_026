@@ -1,7 +1,6 @@
 import { styled } from 'styled-components';
-import { ErrorTextTypo, LoginButton, LoginFormContainer, LoginFormInput } from '../loginPageItems/LoginForm.style';
+import { ErrorTextTypo, LoginButton, LoginFormContainer } from '../loginPageItems/LoginForm.style';
 import tokens from '../../styles/tokens.json'
-import { BodyTextTypo } from '../../atoms/typographys/Typographys';
 import { RegularButton } from '../../atoms/buttons/Buttons';
 
 const globalTokens = tokens.global;
@@ -14,11 +13,6 @@ export const SignupFormInputContainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: start;
-`
-export const SignupFormLabel = styled(BodyTextTypo)`
-`
-export const SignupFormInput = styled(LoginFormInput)`
-    width: ${ (props)=>props.isButton ? '200px' : '300px' };
 `
 export const SignupButton = styled(LoginButton)`
     margin-top: ${globalTokens.Spacing12.value}px;
