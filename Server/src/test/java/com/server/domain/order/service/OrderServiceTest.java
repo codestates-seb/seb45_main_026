@@ -9,6 +9,7 @@ import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
+import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
@@ -281,7 +282,57 @@ class OrderServiceTest extends ServiceTest {
         //when & then
         assertThatThrownBy(() -> orderService.deleteOrder(member.getMemberId(), order.getOrderId()))
                 .isInstanceOf(CancelFailException.class);
+    }
 
+    @Test
+    @DisplayName("완료된 주문을 취소할 때 적립받은 리워드를 다시 반환할 수 없으면(부족하면) RewardNotEnoughException 이 발생한다.")
+    void deleteOrderRewardNotEnoughException() {
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Order order = createAndSaveOrder(member, List.of(video1, video2), 0);
+        order.completeOrder(); // 완료된 주문
+
+        Reward reward1 = createAndSaveVideoReward(member, video1);
+        Reward reward2 = createAndSaveVideoReward(member, video2);
+
+        member.minusReward(member.getReward()); // 리워드 소멸
+
+        setCancelResponseEntitySuccess();
+
+        //when & then
+        assertThatThrownBy(() -> orderService.deleteOrder(member.getMemberId(), order.getOrderId()))
+                .isInstanceOf(RewardNotEnoughException.class);
+    }
+
+    @Test
+    @DisplayName("완료된 주문을 취소할 때 가진 리워드는 부족하지만 order 로 사용된 reward 로 차감 가능하면 취소할 수 있다.")
+    void deleteOrderRewardEnoughWithOrder() {
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Order order = createAndSaveOrder(member, List.of(video1, video2), 1000); // reward 를 1000원을 사용해서 주문
+        order.completeOrder(); // 완료된 주문
+
+        Reward reward1 = createAndSaveVideoReward(member, video1);
+        Reward reward2 = createAndSaveVideoReward(member, video2);
+
+        member.minusReward(member.getReward()); // 리워드 소멸
+
+        setCancelResponseEntitySuccess();
+
+        //when
+        orderService.deleteOrder(member.getMemberId(), order.getOrderId());
+
+        //then
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELED);
+        assertThat(member.getReward()).isEqualTo(1000 - reward1.getRewardPoint() - reward2.getRewardPoint());
     }
     
     @Test
@@ -319,12 +370,43 @@ class OrderServiceTest extends ServiceTest {
         assertThat(findOrder.getOrderStatus()).isEqualTo(OrderStatus.COMPLETED);
         assertThat(findOrder.getPaymentKey()).isEqualTo("paymentKey");
 
-        //멤버 리워드 변경
-        Member findMember = memberRepository.findById(member.getMemberId()).orElseThrow();
-        assertThat(findMember.getReward()).isEqualTo(member.getReward() - order.getReward() + video1.getPrice() / 100 + video2.getPrice() / 100);
-
         //카트 삭제
         assertThat(cartRepository.findById(cart.getCartId()).isPresent()).isFalse();
+    }
+
+    @Test
+    @DisplayName("주문 결제를 완료하면 Reward 를 적립한다.")
+    void requestFinalPaymentReward() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Member member = createAndSaveMember();
+
+        Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
+
+        setPayResponseEntitySuccess(order.getPrice());
+
+        em.flush();
+        em.clear();
+
+        //when
+        orderService.requestFinalPayment(member.getMemberId(), "paymentKey", order.getOrderId(), order.getPrice());
+
+        //then
+        //멤버 리워드 생성
+        List<Reward> findRewards = rewardRepository.findAll();
+        assertThat(findRewards).hasSize(2)
+                .extracting("member")
+                .extracting("memberId")
+                .contains(member.getMemberId());
+
+        //멤버 리워드 적립
+        Member findMember = memberRepository.findById(member.getMemberId()).orElseThrow();
+        assertThat(findMember.getReward()).isEqualTo(member.getReward() - order.getReward() + video1.getPrice() / 100 + video2.getPrice() / 100);
     }
 
     @Test

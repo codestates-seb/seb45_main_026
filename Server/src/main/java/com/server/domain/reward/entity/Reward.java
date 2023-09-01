@@ -73,6 +73,7 @@ public class Reward extends BaseEntity {
 			.rewardPoint(rewardPoint)
 			.member(member)
 			.question(question)
+			.video(question.getVideo())
 			.build();
 	}
 

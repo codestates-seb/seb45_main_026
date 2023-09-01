@@ -55,12 +55,40 @@ class OrderTest {
                 .extracting("videoName").containsExactly("title1", "title2");
     }
 
+    @Test
+    @DisplayName("order 를 환불하면 member 의 reward 가 다시 적립된다.")
+    void refund() {
+        //given
+        int reward = 1000;
+        int usingReward = 500;
+        Member member = createMember(reward);
+        Video video1 = createVideo("title1");
+        Video video2 = createVideo("title2");
+
+        Order order = createOrder(member, List.of(video1, video2), usingReward);
+
+        //when
+        order.refund();
+
+        //then
+        assertThat(member.getReward()).isEqualTo(reward + usingReward);
+    }
+
     private Member createMember() {
 
         return Member.builder()
                 .email("email")
                 .password("password")
                 .reward(1000)
+                .build();
+    }
+
+    private Member createMember(int reward) {
+
+        return Member.builder()
+                .email("email")
+                .password("password")
+                .reward(reward)
                 .build();
     }
 

@@ -97,7 +97,7 @@ public class OrderService {
     private void addReward(Member member, Order order) {
 
         for (Video video : order.getVideos()) {
-            rewardService.createReward(video, video, member);
+            rewardService.createVideoReward(video, member);
         }
     }
 
@@ -127,7 +127,7 @@ public class OrderService {
 
         if(isAlreadyCanceled(order)) throw new OrderAlreadyCanceledException();
 
-        if(isCompleted(order)) orderCancelProcess(member, order);
+        if(isCompleted(order)) orderCancelProcess(order);
 
         order.deleteOrder();
     }
@@ -140,11 +140,11 @@ public class OrderService {
         return order.getOrderStatus().equals(OrderStatus.CANCELED);
     }
 
-    private void orderCancelProcess(Member member, Order order) {
-
-        if(order.getReward() > member.getReward()) throw new RewardNotEnoughException();
+    private void orderCancelProcess(Order order) {
 
         URI uri = URI.create(TOSS_ORIGIN_URL + order.getPaymentKey() + "/cancel");
+
+        rewardService.cancelReward(order);
 
         HttpHeaders headers = paymentRequestHeader();
 
@@ -160,7 +160,7 @@ public class OrderService {
         if(responseEntity.getStatusCode().value() != 200)
             throw new CancelFailException();
 
-        rewardService.cancelReward(member, order);
+
     }
 
     public OrderResponse createOrder(Long memberId, OrderCreateServiceRequest request) {
