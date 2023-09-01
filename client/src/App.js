@@ -14,6 +14,7 @@ import CartPage from "./pages/contents/CartPage/CartPage";
 import UploadPage from "./pages/contents/UploadPage";
 import SignupPage from "./pages/auth/SignupPage";
 import "./App.css";
+import ProblemPage from "./pages/contents/ProblemPage";
 import LectureListPage from "./pages/contents/LectureListPage";
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
         <Route path="/channels/1" element={<ChannelPage/>}/>
         <Route path="/carts" element={<CartPage />} />
         <Route path="/upload" element={<UploadPage />} />
+        <Route path="/problems" element={<ProblemPage />} />
       </Routes>
       <Footer />
     </BrowserRouter>

@@ -87,10 +87,8 @@ export const VideoHeader = styled.div`
 `;
 
 export const HeaderBtn = styled.button`
-  background: none;
   font-size: small;
   color: red;
-  font-size: 16px;
   margin-left: 10px;
 `;
 
