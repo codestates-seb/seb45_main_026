@@ -14,16 +14,20 @@ export const signupService = async ({data}) => {
                 nickname: data.nickname
             }
         );
-        return response.status;
+        return {
+            status: 'success',
+            data: response.data,
+        };
     } catch (err) {
-        console.log(err.message);
-        return err.message;
+        return {
+            status: 'error',
+            data: err.message,
+        };
     }
 }
 
-//email 인증코드 발송, 성공 시 204 return, 실패 시 err return
+//email 인증코드 발송, 성공 시 , 실패 시 err return
 export const emailValidationService = async (email) => {
-    console.log(`email : ${email}`)
     try {
         const response = await axios.post(
             `${ROOT_URL}/auth/signup/email`,
@@ -31,10 +35,15 @@ export const emailValidationService = async (email) => {
                 email: email
             }
         )
-        return response.status;
+        return {
+            status : 'success',
+            data: response.data,
+        };
     } catch (err) {
-        console.log(err.response.data.message);
-        return err.response.data.message;
+        return {
+            status: 'error',
+            data : err.response.data.message,
+        };
     }
 }
 
@@ -49,10 +58,15 @@ export const emailValidationConfirmService = async (email, emailCode) => {
                 code:emailCode,
             }
         );
-        return response.status;
+        return {
+            status: 'success',
+            data: response.data,
+        };
     } catch(err) {
-        console.log(err.response.data.message);
-        return err.response.data.message;
+        return {
+            status: 'error',
+            data: err.response.data.message,
+        };
     }
 }
 
@@ -67,13 +81,14 @@ export const loginService = async (data) => {
             }
         );
         return {
-            isLogin: true,
+            status: 'success',
             authorization: response.headers.authorization,
             refresh: response.headers.refresh,
         };
     } catch (err) {
         return {
-            isLogin: false,
+            status: 'error',
+            data: err.data
         };
     }
 }

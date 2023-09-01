@@ -10,9 +10,10 @@ const DropdownContainer = styled.ul`
     width: 100px;
     display: flex;
     flex-direction: column;
-    border-radius: 8px;
+    border-radius: ${globalTokens.RegularRadius.value}px;
     background-color: lightgray;
     gap: 1px;
+    z-index: 1;
 `
 const ListContainer = styled.li`
     width: 100px;
@@ -35,7 +36,7 @@ export default function FilterDropdown({ options, actionName }) {
     };
     return (
         <DropdownContainer>
-            {options.map((el,idx)=><ListContainer onClick={()=>dispatch(actionMap[actionName](el))}>{el.text}</ListContainer>)}
+            {options.map((el,idx)=><ListContainer key={idx} onClick={()=>dispatch(actionMap[actionName](el))}>{el.text}</ListContainer>)}
         </DropdownContainer>
   );
 }

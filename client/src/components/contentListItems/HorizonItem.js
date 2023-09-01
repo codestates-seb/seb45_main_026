@@ -6,7 +6,8 @@ import yellowStar from "../../assets/images/icons/star/starYellow.svg"
 const globalTokens = tokens.global;
 
 const ComponentBody = styled.li`
-    width: 950px;
+    width: 100%;
+    min-width: 950px;
     height: 200px;
     display: flex;
     flex-direction: row;
@@ -28,7 +29,8 @@ const Thumbnail = styled.img`
     width: auto;
 `
 const ItemInfors = styled.div`
-    width: 650px;
+    flex-grow: 1;
+    min-width: 600px;
     height: 200px;
     display: flex;
     flex-direction: column;
@@ -38,20 +40,20 @@ const ItemInfors = styled.div`
     border-radius: 0px ${globalTokens.RegularRadius.value}px ${globalTokens.RegularRadius.value}px 0px;
 
 `
-const Title = styled.h2`
-    width: 600px;
+const Title = styled.h3`
+    width: 100%;
     height: 60px;
     font-size: ${globalTokens.Heading5.value}px;
     padding: ${globalTokens.Spacing4.value}px;
 `
 const Description = styled.div`
-    width: 600px;
+    width: 100%;
     height: 50px;
     font-size: ${globalTokens.BodyText.value}px;
     padding: ${globalTokens.Spacing4.value}px;
 `
 const InforContainer = styled.div`
-    width: 600px;
+    width: 100%;
     height: 70px;
     display: flex;
     flex-direction: row;
@@ -138,8 +140,7 @@ export default function HorizonItem() {
         </ThumbnailContainer>
         <ItemInfors>
           <Title>
-            대충 영상 제목대충 영상 제목대충 영상 제목대충 영상 제목 대충 영상
-            제목
+            대충 영상 제목
           </Title>
           <Description>이 영상은 아무런 내용도 없습니다</Description>
           <InforContainer>
@@ -153,15 +154,15 @@ export default function HorizonItem() {
               </AuthorContainer>
             </InforContainerLeft>
             <InforContainerRight>
-                <ScoreContainer>
-                    <ScoreText>4.7</ScoreText>
-                    <StarImage src={yellowStar}/>
-                    <StarImage src={yellowStar}/>
-                    <StarImage src={yellowStar}/>
-                    <StarImage src={yellowStar}/>
-                    <StarImage src={yellowStar}/>
-                </ScoreContainer>
-                <PriceText>32,450원</PriceText>
+              <ScoreContainer>
+                <ScoreText>4.7</ScoreText>
+                <StarImage src={yellowStar} />
+                <StarImage src={yellowStar} />
+                <StarImage src={yellowStar} />
+                <StarImage src={yellowStar} />
+                <StarImage src={yellowStar} />
+              </ScoreContainer>
+              <PriceText>32,450원</PriceText>
             </InforContainerRight>
           </InforContainer>
         </ItemInfors>

@@ -15,6 +15,7 @@ import UploadPage from "./pages/contents/UploadPage";
 import SignupPage from "./pages/auth/SignupPage";
 import "./App.css";
 import ProblemPage from "./pages/contents/ProblemPage";
+import LectureListPage from "./pages/contents/LectureListPage";
 
 function App() {
   const url = new URL(window.location.href);
@@ -36,6 +37,7 @@ function App() {
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/signup" element={<SignupPage/>}/>
         <Route path="/MyProfile" element={<MyProfilePage/>}/>
+        <Route path="/lecture" element={<LectureListPage/>}/> 
         <Route path="/videos/1" element={<DetailPage/>}/>
         <Route path="/channels/1" element={<ChannelPage/>}/>
         <Route path="/carts" element={<CartPage />} />
