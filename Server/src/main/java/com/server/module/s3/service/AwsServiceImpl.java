@@ -3,8 +3,8 @@ package com.server.module.s3.service;
 import com.server.global.exception.businessexception.s3exception.S3DeleteException;
 import com.server.global.exception.businessexception.s3exception.S3FileNotVaildException;
 import com.server.global.exception.businessexception.s3exception.S3KeyException;
+import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
@@ -29,14 +29,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Service
 public class AwsServiceImpl implements AwsService {
 
-    private static final String IMAGE_PATH = "images/";
     private static final String VIDEO_TYPE = "video/mp4";
     private static final String VIDEO_BUCKET_NAME = "itprometheus-videos";
-    private static final String IMAGE_BUCKET_NAME = "itprometheus-images";
 
     CloudFrontUtilities cloudFrontUtilities = CloudFrontUtilities.create();
-    private final String VIDEO_CLOUDFRONT_URL = "https://d3ofjtp6m9wsg6.cloudfront.net/";
-    private final String IMAGE_CLOUDFRONT_URL = "https://d2ouhv9pc4idoe.cloudfront.net/";
 
     private final String KEY_PAIR_ID = "K2LLBSJU34F9A";
 
@@ -45,93 +41,44 @@ public class AwsServiceImpl implements AwsService {
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
-    private final AwsCredentialsProvider credentialsProvider;
 
-    public AwsServiceImpl(S3Client s3Client, S3Presigner s3Presigner, AwsCredentialsProvider credentialsProvider) {
+    public AwsServiceImpl(S3Client s3Client, S3Presigner s3Presigner) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
-        this.credentialsProvider = credentialsProvider;
     }
 
-    //todo : API 를 하나로 통일하고 File 형식을 enum 으로 받아도 될 듯 -> 총 3개 (get, put, delete)
-    
     @Override
-    public String getImageUrl(String fileName) {
+    public String getFileUrl(Long memberId, String fileName, FileType fileType) {
 
         checkValidFile(fileName);
 
-        return getPublicImageUrl(IMAGE_PATH + fileName);
+        if(fileType.isRequiredAuth()) {
+            Instant tenSecondsLater = getInstantDuration(60);
+
+            return getFilePresignedUrl(fileType.getLocation(memberId, fileName), tenSecondsLater);
+        }
+
+        return fileType.getLocation(memberId, fileName);
     }
 
-
     @Override
-    public String getUploadImageUrl(String fileName, ImageType imageType) {
+    public String getImageUploadUrl(Long memberId, String fileName, FileType fileType, ImageType imageType) {
+
+        //todo : VIDEO 가 들어오지 못하게 컴파일로 막아야하는데... 어떻게 해야할까?
+        if(fileType.equals(FileType.VIDEO)) {
+            return getUploadVideoUrl(memberId, fileName);
+        }
 
         checkValidFile(fileName);
 
         Duration duration = Duration.ofMinutes(10);
 
         URL presignedPutObjectUrl = getPresignedPutImageObjectUrl(
-                        IMAGE_PATH + fileName,
-                        imageType.getDescription(),
-                        duration);
-
-        return URLDecoder.decode(presignedPutObjectUrl.toString(), UTF_8);
-    }
-
-    @Override
-    public void deleteImage(String fileName) {
-
-        checkValidFile(fileName);
-
-        deleteImageFile(IMAGE_PATH + fileName);
-    }
-
-    @Override
-    @SneakyThrows
-    public String getThumbnailUrl(Long memberId, String fileName) {
-
-        checkValidFile(fileName);
-
-        return getPublicImageUrl(memberId + "/" + fileName);
-    }
-
-    @Override
-    public String getUploadThumbnailUrl(Long memberId, String fileName, ImageType imageType) {
-
-        checkValidFile(fileName);
-
-        Duration duration = Duration.ofMinutes(10);
-
-        String location = memberId + "/" + fileName;
-
-        URL presignedPutObjectUrl = getPresignedPutImageObjectUrl(
-                location,
+                fileType.s3Location(memberId, fileName),
                 imageType.getDescription(),
                 duration);
 
         return URLDecoder.decode(presignedPutObjectUrl.toString(), UTF_8);
-    }
-
-    @Override
-    public void deleteThumbnail(Long memberId, String fileName) {
-
-        checkValidFile(fileName);
-
-        deleteImageFile(memberId + "/" + fileName);
-    }
-
-    @Override
-    @SneakyThrows
-    public String getVideoUrl(Long memberId, String fileName) {
-
-        checkValidFile(fileName);
-
-        Instant tenSecondsLater = getInstantDuration(60);
-
-        SignedUrl signedUrlWithCustomPolicy = getFileUrl(memberId + "/" + fileName, tenSecondsLater);
-
-        return URLDecoder.decode(signedUrlWithCustomPolicy.url(), UTF_8);
     }
 
     @Override
@@ -150,11 +97,11 @@ public class AwsServiceImpl implements AwsService {
     }
 
     @Override
-    public void deleteVideo(Long memberId, String fileName) {
+    public void deleteFile(Long memberId, String fileName, FileType fileType) {
 
         checkValidFile(fileName);
 
-        deleteVideoFile(memberId + "/" + fileName);
+        deleteFile(fileType.s3Location(memberId, fileName));
     }
 
     private void checkValidFile(String fileName) {
@@ -168,11 +115,11 @@ public class AwsServiceImpl implements AwsService {
         return now.plusSeconds(secondsToAdd);
     }
 
-    private SignedUrl getFileUrl(String location, Instant tenSecondsLater) {
+    private String getFilePresignedUrl(String location, Instant tenSecondsLater) {
         CustomSignerRequest customSignerRequest = null;
         try {
             customSignerRequest = CustomSignerRequest.builder()
-                    .resourceUrl(VIDEO_CLOUDFRONT_URL + location)
+                    .resourceUrl(location)
                     .expirationDate(tenSecondsLater)
                     .keyPairId(KEY_PAIR_ID)
                     .privateKey(Path.of(PRIVATE_KEY_PATH))
@@ -181,11 +128,9 @@ public class AwsServiceImpl implements AwsService {
             throw new S3KeyException();
         }
 
-        return cloudFrontUtilities.getSignedUrlWithCustomPolicy(customSignerRequest);
-    }
+        SignedUrl signedUrlWithCustomPolicy = cloudFrontUtilities.getSignedUrlWithCustomPolicy(customSignerRequest);
 
-    private String getPublicImageUrl(String filePath){
-        return IMAGE_CLOUDFRONT_URL + filePath;
+        return URLDecoder.decode(signedUrlWithCustomPolicy.url(), UTF_8);
     }
 
     private URL getPresignedPutVideoObjectUrl(String fileName, String contentType, Duration duration) {
@@ -203,10 +148,14 @@ public class AwsServiceImpl implements AwsService {
         return s3Presigner.presignPutObject(presignRequest).url();
     }
 
-    private URL getPresignedPutImageObjectUrl(String fileName, String contentType, Duration duration) {
+    private URL getPresignedPutImageObjectUrl(String location, String contentType, Duration duration) {
+
+        String bucketName = location.split("/")[0];
+        String path = location.substring(location.indexOf("/"));
+
         PutObjectRequest objectRequest = PutObjectRequest.builder()
-                .bucket(IMAGE_BUCKET_NAME)
-                .key(fileName)
+                .bucket(bucketName)
+                .key(path)
                 .contentType(contentType)
                 .build();
 
@@ -218,29 +167,20 @@ public class AwsServiceImpl implements AwsService {
         return s3Presigner.presignPutObject(presignRequest).url();
     }
 
-    private void deleteVideoFile(String location) {
+    private void deleteFile(String location) {
+
+        String bucketName = location.split("/")[0];
+        String path = location.substring(location.indexOf("/"));
+
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                .bucket(VIDEO_BUCKET_NAME)
-                .key(location)
+                .bucket(bucketName)
+                .key(path)
                 .build();
 
         DeleteObjectResponse deleteObjectResponse = s3Client.deleteObject(deleteObjectRequest);
 
         check204Response(deleteObjectResponse);
     }
-
-    private void deleteImageFile(String location) {
-        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                .bucket(IMAGE_BUCKET_NAME)
-                .key(location)
-                .build();
-
-        DeleteObjectResponse deleteObjectResponse = s3Client.deleteObject(deleteObjectRequest);
-
-        check204Response(deleteObjectResponse);
-    }
-
-
 
     private void check204Response(DeleteObjectResponse deleteObjectResponse) {
         if (deleteObjectResponse.sdkHttpResponse().statusCode() != 204) {

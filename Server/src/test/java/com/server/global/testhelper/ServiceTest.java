@@ -26,8 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Profile;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
@@ -128,7 +126,7 @@ public abstract class ServiceTest {
         return order;
     }
 
-    protected Order createAndSaveOrderWithPurchase(Member member, List<Video> video, int reward) {
+    protected Order createAndSaveOrderWithPurchaseComplete(Member member, List<Video> video, int reward) {
         Order order = Order.createOrder(member, video, reward);
         order.completeOrder();
         orderRepository.save(order);
@@ -136,14 +134,16 @@ public abstract class ServiceTest {
         return order;
     }
 
-    protected void createAndSaveVideoCategory(Video video, Category category) {
+    protected void createAndSaveVideoCategory(Video video, Category... categories) {
 
-        VideoCategory videoCategory = VideoCategory.builder()
-                .video(video)
-                .category(category)
-                .build();
+        for (Category category : categories) {
+            VideoCategory videoCategory = VideoCategory.builder()
+                    .video(video)
+                    .category(category)
+                    .build();
 
-        videoCategoryRepository.save(videoCategory);
+            videoCategoryRepository.save(videoCategory);
+        }
     }
 
     protected Category createAndSaveCategory(String categoryName) {
@@ -172,6 +172,7 @@ public abstract class ServiceTest {
         reply.setMember(member);
         reply.setVideo(video);
         reply.setContent("content");
+        reply.setStar(0);
 
         replyRepository.save(reply);
 

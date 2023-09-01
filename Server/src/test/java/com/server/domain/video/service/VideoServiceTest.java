@@ -11,7 +11,6 @@ import com.server.domain.video.service.dto.request.VideoUpdateServiceRequest;
 import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
 import com.server.domain.video.service.dto.response.VideoDetailResponse;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
-import com.server.domain.watch.entity.Watch;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
 import com.server.global.exception.businessexception.videoexception.VideoFileNameNotMatchException;
@@ -19,24 +18,18 @@ import com.server.global.exception.businessexception.videoexception.VideoNotFoun
 import com.server.global.exception.businessexception.videoexception.VideoUploadNotRequestException;
 import com.server.global.testhelper.ServiceTest;
 import com.server.module.s3.service.dto.ImageType;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.DynamicTest.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -79,7 +72,7 @@ class VideoServiceTest extends ServiceTest {
         createAndSaveVideoCategory(video5, category2); // video5 는 spring 카테고리
         createAndSaveVideoCategory(video6, category1); // video6 는 java 카테고리
 
-        createAndSaveOrderWithPurchase(loginMember, List.of(video1, video5), 0); // otherMember 가 video1, video5 를 구매
+        createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video1, video5), 0); // otherMember 가 video1, video5 를 구매
 
         em.flush();
         em.clear();
@@ -218,7 +211,7 @@ class VideoServiceTest extends ServiceTest {
                 }),
                 dynamicTest("구독한 회원이 video 를 구매하면 구매여부가 true 가 된다.", ()-> {
                     //given
-                    createAndSaveOrderWithPurchase(loginMember, List.of(video), 0);
+                    createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video), 0);
 
                     em.flush();
                     em.clear();

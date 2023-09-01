@@ -8,6 +8,7 @@ import com.server.domain.video.entity.Video;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
 import com.server.global.testhelper.RepositoryTest;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ListAssert;
 import org.hibernate.Hibernate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.DynamicTest.*;
@@ -93,9 +95,7 @@ class VideoRepositoryTest extends RepositoryTest {
         Category category1 = createAndSaveCategory("java");
         Category category2 = createAndSaveCategory("spring");
 
-        createAndSaveVideoCategory(video1, category1); // video1 은 java 카테고리
-        createAndSaveVideoCategory(video1, category2); // video1 은 spring 카테고리
-
+        createAndSaveVideoCategory(video1, category1, category2); // video1 은 java, spring 카테고리
         createAndSaveVideoCategory(video2, category1); // video2 는 java 카테고리
         createAndSaveVideoCategory(video3, category2); // video3 는 spring 카테고리
         createAndSaveVideoCategory(video4, category1); // video4 는 java 카테고리
@@ -116,11 +116,7 @@ class VideoRepositoryTest extends RepositoryTest {
                 //then
                 assertThat(videos.getContent())
                         .isSortedAccordingTo(Comparator.comparing(Video::getCreatedDate).reversed());
-                assertThat(videos.getContent())
-                        .allSatisfy(video -> assertThat(video.getVideoCategories())
-                                .extracting("category")
-                                .extracting("categoryName")
-                                .contains("java"));
+                assertHasCategoryName(assertThat(videos.getContent()), "java");
             }),
             dynamicTest("category spring 로 조회하면 spring 카테고리를 가진 video 가 최신순으로 조회된다.", ()-> {
                 //when
@@ -129,11 +125,7 @@ class VideoRepositoryTest extends RepositoryTest {
                 //then
                 assertThat(videos.getContent())
                         .isSortedAccordingTo(Comparator.comparing(Video::getCreatedDate).reversed());
-                assertThat(videos.getContent())
-                        .allSatisfy(video -> assertThat(video.getVideoCategories())
-                                .extracting("category")
-                                .extracting("categoryName")
-                                .contains("spring"));
+                assertHasCategoryName(assertThat(videos.getContent()), "spring");
             }),
             dynamicTest("별점 순으로 조회하면 video3 이 먼저 조회된 후 나머지는 최신순으로 조회된다.", ()-> {
                 //when
@@ -177,11 +169,7 @@ class VideoRepositoryTest extends RepositoryTest {
                 assertThat(sortedVideos)
                         .isSortedAccordingTo(Comparator.comparing(Video::getCreatedDate).reversed());
 
-                assertThat(videos.getContent())
-                        .allSatisfy(video -> assertThat(video.getVideoCategories())
-                                .extracting("category")
-                                .extracting("categoryName")
-                                .contains("spring"));
+                assertHasCategoryName(assertThat(videos.getContent()), "spring");
 
             }),
             dynamicTest("조회 순, java 로 조회하면 video2 가 먼저 조회되고, video4, video1 순서로 조회된다.", ()-> {
@@ -195,11 +183,7 @@ class VideoRepositoryTest extends RepositoryTest {
                 assertThat(sortedVideos)
                         .isSortedAccordingTo(Comparator.comparing(Video::getCreatedDate).reversed());
 
-                assertThat(videos.getContent())
-                        .allSatisfy(video -> assertThat(video.getVideoCategories())
-                                .extracting("category")
-                                .extracting("categoryName")
-                                .contains("java"));
+                assertHasCategoryName(assertThat(videos.getContent()), "java");
             }),
             dynamicTest("otherMember 의 구독 목록만 조회하면 video 4, 3, 2, 1 이 조회된다.", ()-> {
                 //when
@@ -345,7 +329,135 @@ class VideoRepositoryTest extends RepositoryTest {
                     assertThat(purchasedAndIsReplied.get(0)).isTrue();
                     assertThat(purchasedAndIsReplied.get(1)).isTrue();
                 })
+        );
+    }
 
+    @TestFactory
+    @DisplayName("memberId 로 해당 채널의 video 목록을 조회한다.")
+    Collection<DynamicTest> findChannelVideoByCategoryPaging() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Member otherMember = createAndSaveMember();
+        Channel otherChannel = createAndSaveChannel(otherMember);
+
+        Category category1 = createAndSaveCategory("java");
+        Category category2 = createAndSaveCategory("spring");
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel, 1); // 조회수 1
+        Video video3 = createAndSaveVideo(channel, 5.0F); // 별점 5
+        Video video4 = createAndSaveVideo(channel);
+        Video video5 = createAndSaveVideo(channel);
+        Video video6 = createAndSaveVideo(channel);
+
+        for(int i = 1; i <= 100; i++) {
+            Video otherVideo = createAndSaveVideo(otherChannel);// otherMember 의 video
+            createAndSaveVideoCategory(otherVideo, category1, category2);
+        }
+        createAndSaveVideoCategory(video1, category1, category2); // video1 은 java, spring 카테고리
+        createAndSaveVideoCategory(video2, category1); // video2 는 java 카테고리
+        createAndSaveVideoCategory(video3, category2); // video3 는 spring 카테고리
+        createAndSaveVideoCategory(video4, category1); // video4 는 java 카테고리
+        createAndSaveVideoCategory(video5, category2); // video5 는 spring 카테고리
+        createAndSaveVideoCategory(video6, category1); // video6 는 java 카테고리
+
+        em.flush();
+        em.clear();
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+
+        return List.of(
+                dynamicTest("채널의 비디오를 페이징으로 최신순으로 조회한다.", () -> {
+                    //when
+                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(member.getMemberId(), null, pageRequest, null);
+
+                    //then
+                    assertThat(videos.getContent()).hasSize(6)
+                            .isSortedAccordingTo(Comparator.comparing(Video::getCreatedDate).reversed());
+                    assertThat(videos.getContent())
+                            .allSatisfy(video -> assertThat(video.getChannel())
+                                    .extracting("member")
+                                    .extracting("memberId")
+                                    .isEqualTo(member.getMemberId()));
+                }),
+                dynamicTest("채널의 비디오를 페이징으로 조회수순으로 조회한다. video 2 가 먼저 조회된 후 최신순으로 조회된다.", () -> {
+                    //when
+                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(member.getMemberId(), null, pageRequest, "view");
+
+                    //then
+                    assertThat(videos.getContent()).hasSize(6);
+
+                    assertThat(videos.getContent().get(0).getVideoId()).isEqualTo(video2.getVideoId());
+
+                    List<Video> sortedVideos = videos.getContent().subList(1, videos.getContent().size());
+                    assertThat(sortedVideos)
+                            .isSortedAccordingTo(Comparator.comparing(Video::getCreatedDate).reversed());
+                }),
+                dynamicTest("채널의 비디오를 페이징으로 별점순으로 조회한다. video 3 이 먼저 조회된 후 최신순으로 조회된다.", () -> {
+                    //when
+                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(member.getMemberId(), null, pageRequest, "star");
+
+                    //then
+                    assertThat(videos.getContent()).hasSize(6);
+
+                    assertThat(videos.getContent().get(0).getVideoId()).isEqualTo(video3.getVideoId());
+
+                    List<Video> sortedVideos = videos.getContent().subList(1, videos.getContent().size());
+                    assertThat(sortedVideos)
+                            .isSortedAccordingTo(Comparator.comparing(Video::getCreatedDate).reversed());
+                }),
+                dynamicTest("채널의 비디오를 페이징으로 java 카테고리를 조회한다. video 1, 2, 4, 6 이 조회된다.", () -> {
+                    //when
+                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(member.getMemberId(), "java", pageRequest, null);
+
+                    //then
+                    assertHasCategoryName(assertThat(videos.getContent()).hasSize(4), "java");
+                }),
+                dynamicTest("채널의 비디오를 페이징으로 spring 카테고리를 조회한다. video 1, 3, 5 가 조회된다.", () -> {
+                    //when
+                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(member.getMemberId(), "spring", pageRequest, null);
+
+                    //then
+                    assertHasCategoryName(assertThat(videos.getContent()).hasSize(3), "spring");
+                }),
+                dynamicTest("채널의 비디오를 페이징으로 조회순, java 카테고리를 조회한다. video 2 가 먼저 조회되고, 1, 4, 6 이 조회된다.", () -> {
+                    //when
+                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(member.getMemberId(), "java", pageRequest, "view");
+
+                    //then
+                    assertThat(videos.getContent().get(0).getVideoId()).isEqualTo(video2.getVideoId());
+
+                    List<Video> sortedVideos = videos.getContent().subList(1, videos.getContent().size());
+                    assertThat(sortedVideos)
+                            .isSortedAccordingTo(Comparator.comparing(Video::getCreatedDate).reversed());
+
+                    assertHasCategoryName(assertThat(videos.getContent()).hasSize(4), "java");
+                }),
+                dynamicTest("채널의 비디오를 페이징으로 별점순, spring 카테고리를 조회한다. video 3 이 먼저 조회되고, 1, 5 가 조회된다.", () -> {
+                    //when
+                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(member.getMemberId(), "spring", pageRequest, "star");
+
+                    //then
+                    assertThat(videos.getContent().get(0).getVideoId()).isEqualTo(video3.getVideoId());
+
+                    List<Video> sortedVideos = videos.getContent().subList(1, videos.getContent().size());
+                    assertThat(sortedVideos)
+                            .isSortedAccordingTo(Comparator.comparing(Video::getCreatedDate).reversed());
+
+                    assertHasCategoryName(assertThat(videos.getContent()).hasSize(3), "spring");
+                }),
+                dynamicTest("other 채널의 비디오를 페이징으로 조회한다. 총 개수가 100개로 나오고, 최신순으로 조회된다.", () -> {
+                    //when
+                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(otherMember.getMemberId(), null, pageRequest, null);
+
+                    //then
+                    assertThat(videos.getContent()).hasSize(10)
+                            .isSortedAccordingTo(Comparator.comparing(Video::getCreatedDate).reversed());
+
+                    assertThat(videos.getTotalElements()).isEqualTo(100);
+                })
 
         );
     }
@@ -358,5 +470,19 @@ class VideoRepositoryTest extends RepositoryTest {
         reply.setStar(5);
 
         em.persist(reply);
+    }
+
+    private void assertHasCategoryName(ListAssert<Video> videos, String categoryNames) {
+        videos
+                .allSatisfy(video -> {
+                    List<String> videoCategoryNames = video.getVideoCategories()
+                            .stream()
+                            .map(videoCategory -> videoCategory.getCategory().getCategoryName())
+                            .collect(Collectors.toList());
+
+                    boolean containsAtLeastOneCategory = videoCategoryNames.contains(categoryNames);
+
+                    assertThat(containsAtLeastOneCategory).isTrue();
+                });
     }
 }

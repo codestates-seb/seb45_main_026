@@ -147,7 +147,7 @@ class QuestionServiceTest extends ServiceTest {
         Video video = createAndSavePurchasedVideo(channelOwner, channel);
 
         Member member = createAndSaveMember();
-        createAndSaveOrderWithPurchase(member, List.of(video), 0);
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
 
         //when
         List<QuestionResponse> response = questionService.getQuestions(member.getMemberId(), video.getVideoId());
@@ -165,7 +165,7 @@ class QuestionServiceTest extends ServiceTest {
         Video video = createAndSavePurchasedVideo(channelOwner, channel);
 
         Member member = createAndSaveMember();
-        createAndSaveOrderWithPurchase(member, List.of(video), 0);
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
 
         List<Question> questions = createAndSaveQuestions(video);
 
@@ -440,7 +440,7 @@ class QuestionServiceTest extends ServiceTest {
         Question question = questions.get(0);
 
         Member member = createAndSaveMember();
-        createAndSaveOrderWithPurchase(member, List.of(video), 0); // member 가 구매
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0); // member 가 구매
 
         return List.of(
                 dynamicTest("처음에는 정답을 맞추지 못해 false 를 반환받는다.", ()-> {
@@ -516,7 +516,7 @@ class QuestionServiceTest extends ServiceTest {
         Question question = questions.get(0);
 
         Member member = createAndSaveMember();
-        createAndSaveOrderWithPurchase(member, List.of(video), 0); // member 가 구매
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0); // member 가 구매
 
         AnswerCreateServiceRequest request = AnswerCreateServiceRequest.builder()
                 .questionId(question.getQuestionId() + 999L) // 존재하지 않는 questionId
@@ -540,7 +540,7 @@ class QuestionServiceTest extends ServiceTest {
         List<Question> questions = createAndSaveQuestions(video);
 
         Member member = createAndSaveMember();
-        createAndSaveOrderWithPurchase(member, List.of(video), 0); // member 가 구매
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0); // member 가 구매
 
         List<String> myAnswer = questions.stream()
                 .map(Question::getQuestionAnswer)
@@ -594,7 +594,7 @@ class QuestionServiceTest extends ServiceTest {
         List<Question> questions = createAndSaveQuestions(video);
 
         Member member = createAndSaveMember();
-        createAndSaveOrderWithPurchase(member, List.of(video), 0); // member 가 구매
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0); // member 가 구매
 
         List<String> myAnswer = questions.stream()
                 .map(Question::getQuestionAnswer)
@@ -622,7 +622,7 @@ class QuestionServiceTest extends ServiceTest {
         List<Question> questions = createAndSaveQuestions(video);
 
         Member member = createAndSaveMember();
-        createAndSaveOrderWithPurchase(member, List.of(video), 0); // member 가 구매
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0); // member 가 구매
 
         List<String> myAnswer = questions.stream()
                 .map(Question::getQuestionAnswer)

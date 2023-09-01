@@ -32,7 +32,6 @@ public class Reply extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "video_id")
     private Video video;
-    private LocalDateTime createdAt;
 
 
     public void setReplyId(Long replyId) {
@@ -55,10 +54,6 @@ public class Reply extends BaseEntity {
         this.video = video;
     }
 
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 
     public Long setReplyId() {
         return replyId;

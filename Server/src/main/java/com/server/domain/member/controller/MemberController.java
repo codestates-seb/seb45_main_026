@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
 
+import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.server.domain.member.controller.dto.MemberApiRequest;
+import com.server.domain.member.controller.dto.PlaylistsSort;
 import com.server.domain.member.entity.Grade;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.MemberService;
@@ -58,19 +60,21 @@ public class MemberController {
 	}
 
 	@GetMapping("/rewards")
-	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(@RequestParam("page") int page,
+	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(@RequestParam(value = "page", defaultValue = "1") int page,
+																		@RequestParam(value = "size", defaultValue = "10") int size,
 																		@LoginId Long loginId) {
 
-		Page<RewardsResponse> responses = memberService.getRewards(loginId, page);
+		Page<RewardsResponse> responses = memberService.getRewards(loginId, page, size);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@GetMapping("/subscribes")
-	public ResponseEntity<ApiPageResponse<SubscribesResponse>> getSubscribes(@RequestParam("page") int page,
+	public ResponseEntity<ApiPageResponse<SubscribesResponse>> getSubscribes(@RequestParam(value = "page", defaultValue = "1") int page,
+																			@RequestParam(value = "size", defaultValue = "10") int size,
 																			@LoginId Long loginId) {
 
-		Page<SubscribesResponse> responses = memberService.getSubscribes(loginId, page);
+		Page<SubscribesResponse> responses = memberService.getSubscribes(loginId, page, size);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
@@ -86,39 +90,43 @@ public class MemberController {
 
 	@GetMapping("/carts")
 	public ResponseEntity<ApiPageResponse<CartsResponse>> getCarts(@LoginId Long loginId,
-													@RequestParam("page") int page) {
+																	@RequestParam(value = "page", defaultValue = "1") int page,
+																	@RequestParam(value = "size", defaultValue = "10") int size) {
 
-		Page<CartsResponse> responses = memberService.getCarts(loginId, page);
+		Page<CartsResponse> responses = memberService.getCarts(loginId, page, size);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@GetMapping("/orders")
 	public ResponseEntity<ApiPageResponse<OrdersResponse>> getOrders(@LoginId Long loginId,
-													@RequestParam("page") int page,
-													@RequestParam("month") int month) {
+													@RequestParam(value = "page", defaultValue = "1") int page,
+													@RequestParam(value = "size", defaultValue = "10") int size,
+													@RequestParam(value = "month", defaultValue = "1") int month) {
 
-		Page<OrdersResponse> responses = memberService.getOrders(loginId, page, month);
+		Page<OrdersResponse> responses = memberService.getOrders(loginId, page, size, month);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@GetMapping("/playlists")
 	public ResponseEntity<ApiPageResponse<PlaylistsResponse>> getPlaylists(@LoginId Long loginId,
-													@RequestParam("page") int page,
-													@RequestParam("sort") String sort) {
+													@RequestParam(value = "page", defaultValue = "1") int page,
+													@RequestParam(value = "size", defaultValue = "10") int size,
+													@RequestParam(value = "sort", defaultValue = "created-date") PlaylistsSort sort) {
 
-		Page<PlaylistsResponse> responses = memberService.getPlaylists(loginId, page, sort);
+		Page<PlaylistsResponse> responses = memberService.getPlaylists(loginId, page, size, sort.getSort());
 
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@GetMapping("/watchs")
 	public ResponseEntity<ApiPageResponse<WatchsResponse>> getWatchs(@LoginId Long loginId,
-													@RequestParam("page") int page,
-													@RequestParam("day") int day) {
+																	@RequestParam(value = "page", defaultValue = "1") int page,
+																	@RequestParam(value = "size", defaultValue = "10") int size,
+																	@RequestParam(value = "day", defaultValue = "30") int day) {
 
-		Page<WatchsResponse> responses = memberService.getWatchs(loginId, page, day);
+		Page<WatchsResponse> responses = memberService.getWatchs(loginId, page, size, day);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
@@ -136,7 +144,11 @@ public class MemberController {
 
 		memberService.updateImage(loginId);
 
-		String presignedUrl = awsService.getUploadImageUrl(request.getImageName(), request.getImageType());
+		String presignedUrl = awsService.getImageUploadUrl(
+				loginId,
+				request.getImageName(),
+				FileType.PROFILE_IMAGE,
+				request.getImageType());
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Location", presignedUrl);

@@ -19,7 +19,7 @@ public class ReplyInfo {
         private String content;
         private int star;
         private Member member;
-        private LocalDateTime createdAt;
+        private LocalDateTime createdDate;
 
         public static ReplyInfo of(Reply reply) {
             return ReplyInfo.builder()
@@ -29,7 +29,7 @@ public class ReplyInfo {
                     .content(reply.getContent())
                     .star(reply.getStar())
                     .member(reply.getMember())
-                    .createdAt(reply.getCreatedAt())
+                    .createdDate(reply.getCreatedDate())
                     .build();
         }
 

@@ -22,8 +22,6 @@ include::{snippets}/video/createquestions/request-body.adoc[]
 include::{snippets}/video/createquestions/request-fields.adoc[]
 === HTTP Response
 include::{snippets}/video/createquestions/http-response.adoc[]
-==== Response Body
-include::{snippets}/video/createquestions/response-body.adoc[]
 ==== Response Fields
 include::{snippets}/video/createquestions/response-fields.adoc[]
 

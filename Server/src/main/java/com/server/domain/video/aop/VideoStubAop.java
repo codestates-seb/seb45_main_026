@@ -9,6 +9,7 @@ import com.server.domain.video.service.dto.response.*;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -112,7 +113,7 @@ public class VideoStubAop {
 
         PageRequest pageRequest = PageRequest.of(page - 1, 10);
 
-        awsService.getVideoUrl(9999L, "test");
+        awsService.getFileUrl(9999L, "test", FileType.VIDEO);
 
         List<VideoCategoryResponse> categories = List.of(
                 VideoCategoryResponse.builder()
@@ -129,7 +130,7 @@ public class VideoStubAop {
                 .memberId(1L)
                 .channelName("hobeen's vlog")
                 .subscribes(100000)
-                .imageUrl(awsService.getImageUrl("test"))
+                .imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
                 .isSubscribed(true)
                 .build();
 
@@ -137,14 +138,14 @@ public class VideoStubAop {
                 .memberId(2L)
                 .channelName("hobeen's cooking")
                 .subscribes(50000)
-                .imageUrl(awsService.getImageUrl("test22"))
+                .imageUrl(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
                 .isSubscribed(false)
                 .build();
 
         List<VideoPageResponse> videos = new ArrayList<>();
 
-        String videoThumbnailUrl1 = awsService.getThumbnailUrl(9999L, "test");
-        String videoThumbnailUrl2 = awsService.getThumbnailUrl(9999L, "test22");
+        String videoThumbnailUrl1 = awsService.getFileUrl(9999L, "test", FileType.THUMBNAIL);
+        String videoThumbnailUrl2 = awsService.getFileUrl(9999L, "test22", FileType.THUMBNAIL);
 
         for(int i = 1; i <= 10; i++) {
 
@@ -180,11 +181,11 @@ public class VideoStubAop {
                 .memberId(1L)
                 .channelName("hobeen's vlog")
                 .subscribes(100000)
-                .imageUrl(awsService.getImageUrl("test"))
+                .imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
                 .isSubscribed(true)
                 .build();
 
-        String videoThumbnailUrl = awsService.getThumbnailUrl(9999L, "test");
+        String videoThumbnailUrl = awsService.getFileUrl(9999L, "test", FileType.THUMBNAIL);
 
         List<VideoCategoryResponse> categories = List.of(
                 VideoCategoryResponse.builder()
@@ -202,7 +203,7 @@ public class VideoStubAop {
                 .videoName("title")
                 .description("description")
                 .thumbnailUrl(videoThumbnailUrl)
-                .videoUrl(awsService.getVideoUrl(9999L, "test"))
+                .videoUrl(awsService.getFileUrl(9999L, "test", FileType.VIDEO))
                 .views(100)
                 .star(4.5F)
                 .price(1000)
@@ -224,7 +225,7 @@ public class VideoStubAop {
         VideoCreateUrlApiRequest request = (VideoCreateUrlApiRequest) args[0];
 
         String videoUrl = awsService.getUploadVideoUrl(3L, request.getFileName());
-        String thumbnailUrl = awsService.getUploadThumbnailUrl(3L, request.getFileName(), request.getImageType());
+        String thumbnailUrl = awsService.getImageUploadUrl(3L, request.getFileName(), FileType.THUMBNAIL, request.getImageType());
 
         VideoCreateUrlResponse response = VideoCreateUrlResponse.builder()
                 .videoUrl(videoUrl)
