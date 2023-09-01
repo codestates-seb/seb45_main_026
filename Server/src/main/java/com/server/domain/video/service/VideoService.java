@@ -4,7 +4,6 @@ import com.server.domain.cart.entity.Cart;
 import com.server.domain.cart.repository.CartRepository;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.entity.CategoryRepository;
-import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.video.entity.Video;
@@ -26,12 +25,14 @@ import com.server.global.exception.businessexception.videoexception.VideoUploadN
 import com.server.module.redis.service.RedisService;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
+import com.server.module.s3.service.dto.ImageType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,33 +99,42 @@ public class VideoService {
     @Transactional
     public VideoCreateUrlResponse getVideoCreateUrl(Long loginMemberId, VideoCreateUrlServiceRequest request) {
 
-        verifiedMember(loginMemberId);
+        Member member = verifiedMemberWithChannel(loginMemberId);
 
-        redisService.setExpire(String.valueOf(loginMemberId), request.getFileName(), 60 * 15); // 15분
+        Video video = Video.createVideo(
+                member.getChannel(),
+                request.getFileName(),
+                0,
+                "uploading",
+                new ArrayList<>());
+
+        videoRepository.save(video);
+
+        String location = video.getVideoId() + "/" + request.getFileName();
 
         return VideoCreateUrlResponse.builder()
-                .videoUrl(getUploadVideoUrl(loginMemberId, request))
-                .thumbnailUrl(getUploadThumbnailUrl(loginMemberId, request))
+                .videoUrl(getUploadVideoUrl(loginMemberId, location))
+                .thumbnailUrl(getUploadThumbnailUrl(loginMemberId, location, request.getImageType()))
                 .build();
     }
 
     @Transactional
     public Long createVideo(Long loginMemberId, VideoCreateServiceRequest request) {
 
-        Member member = verifiedMemberWithChannel(loginMemberId);
+        Video video = verifedVideo(loginMemberId, request.getVideoName());
 
-        checkFileName(loginMemberId, request.getVideoName());
+        additionalCreateProcess(request, video);
+
+        return video.getVideoId();
+    }
+
+    private void additionalCreateProcess(VideoCreateServiceRequest request, Video video) {
 
         List<Category> categories = verifiedCategories(request.getCategories());
 
-        Video video = Video.createVideo(
-                member.getChannel(),
-                request.getVideoName(),
-                request.getPrice(),
-                request.getDescription(),
-                categories);
+        video.additionalCreateProcess(request.getPrice(), request.getDescription());
 
-        return videoRepository.save(video).getVideoId();
+        video.updateCategory(categories);
     }
 
     @Transactional
@@ -153,6 +163,9 @@ public class VideoService {
     public void deleteVideo(Long loginMemberId, Long videoId) {
 
         Video video = verifedVideo(loginMemberId, videoId);
+
+        awsService.deleteFile(loginMemberId, video.getVideoName(), FileType.VIDEO);
+        awsService.deleteFile(loginMemberId, video.getThumbnailFile(), FileType.THUMBNAIL);
 
         videoRepository.delete(video);
     }
@@ -216,15 +229,15 @@ public class VideoService {
     }
 
 
-    private String getUploadVideoUrl(Long loginMemberId, VideoCreateUrlServiceRequest request) {
-        return awsService.getUploadVideoUrl(loginMemberId, request.getFileName());
+    private String getUploadVideoUrl(Long loginMemberId, String location) {
+        return awsService.getUploadVideoUrl(loginMemberId, location);
     }
 
-    private String getUploadThumbnailUrl(Long loginMemberId, VideoCreateUrlServiceRequest request) {
+    private String getUploadThumbnailUrl(Long loginMemberId, String location, ImageType imageType) {
         return awsService.getImageUploadUrl(loginMemberId,
-                request.getFileName(),
+                location,
                 FileType.THUMBNAIL,
-                request.getImageType());
+                imageType);
     }
 
     private Member verifiedMemberOrNull(Long loginMemberId) {
@@ -254,6 +267,12 @@ public class VideoService {
         }
 
         return video;
+    }
+
+    private Video verifedVideo(Long memberId, String videoName) {
+
+        return videoRepository.findVideoByNameWithMember(memberId, videoName)
+                .orElseThrow(VideoNotFoundException::new);
     }
 
     private void watch(Member member, Video video) {

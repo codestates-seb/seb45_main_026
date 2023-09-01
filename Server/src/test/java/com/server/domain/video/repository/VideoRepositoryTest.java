@@ -458,8 +458,22 @@ class VideoRepositoryTest extends RepositoryTest {
 
                     assertThat(videos.getTotalElements()).isEqualTo(100);
                 })
-
         );
+    }
+
+    @Test
+    @DisplayName("memberId, videoName 을 통해 비디오를 찾는다. ")
+    void findVideoByNameWithMember() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
+
+        //when
+        Video findVideo = videoRepository.findVideoByNameWithMember(member.getMemberId(), video.getVideoName()).orElseThrow();
+
+        //then
+        assertThat(findVideo.getVideoId()).isEqualTo(video.getVideoId());
     }
 
     private void createAndSaveReply(Member member, Video video) {

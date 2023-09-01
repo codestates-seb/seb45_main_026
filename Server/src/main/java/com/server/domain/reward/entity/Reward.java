@@ -46,21 +46,22 @@ public class Reward extends BaseEntity {
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
 
-	// @ManyToOne(fetch = FetchType.LAZY)
-	// @JoinColumn(name = "video_id")
-	// private Video video;
+	 @ManyToOne(fetch = FetchType.LAZY)
+	 @JoinColumn(name = "video_id")
+	 private Video video;
 	//
 	// @ManyToOne(fetch = FetchType.LAZY)
 	// @JoinColumn(name = "answer_id")
 	// private Answer answer;
 
 	public static Reward createReward(Long entityId, RewardType rewardType,
-										Integer rewardPoint, Member member) {
+										Integer rewardPoint, Member member, Video video) {
 		return Reward.builder()
 			.entityId(entityId)
 			.rewardType(rewardType)
 			.rewardPoint(rewardPoint)
 			.member(member)
+			.video(video)
 			.build();
 	}
 

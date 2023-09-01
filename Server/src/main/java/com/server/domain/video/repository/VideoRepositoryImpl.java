@@ -12,6 +12,7 @@ import com.server.domain.member.entity.QMember;
 import com.server.domain.reply.entity.QReply;
 import com.server.domain.video.entity.QVideo;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.videoCategory.entity.QVideoCategory;
 import org.springframework.data.domain.*;
 
@@ -85,7 +86,8 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .join(videoCategory.category, category)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(orders.toArray(new OrderSpecifier[0]));
+                .orderBy(orders.toArray(new OrderSpecifier[0]))
+                .where(video.videoStatus.eq(VideoStatus.CREATED));
 
         if (categoryName != null && !categoryName.isEmpty()) {
             query.where(category.categoryName.eq(categoryName));
@@ -102,7 +104,8 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .join(video.channel, channel)
                 .join(channel.member, member)
                 .join(video.videoCategories, videoCategory)
-                .join(videoCategory.category, category);
+                .join(videoCategory.category, category)
+                .where(video.videoStatus.eq(VideoStatus.CREATED));
 
         if (categoryName != null && !categoryName.isEmpty()) {
             countQuery.where(category.categoryName.eq(categoryName));
@@ -159,6 +162,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .where(member.memberId.eq(memberId))
+                .where(video.videoStatus.eq(VideoStatus.CREATED))
                 .orderBy(orders.toArray(new OrderSpecifier[0]));
 
         if (categoryName != null && !categoryName.isEmpty()) {
@@ -171,6 +175,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
         JPAQuery<Video> countQuery = queryFactory.selectFrom(video)
                 .join(video.channel, channel)
                 .join(channel.member, member)
+                .where(video.videoStatus.eq(VideoStatus.CREATED))
                 .where(member.memberId.eq(memberId));
 
         if (categoryName != null && !categoryName.isEmpty()) {
@@ -183,6 +188,19 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
         long totalCount = countQuery.fetchCount();
 
         return new PageImpl<>(query.fetch(), pageable, totalCount);
+    }
+
+    @Override
+    public Optional<Video> findVideoByNameWithMember(Long memberId, String videoName) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(video)
+                        .join(video.channel, channel)
+                        .join(channel.member, member)
+                        .where(video.videoName.eq(videoName))
+                        .where(member.memberId.eq(memberId))
+                        .fetchOne()
+        );
     }
 
     private OrderSpecifier<?> getOrderSpecifier(String sort) {
