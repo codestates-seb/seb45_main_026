@@ -23,6 +23,8 @@ import com.server.domain.subscribe.entity.QSubscribe;
 import com.server.domain.video.entity.QVideo;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
+import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
 
 import javax.persistence.EntityManager;
 
