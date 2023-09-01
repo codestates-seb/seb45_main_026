@@ -20,14 +20,14 @@ public class RewardService {
 		this.rewardRepository = rewardRepository;
 	}
 
-	public void createReward(Object entity, Member member) {
+	public void createReward(Object entity, Video video, Member member) {
 		if (entity instanceof Video) {
-			Video video = (Video) entity;
-			createRewardForVideo(video, member);
+			Video purchaseVideo = (Video) entity;
+			createRewardForVideo(purchaseVideo, member);
 		}
 		else if (entity instanceof Answer) {
 			Answer answer = (Answer) entity;
-			createRewardForAnswer(answer, member);
+			createRewardForAnswer(answer, video, member);
 		}
 	}
 
@@ -36,18 +36,20 @@ public class RewardService {
 			video.getVideoId(),
 			RewardType.VIDEO,
 			(int) (video.getPrice() * 0.01),
-			member
+			member,
+			video
 		);
 
 		saveAndUpdateReward(reward, member);
 	}
 
-	private void createRewardForAnswer(Answer answer, Member member) {
+	private void createRewardForAnswer(Answer answer, Video video, Member member) {
 		Reward reward = Reward.createReward(
 			answer.getAnswerId(),
 			RewardType.QUIZ,
 			10,
-			member
+			member,
+			video
 		);
 
 		saveAndUpdateReward(reward, member);

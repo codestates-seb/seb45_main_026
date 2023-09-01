@@ -7,6 +7,7 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -52,6 +53,7 @@ public abstract class RepositoryTest {
                 .view(0)
                 .star(0.0F)
                 .price(1000)
+                .videoStatus(VideoStatus.CREATED)
                 .build();
 
         em.persist(video);
@@ -69,6 +71,7 @@ public abstract class RepositoryTest {
                 .view(view)
                 .star(0.0F)
                 .price(1000)
+                .videoStatus(VideoStatus.CREATED)
                 .build();
 
         em.persist(video);
@@ -86,6 +89,7 @@ public abstract class RepositoryTest {
                 .view(0)
                 .star(star)
                 .price(1000)
+                .videoStatus(VideoStatus.CREATED)
                 .build();
 
         em.persist(video);

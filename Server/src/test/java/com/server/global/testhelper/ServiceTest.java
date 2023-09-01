@@ -17,6 +17,7 @@ import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.subscribe.repository.SubscribeRepository;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.videoCategory.entity.VideoCategoryRepository;
@@ -89,6 +90,26 @@ public abstract class ServiceTest {
                 .star(0.0F)
                 .price(1000)
                 .videoCategories(new ArrayList<>())
+                .videoStatus(VideoStatus.CREATED)
+                .channel(channel)
+                .build();
+
+        videoRepository.save(video);
+
+        return video;
+    }
+
+    protected Video createAndSaveVideoUploading(Channel channel) {
+        Video video = Video.builder()
+                .videoName("title")
+                .description("description")
+                .thumbnailFile("thumbnailFile")
+                .videoFile("videoFile")
+                .view(0)
+                .star(0.0F)
+                .price(1000)
+                .videoCategories(new ArrayList<>())
+                .videoStatus(VideoStatus.UPLOADING)
                 .channel(channel)
                 .build();
 
@@ -106,6 +127,7 @@ public abstract class ServiceTest {
                 .view(0)
                 .star(0.0F)
                 .price(1000)
+                .videoStatus(VideoStatus.CREATED)
                 .channel(channel)
                 .build();
 

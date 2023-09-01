@@ -448,10 +448,7 @@ class VideoControllerTest extends ControllerTest {
         Long videoId = 1L;
 
         VideoUpdateApiRequest request = VideoUpdateApiRequest.builder()
-                .videoName("videoName")
-                .price(10000)
                 .description("description")
-                .categories(List.of("java", "react"))
                 .build();
 
         //when
@@ -479,10 +476,7 @@ class VideoControllerTest extends ControllerTest {
                                 headerWithName(AUTHORIZATION).description("Access Token")
                         ),
                         requestFields(
-                                fieldWithPath("videoName").description("비디오 제목").attributes(getConstraint("videoName")),
-                                fieldWithPath("price").description("가격").attributes(getConstraint("price")),
-                                fieldWithPath("description").description("비디오 설명").attributes(getConstraint("description")),
-                                fieldWithPath("categories").description("카테고리 목록").attributes(getConstraint("categories"))
+                                fieldWithPath("description").description("비디오 설명").attributes(getConstraint("description"))
                         )
                 )
         );
