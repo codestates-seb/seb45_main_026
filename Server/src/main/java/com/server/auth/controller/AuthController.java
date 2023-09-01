@@ -61,7 +61,7 @@ public class AuthController {
 	}
 
 	@GetMapping("/oauth")
-	public ResponseEntity<Void> oauth(@ModelAttribute @Valid AuthApiRequest.OAuth request) {
+	public ResponseEntity<Void> oauth(@RequestBody @Valid AuthApiRequest.OAuth request) {
 		AuthApiRequest.Token token = oAuthService.login(request.getProvider(), request.getCode());
 
 		HttpHeaders headers = new HttpHeaders();
