@@ -19,13 +19,12 @@ import useConfirm from '../../hooks/useConfirm';
 
 export const SignupForm = () => {
     const navigate = useNavigate();
+
     const emailCodeSendConfirm = useConfirm('이메일로 인증번호가 발송되었습니다. 확인 후 인증코드를 입력해 주세요.');
-    const successConfirm = useConfirm(
-        '회원가입 성공하였습니다.',
-        ()=>{
-            navigate('/login');
-        },
-        ()=>{});
+    const emailCodeComplete = useConfirm('이메일이 인증되었습니다.');
+    const successConfirm = useConfirm('회원가입 성공하였습니다.',
+        ()=>{ navigate('/login'); }, ()=>{} );
+
     const [ isEmailValid, setIsEmailValid ] = useState(false);
     const {
         register,
@@ -66,7 +65,7 @@ export const SignupForm = () => {
             //이메일 코드를 5글자 이상 입력했고 이메일 유효성 검사를 통과했으면
             const response = await emailValidationConfirmService(email,emailCode);
             if(response.status==='success') {
-                window.confirm('이메일이 인증되었습니다.');
+                emailCodeComplete();
                 setIsEmailValid(true);
             } else {
                 setIsEmailValid(false);

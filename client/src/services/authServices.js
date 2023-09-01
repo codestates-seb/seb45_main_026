@@ -49,7 +49,6 @@ export const emailValidationService = async (email) => {
 //email 인증코드 확인
 export const emailValidationConfirmService = async (email, emailCode) => {
     try {
-        console.log(`${email}, ${emailCode}`)
         const response = await axios.post(
             `${ROOT_URL}/auth/signup/confirm`,
             {

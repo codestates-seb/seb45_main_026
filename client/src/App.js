@@ -16,6 +16,7 @@ import SignupPage from "./pages/auth/SignupPage";
 import "./App.css";
 import LectureListPage from "./pages/contents/LectureListPage";
 import { getUserInfoService } from "./services/userInfoService";
+import { setLoginInfo, setToken } from "./redux/createSlice/LoginInfoSlice";
 
 function App() {
   const url = new URL(window.location.href);
@@ -34,10 +35,26 @@ function App() {
   useEffect(()=>{
     if(tokens.authorization) {
       getUserInfoService(tokens.authorization).then((res)=>{
-        //토큰이 유효하지 않으면 저장된 토큰을 삭제한다. 
+        if(res.status==='success') {
+          //토큰이 유효하면 회원 정보를 dispatch한다. 
+          dispatch(setLoginInfo({
+            email: res.data.email,
+            nickname: res.data.nickname
+          }))
+        } else{
+          //토큰이 유효하지 않으면 저장된 토큰을 삭제한다. 
+          dispatch(setToken({
+            authorization: "",
+            refresh: "",
+          },));
+          dispatch(setLoginInfo({
+            email:'',
+            nickname: '',
+          }))
+        }
       })
     }
-  },[])
+  },[]);
 
   return (
     <BrowserRouter>

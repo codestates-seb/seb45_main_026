@@ -12,8 +12,15 @@ export const getUserInfoService = async (authorization) => {
                 }
             }
         );
-        console.log(response);
+
+        return {
+            status: 'success',
+            data: response.data.data
+        }
     } catch (err) {
-        console.log(err);
+        return {
+            status: 'error',
+            ...err,
+        }
     } 
 }

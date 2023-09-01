@@ -27,8 +27,6 @@ export const LoginForm = () => {
         if(response.status==='success') {
             const authorization = response.authorization;
             const refresh = response.refresh;
-
-            console.log(authorization)
             
             dispatch(setToken({
                 authorization: authorization,
