@@ -30,7 +30,7 @@ export const SignupForm = () => {
      const onSubmit = async (data) => {
         if(isEmailValid){
             const response = await signupService({data:data});
-            if(response===204 || response==='204') {
+            if(response.status === 'success') {
                 console.log('회원가입 성공!');
                 navigate('/login');
             }
@@ -42,10 +42,10 @@ export const SignupForm = () => {
         if(!errors.email && email.length>5) {
             //이메일 유효성 검사를 통과했으면 입력한 이메일로 인증코드를 전송함
             const response = await emailValidationService(email);
-            if(response===204 || response==='204') {
+            if(response.status==='success') {
                 window.confirm('이메일로 인증번호가 발송되었습니다. 확인 후 인증코드를 입력해주세요.')
             } else {
-                window.confirm(`${response}`)
+                window.confirm(`${response.data}`)
             }
         }
     }
@@ -57,7 +57,7 @@ export const SignupForm = () => {
         if(!errors.email && !errors.emailCode && email.length>5 && emailCode.length>4){
             //이메일 코드를 5글자 이상 입력했고 이메일 유효성 검사를 통과했으면
             const response = await emailValidationConfirmService(email,emailCode);
-            if(response===204 || response==='204') {
+            if(response.status==='success') {
                 window.confirm('이메일이 인증되었습니다.');
                 setIsEmailValid(true);
             } else {
