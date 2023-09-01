@@ -4,6 +4,7 @@ import { ROOT_URL } from '.';
 //프로필 조회
 export const getUserInfoService = async (authorization) => {
     try {
+        console.log(authorization)
         const response = await axios.get(
             `${ROOT_URL}/members`,
             {

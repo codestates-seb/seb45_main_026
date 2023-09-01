@@ -16,9 +16,6 @@ export const LoginFormContainer = styled.form`
 export const LoginFormInputContainer = styled.div`
     margin: ${globalTokens.Spacing4.value}px;
 `
-export const LoginFormInput = styled(RegularInput)`
-    width: 250px;
-`
 export const ErrorTextTypo = styled(SmallTextTypo)`
     color: ${(props)=>props.isDark ? globalTokens.LightRed.value : globalTokens.Negative.value};
     text-align: end;

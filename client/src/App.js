@@ -1,6 +1,6 @@
 import "./App.css";
 import { useEffect, useMemo } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setBrowserWidth } from "./redux/createSlice/UISettingSlice";
 import MainPage from "./pages/contents/MainPage";
@@ -18,11 +18,13 @@ import ProblemPage from "./pages/contents/ProblemPage";
 import LectureListPage from "./pages/contents/LectureListPage";
 import { getUserInfoService } from "./services/userInfoService";
 import { setLoginInfo, setToken } from "./redux/createSlice/LoginInfoSlice";
+import useConfirm from "./hooks/useConfirm";
+import FindPasswordPage from "./pages/auth/FindPasswordPage";
 
 function App() {
   const url = new URL(window.location.href);
-  const dispatch = useDispatch();
-  const tokens = useSelector(state=>state.loginInfo.accessToken);
+  const dispatch = useDispatch();  const tokens = useSelector(state=>state.loginInfo.accessToken);
+  const tokenFinishConfirm = useConfirm('토큰이 만료되었건, 서버 오류로 로그아웃 되었습니다.');
   
   const handleResize = () => {
       dispatch(setBrowserWidth(window.innerWidth));
@@ -34,7 +36,6 @@ function App() {
 
   //웹을 실행했을 때 저장된 토큰이 있으면 토큰을 가지고 프로필 조회를 한다. 
   useEffect(()=>{
-    console.log("app.js가 실행됨");
     if(tokens.authorization) {
       getUserInfoService(tokens.authorization).then((res)=>{
         if(res.status==='success') {
@@ -45,6 +46,7 @@ function App() {
           }))
         } else{
           //토큰이 유효하지 않으면 저장된 토큰을 삭제한다. 
+          tokenFinishConfirm();
           dispatch(setToken({
             authorization: "",
             refresh: "",
@@ -65,6 +67,7 @@ function App() {
         <Route path="/" element={<MainPage/>}/>
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/signup" element={<SignupPage/>}/>
+        <Route path="/findPassword" element={<FindPasswordPage/>}/>
         <Route path="/MyProfile" element={<MyProfilePage/>}/>
         <Route path="/lecture" element={<LectureListPage/>}/> 
         <Route path="/videos/1" element={<DetailPage/>}/>
