@@ -5,11 +5,6 @@ import {
     SignupFormContainer,
     SignupButton,
     SignupErrorTypo,
-    SignupFormInputContainer,
-    SignupFormLabel,
-    SignupWithButtonInputContainer,
-    SignupFormInput,
-    SignupEmailConfirmButton
 } from './SignupForm.style';
 import SignupInput from './SignupInput';
 import { emailValidationConfirmService, emailValidationService, signupService } from '../../services/authServices';

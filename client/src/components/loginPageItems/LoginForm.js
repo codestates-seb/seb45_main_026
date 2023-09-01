@@ -4,17 +4,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import { 
     LoginFormContainer,
     LoginFormInputContainer,
-    LoginFormInput,
     ErrorTextTypo,
     LoginButton,
 } from './LoginForm.style';
 import { loginService } from '../../services/authServices';
 import { setToken } from '../../redux/createSlice/LoginInfoSlice';
 import { useNavigate } from 'react-router-dom';
+import LoginInputs from './LoginInputs';
+import useConfirm from '../../hooks/useConfirm';
 
 export const LoginForm = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const loginFailConfirm = useConfirm('이메일, 비밀번호를 확인해 주세요.')
     const isDark = useSelector(state=>state.uiSetting.isDark);
     const {
         register, 
@@ -35,36 +37,45 @@ export const LoginForm = () => {
 
             navigate('/lecture');
         } else {
-
+            loginFailConfirm();
         }
     };
 
     return (
         <LoginFormContainer onSubmit={handleSubmit(onSubmit)}>
             <LoginFormInputContainer isDark={isDark}>
-                <LoginFormInput 
-                    isDark={isDark} 
-                    type='text' 
-                    placeholder='이메일을 입력해 주세요.' 
-                    {...register("email", { 
-                        required: true, 
-                        maxLength: 20,
-                        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/i,
-                    })} />
-                {
-                    errors.email && errors.email.type==='required' &&
+                <LoginInputs
+                    width='250px'
+                    type='text'
+                    name='email'
+                    placeholder='이메일을 입력해 주세요.'
+                    register={register}
+                    required={true}
+                    pattern={/^[^\s@]+@[^\s@]+\.[^\s@]+$/i}/>
+                { errors.email && errors.email.type==='required' &&
                         <ErrorTextTypo isDark={isDark}>이메일을 입력해 주세요.</ErrorTextTypo> }
                 { errors.email && errors.email.type==='pattern' &&
                         <ErrorTextTypo isDark={isDark}>올바르지 않은 이메일 형식입니다.</ErrorTextTypo> }
             </LoginFormInputContainer>
             <LoginFormInputContainer>
-                <LoginFormInput 
-                    isDark={isDark} 
-                    type='password' 
-                    placeholder='비밀번호를 입력해 주세요.' 
-                    {...register("password", { required: true })} />
+                <LoginInputs
+                    width='250px'
+                    type='password'
+                    name='password'
+                    placeholder='비밀번호를 입력해 주세요.'
+                    register={register}
+                    required={true}
+                    maxLength={20}
+                    minLength={9}
+                    pattern={/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/} />
                 { errors.password && errors.password.type==='required' && 
                         <ErrorTextTypo isDark={isDark}>비밀번호를 입력해 주세요.</ErrorTextTypo> }
+                { errors.password && errors.password.type==='maxLength' && 
+                        <ErrorTextTypo isDark={isDark}>비밀번호는 20자 이하입니다.</ErrorTextTypo> }
+                { errors.password && errors.password.type==='minLength' && 
+                        <ErrorTextTypo isDark={isDark}>비밀번호는 9자 이상입니다.</ErrorTextTypo> }
+                { errors.password && errors.password.type==='pattern' && 
+                        <ErrorTextTypo isDark={isDark}>비밀번호는 영문자, 숫자, 특수기호를 포함합니다.</ErrorTextTypo> }
             </LoginFormInputContainer>
             
             <LoginButton isDark={isDark} type="submit">로그인</LoginButton>

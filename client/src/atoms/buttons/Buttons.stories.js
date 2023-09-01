@@ -26,12 +26,10 @@ export default {
     component: Buttons,
     argTypes: {
         isDark: { control: 'boolean' },
-        isChecked: { control: 'boolean' },
     }
 }
 
 export const ButtonsTemplate = (args) => <Buttons {...args}/>
 ButtonsTemplate.args = {
     isDark: false,
-    isChecked: false,
 }

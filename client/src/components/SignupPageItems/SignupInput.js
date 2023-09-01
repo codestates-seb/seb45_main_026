@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { SignupEmailConfirmButton, SignupFormInput, SignupFormInputContainer, SignupFormLabel, SignupWithButtonInputContainer } from './SignupForm.style';
+import { SignupEmailConfirmButton, SignupFormInputContainer, SignupWithButtonInputContainer } from './SignupForm.style';
 import { RegularInput } from '../../atoms/inputs/Inputs';
 import { BodyTextTypo } from '../../atoms/typographys/Typographys';
 
@@ -24,8 +24,7 @@ export const SignupInput = ({
                                 required: required,
                                 maxLength: maxLength,
                                 minLength: minLength,                                    pattern: pattern,
-                                validate: validateFunc })}
-                            />
+                                validate: validateFunc })}/>
                         { isButton &&
                             <SignupEmailConfirmButton
                             isDark={isDark}
@@ -33,7 +32,7 @@ export const SignupInput = ({
                                 {buttonTitle}
                             </SignupEmailConfirmButton> }
                     </SignupWithButtonInputContainer>
-                : 
+                 : 
                     <RegularInput
                         isDark={isDark}
                         width={ isButton ? '200px' : '300px' }
