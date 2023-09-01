@@ -16,7 +16,8 @@ const ButtonContainer = styled.div`
 const FilterButton = styled.button`
     width: 100%;
     height: 48px;
-    background-color: ${globalTokens.LightGray.value};
+    color: ${globalTokens.White.value};
+    background-color: ${globalTokens.LightRed.value};
     padding: ${globalTokens.Spacing12.value}px;
     font-size: ${globalTokens.BodyText.value}px;
     font-weight: ${globalTokens.Bold.value};

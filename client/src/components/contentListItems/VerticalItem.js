@@ -17,7 +17,7 @@ const ComponentBody = styled.li`
     justify-content: space-between;
     background-color: white;
 `
-const ImageContainer = styled.img`
+const Thumbnail = styled.img`
     width: 250px;
     height: 160px;
     background-color: lightgray;
@@ -106,7 +106,7 @@ const ScoreText = styled.span`
 export default function VerticalItem() { 
     return (
       <ComponentBody>
-        <ImageContainer />
+        <Thumbnail />
         <ItemTitle>대충 영상 제목대충 영상 제목</ItemTitle>
         <ItemInfors>
           <InforContainerLeft>

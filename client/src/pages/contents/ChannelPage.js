@@ -1,21 +1,25 @@
-import React from "react";
+import React,{useState} from "react";
 import { styled } from "styled-components";
 import { useSelector } from "react-redux";
 import { PageContainer,MainContainer } from "../../atoms/layouts/PageContainer";
 import tokens from "../../styles/tokens.json";
-import VerticalItem from "../../components/contentListItems/VerticalItem";
-import HorizonItem from "../../components/contentListItems/HorizonItem";
-import CategoryFilter from "../../components/filters/CategoryFilter";
+import ChannelNav from "../../components/contentListItems/ChannelNav";
+import ChannelHome from "../../components/contentListItems/ChannelHome";
+import ChannelList from "../../components/contentListItems/ChannelList";
+import ChannelNotice from "../../components/contentListItems/ChannelNotice";
 
 const globalTokens = tokens.global;
 
-const ProfileContainer = styled.div`
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    gap: ${globalTokens.Spacing20.value}px;
-    margin: ${globalTokens.Spacing36.value}px 0;
+const ChannelMainContainer = styled(MainContainer)`
+  min-width: 600px;
 `
+const ProfileContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: ${globalTokens.Spacing20.value}px;
+  margin: ${globalTokens.Spacing36.value}px 0;
+`;
 const ProfileImg = styled.img`
     max-height: 130px;
     height: auto;
@@ -57,27 +61,25 @@ const JustDiv = styled.div`
 `
 
 
+
 export default function ChannelPage() {
   const isDark = useSelector((state) => state.uiSetting.isDark);
+  const [navigate,setNavigate]=useState(0)
     return (
       <PageContainer isDark={isDark}>
-        <MainContainer>
+        <ChannelMainContainer>
           <ProfileContainer>
             <ImgContainer>
               <ProfileImg src="https://avatars.githubusercontent.com/u/50258232?v=4" />
             </ImgContainer>
             <InforContainer>
               <ChannelTitle>HyerimKimm</ChannelTitle>
-              <ChannelDescription>
-                안녕하세요 안녕하세요 안녕하세요 안녕하세요 안녕하세요
-                안녕하세요 안녕하세요
-                안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요
-              </ChannelDescription>
+              <ChannelDescription>안녕하세요</ChannelDescription>
             </InforContainer>
           </ProfileContainer>
-          <CategoryFilter />
-          <JustDiv></JustDiv>
-        </MainContainer>
+          <ChannelNav navigate={navigate} setNavigate={setNavigate} />
+          {navigate===0?<ChannelHome/>:navigate===1?<ChannelList/>:<ChannelNotice/>}
+        </ChannelMainContainer>
       </PageContainer>
     );
 }
