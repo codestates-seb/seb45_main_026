@@ -95,71 +95,71 @@ public class MemberControllerTest extends ControllerTest {
 		));
 	}
 
-	@Test
-	@DisplayName("리워드 목록 조회 성공 테스트")
-	void getRewards() throws Exception {
-		//given
-		List<RewardsResponse> responses = List.of(
-			RewardsResponse.builder()
-				.entityId(1L)
-				.rewardType(RewardType.VIDEO)
-				.rewardPoint(100)
-				.createdDate(LocalDateTime.now())
-				.build(),
-			RewardsResponse.builder()
-				.entityId(33L)
-				.rewardType(RewardType.QUIZ)
-				.rewardPoint(10)
-				.createdDate(LocalDateTime.now())
-				.build(),
-			RewardsResponse.builder()
-				.entityId(114L)
-				.rewardType(RewardType.VIDEO)
-				.rewardPoint(300)
-				.createdDate(LocalDateTime.now())
-				.build(),
-			RewardsResponse.builder()
-				.entityId(418L)
-				.rewardType(RewardType.QUIZ)
-				.rewardPoint(5)
-				.createdDate(LocalDateTime.now())
-				.build()
-		);
-
-		PageImpl<RewardsResponse> page = new PageImpl<>(responses);
-
-		given(memberService.getRewards(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
-
-		//when
-		ResultActions actions = mockMvc.perform(
-			get("/members/rewards")
-				.header(AUTHORIZATION, TOKEN)
-				.param("page","1")
-				.accept(APPLICATION_JSON)
-		);
-
-		//then
-		RestDocsUtil.assertPageResponse(actions, responses.size());
-
-		actions
-			.andDo(
-				documentHandler.document(
-					requestHeaders(
-						headerWithName(AUTHORIZATION).description("액세스 토큰")
-					),
-					requestParameters(
-						parameterWithName("page").description("조회할 리워드 목록 페이지")
-					),
-					pageResponseFields(
-						fieldWithPath("data[]").description("리워드 목록"),
-						fieldWithPath("data[].entityId").description("리워드를 획득한 엔티티의 ID"),
-						fieldWithPath("data[].rewardType").description("리워드 타입"),
-						fieldWithPath("data[].rewardPoint").description("지급된 리워드"),
-						fieldWithPath("data[].createdDate").description("리워드 지급 날짜")
-					)
-				)
-			);
-	}
+	// @Test
+	// @DisplayName("리워드 목록 조회 성공 테스트")
+	// void getRewards() throws Exception {
+	// 	//given
+	// 	List<RewardsResponse> responses = List.of(
+	// 		RewardsResponse.builder()
+	// 			.entityId(1L)
+	// 			.rewardType(RewardType.VIDEO)
+	// 			.rewardPoint(100)
+	// 			.createdDate(LocalDateTime.now())
+	// 			.build(),
+	// 		RewardsResponse.builder()
+	// 			.entityId(33L)
+	// 			.rewardType(RewardType.QUIZ)
+	// 			.rewardPoint(10)
+	// 			.createdDate(LocalDateTime.now())
+	// 			.build(),
+	// 		RewardsResponse.builder()
+	// 			.entityId(114L)
+	// 			.rewardType(RewardType.VIDEO)
+	// 			.rewardPoint(300)
+	// 			.createdDate(LocalDateTime.now())
+	// 			.build(),
+	// 		RewardsResponse.builder()
+	// 			.entityId(418L)
+	// 			.rewardType(RewardType.QUIZ)
+	// 			.rewardPoint(5)
+	// 			.createdDate(LocalDateTime.now())
+	// 			.build()
+	// 	);
+	//
+	// 	PageImpl<RewardsResponse> page = new PageImpl<>(responses);
+	//
+	// 	given(memberService.getRewards(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
+	//
+	// 	//when
+	// 	ResultActions actions = mockMvc.perform(
+	// 		get("/members/rewards")
+	// 			.header(AUTHORIZATION, TOKEN)
+	// 			.param("page","1")
+	// 			.accept(APPLICATION_JSON)
+	// 	);
+	//
+	// 	//then
+	// 	RestDocsUtil.assertPageResponse(actions, responses.size());
+	//
+	// 	actions
+	// 		.andDo(
+	// 			documentHandler.document(
+	// 				requestHeaders(
+	// 					headerWithName(AUTHORIZATION).description("액세스 토큰")
+	// 				),
+	// 				requestParameters(
+	// 					parameterWithName("page").description("조회할 리워드 목록 페이지")
+	// 				),
+	// 				pageResponseFields(
+	// 					fieldWithPath("data[]").description("리워드 목록"),
+	// 					fieldWithPath("data[].entityId").description("리워드를 획득한 엔티티의 ID"),
+	// 					fieldWithPath("data[].rewardType").description("리워드 타입"),
+	// 					fieldWithPath("data[].rewardPoint").description("지급된 리워드"),
+	// 					fieldWithPath("data[].createdDate").description("리워드 지급 날짜")
+	// 				)
+	// 			)
+	// 		);
+	// }
 
 	@Test
 	@DisplayName("구독 목록 조회 성공 테스트")

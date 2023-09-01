@@ -37,5 +37,5 @@ public interface MemberRepositoryCustom {
 
     Page<PlaylistsResponse> findPlaylistsOrderBySort(Long memberId, String sort, Pageable pageable);
 
-    Page<RewardsResponse> findRewardsByMemberId(Long memberId, Pageable pageable);
+    // Page<RewardsResponse> findRewardsByMemberId(Long memberId, Pageable pageable);
 }
