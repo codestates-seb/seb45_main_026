@@ -53,20 +53,19 @@ public class MemberService {
 	public ProfileResponse getMember(Long loginId) {
 		Member member = validateMember(loginId);
 
-		ProfileResponse response;
-
-		try {
-			response = ProfileResponse.getMember(member,
-				awsService.getFileUrl(
-					member.getMemberId(),
-					member.getImageFile(),
-					FileType.PROFILE_IMAGE));
-		} catch (S3FileNotVaildException e) {
-			response = ProfileResponse.getMember(member,
+		if (member.getImageFile() == null) {
+			return ProfileResponse.getMember(member,
 				"프로필 이미지 미등록");
 		}
 
-		return response;
+		return ProfileResponse.getMember(member, getFileUrl(member));
+	}
+
+	private String getFileUrl(Member member) {
+		return awsService.getFileUrl(
+			member.getMemberId(),
+			member.getImageFile(),
+			FileType.PROFILE_IMAGE);
 	}
 
 	public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
