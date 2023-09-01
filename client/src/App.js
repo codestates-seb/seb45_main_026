@@ -23,42 +23,49 @@ import FindPasswordPage from "./pages/auth/FindPasswordPage";
 
 function App() {
   const url = new URL(window.location.href);
-  const dispatch = useDispatch();  const tokens = useSelector(state=>state.loginInfo.accessToken);
+  const dispatch = useDispatch();  
+  const tokens = useSelector(state=>state.loginInfo.accessToken);
   const tokenFinishConfirm = useConfirm('토큰이 만료되었건, 서버 오류로 로그아웃 되었습니다.');
   
   const handleResize = () => {
-      dispatch(setBrowserWidth(window.innerWidth));
+    dispatch(setBrowserWidth(window.innerWidth));
   };
-  
+
   useMemo(() => {
     window.addEventListener("resize", handleResize);
   }, []);
 
-  //웹을 실행했을 때 저장된 토큰이 있으면 토큰을 가지고 프로필 조회를 한다. 
-  useEffect(()=>{
-    if(tokens.authorization) {
-      getUserInfoService(tokens.authorization).then((res)=>{
-        if(res.status==='success') {
-          //토큰이 유효하면 회원 정보를 dispatch한다. 
-          dispatch(setLoginInfo({
-            email: res.data.email,
-            nickname: res.data.nickname
-          }))
-        } else{
-          //토큰이 유효하지 않으면 저장된 토큰을 삭제한다. 
-          tokenFinishConfirm();
-          dispatch(setToken({
-            authorization: "",
-            refresh: "",
-          },));
-          dispatch(setLoginInfo({
-            email:'',
-            nickname: '',
-          }))
+  //웹을 실행했을 때 저장된 토큰이 있으면 토큰을 가지고 프로필 조회를 한다.
+  useEffect(() => {
+    // console.log("app.js가 실행됨");
+    if (tokens.authorization) {
+      getUserInfoService(tokens.authorization).then((res) => {
+        if (res.status === "success") {
+          //토큰이 유효하면 회원 정보를 dispatch한다.
+          dispatch(
+            setLoginInfo({
+              email: res.data.email,
+              nickname: res.data.nickname,
+            })
+          );
+        } else {
+          //토큰이 유효하지 않으면 저장된 토큰을 삭제한다.
+          dispatch(
+            setToken({
+              authorization: "",
+              refresh: "",
+            })
+          );
+          dispatch(
+            setLoginInfo({
+              email: "",
+              nickname: "",
+            })
+          );
         }
-      })
+      });
     }
-  },[tokens]);
+  }, [tokens]);
 
   return (
     <BrowserRouter>
