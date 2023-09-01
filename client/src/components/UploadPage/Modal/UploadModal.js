@@ -4,7 +4,7 @@ export const ModalBackground = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 20;
+  z-index: 1000;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -19,24 +19,24 @@ export const ProblemModal = styled.div`
   border: 2px solid rgb(200, 200, 200);
   border-radius: 8px;
   width: 100%;
-  max-width: 700px;
-  padding: 30px;
+  max-width: 600px;
+  padding: 10px 30px 30px 30px;
 `;
 
-export const ProblemTitle = styled.div`
+export const ProblemTitle = styled.h2`
   display: flex;
-  flex-direction: row;
-  justify-content: end;
+  flex-direction: column;
+  justify-content: start;
   align-items: start;
   width: 100%;
-  margin: 10px 0px;
+  margin: 20px 0px;
 `;
 
 export const ProblemContent = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin: 50px 0px;
+  margin-bottom: 40px;
 `;
 
 export const ProblemLists = styled.ul`
@@ -62,7 +62,10 @@ export const RegularLabel = styled.label`
 
 export const TitleLabel = styled(RegularLabel)``;
 export const ListLabel = styled(RegularLabel)``;
-export const CommentLabel = styled(RegularLabel)``;
+export const CommentLabel = styled(RegularLabel)`
+  max-width: 50px;
+  margin-top: 5px;
+`;
 
 export const GrayInput = styled.input`
   border: 2px solid rgb(236, 236, 236);
@@ -77,10 +80,14 @@ export const CheckNumber = styled.input`
   margin-top: 12px;
 `;
 
-export const TitleInput = styled(GrayInput)`
+export const TitleInput = styled.textarea`
   width: 100%;
-  height: 150px;
-  max-width: 500px;
+  height: 100px;
+  /* max-width: 500px; */
+  border: 2px solid rgb(236, 236, 236);
+  border-radius: 8px;
+  margin-top: 20px;
+  padding: 10px 0px 0px 10px;
 `;
 
 export const ListInput = styled(GrayInput)`
@@ -91,8 +98,8 @@ export const ListInput = styled(GrayInput)`
 
 export const CommentInput = styled.textarea`
   width: 100%;
-  height: 150px;
-  max-width: 500px;
+  height: 120px;
+  /* max-width: 620px; */
   border: 2px solid rgb(236, 236, 236);
   border-radius: 8px;
   margin-left: 15px;
@@ -114,7 +121,7 @@ export const SubmitBtn = styled.button`
   }
 `;
 
-const UploadModal = ({ isModal, setModal }) => {
+const UploadModal = ({ setModal }) => {
   return (
     <ModalBackground onClick={() => setModal(false)}>
       <ProblemModal
@@ -123,8 +130,8 @@ const UploadModal = ({ isModal, setModal }) => {
         }}
       >
         <ProblemTitle>
-          <TitleLabel>문제</TitleLabel>
-          <CommentInput type="text" placeholder="문제를 입력해주세요." />
+          문제 등록하기
+          <TitleInput type="text" placeholder="문제의 지문을 입력해주세요." />
         </ProblemTitle>
         <ProblemContent>
           <ProblemLists>

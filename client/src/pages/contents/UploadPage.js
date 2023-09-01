@@ -62,6 +62,7 @@ export const ColBox = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: start;
+  align-items: start;
   width: 100%;
 `;
 

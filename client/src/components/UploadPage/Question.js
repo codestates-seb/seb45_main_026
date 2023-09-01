@@ -11,7 +11,7 @@ export const QuestionBox = styled.div`
   align-items: start;
   width: 100%;
   max-width: 800px;
-  min-height: 70vh;
+  min-height: 100vh;
   padding: 20px;
 `;
 
@@ -80,7 +80,7 @@ const QuestionSection = () => {
         </AddQuestion>
         <SubmitQuestion>강의 등록 완료</SubmitQuestion>
       </AddQuestionBox>
-      {isModal && <UploadModal isModal={isModal} setModal={setModal} />}
+      {isModal && <UploadModal setModal={setModal} />}
     </QuestionBox>
   );
 };
