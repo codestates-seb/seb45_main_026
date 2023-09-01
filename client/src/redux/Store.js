@@ -6,12 +6,14 @@ import { combineReducers } from "@reduxjs/toolkit";
 import LoginInfoSlice from "./createSlice/LoginInfoSlice";
 import UISettingSlice from "./createSlice/UISettingSlice";
 import FilterSlice from "./createSlice/FilterSlice";
+import VideoInfoSlice from "./createSlice/VideoInfoSlice";
 
 const reducers = combineReducers({
   // 각각의 slice에 저장되어 있는 여러 reducer들을 하나의 reducer로 통합.
   loginInfo: LoginInfoSlice.reducer, // slice에 있는 state들을 사용하고 싶으면 이곳에 추가해야함. key는 원하는 이름(나중에 useSelector 했을때 부를 이름.)
   uiSetting: UISettingSlice.reducer,
   filterSlice: FilterSlice.reducer,
+  videoInfo: VideoInfoSlice.reducer,
 });
 
 const persistConfig = {

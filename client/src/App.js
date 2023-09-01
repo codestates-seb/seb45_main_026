@@ -22,53 +22,59 @@ import { setLoginInfo, setToken } from "./redux/createSlice/LoginInfoSlice";
 function App() {
   const url = new URL(window.location.href);
   const dispatch = useDispatch();
-  const tokens = useSelector(state=>state.loginInfo.accessToken);
-  
+  const tokens = useSelector((state) => state.loginInfo.accessToken);
+
   const handleResize = () => {
-      dispatch(setBrowserWidth(window.innerWidth));
+    dispatch(setBrowserWidth(window.innerWidth));
   };
-  
+
   useMemo(() => {
     window.addEventListener("resize", handleResize);
   }, []);
 
-  //웹을 실행했을 때 저장된 토큰이 있으면 토큰을 가지고 프로필 조회를 한다. 
-  useEffect(()=>{
-    console.log("app.js가 실행됨");
-    if(tokens.authorization) {
-      getUserInfoService(tokens.authorization).then((res)=>{
-        if(res.status==='success') {
-          //토큰이 유효하면 회원 정보를 dispatch한다. 
-          dispatch(setLoginInfo({
-            email: res.data.email,
-            nickname: res.data.nickname
-          }))
-        } else{
-          //토큰이 유효하지 않으면 저장된 토큰을 삭제한다. 
-          dispatch(setToken({
-            authorization: "",
-            refresh: "",
-          },));
-          dispatch(setLoginInfo({
-            email:'',
-            nickname: '',
-          }))
+  //웹을 실행했을 때 저장된 토큰이 있으면 토큰을 가지고 프로필 조회를 한다.
+  useEffect(() => {
+    // console.log("app.js가 실행됨");
+    if (tokens.authorization) {
+      getUserInfoService(tokens.authorization).then((res) => {
+        if (res.status === "success") {
+          //토큰이 유효하면 회원 정보를 dispatch한다.
+          dispatch(
+            setLoginInfo({
+              email: res.data.email,
+              nickname: res.data.nickname,
+            })
+          );
+        } else {
+          //토큰이 유효하지 않으면 저장된 토큰을 삭제한다.
+          dispatch(
+            setToken({
+              authorization: "",
+              refresh: "",
+            })
+          );
+          dispatch(
+            setLoginInfo({
+              email: "",
+              nickname: "",
+            })
+          );
         }
-      })
+      });
     }
-  },[tokens]);
+  }, [tokens]);
 
   return (
     <BrowserRouter>
       <Header />
       <Routes>
-        <Route path="/" element={<MainPage/>}/>
-        <Route path="/login" element={<LoginPage/>}/>
-        <Route path="/signup" element={<SignupPage/>}/>
-        <Route path="/MyProfile" element={<MyProfilePage/>}/>
-        <Route path="/lecture" element={<LectureListPage/>}/> 
-        <Route path="/videos/1" element={<DetailPage/>}/>
-        <Route path="/channels/1" element={<ChannelPage/>}/>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/MyProfile" element={<MyProfilePage />} />
+        <Route path="/lecture" element={<LectureListPage />} />
+        <Route path="/videos/1" element={<DetailPage />} />
+        <Route path="/channels/1" element={<ChannelPage />} />
         <Route path="/carts" element={<CartPage />} />
         <Route path="/upload" element={<UploadPage />} />
         <Route path="/problems" element={<ProblemPage />} />
