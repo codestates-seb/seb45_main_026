@@ -133,9 +133,11 @@ public class AuthControllerTest {
 	@DisplayName("OAuth2 로그인 성공 테스트")
 	void googleLogin() throws Exception {
 		//given
-		String provider = "GOOGLE";
 		String code = "ABCDEFG1234567";
 		Long memberId = 1L;
+
+		AuthApiRequest.OAuth oAuth = new AuthApiRequest.OAuth(OAuthProvider.GOOGLE, code);
+		String content = objectMapper.writeValueAsString(oAuth);
 
 		AuthApiRequest.Token token = new AuthApiRequest.Token("Bearer aaa.bbb.ccc", "Bearer ddd.eee.fff", memberId);
 
@@ -144,8 +146,8 @@ public class AuthControllerTest {
 		//when
 		ResultActions actions = mockMvc.perform(
 			get("/auth/oauth")
-				.param("provider", provider)
-				.param("code", code)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(content)
 		);
 
 		//then
@@ -161,9 +163,9 @@ public class AuthControllerTest {
 					"auth/oauth",
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
-					requestParameters(
-						parameterWithName("provider").description(generateLinkCode(OAuthProvider.class)),
-						parameterWithName("code").description("OAuth 인증 코드")
+					requestFields(
+						fieldWithPath("provider").description(generateLinkCode(OAuthProvider.class)),
+						fieldWithPath("code").description("OAuth 인증 코드")
 					),
 					responseHeaders(
 						headerWithName("Authorization").description("accessToken"),
