@@ -19,7 +19,7 @@ public class Reply extends BaseEntity {
     private Long replyId;
 
     @Column(nullable = false)
-    private int star;
+    private Integer star;
 
     @Lob
     @Column(nullable = false)
@@ -35,23 +35,23 @@ public class Reply extends BaseEntity {
     private LocalDateTime createdAt;
 
 
-    public void setReplyId(Long replyId){
+    public void setReplyId(Long replyId) {
         this.replyId = replyId;
     }
 
-    public void setStar(int star){
+    public void setStar(int star) {
         this.star = star;
     }
 
-    public void setContent(String content){
+    public void setContent(String content) {
         this.content = content;
     }
 
-    public void setMember(Member member){
+    public void setMember(Member member) {
         this.member = member;
     }
 
-    public void setVideo(Video video){
+    public void setVideo(Video video) {
         this.video = video;
     }
 
@@ -60,8 +60,14 @@ public class Reply extends BaseEntity {
         this.createdAt = createdAt;
     }
 
-    public Long setReplyId(){
+    public Long setReplyId() {
         return replyId;
     }
-}
 
+
+    public void updateReply(String content, Integer star) {
+        this.content = content;
+        this.star = star;
+    }
+
+}

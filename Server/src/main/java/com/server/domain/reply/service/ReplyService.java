@@ -2,87 +2,84 @@ package com.server.domain.reply.service;
 
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.reply.dto.ReplyResponse;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.reply.dto.ReplyDto;
+import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.replyException.ReplyNotFoundException;
+import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 @Service
 public class ReplyService {
 
     private ReplyRepository replyRepository;
     private MemberRepository memberRepository;
 
+
     public ReplyService(ReplyRepository replyRepository, MemberRepository memberRepository) {
         this.replyRepository = replyRepository;
         this.memberRepository = memberRepository;
     }
 
-    public List<ReplyDto.ReplyResponse> getReplies(Long videoId, int page, String sort, int star) {
+    public Page<ReplyInfo> getReplies(Long replyId, int page, int size, String sort) {
 
-        Sort replySort; // 정렬 기준
+        PageRequest pageRequest = PageRequest.of(page, size);
 
-        switch (sort) {
-            case "createdAt":
-                replySort = Sort.by(Sort.Direction.DESC, "createdAt");
-                break;
-            case "star":
-                replySort = Sort.by(Sort.Direction.DESC, "star");
-                break;
-            case "starDescending": //별점낮은 순으로 정렬
-                replySort = Sort.by(Sort.Direction.ASC, "star");
-                break;
-            default:
-                replySort = Sort.by(Sort.Direction.DESC, "createdAt");
-                break;
-        }
-
-        PageRequest pageRequest = PageRequest.of(page - 1, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        List<Reply> replies = replyRepository.findRepliesBy(videoId, star, pageRequest);
-
-        return ReplyDto.ReplyListOf(replies);
+        return ReplyInfo.of(replyRepository.findAllByReplyId(pageRequest, sort, replyId));
     }
 
-    public Reply createReply(Long memberId, ReplyDto.ReplyResponse replyDto) {
 
-        Member member = memberRepository.findById(replyDto.getMemberId())
+
+    public Reply createReply(Long loginMemberId, ReplyResponse response) {
+
+        Member loginMember = memberRepository.findById(loginMemberId)
                 .orElseThrow(() -> new MemberNotFoundException());
 
-        Reply reply = new Reply();
-        reply.setContent(replyDto.getContent());
-        reply.setStar(replyDto.getStar());
-        reply.setMember(member);
+        Integer star = response.getStar();
 
-        return replyRepository.save(reply);
-    }
+        if (star < 1 || star > 10) {
+            throw new ReplyNotValidException();
+        }
 
-    public Reply updateReply(Long memberId, ReplyDto.ReplyResponse replyDto) {
-
-        Reply reply = replyRepository.findById(memberId)
-                .orElseThrow(() -> new ReplyNotFoundException());
-
-        reply = Reply.builder()
-                .replyId(reply.getReplyId())
-                .member(reply.getMember())
-                .content(replyDto.getContent())
-                .star(replyDto.getStar())
-                .createdAt(reply.getCreatedAt())
+        Reply reply = Reply.builder()
+                .member(loginMember)
+                .content(response.getContent())
+                .star(response.getStar())
                 .build();
 
         return replyRepository.save(reply);
     }
 
-    public void deleteReply(Long replyId, Long memberId) {
 
-        Reply reply = replyRepository.findById(replyId)
-                .orElseThrow(() -> new ReplyNotFoundException());
+    public Reply updateReply(Long loginMemberId, Long replyId, ReplyResponse response) {
 
-        replyRepository.delete(reply);
+        Member loginMember = memberRepository.findById(loginMemberId)
+                .orElseThrow(() -> new MemberNotFoundException());
+
+        Reply reply = existReply(replyId);
+
+        reply.updateReply(response.getContent(), response.getStar());
+
+        return reply;
     }
+
+    public void deleteReply(Long replyId, Long loginMemberId) {
+
+        Member member = memberRepository.findById(loginMemberId)
+                .orElseThrow(() -> new MemberNotFoundException());
+
+        replyRepository.deleteById(replyId);
+    }
+
+
+    public Reply existReply(Long replyId) {
+
+        return replyRepository.findById(replyId)
+                .orElseThrow(() -> new ReplyNotFoundException());
+    }
+
 }

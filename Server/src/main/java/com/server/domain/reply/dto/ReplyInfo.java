@@ -5,41 +5,35 @@ import com.server.domain.reply.entity.Reply;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Builder
-public class ReplyDto {
-
-    @Builder
-    @Getter
-    @AllArgsConstructor
-    public static class ReplyResponse {
+@Getter
+@AllArgsConstructor
+public class ReplyInfo {
         private Long replyId;
         private Long memberId;
+        private Long videoId;
         private String content;
         private int star;
         private Member member;
         private LocalDateTime createdAt;
 
-        public static ReplyResponse of(Reply reply) {
-            return ReplyResponse.builder()
+        public static ReplyInfo of(Reply reply) {
+            return ReplyInfo.builder()
                     .replyId(reply.getReplyId())
                     .memberId(reply.getMember().getMemberId())
+                    .videoId(reply.getVideo().getVideoId())
                     .content(reply.getContent())
                     .star(reply.getStar())
                     .member(reply.getMember())
                     .createdAt(reply.getCreatedAt())
                     .build();
         }
-    }
 
-    public static List<ReplyResponse> ReplyListOf(List<Reply> replies) {
-        List<ReplyResponse> collect = replies.stream()
-                .map((Reply reply) -> ReplyResponse.of(reply))
-                .collect(Collectors.toList());
-        return collect;
+    public static Page<ReplyInfo> of(Page<Reply> replies) { //reply -> replyResponse Page
+        return replies.map(reply -> of(reply));
     }
 }

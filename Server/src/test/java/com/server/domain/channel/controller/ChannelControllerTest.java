@@ -1,25 +1,20 @@
 package com.server.domain.channel.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.server.domain.announcement.service.dto.request.AnnouncementCreateServiceRequest;
 import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
-import com.server.domain.channel.service.dto.ChannelDto;
-import com.server.domain.video.controller.dto.request.VideoSort;
+import com.server.domain.channel.service.dto.ChannelResponse;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.testhelper.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -44,7 +39,7 @@ class ChannelControllerTest extends ControllerTest {
 
         Long createdAnnouncementId = 1L;
 
-        ChannelDto.CreateAnnouncementApiRequest request = ChannelDto.CreateAnnouncementApiRequest.builder()
+        ChannelResponse.CreateAnnouncementApiRequest request = ChannelResponse.CreateAnnouncementApiRequest.builder()
                 .content("announcement content")
                 .build();
 
