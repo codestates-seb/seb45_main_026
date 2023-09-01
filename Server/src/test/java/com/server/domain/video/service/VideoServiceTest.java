@@ -345,7 +345,7 @@ class VideoServiceTest extends ServiceTest {
                     //when & then
                     assertThatThrownBy(()-> {
                         videoService.createVideo(owner.getMemberId(), request);
-                    }).isInstanceOf(VideoUploadNotRequestException.class);
+                    }).isInstanceOf(VideoNotFoundException.class);
                 }),
                 dynamicTest("imageType, fileName 을 받아서 파일을 저장할 수 있는 url 을 반환한다.", ()-> {
                     //given
@@ -375,7 +375,7 @@ class VideoServiceTest extends ServiceTest {
                     //when & then
                     assertThatThrownBy(
                             ()-> videoService.createVideo(owner.getMemberId(), request))
-                            .isInstanceOf(VideoFileNameNotMatchException.class);
+                            .isInstanceOf(VideoNotFoundException.class);
                 })
         );
     }
@@ -399,7 +399,7 @@ class VideoServiceTest extends ServiceTest {
     }
     
     @Test
-    @DisplayName("videoName, price, description, categories 를 받아서 비디오를 수정한다.")
+    @DisplayName("description 를 받아서 비디오를 수정한다.")
     void updateVideo() {
         //given
         Member owner = createAndSaveMember();
@@ -407,19 +407,10 @@ class VideoServiceTest extends ServiceTest {
 
         Video video = createAndSaveVideo(channel);
 
-        Category category1 = createAndSaveCategory("java");
-        Category category2 = createAndSaveCategory("spring");
-        Category category3 = createAndSaveCategory("react");
-
-        createAndSaveVideoCategory(video, category1); // video1 은 java, spring 카테고리
-        createAndSaveVideoCategory(video, category2);
 
         VideoUpdateServiceRequest request = VideoUpdateServiceRequest.builder()
                 .videoId(video.getVideoId())
-                .videoName("update videoName")
-                .price(11111)
                 .description("update description")
-                .categories(List.of(category1.getCategoryName(), category3.getCategoryName())) // java, react 카테고리로 변경
                 .build();
 
         em.flush();
@@ -431,13 +422,7 @@ class VideoServiceTest extends ServiceTest {
         //then
         Video updatedVideo = videoRepository.findById(video.getVideoId()).orElseThrow();
 
-        assertThat(updatedVideo.getVideoName()).isEqualTo("update videoName");
-        assertThat(updatedVideo.getPrice()).isEqualTo(11111);
         assertThat(updatedVideo.getDescription()).isEqualTo("update description");
-        assertThat(updatedVideo.getVideoCategories()).hasSize(2)
-                .extracting("category")
-                .extracting("categoryName")
-                .containsExactlyInAnyOrder("java", "react");
     }
 
     @Test
@@ -449,14 +434,9 @@ class VideoServiceTest extends ServiceTest {
 
         Video video = createAndSaveVideo(channel);
 
-        Category category = createAndSaveCategory("java");
-
         VideoUpdateServiceRequest request = VideoUpdateServiceRequest.builder()
                 .videoId(video.getVideoId())
-                .videoName("update videoName")
-                .price(11111)
                 .description("update description")
-                .categories(List.of(category.getCategoryName()))
                 .build();
 
         em.flush();
@@ -469,10 +449,7 @@ class VideoServiceTest extends ServiceTest {
         //then (업데이트가 되지 않았는지 확인)
         Video updatedVideo = videoRepository.findById(video.getVideoId()).orElseThrow();
 
-        assertThat(updatedVideo.getVideoName()).isNotEqualTo("update videoName");
-        assertThat(updatedVideo.getPrice()).isNotEqualTo(11111);
         assertThat(updatedVideo.getDescription()).isNotEqualTo("update description");
-        assertThat(updatedVideo.getVideoCategories()).hasSize(0);
     }
 
     @Test
@@ -484,14 +461,9 @@ class VideoServiceTest extends ServiceTest {
 
         Video video = createAndSaveVideo(channel);
 
-        Category category = createAndSaveCategory("java");
-
         VideoUpdateServiceRequest request = VideoUpdateServiceRequest.builder()
-                .videoId(video.getVideoId() + 999L) // 존재하지 않는 videoId
-                .videoName("update videoName")
-                .price(11111)
+                .videoId(video.getVideoId() + 999L)
                 .description("update description")
-                .categories(List.of(category.getCategoryName()))
                 .build();
 
         em.flush();
@@ -504,10 +476,7 @@ class VideoServiceTest extends ServiceTest {
         //then (업데이트가 되지 않았는지 확인)
         Video updatedVideo = videoRepository.findById(video.getVideoId()).orElseThrow();
 
-        assertThat(updatedVideo.getVideoName()).isNotEqualTo("update videoName");
-        assertThat(updatedVideo.getPrice()).isNotEqualTo(11111);
         assertThat(updatedVideo.getDescription()).isNotEqualTo("update description");
-        assertThat(updatedVideo.getVideoCategories()).hasSize(0);
     }
 
     @TestFactory

@@ -127,6 +127,10 @@ public class Video extends BaseEntity {
         this.description = description == null ? this.description : description;
     }
 
+    public void updateVideo(String description) {
+        this.description = description == null ? this.description : description;
+    }
+
     public void additionalCreateProcess(Integer price, String description) {
         this.price = price;
         this.description = description;

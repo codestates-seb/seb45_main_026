@@ -142,11 +142,7 @@ public class VideoService {
 
         Video video = verifedVideo(loginMemberId, request.getVideoId());
 
-        List<Category> categories = verifiedCategories(request.getCategories());
-
-        video.updateVideo(request.getVideoName(), request.getPrice(), request.getDescription());
-
-        video.updateCategory(categories);
+        video.updateVideo(request.getDescription());
     }
 
     @Transactional
