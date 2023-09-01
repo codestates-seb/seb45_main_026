@@ -9,13 +9,13 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.channel.entity.QChannel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.entity.QMember;
+import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.repository.dto.MemberVideoData;
 import com.server.domain.member.repository.dto.QMemberVideoData;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
-import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
@@ -23,8 +23,6 @@ import com.server.domain.subscribe.entity.QSubscribe;
 import com.server.domain.video.entity.QVideo;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
-import com.server.module.s3.service.AwsService;
-import com.server.module.s3.service.dto.FileType;
 
 import javax.persistence.EntityManager;
 
@@ -143,15 +141,15 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public Page<SubscribesResponse> findSubscribeWithChannelForMember(Long memberId, Pageable pageable) {
+    public List<MemberSubscribesData> findSubscribeWithChannelForMember(Long memberId) {
         QMember loginMember = new QMember("loginMember");
         QMember member = new QMember("member");
         QChannel qChannel = QChannel.channel;
         QSubscribe qSubscribe = subscribe1;
 
-        JPAQuery<SubscribesResponse> query = queryFactory
+        JPAQuery<MemberSubscribesData> query = queryFactory
             .select(Projections.constructor(
-                SubscribesResponse.class,
+                MemberSubscribesData.class,
                 qChannel.channelId,
                 qChannel.channelName,
                 qChannel.subscribers,
@@ -162,18 +160,21 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
             .where(loginMember.memberId.eq(memberId))
             .orderBy(qChannel.channelId.asc());
 
-        long totalCount = query.fetchCount();
+        return query.fetch();
 
-        query.offset(pageable.getOffset())
-            .limit(pageable.getPageSize());
+        // if (result.isEmpty()) {
+        //     return Page.empty(pageable);
+        // }
 
-        List<SubscribesResponse> result = query.fetch();
+        // for (SubscribesResponse response : result) {
+        //     String imageUrl = awsService.getFileUrl(
+        //         response.getMemberId(),
+        //         response.getImageUrl(),
+        //         FileType.PROFILE_IMAGE);
+        //     response.setImageUrl(imageUrl);
+        // }
 
-        if (result.isEmpty()) {
-            return Page.empty(pageable);
-        }
-
-        return new PageImpl<>(result, pageable, totalCount);
+        // return new PageImpl<>(result, pageable, totalCount);
     }
 
     @Override
