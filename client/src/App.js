@@ -25,7 +25,7 @@ function App() {
   const url = new URL(window.location.href);
   const dispatch = useDispatch();  
   const tokens = useSelector(state=>state.loginInfo.accessToken);
-  const tokenFinishConfirm = useConfirm('토큰이 만료되었건, 서버 오류로 로그아웃 되었습니다.');
+  const tokenFinishConfirm = useConfirm('토큰이 만료되었거나, 서버 오류로 로그아웃 되었습니다.');
   
   const handleResize = () => {
     dispatch(setBrowserWidth(window.innerWidth));
@@ -50,6 +50,7 @@ function App() {
           );
         } else {
           //토큰이 유효하지 않으면 저장된 토큰을 삭제한다.
+          tokenFinishConfirm();
           dispatch(
             setToken({
               authorization: "",
