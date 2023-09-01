@@ -92,14 +92,24 @@ export const loginService = async (data) => {
 }
 
 //OAuth 로그인
-export const oauthLoginService = async (authorizationCode) => {
+export const oauthLoginService = async (provider,authorizationCode) => {
     try {
-        const response = await axios.get(
-            `${ROOT_URL}/auth/oauth?provider=GOOGLE&code=${authorizationCode}`,
+        const response = await axios.post(
+            `${ROOT_URL}/auth/oauth`,
+            {
+                provider: provider,
+                code:authorizationCode
+            }
         );
-        console.log(response);
+        return {
+            status: 'sccess',
+            authorization: response.headers.authorization,
+            refresh: response.headers.refresh,
+        };
     } catch (err) {
-        console.log(err.response.data.message);
-        return err.response.data.message;
+        return {
+            status: 'error',
+            data: err.response.data.message
+        };
     }
 }

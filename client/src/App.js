@@ -33,6 +33,7 @@ function App() {
 
   //웹을 실행했을 때 저장된 토큰이 있으면 토큰을 가지고 프로필 조회를 한다. 
   useEffect(()=>{
+    console.log("app.js가 실행됨");
     if(tokens.authorization) {
       getUserInfoService(tokens.authorization).then((res)=>{
         if(res.status==='success') {
@@ -54,7 +55,7 @@ function App() {
         }
       })
     }
-  },[]);
+  },[tokens]);
 
   return (
     <BrowserRouter>

@@ -12,7 +12,6 @@ import {
     SignupEmailConfirmButton
 } from './SignupForm.style';
 import SignupInput from './SignupInput';
-import { ErrorTextTypo } from '../loginPageItems/LoginForm.style';
 import { emailValidationConfirmService, emailValidationService, signupService } from '../../services/authServices';
 import { useNavigate } from 'react-router-dom';
 import useConfirm from '../../hooks/useConfirm';
@@ -22,6 +21,7 @@ export const SignupForm = () => {
 
     const emailCodeSendConfirm = useConfirm('이메일로 인증번호가 발송되었습니다. 확인 후 인증코드를 입력해 주세요.');
     const emailCodeComplete = useConfirm('이메일이 인증되었습니다.');
+    const emailCodeFail = useConfirm('이메일 인증에 실패했습니다.');
     const successConfirm = useConfirm('회원가입 성공하였습니다.',
         ()=>{ navigate('/login'); }, ()=>{} );
 
@@ -59,6 +59,7 @@ export const SignupForm = () => {
 
     //이메일 인증번호 확인 버튼 눌렀을 때 동작함
     const handleCodeConfirmButtonClick = async () => {
+        console.log('인증번호 확인 버튼 누름')
         const email = watch('email','');
         const emailCode = watch('emailCode','');
         if(!errors.email && !errors.emailCode && email.length>5 && emailCode.length>4){
@@ -68,6 +69,7 @@ export const SignupForm = () => {
                 emailCodeComplete();
                 setIsEmailValid(true);
             } else {
+                emailCodeFail();
                 setIsEmailValid(false);
             }
         }
@@ -75,56 +77,48 @@ export const SignupForm = () => {
 
     return (
         <SignupFormContainer onSubmit={handleSubmit(onSubmit)}>
-            <SignupFormInputContainer isDark={isDark}>
-                <SignupFormLabel isDark={isDark}>이메일</SignupFormLabel>
-                <SignupWithButtonInputContainer>
-                    <SignupFormInput 
-                        isDark={isDark} isButton={true} 
-                        type='text' placeholder='이메일을 입력해 주세요.'
-                        {...register('email', { 
-                            required: true, 
-                            maxLength: 20,
-                            pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/i, })}/>
-                    <SignupEmailConfirmButton 
-                        isDark={isDark} 
-                        onClick={handleCodeSendButtonClick}>
-                            인증번호 발송
-                    </SignupEmailConfirmButton>
-                </SignupWithButtonInputContainer>
-                {
-                    errors.email && errors.email.type==='required' 
-                        && <ErrorTextTypo isDark={isDark}>이메일을 입력해 주세요.</ErrorTextTypo>
-                }
-                {
-                    errors.email && errors.email.type==='pattern'
-                        && <ErrorTextTypo isDark={isDark}>올바르지 않은 이메일 형식입니다.</ErrorTextTypo>
-                }
-            </SignupFormInputContainer>
-            <SignupFormInputContainer isDark={isDark}>
-                <SignupWithButtonInputContainer>
-                <SignupFormInput isDark={isDark} isButton={true}
-                type='text' placeholder='인증코드를 입력해 주세요.'
-                {...register('emailCode', {
-                    required: true,
-                })}/>
-                <SignupEmailConfirmButton 
-                    isDark={isDark}
-                    onClick={handleCodeConfirmButtonClick}>
-                    인증번호 확인
-                </SignupEmailConfirmButton>
-                </SignupWithButtonInputContainer>
-                {
-                    errors.emailCode && errors.emailCode.type==='required'
-                        && <ErrorTextTypo isDark={isDark}>인증번호를 입력해 주세요.</ErrorTextTypo>
-                }
-            </SignupFormInputContainer>
+            <SignupInput 
+                label='이메일' 
+                name='email'
+                type='text'
+                placeholder='이메일을 입력해 주세요.'
+                register={register}
+                required
+                maxLength={20}
+                minLength={5}
+                pattern={/^[^\s@]+@[^\s@]+\.[^\s@]+$/i}
+                isButton={true}
+                buttonTitle='인증번호 발송'
+                handleButtonClick={handleCodeSendButtonClick}/>
+            {
+                errors.email && errors.email.type==='required' 
+                    && <SignupErrorTypo isDark={isDark}>이메일을 입력해 주세요.</SignupErrorTypo>
+            }
+            {
+                errors.email && errors.email.type==='pattern'
+                    && <SignupErrorTypo isDark={isDark}>올바르지 않은 이메일 형식입니다.</SignupErrorTypo>
+            }
+            <SignupInput 
+                name='emailCode'
+                type='text'
+                placeholder='인증코드를 입력해 주세요.'
+                register={register}
+                required
+                isButton={true}
+                buttonTitle='인증번호 확인'
+                handleButtonClick={handleCodeConfirmButtonClick}/>
+            {
+                errors.emailCode && errors.emailCode.type==='required'
+                    && <SignupErrorTypo isDark={isDark}>인증번호를 입력해 주세요.</SignupErrorTypo>
+            }
             <SignupInput label='비밀번호' name='password' type='password' 
                 placeholder='비밀번호를 입력해 주세요.' 
                 register={register} 
                 required 
                 maxLength={20} 
                 minLength={9}
-                pattern={/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/}/>
+                pattern={/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/}
+                isButton={false}/>
             { errors.password && errors.password.type==='required' 
                 && <SignupErrorTypo isDark={isDark}>비밀번호를 입력해 주세요.</SignupErrorTypo> }
             { errors.password && errors.password.type==='minLength'
@@ -139,7 +133,8 @@ export const SignupForm = () => {
                 register={register} required
                 validateFunc={()=>{
                     return watch('password')===watch('passwordConfirm')
-                }}/>
+                }}
+                isButton={false}/>
             { errors.passwordConfirm && errors.passwordConfirm.type==='required'
                 && <SignupErrorTypo isDark={isDark}>비밀번호 확인을 입력해 주세요.</SignupErrorTypo> }
             { errors.passwordConfirm && errors.passwordConfirm.type==='validate'
@@ -148,7 +143,8 @@ export const SignupForm = () => {
                 label='닉네임' name='nickname' type='text' 
                 placeholder='닉네임을 입력해 주세요.' 
                 register={register} required
-                maxLength={20}/>
+                maxLength={20}
+                isButton={false}/>
             { errors.nickname && errors.nickname.type==='required'
                 && <SignupErrorTypo isDark={isDark}>닉네임을 입력해 주세요.</SignupErrorTypo> }
             {

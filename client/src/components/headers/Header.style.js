@@ -37,10 +37,3 @@ export const MainPageHeaderContainer = styled(HeaderContainer)`
 export const HeaderLoginButton = styled(RoundButton)`
     margin: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing32.value}px;
 `
-export const HeaderProfileContainer = styled.div`
-    padding: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing32.value}px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-`

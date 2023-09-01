@@ -27,13 +27,15 @@ export const LoginForm = () => {
         if(response.status==='success') {
             const authorization = response.authorization;
             const refresh = response.refresh;
-            
+            console.log(response)
             dispatch(setToken({
                 authorization: authorization,
                 refresh: refresh
             }));
 
             navigate('/lecture');
+        } else {
+
         }
     };
 
