@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,7 +61,7 @@ public class AuthController {
 		return new ResponseEntity<>(HttpStatus.CREATED); // 나중에 로케이션으로 바꾸기
 	}
 
-	@GetMapping("/oauth")
+	@PostMapping("/oauth")
 	public ResponseEntity<Void> oauth(@RequestBody @Valid AuthApiRequest.OAuth request) {
 		AuthApiRequest.Token token = oAuthService.login(request.getProvider(), request.getCode());
 
