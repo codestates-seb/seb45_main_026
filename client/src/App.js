@@ -19,6 +19,7 @@ import LectureListPage from "./pages/contents/LectureListPage";
 import { getUserInfoService } from "./services/userInfoService";
 import { setLoginInfo, setToken } from "./redux/createSlice/LoginInfoSlice";
 import useConfirm from "./hooks/useConfirm";
+import FindPasswordPage from "./pages/auth/FindPasswordPage";
 
 function App() {
   const url = new URL(window.location.href);
@@ -66,6 +67,7 @@ function App() {
         <Route path="/" element={<MainPage/>}/>
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/signup" element={<SignupPage/>}/>
+        <Route path="/findPassword" element={<FindPasswordPage/>}/>
         <Route path="/MyProfile" element={<MyProfilePage/>}/>
         <Route path="/lecture" element={<LectureListPage/>}/> 
         <Route path="/videos/1" element={<DetailPage/>}/>

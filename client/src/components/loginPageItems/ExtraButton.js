@@ -25,11 +25,15 @@ export const ExtraButton = () => {
         navigate('/signup');
     }
 
+    const handleFindPasswordButtonClick = () => {
+        navigate('/findPassword');
+    }
+
     return (
         <ExtraButtonContainer>
             <ExtraTextButton isDark={isDark} onClick={handleSignupButtonClick}>회원가입</ExtraTextButton>
             <BodyTextTypo isDark={isDark}>|</BodyTextTypo>
-            <ExtraTextButton isDark={isDark}>비밀번호 찾기</ExtraTextButton>
+            <ExtraTextButton isDark={isDark} onClick={handleFindPasswordButtonClick}>비밀번호 찾기</ExtraTextButton>
         </ExtraButtonContainer>
     );
 };
