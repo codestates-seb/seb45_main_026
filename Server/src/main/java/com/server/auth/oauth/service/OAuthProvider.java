@@ -47,7 +47,7 @@ public enum OAuthProvider implements BaseEnum {
 	@Override
 	@JsonValue
 	public String getName() {
-		return name();
+		return this.registrationId;
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public enum OAuthProvider implements BaseEnum {
 	@JsonCreator
 	public static OAuthProvider from(String value) {
 		for (OAuthProvider provider : OAuthProvider.values()) {
-			if (provider.getName().equals(value)) {
+			if (provider.getName().toLowerCase().equals(value)) {
 				return provider;
 			}
 		}
