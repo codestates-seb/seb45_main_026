@@ -49,6 +49,8 @@ public class Reward extends BaseEntity {
 	 @ManyToOne(fetch = FetchType.LAZY)
 	 @JoinColumn(name = "video_id")
 	 private Video video;
+
+	 private boolean isCanceled;
 	//
 	// @ManyToOne(fetch = FetchType.LAZY)
 	// @JoinColumn(name = "answer_id")
@@ -67,5 +69,15 @@ public class Reward extends BaseEntity {
 
 	public void updateMemberReward(Member member) {
 		member.addReward(this.rewardPoint);
+	}
+
+	public void cancelReward(Member member) {
+		this.isCanceled = true;
+		member.minusReward(this.rewardPoint);
+	}
+
+	public void cancelReward() {
+		this.isCanceled = true;
+		this.member.minusReward(this.rewardPoint);
 	}
 }

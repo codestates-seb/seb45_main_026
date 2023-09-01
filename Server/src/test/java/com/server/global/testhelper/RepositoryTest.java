@@ -5,6 +5,8 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
+import com.server.domain.reward.entity.Reward;
+import com.server.domain.reward.entity.RewardType;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
@@ -144,5 +146,15 @@ public abstract class RepositoryTest {
                 .build();
 
         em.persist(subscribe);
+    }
+
+
+    protected Reward createAndSaveVideoReward(Member member, Video video, RewardType rewardType) {
+
+        Reward reward = Reward.createReward(video.getVideoId(), rewardType, 10, member, video);
+
+        em.persist(reward);
+
+        return reward;
     }
 }

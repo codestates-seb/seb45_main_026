@@ -2,16 +2,20 @@ package com.server.domain.order.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.member.entity.QMember;
+import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.QOrder;
 
 import javax.persistence.EntityManager;
+import javax.swing.text.html.Option;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.server.domain.cart.entity.QCart.cart;
 import static com.server.domain.member.entity.QMember.*;
 import static com.server.domain.order.entity.QOrder.*;
 import static com.server.domain.order.entity.QOrderVideo.orderVideo;
+import static com.server.domain.reward.entity.QReward.reward;
 import static com.server.domain.video.entity.QVideo.video;
 
 public class OrderRepositoryImpl implements OrderRepositoryCustom{
@@ -45,5 +49,16 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
         return queryFactory.delete(cart)
                 .where(cart.cartId.in(deleteCartIds))
                 .execute();
+    }
+
+    @Override
+    public Optional<Order> findByIdWithVideos(String orderId) {
+
+        return Optional.ofNullable(
+                queryFactory.selectFrom(order)
+                        .join(order.orderVideos, orderVideo).fetchJoin()
+                        .join(orderVideo.video, video).fetchJoin()
+                        .where(order.orderId.eq(orderId)).fetchOne()
+        );
     }
 }

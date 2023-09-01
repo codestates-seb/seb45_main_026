@@ -1,5 +1,6 @@
 package com.server.domain.reward.service;
 
+import com.server.domain.order.entity.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,13 @@ public class RewardService {
 			Answer answer = (Answer) entity;
 			createRewardForAnswer(answer, video, member);
 		}
+	}
+
+	public void cancelReward(Member member, Order order) {
+		rewardRepository.findByOrderId(order.getOrderId())
+				.forEach(Reward::cancelReward);
+
+		member.addReward(order.getReward());
 	}
 
 	private void createRewardForVideo(Video video, Member member) {
