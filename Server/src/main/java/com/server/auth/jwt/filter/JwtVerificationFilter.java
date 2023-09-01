@@ -26,6 +26,7 @@ import com.server.auth.jwt.service.JwtProvider;
 import com.server.auth.util.AuthUtil;
 import com.server.global.exception.businessexception.BusinessException;
 import com.server.global.exception.businessexception.authexception.JwtExpiredException;
+import com.server.global.exception.businessexception.authexception.JwtNotValidException;
 import com.server.global.reponse.ApiSingleResponse;
 
 import io.jsonwebtoken.Claims;
@@ -44,7 +45,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 		try{
 			Claims claims = verifyClaims(request);
 			setAuthenticationToContext(claims);
-		} catch (JwtExpiredException jwtException) {
+		} catch (JwtExpiredException | JwtNotValidException jwtException) {
 			AuthUtil.setResponse(response, jwtException);
 			return;
 		} catch(BusinessException be){
