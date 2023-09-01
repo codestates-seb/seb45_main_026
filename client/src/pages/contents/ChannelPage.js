@@ -12,6 +12,7 @@ const globalTokens = tokens.global;
 
 const ChannelMainContainer = styled(MainContainer)`
   min-width: 600px;
+  border: none;
 `
 const ProfileContainer = styled.div`
   width: 100%;

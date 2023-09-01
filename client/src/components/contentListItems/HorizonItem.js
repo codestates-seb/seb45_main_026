@@ -7,7 +7,6 @@ const globalTokens = tokens.global;
 
 const ComponentBody = styled.li`
     width: 100%;
-    min-width: 950px;
     height: 200px;
     display: flex;
     flex-direction: row;
@@ -15,6 +14,7 @@ const ComponentBody = styled.li`
 `
 const ThumbnailContainer = styled.div`
     width: 300px;
+    min-width: 300px;
     height: 200px;
     border-radius: ${globalTokens.RegularRadius.value}px;
     background-color: ${globalTokens.White.value};
@@ -30,7 +30,6 @@ const Thumbnail = styled.img`
 `
 const ItemInfors = styled.div`
     flex-grow: 1;
-    min-width: 600px;
     height: 200px;
     display: flex;
     flex-direction: column;
@@ -54,6 +53,7 @@ const Description = styled.div`
 `
 const InforContainer = styled.div`
     width: 100%;
+    min-width: 450px;
     height: 70px;
     display: flex;
     flex-direction: row;
@@ -91,6 +91,7 @@ const ProfileImg = styled.img`
 `
 const ImgContainer = styled.div`
     width: 40px;
+    min-width: 40px;
     height: 40px;
     border-radius: ${globalTokens.CircleRadius.value}px;
     background-color: ${globalTokens.White.value};

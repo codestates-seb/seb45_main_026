@@ -16,7 +16,7 @@ const ListBody = styled.div`
     background-color: ${globalTokens.White.value};
     gap: ${globalTokens.Spacing24.value}px;
 `; 
-const ListContainer = styled.div`
+const ListContainer = styled.ul`
     width: 100%;
     display: flex;
     flex-direction: column;
