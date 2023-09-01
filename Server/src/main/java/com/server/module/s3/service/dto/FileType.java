@@ -10,14 +10,14 @@ import java.util.function.Function;
 public enum FileType implements BaseEnum {
 
     PROFILE_IMAGE("profile image", false,
-            (attributes) -> getImageCloudFrontUrl() + "images/" + attributes.get(1),
-            (attributes) -> getImageBucketName() + "images/" + attributes.get(1)),
+            (attributes) -> getImageCloudFrontUrl() + attributes.get(0) + "/profile/" + attributes.get(1),
+            (attributes) -> getImageBucketName() + attributes.get(0) + "/profile/" + attributes.get(1)),
     THUMBNAIL("thumbnail", false,
-            (attributes) -> getImageCloudFrontUrl() + attributes.get(0) + "/" + attributes.get(1),
-            (attributes) -> getImageBucketName() + attributes.get(0) + "/" + attributes.get(1)),
+            (attributes) -> getImageCloudFrontUrl() + attributes.get(0) + "/videos/" + attributes.get(1),
+            (attributes) -> getImageBucketName() + attributes.get(0) + "/videos/" + attributes.get(1)),
     VIDEO("video", true,
-            (attributes) -> getVideoCloudFrontUrl() + attributes.get(0) + "/" + attributes.get(1),
-            (attributes) -> getVideoBucketName() + attributes.get(0) + "/" + attributes.get(1)),
+            (attributes) -> getVideoCloudFrontUrl() + attributes.get(0) + "/videos/" + attributes.get(1),
+            (attributes) -> getVideoBucketName() + attributes.get(0) + "/videos/" + attributes.get(1)),
             ;
 
     private final String description;

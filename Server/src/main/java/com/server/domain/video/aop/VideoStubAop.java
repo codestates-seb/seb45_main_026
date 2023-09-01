@@ -130,7 +130,7 @@ public class VideoStubAop {
                 .memberId(1L)
                 .channelName("hobeen's vlog")
                 .subscribes(100000)
-                .imageUrl(awsService.getFileUrl(1L, "test", FileType.PROFILE_IMAGE))
+                .imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
                 .isSubscribed(true)
                 .build();
 
@@ -138,7 +138,7 @@ public class VideoStubAop {
                 .memberId(2L)
                 .channelName("hobeen's cooking")
                 .subscribes(50000)
-                .imageUrl(awsService.getFileUrl(1L, "test22", FileType.PROFILE_IMAGE))
+                .imageUrl(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
                 .isSubscribed(false)
                 .build();
 
@@ -181,7 +181,7 @@ public class VideoStubAop {
                 .memberId(1L)
                 .channelName("hobeen's vlog")
                 .subscribes(100000)
-                .imageUrl(awsService.getFileUrl(1L, "test", FileType.PROFILE_IMAGE))
+                .imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
                 .isSubscribed(true)
                 .build();
 

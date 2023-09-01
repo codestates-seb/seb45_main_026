@@ -32,6 +32,7 @@
 
      //s3 버킷의 9999번 id 에 test 파일 넣어둠
      private final Long mockMemberId = 9999L;
+     private final Long mockVideoId = 9999L;
 
      @Test
      @DisplayName("path 를 통해 image 의 url 을 가져온다.")
@@ -98,7 +99,7 @@
      @DisplayName("path 를 통해 thumbnail 의 Url 을 가져온다.")
      void getThumbnailUrl() throws Exception {
          //given
-         String fileName = "testthumbnail";
+         String fileName = mockVideoId + "/testthumbnail";
 
          //when
          String thumbnailUrl = awsService.getFileUrl(mockMemberId, fileName, FileType.THUMBNAIL);
@@ -113,7 +114,7 @@
      @DisplayName("thumbnail 업로드 및 삭제 테스트")
      Collection<DynamicTest> getThumbnailUploadUrlAndDelete() {
          //given
-         String fileName = "test2";
+         String fileName = mockVideoId + "/test2";
          ImageType imageType = ImageType.PNG;
 
          MockMultipartFile multipartFile =
@@ -155,7 +156,7 @@
      @DisplayName("path 를 통해 비디오 url 을 가져온다.")
      void getVideoUrl() throws Exception {
          //given
-         String fileName = "test";
+         String fileName = mockVideoId + "/test";
 
          //when
          String videoUrl = awsService.getFileUrl(mockMemberId, fileName, FileType.VIDEO);
@@ -170,7 +171,7 @@
      @DisplayName("video 를 업로드할 수 있는 presignedUrl 을 가져와서 업로드 한 후 200 OK 를 확인한다. 그리고 비디오를 삭제한다.")
      Collection<DynamicTest> getUploadUrl() {
          //given
-         String fileName = "test2";
+         String fileName = mockVideoId + "/test2";
          MockMultipartFile multipartFile =
                  new MockMultipartFile(
                          "test2",
