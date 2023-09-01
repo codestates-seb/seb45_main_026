@@ -4,7 +4,7 @@ import { SignupFormInput, SignupFormInputContainer, SignupFormLabel } from './Si
 
 export const SignupInput = ({
     label, name, type, placeholder, 
-    register, required, maxLength, minLength, validateFunc }) => {
+    register, required, maxLength, minLength, pattern, validateFunc }) => {
         const isDark = useSelector(state=>state.uiSetting.isDark);
 
         return ( 
@@ -19,6 +19,7 @@ export const SignupInput = ({
                             required: required,
                             maxLength: maxLength,
                             minLength: minLength,
+                            pattern: pattern,
                             validate: validateFunc })}/>
             </SignupFormInputContainer> )}
 

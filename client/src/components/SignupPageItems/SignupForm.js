@@ -30,23 +30,22 @@ export const SignupForm = () => {
      const onSubmit = async (data) => {
         if(isEmailValid){
             const response = await signupService({data:data});
-            if(response===204 || response==='204') {
+            if(response.status === 'success') {
                 console.log('회원가입 성공!');
                 navigate('/login');
             }
         }
     }
-
     //이메일 인증번호 발송 버튼 눌렀을 때 동작함
     const handleCodeSendButtonClick = async () => {
         const email = watch('email','')
         if(!errors.email && email.length>5) {
             //이메일 유효성 검사를 통과했으면 입력한 이메일로 인증코드를 전송함
             const response = await emailValidationService(email);
-            if(response===204 || response==='204') {
+            if(response.status==='success') {
                 window.confirm('이메일로 인증번호가 발송되었습니다. 확인 후 인증코드를 입력해주세요.')
             } else {
-                window.confirm(`${response}`)
+                window.confirm(`${response.data}`)
             }
         }
     }
@@ -58,7 +57,7 @@ export const SignupForm = () => {
         if(!errors.email && !errors.emailCode && email.length>5 && emailCode.length>4){
             //이메일 코드를 5글자 이상 입력했고 이메일 유효성 검사를 통과했으면
             const response = await emailValidationConfirmService(email,emailCode);
-            if(response===204 || response==='204') {
+            if(response.status==='success') {
                 window.confirm('이메일이 인증되었습니다.');
                 setIsEmailValid(true);
             } else {
@@ -101,18 +100,32 @@ export const SignupForm = () => {
                 {...register('emailCode', {
                     required: true,
                 })}/>
-                <SignupEmailConfirmButton onClick={handleCodeConfirmButtonClick}>인증번호 확인</SignupEmailConfirmButton>
+                <SignupEmailConfirmButton 
+                    isDark={isDark}
+                    onClick={handleCodeConfirmButtonClick}>
+                    인증번호 확인
+                </SignupEmailConfirmButton>
                 </SignupWithButtonInputContainer>
+                {
+                    errors.emailCode && errors.emailCode.type==='required'
+                        && <ErrorTextTypo isDark={isDark}>인증번호를 입력해 주세요.</ErrorTextTypo>
+                }
             </SignupFormInputContainer>
             <SignupInput label='비밀번호' name='password' type='password' 
                 placeholder='비밀번호를 입력해 주세요.' 
-                register={register} required maxLength={20} minLength={6}/>
+                register={register} 
+                required 
+                maxLength={20} 
+                minLength={9}
+                pattern={/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/}/>
             { errors.password && errors.password.type==='required' 
                 && <SignupErrorTypo isDark={isDark}>비밀번호를 입력해 주세요.</SignupErrorTypo> }
             { errors.password && errors.password.type==='minLength'
-                && <SignupErrorTypo isDark={isDark}>비밀번호는 6자 이상이어야 합니다.</SignupErrorTypo> }
+                && <SignupErrorTypo isDark={isDark}>비밀번호는 9자 이상이어야 합니다.</SignupErrorTypo> }
             { errors.password && errors.password.type==='maxLength'
                 && <SignupErrorTypo isDark={isDark}>20자 이하로 입력해 주세요.</SignupErrorTypo> }
+            { errors.password && errors.password.type==='pattern'
+                && <SignupErrorTypo isDark={isDark}>영문, 숫자, 특수문자를 포함해서 입력해 주세요. </SignupErrorTypo> }
             <SignupInput 
                 label='비밀번호 확인' name='passwordConfirm' type='password' 
                 placeholder='비밀번호 확인을 입력해 주세요.' 

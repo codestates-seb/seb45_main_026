@@ -9,8 +9,12 @@ import {
     LoginButton,
 } from './LoginForm.style';
 import { loginService } from '../../services/authServices';
+import { setToken } from '../../redux/createSlice/LoginInfoSlice';
+import { useNavigate } from 'react-router-dom';
 
 export const LoginForm = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const isDark = useSelector(state=>state.uiSetting.isDark);
     const {
         register, 
@@ -20,10 +24,15 @@ export const LoginForm = () => {
 
     const onSubmit = async (data) => {
         const response = await loginService(data);
-        if(response.isLogin) {
-            console.log(response)
+        if(response.status==='success') {
             const authorization = response.authorization;
             const refresh = response.refresh;
+            
+            dispatch(setToken({
+                authorization: authorization,
+                refresh: refresh
+            }));
+            navigate('/lecture');
         }
     };
 

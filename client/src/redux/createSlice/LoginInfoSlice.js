@@ -6,8 +6,8 @@ const LoginInfoSlice = createSlice({
     loginInfo: { email: "", nickname: "" },
     oauth: { provider: "" },
     accessToken: {
-      authorization: '',
-      refresh: '',
+      authorization: "",
+      refresh: "",
     },
     myid: "",
   }, // 초기값 설정, 데이터 값의 형태를 설정 해놓으면 좋음.
@@ -21,12 +21,11 @@ const LoginInfoSlice = createSlice({
     setNickname: (state, action) => {
       state.loginInfo.nickname = action.payload;
     },
-    setAuthorizationToken: (state, action) => {
-      // login 했을 때 accessToken 을 저장하는 method
-      state.accessToken.authorization = action.payload;
-    },
-    setRefreshToken: (state, action) => {
-      state.accessToken.refresh = action.payload;
+    setToken: (state, action) => {
+      state.loginInfo = {
+        ...state.loginInfo,
+        ...action.payload
+      }
     },
     setProvider: (state, action) => {
       // OAuth에 사용될 provider 값 저장
@@ -50,8 +49,7 @@ export default LoginInfoSlice;
 export const { 
   setEmail, 
   setNickname, 
-  setAuthorizationToken, 
-  setRefreshToken, 
+  setToken,
   setProvider,
   setMyid,
   initLogin
