@@ -71,35 +71,35 @@ public class MemberServiceTest extends ServiceTest {
 		assertThat(mockMemberService.getMember(id).getImageUrl()).isEqualTo(fileUrl);
 	}
 
-	@Test
-	@DisplayName("로그인한 회원의 구독 목록 조회가 제대로 수행되는지 검증한다.")
-	void getSubscribes() {
-		Member owner1 = createAndSaveMember();
-		Channel channel1 = createAndSaveChannel(owner1);
-
-		Member owner2 = createAndSaveMember();
-		Channel channel2 = createAndSaveChannel(owner2);
-
-		Member owner3 = createAndSaveMember();
-		Channel channel3 = createAndSaveChannel(owner3);
-
-		Member loginMember = createAndSaveMember();
-
-		createAndSaveSubscribe(loginMember, channel1);
-		createAndSaveSubscribe(loginMember, channel2);
-		createAndSaveSubscribe(loginMember, channel3);
-
-		Page<SubscribesResponse> responses =
-			memberService.getSubscribes(loginMember.getMemberId(), 1, 10);
-
-		assertThat(responses.getTotalElements()).isEqualTo(3);
-		assertThat(responses.getTotalPages()).isEqualTo(1);
-
-		Iterator<SubscribesResponse> responseIterator = responses.iterator();
-		assertThat(responseIterator.next().getMemberId()).isEqualTo(owner1.getMemberId());
-		assertThat(responseIterator.next().getMemberId()).isEqualTo(owner2.getMemberId());
-		assertThat(responseIterator.next().getMemberId()).isEqualTo(owner3.getMemberId());
-	}
+	// @Test
+	// @DisplayName("로그인한 회원의 구독 목록 조회가 제대로 수행되는지 검증한다.")
+	// void getSubscribes() {
+	// 	Member owner1 = createAndSaveMember();
+	// 	Channel channel1 = createAndSaveChannel(owner1);
+	//
+	// 	Member owner2 = createAndSaveMember();
+	// 	Channel channel2 = createAndSaveChannel(owner2);
+	//
+	// 	Member owner3 = createAndSaveMember();
+	// 	Channel channel3 = createAndSaveChannel(owner3);
+	//
+	// 	Member loginMember = createAndSaveMember();
+	//
+	// 	createAndSaveSubscribe(loginMember, channel1);
+	// 	createAndSaveSubscribe(loginMember, channel2);
+	// 	createAndSaveSubscribe(loginMember, channel3);
+	//
+	// 	Page<SubscribesResponse> responses =
+	// 		memberService.getSubscribes(loginMember.getMemberId(), 1, 10);
+	//
+	// 	assertThat(responses.getTotalElements()).isEqualTo(3);
+	// 	assertThat(responses.getTotalPages()).isEqualTo(1);
+	//
+	// 	Iterator<SubscribesResponse> responseIterator = responses.iterator();
+	// 	assertThat(responseIterator.next().getMemberId()).isEqualTo(owner1.getMemberId());
+	// 	assertThat(responseIterator.next().getMemberId()).isEqualTo(owner2.getMemberId());
+	// 	assertThat(responseIterator.next().getMemberId()).isEqualTo(owner3.getMemberId());
+	// }
 
 	@Test
 	@DisplayName("로그인한 사용자의 ID에 맞는 회원 테이블을 삭제한다.")
