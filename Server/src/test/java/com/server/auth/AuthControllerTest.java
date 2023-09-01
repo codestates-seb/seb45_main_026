@@ -145,7 +145,7 @@ public class AuthControllerTest {
 
 		//when
 		ResultActions actions = mockMvc.perform(
-			get("/auth/oauth")
+			post("/auth/oauth")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(content)
 		);
