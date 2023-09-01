@@ -172,6 +172,7 @@ public abstract class ServiceTest {
         reply.setMember(member);
         reply.setVideo(video);
         reply.setContent("content");
+        reply.setStar(0);
 
         replyRepository.save(reply);
 

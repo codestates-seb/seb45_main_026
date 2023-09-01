@@ -2,21 +2,19 @@ package com.server.domain.channel.service;
 
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.respository.ChannelRepository;
-import com.server.domain.channel.service.dto.ChannelDto;
+import com.server.domain.channel.service.dto.ChannelInfo;
+import com.server.domain.channel.service.dto.ChannelUpdate;
 import com.server.domain.channel.service.dto.request.ChannelVideoGetServiceRequest;
 import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
-import com.server.domain.member.repository.MemberRepositoryCustom;
 import com.server.domain.subscribe.repository.SubscribeRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
-import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -30,65 +28,48 @@ import java.util.stream.Collectors;
 public class ChannelService {
 
     private final ChannelRepository channelRepository;
-    private final VideoRepository videoRepository;
     private final AwsService awsService;
-    private final MemberRepositoryCustom memberRepositoryCustom;
     private final MemberRepository memberRepository;
+
+    private final SubscribeRepository subscribeRepository;
+    private final VideoRepository videoRepository;
+
 
 
     public ChannelService(ChannelRepository channelRepository,
-                          VideoRepository videoRepository,
                           AwsService awsService,
+                          MemberRepository memberRepository,
                           SubscribeRepository subscribeRepository,
-                          @Qualifier("memberRepositoryImpl") MemberRepositoryCustom memberRepositoryCustom,
-                          MemberRepository memberRepository) {
+                          VideoRepository videoRepository) {
 
         this.channelRepository = channelRepository;
-        this.videoRepository = videoRepository;
         this.awsService = awsService;
-        this.memberRepositoryCustom = memberRepositoryCustom;
         this.memberRepository = memberRepository;
-
+        this.subscribeRepository = subscribeRepository;
+        this.videoRepository = videoRepository;
     }
 
 
     @Transactional(readOnly = true)
-    public ChannelDto.ChannelInfo getChannel(Long memberId, Long loginMemberId) {
+    public ChannelInfo getChannel(Long memberId, Long loginMemberId) {
 
-        Channel channel = existChannel(loginMemberId);
+        Channel channel = existChannel(memberId); //memberId로 수정했음, memberId 없으면 예외발생하는 로직 삭제함
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
+        Boolean subscribed = isSubscribed(memberId, loginMemberId);
 
-        Boolean subscribed = isSubscribed(loginMemberId, channel);
 
-        return ChannelDto.ChannelInfo.of(channel,
-                channel.getChannelName(),
-                channel.getSubscribers(),
-                subscribed,
-                channel.getDescription(),
-                channel.getMember().getImageFile(),
-                channel.getCreatedDate());
+
+        return ChannelInfo.of(channel, subscribed, awsService.getFileUrl(memberId, channel.getMember().getImageFile(), FileType.PROFILE_IMAGE));
     }
 
-
-
-    private Boolean isSubscribed(Long loginMemberId, Channel channel) {
-        if (loginMemberId == null) {
-            return false;
-        }
-
-            return memberRepository.checkMemberSubscribeChannel(loginMemberId,
-                    List.of(channel.getChannelId())).get(0); //최신순으로 정렬해서 첫번째 값만 가져온다.
-        }
 
 
 
     //채널정보 수정
     @Transactional
-    public void updateChannelInfo(Long loginMemberId, long memberId, ChannelDto.UpdateInfo updateInfo){
+    public void updateChannelInfo(Long loginMemberId, long memberId, ChannelUpdate updateInfo){
 
-        Channel channel = existChannel(loginMemberId);
+        Channel channel = existChannel(memberId); //수정햇슴
 
         if(loginMemberId != memberId){
             throw new MemberAccessDeniedException();
@@ -103,18 +84,16 @@ public class ChannelService {
 
 
     // 구독 여부 업데이트
-    public boolean updateSubscribe(Long loginMemberId, Channel channel) {
+    public boolean updateSubscribe(Long loginMemberId, Long memberId) {
 
-        // 이미 구독 중인지 여부 확인
-        boolean isSubscribed = isSubscribed(loginMemberId, channel);
 
-        if (isSubscribed) { //구독중이면 해지
+        if(isSubscribed(loginMemberId, memberId)){ //구독확인중복로직 제거, 만약 if가 true면 //여기는 true/false 판별하는 값이 잇어야해서..... 이건 안 뺏는데...
 
-            unsubscribe(loginMemberId, memberRepositoryCustom.checkMemberSubscribeChannel(loginMemberId, List.of(channel.getChannelId())).get(0)); //구독취소
+            unsubscribe(memberId, memberId); //구독해지
 
             return false;
 
-        } else { //구독중이 아니면 구독
+        } else { isSubscribed(loginMemberId, memberId);
 
             return true;
         }
@@ -122,38 +101,25 @@ public class ChannelService {
 
 
     // 구독.
-    private void subscribe(Long memberId, Long channelId) {
+    private void subscribe(Long memberId, Long channelId) { //create할때만 save
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
+        if(isSubscribed(memberId, channelId)){
+            memberRepository.findById(memberId).get().getChannel().addSubscribers(1); //구독자 수 증가
+        }
 
-        Channel channel = channelRepository.findById(channelId)
-                .orElseThrow(ChannelNotFoundException::new);
-
-      List<Boolean> subscribeList =  memberRepositoryCustom.checkMemberSubscribeChannel(memberId, List.of(channelId));
-
-      if(!subscribeList.contains(true)) //내 목록에 현재 채널이 없으면 구독
-          channel.addSubscribers(1); //구독자 수 증가
-         channelRepository.save(channel);
     }
 
 
     // 구독 취소
-    private void unsubscribe(Long memberId, Boolean channelId) {
+    private void unsubscribe(Long memberId, Long channelId) {
 
-        Member member = memberRepository.findById(memberId) //일단 member를 찾는다
-                .orElseThrow(MemberNotFoundException::new);
+        if(isSubscribed(memberId, channelId)){
+            memberRepository.findById(channelId).get().getChannel().addSubscribers(-1); //구독자 수 감소
 
-        Channel channel = channelRepository.findById(memberId) //채널을 찾는다
-                .orElseThrow(ChannelNotFoundException::new);
+       subscribeRepository.deleteSubscribeByChannelContains(channelId); //구독 취소
 
-        List<Boolean> subscribeList =  memberRepositoryCustom.checkMemberSubscribeChannel(memberId, List.of(memberId));
 
-        if(subscribeList.contains(true)){ //이미 구독중이면
-        channel.decreaseSubscribers(1); //구독자 수 감소
-        channelRepository.save(channel);
-
-    } //근데 중복 처리도 해야할 것 같은.. 구독중이 아닌데 구독취소를 누르면 어떻게 되는지..??
+        } //중복은 일단 .. 구현하지않음
     }
 
 
@@ -184,10 +150,20 @@ public class ChannelService {
         channelRepository.save(channel);
     }
 
-    private Channel existChannel(Long memberId) {
-        return channelRepository.findByMember(memberId)
-                .orElseThrow(ChannelNotFoundException::new);
+
+
+    private Boolean isSubscribed(Long loginMemberId, long memberId) { //구독중인지 확인, Channle로 받는 부분 수정 -> MemberId 받는 걸로
+
+        if (loginMemberId == null) {
+            return false;
+        }
+
+
+        return memberRepository.checkMemberSubscribeChannel(loginMemberId, List.of(memberId)).get(0);
+
     }
+
+
 
     private List<Boolean> isPurchaseInOrder(Long loginMemberId, List<Video> videos) {
 
@@ -211,5 +187,9 @@ public class ChannelService {
     }
 
 
+
+    private Channel existChannel(Long memberId) {
+        return channelRepository.findByMember(memberId).orElseThrow(ChannelNotFoundException::new);
+    }
 
 }

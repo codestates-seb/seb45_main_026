@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface SubscribeRepository extends JpaRepository<Subscribe, Long> {
 
     Optional<Subscribe> findByMemberAndChannel(Member member, Channel channel);
+
+    void deleteSubscribeByChannelContains(Long channelId);
 }

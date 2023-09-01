@@ -2,57 +2,84 @@ package com.server.domain.reply.service;
 
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.reply.dto.ReplyResponse;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.reply.dto.ReplyDto;
+import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.replyException.ReplyNotFoundException;
+import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 @Service
 public class ReplyService {
 
     private ReplyRepository replyRepository;
     private MemberRepository memberRepository;
 
+
     public ReplyService(ReplyRepository replyRepository, MemberRepository memberRepository) {
         this.replyRepository = replyRepository;
         this.memberRepository = memberRepository;
     }
 
-    public List<Reply> getReply(Long videoId, int page, String sort, int star) {
-        int replyListPage = 10;
-        return replyRepository.findByVideo_VideoId(videoId, star, PageRequest.of(page - 1, replyListPage));
+    public Page<ReplyInfo> getReplies(Long replyId, int page, int size, String sort) {
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        return ReplyInfo.of(replyRepository.findAllByReplyId(pageRequest, sort, replyId));
     }
 
-    public Reply createReply(Long videoId, ReplyDto replyDto) {
-        Member member = memberRepository.findById(replyDto.getMemberId())
+
+
+    public Reply createReply(Long loginMemberId, ReplyResponse response) {
+
+        Member loginMember = memberRepository.findById(loginMemberId)
                 .orElseThrow(() -> new MemberNotFoundException());
 
-        Reply reply = new Reply();
-        reply.setContent(replyDto.getContent());
-        reply.setStar(replyDto.getStar());
-        reply.setMember(member);
+        Integer star = response.getStar();
+
+        if (star < 1 || star > 10) {
+            throw new ReplyNotValidException();
+        }
+
+        Reply reply = Reply.builder()
+                .member(loginMember)
+                .content(response.getContent())
+                .star(response.getStar())
+                .build();
 
         return replyRepository.save(reply);
     }
 
-    public Reply updateReply(Long replyId, ReplyDto replyDto) {
-        Reply reply = replyRepository.findById(replyId)
-                .orElseThrow(() -> new ReplyNotFoundException());
 
-        reply.setContent(replyDto.getContent());
-        reply.setStar(replyDto.getStar());
+    public Reply updateReply(Long loginMemberId, Long replyId, ReplyResponse response) {
 
-        return replyRepository.save(reply);
+        Member loginMember = memberRepository.findById(loginMemberId)
+                .orElseThrow(() -> new MemberNotFoundException());
+
+        Reply reply = existReply(replyId);
+
+        reply.updateReply(response.getContent(), response.getStar());
+
+        return reply;
     }
 
-    public void deleteReply(Long replyId) {
-        Reply reply = replyRepository.findById(replyId)
-                .orElseThrow(() -> new ReplyNotFoundException());
+    public void deleteReply(Long replyId, Long loginMemberId) {
 
-        replyRepository.delete(reply);
+        Member member = memberRepository.findById(loginMemberId)
+                .orElseThrow(() -> new MemberNotFoundException());
+
+        replyRepository.deleteById(replyId);
     }
+
+
+    public Reply existReply(Long replyId) {
+
+        return replyRepository.findById(replyId)
+                .orElseThrow(() -> new ReplyNotFoundException());
+    }
+
 }
