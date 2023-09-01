@@ -57,25 +57,25 @@ public class MemberStubAop {
 				.entityId(1L)
 				.rewardType(RewardType.VIDEO)
 				.rewardPoint(100)
-				.date(LocalDateTime.now())
+				.createdDate(LocalDateTime.now())
 				.build(),
 			RewardsResponse.builder()
 				.entityId(33L)
 				.rewardType(RewardType.QUIZ)
 				.rewardPoint(10)
-				.date(LocalDateTime.now())
+				.createdDate(LocalDateTime.now())
 				.build(),
 			RewardsResponse.builder()
 				.entityId(114L)
 				.rewardType(RewardType.VIDEO)
 				.rewardPoint(300)
-				.date(LocalDateTime.now())
+				.createdDate(LocalDateTime.now())
 				.build(),
 			RewardsResponse.builder()
 				.entityId(418L)
 				.rewardType(RewardType.QUIZ)
 				.rewardPoint(5)
-				.date(LocalDateTime.now())
+				.createdDate(LocalDateTime.now())
 				.build()
 		);
 

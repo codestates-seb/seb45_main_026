@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.server.global.entity.BaseEnum;
 
 public enum OAuthProvider implements BaseEnum {
@@ -43,6 +45,7 @@ public enum OAuthProvider implements BaseEnum {
 	}
 
 	@Override
+	@JsonValue
 	public String getName() {
 		return name();
 	}
@@ -50,5 +53,15 @@ public enum OAuthProvider implements BaseEnum {
 	@Override
 	public String getDescription() {
 		return this.registrationId;
+	}
+
+	@JsonCreator
+	public static OAuthProvider from(String value) {
+		for (OAuthProvider provider : OAuthProvider.values()) {
+			if (provider.getName().equals(value)) {
+				return provider;
+			}
+		}
+		return null;
 	}
 }

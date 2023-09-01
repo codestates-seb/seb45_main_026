@@ -12,25 +12,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.test.web.servlet.ResultActions;
 
-import com.server.domain.member.aop.MemberStubAop;
 import com.server.domain.member.controller.dto.MemberApiRequest;
-import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Grade;
-import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
@@ -110,31 +103,31 @@ public class MemberControllerTest extends ControllerTest {
 				.entityId(1L)
 				.rewardType(RewardType.VIDEO)
 				.rewardPoint(100)
-				.date(LocalDateTime.now())
+				.createdDate(LocalDateTime.now())
 				.build(),
 			RewardsResponse.builder()
 				.entityId(33L)
 				.rewardType(RewardType.QUIZ)
 				.rewardPoint(10)
-				.date(LocalDateTime.now())
+				.createdDate(LocalDateTime.now())
 				.build(),
 			RewardsResponse.builder()
 				.entityId(114L)
 				.rewardType(RewardType.VIDEO)
 				.rewardPoint(300)
-				.date(LocalDateTime.now())
+				.createdDate(LocalDateTime.now())
 				.build(),
 			RewardsResponse.builder()
 				.entityId(418L)
 				.rewardType(RewardType.QUIZ)
 				.rewardPoint(5)
-				.date(LocalDateTime.now())
+				.createdDate(LocalDateTime.now())
 				.build()
 		);
 
 		PageImpl<RewardsResponse> page = new PageImpl<>(responses);
 
-		given(memberService.getRewards(Mockito.anyLong(), Mockito.anyInt())).willReturn(page);
+		given(memberService.getRewards(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
 
 		//when
 		ResultActions actions = mockMvc.perform(
@@ -161,7 +154,7 @@ public class MemberControllerTest extends ControllerTest {
 						fieldWithPath("data[].entityId").description("리워드를 획득한 엔티티의 ID"),
 						fieldWithPath("data[].rewardType").description("리워드 타입"),
 						fieldWithPath("data[].rewardPoint").description("지급된 리워드"),
-						fieldWithPath("data[].date").description("리워드 지급 날짜")
+						fieldWithPath("data[].createdDate").description("리워드 지급 날짜")
 					)
 				)
 			);
@@ -200,7 +193,7 @@ public class MemberControllerTest extends ControllerTest {
 
 		PageImpl<SubscribesResponse> page = new PageImpl<>(responses);
 
-		given(memberService.getSubscribes(Mockito.anyLong(), Mockito.anyInt())).willReturn(page);
+		given(memberService.getSubscribes(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
 
 		//when
 		ResultActions actions = mockMvc.perform(
@@ -273,7 +266,7 @@ public class MemberControllerTest extends ControllerTest {
 
 		PageImpl<CartsResponse> page = new PageImpl<>(responses);
 
-		given(memberService.getCarts(Mockito.anyLong(), anyInt())).willReturn(page);
+		given(memberService.getCarts(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
 
 		//when
 		ResultActions actions = mockMvc.perform(
@@ -426,7 +419,7 @@ public class MemberControllerTest extends ControllerTest {
 
 		PageImpl<OrdersResponse> page = new PageImpl<>(responses);
 
-		given(memberService.getOrders(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
+		given(memberService.getOrders(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
 
 		//when
 		ResultActions actions = mockMvc.perform(
@@ -534,14 +527,15 @@ public class MemberControllerTest extends ControllerTest {
 
 		PageImpl<PlaylistsResponse> page = new PageImpl<>(responses);
 
-		given(memberService.getPlaylists(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyString())).willReturn(page);
+		given(memberService.getPlaylists(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString())).willReturn(page);
 
 		//when
 		ResultActions actions = mockMvc.perform(
 			get("/members/playlists")
 				.header(AUTHORIZATION, TOKEN)
 				.param("page",  "1")
-				.param("sort", "new")
+				.param("size", "10")
+				.param("sort", "star")
 				.accept(APPLICATION_JSON)
 		);
 
@@ -568,6 +562,7 @@ public class MemberControllerTest extends ControllerTest {
 						),
 						requestParameters(
 							parameterWithName("page").description("구매한 강의 목록 페이지"),
+							parameterWithName("size").description("페이지의 데이터 수"),
 							parameterWithName("sort").description("정렬 기준(최신순, 평점순, 채널별, 이름순)")
 						),
 						responseFields(
@@ -626,7 +621,7 @@ public class MemberControllerTest extends ControllerTest {
 
 		PageImpl<WatchsResponse> page = new PageImpl<>(responses);
 
-		given(memberService.getWatchs(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
+		given(memberService.getWatchs(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
 
 		//when
 		ResultActions actions = mockMvc.perform(

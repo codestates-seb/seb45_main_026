@@ -1,8 +1,8 @@
 package com.server.domain.member.service;
 
-import java.util.Optional;
-
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +18,10 @@ import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
-import com.server.global.exception.businessexception.memberexception.MemberNotUpdatedException;
 import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
 import com.server.module.email.service.MailService;
 import com.server.module.s3.service.AwsService;
@@ -63,34 +63,40 @@ public class MemberService {
 		return ProfileResponse.getMember(member, awsService.getImageUrl(member.getImageFile()));
 	}
 
-	public Page<RewardsResponse> getRewards(Long loginId, int page) {
-		return null;
+	public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
+		Member member = validateMember(loginId);
+
+		return memberRepository.findRewardsByMemberId(member.getMemberId(), PageRequest.of(page, size));
 	}
 
-	public Page<SubscribesResponse> getSubscribes(Long loginId, int page) {
-		return null;
+	public Page<SubscribesResponse> getSubscribes(Long loginId, int page, int size) {
+		Member member = validateMember(loginId);
+
+		return memberRepository.findSubscribeWithChannelForMember(member.getMemberId(), PageRequest.of(page - 1, size));
 	}
 
-	// 좋아요 기능은 구현하지 않기로 함
-	// public void getLikes(Long memberId, int page) {
-	//
-	// }
+	public Page<CartsResponse> getCarts(Long loginId, int page, int size) {
+		Member member = validateMember(loginId);
 
-	public Page<CartsResponse> getCarts(Long loginId, int page) {
-		return null;
+		return memberRepository.findCartsOrderByCreatedDateForMember(member.getMemberId(), PageRequest.of(page - 1, size));
 	}
 
-	public Page<OrdersResponse> getOrders(Long loginId, int page, int month) {
-		return null;
+	public Page<OrdersResponse> getOrders(Long loginId, int page, int size, int month) {
+		Member member = validateMember(loginId);
+
+		return memberRepository.findOrdersOrderByCreatedDateForMember(member.getMemberId(), PageRequest.of(page - 1, size), month);
 	}
 
-	public Page<PlaylistsResponse> getPlaylists(Long loginId, int page, String sort) {
-		return null;
+	public Page<PlaylistsResponse> getPlaylists(Long loginId, int page, int size, String sort) {
+		Member member = validateMember(loginId);
+
+		return memberRepository.findPlaylistsOrderBySort(member.getMemberId(), sort, PageRequest.of(page, size));
 	}
 
-	public Page<WatchsResponse> getWatchs(Long loginId, int page, int day) {
+	public Page<WatchsResponse> getWatchs(Long loginId, int page, int size, int day) {
+		Member member = validateMember(loginId);
 
-		return null;
+		return memberRepository.findWatchesForMember(member.getMemberId(), day, PageRequest.of(page, size));
 	}
 
 	@Transactional
@@ -132,12 +138,6 @@ public class MemberService {
 
 		awsService.deleteImage(member.getImageFile());
 		member.deleteImageFile();
-	}
-
-	public Member findMemberBy(Long id) {
-		return memberRepository.findById(id).orElseThrow(
-			MemberNotFoundException::new
-		);
 	}
 
 	public void validatePassword(String password, String encodedPassword) {

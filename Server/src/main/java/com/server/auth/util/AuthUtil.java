@@ -1,5 +1,7 @@
 package com.server.auth.util;
 
+import static com.server.auth.util.AuthConstant.*;
+
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +17,7 @@ public class AuthUtil {
 	public static void setResponse(HttpServletResponse response, BusinessException be) throws IOException {
 		response.setStatus(be.getHttpStatus().value());
 		response.setContentType("application/json");
+		response.setHeader(LOCATION, "/auth/refresh");
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write(
 			objectMapper.writeValueAsString(

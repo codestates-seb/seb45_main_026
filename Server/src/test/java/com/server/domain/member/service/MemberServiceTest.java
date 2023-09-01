@@ -49,7 +49,7 @@ public class MemberServiceTest extends ServiceTest {
 
 		memberService.deleteMember(id);
 
-		assertThrows(MemberNotFoundException.class, () -> memberService.findMemberBy(id));
+		assertThrows(MemberNotFoundException.class, () -> memberRepository.findById(id).orElseThrow(MemberNotFoundException::new));
 	}
 
 	@Test
