@@ -48,16 +48,13 @@ const ChannelTitle = styled.h1`
   height: 30px;
   font-size: ${globalTokens.Heading4.value}px;
   font-weight: ${globalTokens.Bold.value};
-`
+`;
 const ChannelDescription = styled.div`
   height: 80px;
   flex-grow: 1;
   padding: ${globalTokens.Spacing4.value}px;
   background-color: lightgray;
   border-radius: ${globalTokens.RegularRadius.value}px;
-`
-const JustDiv = styled.div`
-  height: 300px;
 `
 
 

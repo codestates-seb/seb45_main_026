@@ -21,6 +21,7 @@ const ListContainer = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${globalTokens.Spacing16.value}px;
+    margin-bottom: ${globalTokens.Spacing24.value}px;
 `
 
 export default function ChannelList() {
