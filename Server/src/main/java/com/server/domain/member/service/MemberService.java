@@ -9,6 +9,7 @@ import com.server.global.exception.businessexception.memberexception.MemberAcces
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
+import com.server.global.exception.businessexception.s3exception.S3FileNotVaildException;
 import com.server.module.email.service.MailService;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
@@ -52,11 +53,19 @@ public class MemberService {
 	public ProfileResponse getMember(Long loginId) {
 		Member member = validateMember(loginId);
 
-		return ProfileResponse.getMember(member,
-				awsService.getFileUrl(
-						member.getMemberId(),
-						member.getImageFile(),
-						FileType.PROFILE_IMAGE));
+		if (member.getImageFile() == null) {
+			return ProfileResponse.getMember(member,
+				"프로필 이미지 미등록");
+		}
+
+		return ProfileResponse.getMember(member, getFileUrl(member));
+	}
+
+	private String getFileUrl(Member member) {
+		return awsService.getFileUrl(
+			member.getMemberId(),
+			member.getImageFile(),
+			FileType.PROFILE_IMAGE);
 	}
 
 	public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {

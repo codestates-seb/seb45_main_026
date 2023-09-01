@@ -3,10 +3,12 @@ package com.server.domain.member.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.*;
 
+import java.util.Iterator;
 import java.util.Optional;
 
+import com.server.domain.channel.entity.Channel;
+import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.server.domain.member.entity.Authority;
@@ -32,15 +35,71 @@ public class MemberServiceTest extends ServiceTest {
 
 	@Autowired PasswordEncoder passwordEncoder;
 	@Autowired MemberService memberService;
+	@Autowired AwsService awsService;
 
 	@Mock
 	private MemberRepository mockMemberRepository;
 
 	@Mock
-	private AwsService awsService;
+	private AwsService mockAwsService;
 
 	@InjectMocks
 	private MemberService mockMemberService;
+
+	@Test
+	@DisplayName("로그인한 회원의 프로필 조회가 성공적으로 되는지 검증한다.")
+	void getMember() {
+		Member member = Member.builder()
+			.memberId(1L)
+			.email("test@gmail.com")
+			.password(passwordEncoder.encode("1q2w3e4r!"))
+			.nickname("test")
+			.authority(Authority.ROLE_USER)
+			.reward(1000)
+			.imageFile("imageName")
+			.build();
+
+		Optional<Member> optional = Optional.ofNullable(member);
+		Long id = member.getMemberId();
+
+		String fileUrl = "www.test.com";
+
+		given(mockMemberRepository.findById(Mockito.anyLong())).willReturn(optional);
+		given(mockAwsService.getFileUrl(Mockito.anyLong(), Mockito.anyString(), Mockito.any(FileType.class)))
+			.willReturn(fileUrl);
+
+		assertThat(mockMemberService.getMember(id).getImageUrl()).isEqualTo(fileUrl);
+	}
+
+	@Test
+	@DisplayName("로그인한 회원의 구독 목록 조회가 제대로 수행되는지 검증한다.")
+	void getSubscribes() {
+		Member owner1 = createAndSaveMember();
+		Channel channel1 = createAndSaveChannel(owner1);
+
+		Member owner2 = createAndSaveMember();
+		Channel channel2 = createAndSaveChannel(owner2);
+
+		Member owner3 = createAndSaveMember();
+		Channel channel3 = createAndSaveChannel(owner3);
+
+		Member loginMember = createAndSaveMember();
+
+		createAndSaveSubscribe(loginMember, channel1);
+		createAndSaveSubscribe(loginMember, channel2);
+		createAndSaveSubscribe(loginMember, channel3);
+
+		Page<SubscribesResponse> responses =
+			memberService.getSubscribes(loginMember.getMemberId(), 1, 10);
+
+		assertThat(responses.getTotalElements()).isEqualTo(3);
+		assertThat(responses.getTotalPages()).isEqualTo(1);
+
+		Iterator<SubscribesResponse> responseIterator = responses.iterator();
+		assertThat(responseIterator.next().getMemberId()).isEqualTo(owner1.getMemberId());
+		assertThat(responseIterator.next().getMemberId()).isEqualTo(owner2.getMemberId());
+		assertThat(responseIterator.next().getMemberId()).isEqualTo(owner3.getMemberId());
+	}
 
 	@Test
 	@DisplayName("로그인한 사용자의 ID에 맞는 회원 테이블을 삭제한다.")
@@ -147,11 +206,11 @@ public class MemberServiceTest extends ServiceTest {
 		Long loginId = member.getMemberId();
 
 		given(mockMemberRepository.findById(Mockito.anyLong())).willReturn(Optional.of(member));
-		doNothing().when(awsService).deleteFile(anyLong(), anyString(), any(FileType.class));
+		doNothing().when(mockAwsService).deleteFile(anyLong(), anyString(), any(FileType.class));
 
 		mockMemberService.deleteImage(loginId);
 
-		verify(awsService).deleteFile(loginId, "imageName", FileType.PROFILE_IMAGE);
+		verify(mockAwsService).deleteFile(loginId, "imageName", FileType.PROFILE_IMAGE);
 		assertNull(member.getImageFile());
 	}
 
