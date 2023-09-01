@@ -1,6 +1,7 @@
 package com.server.domain.question.service;
 
 import com.server.domain.answer.entity.Answer;
+import com.server.domain.answer.entity.AnswerStatus;
 import com.server.domain.answer.repository.AnswerRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
@@ -11,10 +12,10 @@ import com.server.domain.question.service.dto.request.QuestionCreateServiceReque
 import com.server.domain.question.service.dto.response.QuestionResponse;
 import com.server.domain.question.service.dto.request.AnswerCreateServiceRequest;
 import com.server.domain.question.service.dto.request.QuestionUpdateServiceRequest;
+import com.server.domain.reward.service.RewardService;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.global.exception.businessexception.answerexception.AnswerCountException;
-import com.server.global.exception.businessexception.answerexception.AnswerNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.questionexception.QuestionNotFoundException;
 import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -36,14 +38,18 @@ public class QuestionService {
     private final MemberRepository memberRepository;
     private final AnswerRepository answerRepository;
     private final VideoRepository videoRepository;
+    private final RewardService rewardService;
 
-    public QuestionService(QuestionRepository questionRepository, MemberRepository memberRepository,
+    public QuestionService(QuestionRepository questionRepository,
+                           MemberRepository memberRepository,
                            AnswerRepository answerRepository,
-                           VideoRepository videoRepository) {
+                           VideoRepository videoRepository,
+                           RewardService rewardService) {
         this.questionRepository = questionRepository;
         this.memberRepository = memberRepository;
         this.answerRepository = answerRepository;
         this.videoRepository = videoRepository;
+        this.rewardService = rewardService;
     }
 
     public QuestionResponse getQuestion(Long loginMemberId, Long questionId) {
@@ -115,18 +121,32 @@ public class QuestionService {
 
         checkVideoPurchased(loginMemberId, videoId);
 
-        List<QuestionData> questionDatas = getQuestionDatas(loginMemberId, videoId);
+        List<Question> questions = questionRepository.findQuestionsWithVideoByVideoId(videoId);
 
-        if(questionDatas.size() != myAnswers.size()) {
+        if(questions.size() != myAnswers.size()) {
             throw new AnswerCountException();
         }
+        List<Answer> answers = createOrGetAnswersInPositionOrder(loginMemberId, questions);
 
+        List<Boolean> results = solveQuestions(myAnswers, answers);
+
+        List<Question> toGetRewards = correctQuestionsFrom(answers);
+
+        rewardService.createQuestionRewardsIfNotPresent(toGetRewards, verifiedMember(loginMemberId));
+
+        return results;
+    }
+
+    private List<Boolean> solveQuestions(List<String> myAnswers, List<Answer> answers) {
         return IntStream.range(0, myAnswers.size())
-                .mapToObj(index -> {
-                    QuestionData questionData = questionDatas.get(index);
-                    Answer answer = createOrGetAnswer(loginMemberId, questionData);
-                    return answer.solveAnswer(myAnswers.get(index), questionData.getQuestionAnswer());
-                })
+                .mapToObj(index -> answers.get(index).solveAnswer(myAnswers.get(index)))
+                .collect(Collectors.toList());
+    }
+
+    private List<Question> correctQuestionsFrom(List<Answer> answers) {
+        return answers.stream()
+                .filter(answer -> answer.getAnswerStatus().equals(AnswerStatus.CORRECT))
+                .map(Answer::getQuestion)
                 .collect(Collectors.toList());
     }
 
@@ -135,26 +155,55 @@ public class QuestionService {
 
         checkQuestionPurchased(loginMemberId, request.getQuestionId());
 
-        QuestionData questionData = getQuestionData(loginMemberId, request.getQuestionId());
+        Answer answer = createOrGetAnswer(loginMemberId, request.getQuestionId());
 
-        Answer answer = createOrGetAnswer(loginMemberId, questionData);
+        boolean result = answer.solveAnswer(request.getMyAnswer());
 
-        return answer.solveAnswer(request.getMyAnswer(), questionData.getQuestionAnswer());
-    }
-
-    private Answer createOrGetAnswer(Long memberId, QuestionData questionData) {
-
-        if(questionData.getAnswerId() == null) {
-            Answer answer = Answer.createAnswer(
-                    questionData.getMyAnswer(),
-                    verifiedMember(memberId),
-                    verifiedQuestion(questionData.getQuestionId())
-            );
-            return answerRepository.save(answer);
+        if(result) {
+            getReward(answer);
         }
 
-        return answerRepository.findById(questionData.getAnswerId())
-                .orElseThrow(AnswerNotFoundException::new);
+        return result;
+    }
+
+    private void getReward(Answer answer) {
+        rewardService.createQuestionRewardIfNotPresent(answer.getQuestion(), answer.getMember());
+    }
+
+    private List<Answer> createOrGetAnswersInPositionOrder(Long loginMemberId, List<Question> questions) {
+
+        Member member = verifiedMember(loginMemberId);
+
+        return questions.stream().map(question ->
+                getAnswer(member.getMemberId(), question.getQuestionId())
+                .orElseGet(() -> createAnswer(member, question)))
+                .sorted(Comparator.comparingInt(answer -> answer.getQuestion().getPosition()))
+                .collect(Collectors.toList());
+    }
+
+    private Answer createOrGetAnswer(Long memberId, Long questionId) {
+
+        return getAnswer(memberId, questionId)
+                .orElseGet(() -> {
+
+                    Member member = verifiedMember(memberId);
+                    Question question = verifiedQuestion(questionId);
+
+                    return createAnswer(member, question);
+                });
+    }
+
+    private Optional<Answer> getAnswer(Long memberId, Long questionId) {
+        return answerRepository.findByMemberIdAndQuestionId(memberId, questionId);
+    }
+
+    private Answer createAnswer(Member member, Question question) {
+        Answer answer = Answer.createAnswer(
+                null,
+                member,
+                question
+        );
+        return answerRepository.save(answer);
     }
 
     private void checkQuestionPurchased(Long loginMemberId, Long questionId) {
@@ -176,14 +225,6 @@ public class QuestionService {
     private void checkQuestionAuthority(Long loginMemberId, Long questionId) {
         Video video = questionRepository.findVideoByQuestionId(questionId)
                 .orElseThrow(QuestionNotFoundException::new);
-
-        if(!video.getChannel().getMember().getMemberId().equals(loginMemberId))
-            throw new VideoAccessDeniedException();
-    }
-
-    private void checkVideoAuthority(Long loginMemberId, Long videoId) {
-        Video video = videoRepository.findVideoWithMember(videoId)
-                .orElseThrow(VideoNotFoundException::new);
 
         if(!video.getChannel().getMember().getMemberId().equals(loginMemberId))
             throw new VideoAccessDeniedException();
