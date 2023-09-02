@@ -5,6 +5,7 @@ import com.server.domain.question.service.dto.response.QuestionResponse;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
+import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
 import com.server.domain.video.service.dto.response.*;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -206,7 +207,7 @@ class VideoControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses, "비디오 목록 조회 성공"));
 
-        given(videoService.getVideos(anyLong(), anyInt(), anyInt(), anyString(), anyString(), anyBoolean()))
+        given(videoService.getVideos(anyLong(), any(VideoGetServiceRequest.class)))
                 .willReturn(pageResponses);
 
         //when
@@ -217,6 +218,7 @@ class VideoControllerTest extends ControllerTest {
                         .param("sort", "created-date")
                         .param("category", "spring")
                         .param("subscribe", "true")
+                        .param("free", "false")
                         .accept(APPLICATION_JSON)
                         .header(AUTHORIZATION, TOKEN)
         );
@@ -236,7 +238,8 @@ class VideoControllerTest extends ControllerTest {
                         parameterWithName("size").description("페이지 사이즈").optional(),
                         parameterWithName("sort").description(generateLinkCode(VideoSort.class)).optional(),
                         parameterWithName("category").description("카테고리").optional(),
-                        parameterWithName("subscribe").description("구독 여부").optional()
+                        parameterWithName("subscribe").description("구독 여부").optional(),
+                        parameterWithName("free").description("무료 여부").optional()
                 ),
                 responseFields(
                         fieldWithPath("data").description("비디오 목록"),
