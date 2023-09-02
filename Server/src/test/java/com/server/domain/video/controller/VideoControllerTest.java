@@ -859,7 +859,7 @@ class VideoControllerTest extends ControllerTest {
                 }),
                 dynamicTest("selection 이 5개 이상 있으면 검증에 실패한다.", ()-> {
                     //given
-                    List<String> wrongSelection = List.of("selection1", "selection2", "selection3", "selection4", "selection5", "selection6");
+                    List<String> wrongSelection = List.of("selection1", "selection2", "selection3", "selection4", "selection5");
                     List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
                             .position(1)
                             .content("content")
@@ -881,7 +881,7 @@ class VideoControllerTest extends ControllerTest {
                     actions.andDo(print())
                             .andExpect(status().isBadRequest())
                             .andExpect(jsonPath("$.data[0].field").value("selections"))
-                            .andExpect(jsonPath("$.data[0].value").value("[selection1, selection2, selection3, selection4, selection5, selection6]"))
+                            .andExpect(jsonPath("$.data[0].value").value("[selection1, selection2, selection3, selection4, selection5]"))
                             .andExpect(jsonPath("$.data[0].reason").value("선택지를 추가하려면 최소 1개, 최대 4개까지 가능합니다."));
                 })
         );
@@ -1345,7 +1345,7 @@ class VideoControllerTest extends ControllerTest {
                     .content("content" + i)
                     .myAnswer(String.valueOf(i))
                     .questionAnswer("2")
-                    .selections(List.of("selection1", "selection2", "selection3", "selection4", "selection5"))
+                    .selections(List.of("selection1", "selection2", "selection3", "selection4"))
                     .answerStatus(AnswerStatus.CORRECT)
                     .description("description" + i)
                     .solvedDate(LocalDateTime.now())

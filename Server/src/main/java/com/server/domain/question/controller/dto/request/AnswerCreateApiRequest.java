@@ -6,12 +6,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 @AllArgsConstructor
 @Builder
 @Getter
 @NoArgsConstructor
 public class AnswerCreateApiRequest {
 
+    @NotBlank(message = "{validation.question.answer}")
     private String myAnswer;
 
     public AnswerCreateServiceRequest toServiceRequest(Long questionId) {
