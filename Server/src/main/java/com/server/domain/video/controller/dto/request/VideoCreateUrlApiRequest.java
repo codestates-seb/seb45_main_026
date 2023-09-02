@@ -6,12 +6,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 @AllArgsConstructor
 @Getter
 @Builder
 public class VideoCreateUrlApiRequest {
 
+    @NotNull(message = "{validation.video.imageType}")
     private ImageType imageType;
+    @NotBlank(message = "{validation.video.name}")
     private String fileName;
 
     public VideoCreateUrlServiceRequest toServiceRequest() {

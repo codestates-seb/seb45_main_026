@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,10 +16,15 @@ import java.util.stream.Collectors;
 @Builder
 @Getter
 public class QuestionCreateApiRequest {
+    @Positive(message = "{validation.positive}")
+    @NotNull(message = "{validation.question.position}")
     private Integer position;
+    @NotBlank(message = "{validation.question.content}")
     private String content;
+    @NotBlank(message = "{validation.question.questionAnswer}")
     private String questionAnswer;
     private String description;
+    @Size(min = 1, max = 4, message = "{validation.question.selections.size}")
     private List<String> selections;
 
     public QuestionCreateServiceRequest toServiceRequest() {
