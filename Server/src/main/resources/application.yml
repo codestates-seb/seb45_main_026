@@ -76,7 +76,7 @@ spring:
     url: jdbc:mysql://sixman-rds.c2bhjqsi4ogs.ap-northeast-2.rds.amazonaws.com/sixmandb?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     database: mysql
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
 

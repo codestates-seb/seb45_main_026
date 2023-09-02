@@ -14,7 +14,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 public class AnnouncementUpdateApiRequest {
 
-    @NotBlank
+    @NotBlank(message = "{validation.announcement.content}")
     private String content;
 
     public AnnouncementUpdateServiceRequest toServiceRequest(Long announcementId) {
