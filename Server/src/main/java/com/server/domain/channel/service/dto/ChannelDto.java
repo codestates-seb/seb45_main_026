@@ -14,7 +14,7 @@ public class ChannelDto {
         private Long memberId;
         private String channelName;
         private int subscribers;
-        private boolean isSubscribed; //구독여부 값 채워넣기
+        private boolean isSubscribed;
         private String description;
         private String imageUrl;
         private LocalDateTime createdDate;
@@ -37,12 +37,5 @@ public class ChannelDto {
         }
     }
 
-
-    @Builder
-    @Getter
-    public static class UpdateInfo {
-        private String channelName;
-        private String description;
-    }
 }
 

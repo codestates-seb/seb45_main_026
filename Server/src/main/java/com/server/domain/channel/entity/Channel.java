@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 @Getter
 @Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class Channel extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 public class ChannelInfo {
     private Long memberId;
     private String channelName;
+    private String description;
     private int subscribers;
     private boolean isSubscribed;
-    private String description;
     private String imageUrl;
     private LocalDateTime createdDate;
 
@@ -23,8 +23,15 @@ public class ChannelInfo {
         public static ChannelInfo of(Channel channel, boolean isSubscribed, String imageUrl) {
 
             return ChannelInfo.builder()
+                    .memberId(channel.getMember().getMemberId())
+                    .channelName(channel.getChannelName())
+                    .description(channel.getDescription())
+                    .subscribers(channel.getSubscribers())
                     .isSubscribed(isSubscribed)
-                    .imageUrl(imageUrl)
+                    .description(channel.getDescription())
+                    .imageUrl(channel.getMember().getImageFile())
+                    .createdDate(channel.getCreatedDate())
                     .build();
+
         }
     }

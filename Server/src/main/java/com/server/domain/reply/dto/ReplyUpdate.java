@@ -11,17 +11,17 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @AllArgsConstructor
-public class ReplyResponse {
+public class ReplyUpdate {
     private Long replyId;
     private Long memberId;
     private Long videoId;
     private String content;
     private int star;
     private Member member;
-    private LocalDateTime createdAt;
+    private LocalDateTime createdDate;
 
-    public static ReplyResponse of(Reply reply) {
-        return ReplyResponse.builder()
+    public static ReplyUpdate of(Reply reply) {
+        return ReplyUpdate.builder()
                 .content(reply.getContent())
                 .star(reply.getStar())
                 .build();

@@ -3,8 +3,8 @@ package com.server.domain.reply.service;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.reply.dto.ReplyResponse;
+import com.server.domain.reply.dto.ReplyUpdate;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.replyException.ReplyNotFoundException;
@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReplyService {
 
-    private ReplyRepository replyRepository;
-    private MemberRepository memberRepository;
+    private final ReplyRepository replyRepository;
+    private final MemberRepository memberRepository;
 
 
     public ReplyService(ReplyRepository replyRepository, MemberRepository memberRepository) {
@@ -25,23 +25,23 @@ public class ReplyService {
         this.memberRepository = memberRepository;
     }
 
-    public Page<ReplyInfo> getReplies(Long replyId, int page, int size, String sort) {
+    public Page<ReplyResponse> getReplies(Long replyId, int page, int size, String sort) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        return ReplyInfo.of(replyRepository.findAllByReplyId(pageRequest, sort, replyId));
+        return ReplyResponse.of(replyRepository.findAllByReplyId(pageRequest, sort, replyId));
     }
 
 
 
-    public Reply createReply(Long loginMemberId, ReplyResponse response) {
+    public Reply createReply(Long loginMemberId, ReplyUpdate response) {
 
         Member loginMember = memberRepository.findById(loginMemberId)
                 .orElseThrow(() -> new MemberNotFoundException());
 
         Integer star = response.getStar();
 
-        if (star < 1 || star > 10) {
+        if (star < 1 || star > 5) {
             throw new ReplyNotValidException();
         }
 
@@ -55,14 +55,14 @@ public class ReplyService {
     }
 
 
-    public Reply updateReply(Long loginMemberId, Long replyId, ReplyResponse response) {
+    public Reply updateReply(Long loginMemberId, Long replyId, ReplyUpdate replyUpdate) {
 
         Member loginMember = memberRepository.findById(loginMemberId)
                 .orElseThrow(() -> new MemberNotFoundException());
 
         Reply reply = existReply(replyId);
 
-        reply.updateReply(response.getContent(), response.getStar());
+        reply.updateReply(replyUpdate.getContent(), replyUpdate.getStar());
 
         return reply;
     }
