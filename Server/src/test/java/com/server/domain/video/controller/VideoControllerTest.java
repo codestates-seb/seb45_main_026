@@ -881,7 +881,7 @@ class VideoControllerTest extends ControllerTest {
                     actions.andDo(print())
                             .andExpect(status().isBadRequest())
                             .andExpect(jsonPath("$.data[0].field").value("selections"))
-                            .andExpect(jsonPath("$.data[0].value").value("[\"selection1\",\"selection2\",\"selection3\",\"selection4\",\"selection5\",\"selection6\"]"))
+                            .andExpect(jsonPath("$.data[0].value").value("[selection1, selection2, selection3, selection4, selection5, selection6]"))
                             .andExpect(jsonPath("$.data[0].reason").value("선택지를 추가하려면 최소 1개, 최대 4개까지 가능합니다."));
                 })
         );
