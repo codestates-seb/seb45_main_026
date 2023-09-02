@@ -5,7 +5,7 @@ const LoginInfoSlice = createSlice({
   initialState: {
     isLogin: false,
     loginInfo: { email: "", nickname: "" },
-    oauth: { provider: "" },
+    oAuthProvider: "", //GOOGLE, GITHUB, KAKAO
     accessToken: {
       authorization: "",
       refresh: "",
@@ -25,7 +25,7 @@ const LoginInfoSlice = createSlice({
     },
     setProvider: (state, action) => {
       // OAuth에 사용될 provider 값 저장
-      state.oauth.provider = action.payload;
+      state.oAuthProvider = action.payload;
     },
     setMyid: (state, action) => {
       // 나의 memberId 를 저장
