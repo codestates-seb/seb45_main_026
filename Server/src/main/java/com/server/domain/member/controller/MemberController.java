@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 
 import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
@@ -102,8 +103,8 @@ public class MemberController {
 
 	@GetMapping("/playlists")
 	public ResponseEntity<ApiPageResponse<PlaylistsResponse>> getPlaylists(@LoginId Long loginId,
-													@RequestParam(value = "page", defaultValue = "1") int page,
-													@RequestParam(value = "size", defaultValue = "16") int size,
+													@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+													@RequestParam(value = "size", defaultValue = "16") @Positive(message = "{validation.positive}") int size,
 													@RequestParam(value = "sort", defaultValue = "created-date") PlaylistsSort sort) {
 
 		Page<PlaylistsResponse> responses = memberService.getPlaylists(loginId, page, size, sort.getSort());
@@ -113,9 +114,9 @@ public class MemberController {
 
 	@GetMapping("/watchs")
 	public ResponseEntity<ApiPageResponse<WatchsResponse>> getWatchs(@LoginId Long loginId,
-																	@RequestParam(value = "page", defaultValue = "1") int page,
-																	@RequestParam(value = "size", defaultValue = "16") int size,
-																	@RequestParam(value = "day", defaultValue = "30") int day) {
+																	@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+																	@RequestParam(value = "size", defaultValue = "16") @Positive(message = "{validation.positive}") int size,
+																	@RequestParam(value = "day", defaultValue = "30") @Positive(message = "{validation.positive}") int day) {
 
 		Page<WatchsResponse> responses = memberService.getWatchs(loginId, page, size, day);
 
@@ -124,14 +125,14 @@ public class MemberController {
 
 	@PatchMapping
 	public ResponseEntity<Void> updateNickname(@LoginId Long loginId,
-												@RequestBody MemberApiRequest.Nickname request) {
+												@RequestBody @Valid MemberApiRequest.Nickname request) {
 		memberService.updateNickname(request.toServiceRequest(), loginId);
 		return ResponseEntity.noContent().build();
 	}
 
 	@PatchMapping("/image")
 	public ResponseEntity<Void> updateImage(@LoginId Long loginId,
-														@RequestBody MemberApiRequest.Image request) {
+														@RequestBody @Valid MemberApiRequest.Image request) {
 
 		memberService.updateImage(loginId);
 

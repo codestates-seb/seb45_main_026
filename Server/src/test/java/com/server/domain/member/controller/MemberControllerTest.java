@@ -151,8 +151,8 @@ public class MemberControllerTest extends ControllerTest {
 						headerWithName(AUTHORIZATION).description("액세스 토큰")
 					),
 					requestParameters(
-						parameterWithName("page").description("조회할 리워드 목록 페이지"),
-						parameterWithName("size").description("조회할 리워드 목록 페이지")
+						parameterWithName("page").description("조회할 리워드 목록 페이지").optional(),
+						parameterWithName("size").description("페이지의 데이터 수").optional()
 					),
 					pageResponseFields(
 						fieldWithPath("data[]").description("리워드 목록"),
@@ -207,6 +207,7 @@ public class MemberControllerTest extends ControllerTest {
 			get("/members/subscribes")
 				.header(AUTHORIZATION, TOKEN)
 				.param("page","1")
+				.param("size","16")
 				.accept(APPLICATION_JSON)
 		);
 
@@ -227,7 +228,8 @@ public class MemberControllerTest extends ControllerTest {
 						headerWithName(AUTHORIZATION).description("액세스 토큰")
 					),
 					requestParameters(
-						parameterWithName("page").description("조회할 구독 목록 페이지")
+						parameterWithName("page").description("조회할 구독 목록 페이지").optional(),
+						parameterWithName("size").description("페이지의 데이터 수").optional()
 					),
 					responseFields(
 						RestDocsUtil.getPageResponseFields(responseFields)
@@ -280,6 +282,7 @@ public class MemberControllerTest extends ControllerTest {
 			get("/members/carts")
 				.header(AUTHORIZATION, TOKEN)
 				.param("page","1")
+				.param("size","20")
 				.accept(APPLICATION_JSON)
 		);
 
@@ -308,7 +311,8 @@ public class MemberControllerTest extends ControllerTest {
 						headerWithName(AUTHORIZATION).description("액세스 토큰")
 					),
 					requestParameters(
-						parameterWithName("page").description("조회할 장바구니 페이지")
+						parameterWithName("page").description("조회할 장바구니 페이지").optional(),
+						parameterWithName("size").description("페이지의 데이터 수").optional()
 					),
 					responseFields(
 						RestDocsUtil.getPageResponseFields(responseFields)
@@ -433,7 +437,8 @@ public class MemberControllerTest extends ControllerTest {
 			get("/members/orders")
 				.header(AUTHORIZATION, TOKEN)
 				.param("page", "1")
-				.param("month", "12")
+				.param("size","4")
+				.param("month", "1")
 				.accept(APPLICATION_JSON)
 		);
 
@@ -463,8 +468,9 @@ public class MemberControllerTest extends ControllerTest {
 							headerWithName(AUTHORIZATION).description("액세스 토큰")
 						),
 						requestParameters(
-							parameterWithName("page").description("조회할 결제 목록 페이지"),
-							parameterWithName("month").description("조회할 범위 지정(월 단위)")
+							parameterWithName("page").description("조회할 결제 목록 페이지").optional(),
+							parameterWithName("size").description("페이지의 데이터 수").optional(),
+							parameterWithName("month").description("조회할 범위 지정(월 단위)").optional()
 						),
 						responseFields(
 							RestDocsUtil.getPageResponseFields(responseFields)
@@ -541,7 +547,7 @@ public class MemberControllerTest extends ControllerTest {
 			get("/members/playlists")
 				.header(AUTHORIZATION, TOKEN)
 				.param("page",  "1")
-				.param("size", "10")
+				.param("size", "16")
 				.param("sort", "star")
 				.accept(APPLICATION_JSON)
 		);
@@ -568,9 +574,9 @@ public class MemberControllerTest extends ControllerTest {
 							headerWithName(AUTHORIZATION).description("액세스 토큰")
 						),
 						requestParameters(
-							parameterWithName("page").description("구매한 강의 목록 페이지"),
-							parameterWithName("size").description("페이지의 데이터 수"),
-							parameterWithName("sort").description("정렬 기준(최신순, 평점순, 채널별, 이름순)")
+							parameterWithName("page").description("구매한 강의 목록 페이지").optional(),
+							parameterWithName("size").description("페이지의 데이터 수").optional(),
+							parameterWithName("sort").description("정렬 기준(created-date, star, channel, name)").optional()
 						),
 						responseFields(
 							RestDocsUtil.getPageResponseFields(responseFields)
@@ -635,7 +641,8 @@ public class MemberControllerTest extends ControllerTest {
 			get("/members/watchs")
 				.header(AUTHORIZATION, TOKEN)
 				.param("page", "1")
-				.param("day", "14")
+				.param("size","16")
+				.param("day", "30")
 		);
 
 		//then
@@ -660,8 +667,9 @@ public class MemberControllerTest extends ControllerTest {
 							headerWithName(AUTHORIZATION).description("액세스 토큰")
 						),
 						requestParameters(
-							parameterWithName("page").description("조회할 페이지"),
-							parameterWithName("day").description("조회 기간 설정")
+							parameterWithName("page").description("조회할 페이지").optional(),
+							parameterWithName("size").description("페이지의 데이터 수").optional(),
+							parameterWithName("day").description("조회 기간 설정").optional()
 						),
 						responseFields(
 							RestDocsUtil.getPageResponseFields(responseFields)
@@ -755,10 +763,10 @@ public class MemberControllerTest extends ControllerTest {
 	}
 
 	@Test
-	@DisplayName("패스워드 변경 성공 테스트")
+	@DisplayName("사용자 패스워드 변경 성공 테스트")
 	void updatePassword() throws Exception {
 		MemberApiRequest.Password request = new MemberApiRequest.Password(
-			"abcd1234", "1234abcd"
+			"abcde12345!", "12345abcde!"
 		);
 
 		String content = objectMapper.writeValueAsString(request);

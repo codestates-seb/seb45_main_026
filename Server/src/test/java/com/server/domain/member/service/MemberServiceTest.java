@@ -25,6 +25,7 @@ import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.RewardType;
+import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
 import com.server.module.s3.service.dto.FileType;
@@ -91,7 +92,7 @@ public class MemberServiceTest extends ServiceTest {
 
 	@Test
 	@DisplayName("로그인한 회원의 구독 목록 조회가 제대로 수행되는지 검증한다.")
-	void getSubscribes() {
+	void getSubscribes() throws InterruptedException {
 		Member owner1 = createAndSaveMember();
 		Channel channel1 = createAndSaveChannel(owner1);
 
@@ -108,7 +109,9 @@ public class MemberServiceTest extends ServiceTest {
 		Member loginMember = createAndSaveMember();
 
 		createAndSaveSubscribe(loginMember, channel1);
+		Thread.sleep(100L);
 		createAndSaveSubscribe(loginMember, channel2);
+		Thread.sleep(100L);
 		createAndSaveSubscribe(loginMember, channel3);
 
 		Page<SubscribesResponse> responses =
@@ -116,6 +119,20 @@ public class MemberServiceTest extends ServiceTest {
 
 		assertThat(responses.getTotalElements()).isEqualTo(3);
 		assertThat(responses.getTotalPages()).isEqualTo(1);
+
+		List<SubscribesResponse> result = responses.getContent();
+
+		System.out.println("멤버 아이디 : " + loginMember.getMemberId());
+
+		List<Subscribe> subscribes = subscribeRepository.findAll();
+
+		for (SubscribesResponse s : result) {
+			System.out.println(s.getMemberId());
+			System.out.println(s.getSubscribes());
+			System.out.println(s.getChannelName());
+			System.out.println(s.getImageUrl());
+		}
+
 
 		Iterator<SubscribesResponse> responseIterator = responses.iterator();
 

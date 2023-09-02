@@ -58,7 +58,7 @@ public class AuthController {
 	@PostMapping("/signup")
 	public ResponseEntity<Void> signup(@RequestBody @Valid AuthApiRequest.SignUp request) {
 		memberService.signUp(request.toServiceRequest());
-		return new ResponseEntity<>(HttpStatus.CREATED); // 나중에 로케이션으로 바꾸기
+		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
 	@PostMapping("/oauth")

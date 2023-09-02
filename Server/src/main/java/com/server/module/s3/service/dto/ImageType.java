@@ -1,5 +1,8 @@
 package com.server.module.s3.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.server.auth.oauth.service.OAuthProvider;
 import com.server.global.entity.BaseEnum;
 import lombok.RequiredArgsConstructor;
 
@@ -14,6 +17,7 @@ public enum ImageType implements BaseEnum {
     private final String description;
 
     @Override
+    @JsonValue
     public String getName() {
         return name();
     }
@@ -21,5 +25,15 @@ public enum ImageType implements BaseEnum {
     @Override
     public String getDescription() {
         return this.description;
+    }
+
+    @JsonCreator
+    public static ImageType from(String value) {
+        for (ImageType imageType : ImageType.values()) {
+            if (imageType.getName().equalsIgnoreCase(value)) {
+                return imageType;
+            }
+        }
+        return null;
     }
 }
