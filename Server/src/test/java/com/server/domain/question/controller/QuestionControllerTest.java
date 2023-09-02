@@ -519,7 +519,7 @@ class QuestionControllerTest extends ControllerTest {
                             .andExpect(status().isBadRequest())
                             .andExpect(jsonPath("$.data[0].field").value("myAnswer"))
                             .andExpect(jsonPath("$.data[0].value").value("null"))
-                            .andExpect(jsonPath("$.data[0].reason").value("답변 내용은 필수입니다."));
+                            .andExpect(jsonPath("$.data[0].reason").value("나의 답변 내용은 필수입니다."));
                 }),
                 dynamicTest("myAnswer 이 공백이면 검증에 실패한다.", ()-> {
                     //given
@@ -542,7 +542,7 @@ class QuestionControllerTest extends ControllerTest {
                             .andExpect(status().isBadRequest())
                             .andExpect(jsonPath("$.data[0].field").value("myAnswer"))
                             .andExpect(jsonPath("$.data[0].value").value(wrongMyAnswer))
-                            .andExpect(jsonPath("$.data[0].reason").value("답변 내용은 필수입니다."));
+                            .andExpect(jsonPath("$.data[0].reason").value("나의 답변 내용은 필수입니다."));
                 })
 
 

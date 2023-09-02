@@ -421,7 +421,8 @@ class VideoControllerTest extends ControllerTest {
                         requestFields(
                                 fieldWithPath("videoName").description("비디오 제목").attributes(getConstraint("videoName")),
                                 fieldWithPath("price").description("가격").attributes(getConstraint("price")),
-                                fieldWithPath("description").description("비디오 설명").attributes(getConstraint("description")),
+                                fieldWithPath("description").description("비디오 설명").optional()
+                                        .attributes(getConstraint("description")),
                                 fieldWithPath("categories").description("카테고리 목록").attributes(getConstraint("categories"))
                         ),
                         responseHeaders(
@@ -647,7 +648,7 @@ class VideoControllerTest extends ControllerTest {
                             .andExpect(status().isBadRequest())
                             .andExpect(jsonPath("$.data[0].field").value("myAnswers"))
                             .andExpect(jsonPath("$.data[0].value").value("null"))
-                            .andExpect(jsonPath("$.data[0].reason").value("답변 내용은 필수입니다."));
+                            .andExpect(jsonPath("$.data[0].reason").value("나의 답변 내용은 필수입니다."));
                 }),
                 dynamicTest("myAnswer 값이 있지만 빈 배열이면 검증에 실패한다.", ()-> {
                     //given
@@ -667,7 +668,27 @@ class VideoControllerTest extends ControllerTest {
                             .andExpect(status().isBadRequest())
                             .andExpect(jsonPath("$.data[0].field").value("myAnswers"))
                             .andExpect(jsonPath("$.data[0].value").value("[]"))
-                            .andExpect(jsonPath("$.data[0].reason").value("답변은 1개 이상이어야 합니다."));
+                            .andExpect(jsonPath("$.data[0].reason").value("나의 답변은 1개 이상이어야 합니다."));
+                }),
+                dynamicTest("myAnswer 내부 값이 공백이면 검증에 실패한다.", ()-> {
+                    //given
+                    AnswersCreateApiRequest request = new AnswersCreateApiRequest(List.of(" ", "2"));
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/answers", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("myAnswers"))
+                            .andExpect(jsonPath("$.data[0].value").value("[ , 2]"))
+                            .andExpect(jsonPath("$.data[0].reason").value("나의 답변 내용은 공백을 허용하지 않습니다."));
                 })
         );
     }
@@ -860,6 +881,7 @@ class VideoControllerTest extends ControllerTest {
                 dynamicTest("selection 이 5개 이상 있으면 검증에 실패한다.", ()-> {
                     //given
                     List<String> wrongSelection = List.of("selection1", "selection2", "selection3", "selection4", "selection5");
+
                     List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
                             .position(1)
                             .content("content")
@@ -883,7 +905,37 @@ class VideoControllerTest extends ControllerTest {
                             .andExpect(jsonPath("$.data[0].field").value("selections"))
                             .andExpect(jsonPath("$.data[0].value").value("[selection1, selection2, selection3, selection4, selection5]"))
                             .andExpect(jsonPath("$.data[0].reason").value("선택지를 추가하려면 최소 1개, 최대 4개까지 가능합니다."));
+                }),
+                dynamicTest("selection 내부 값이 공백이면 검증에 실패한다.", ()-> {
+                    //given
+                    List<String> wrongSelection = List.of(" ", "2");
+
+                    List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
+                            .position(1)
+                            .content("content")
+                            .questionAnswer("answer")
+                            .description("description")
+                            .selections(wrongSelection)
+                            .build());
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/questions", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("selections"))
+                            .andExpect(jsonPath("$.data[0].value").value("[ , 2]"))
+                            .andExpect(jsonPath("$.data[0].reason").value("선택지의 내용은 공백을 허용하지 않습니다."));
                 })
+
+
         );
     }
 

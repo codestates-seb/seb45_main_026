@@ -1,6 +1,7 @@
 package com.server.domain.video.controller.dto.request;
 
 import com.server.domain.question.service.dto.request.QuestionCreateServiceRequest;
+import com.server.global.validation.EachNotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class QuestionCreateApiRequest {
     @NotBlank(message = "{validation.question.questionAnswer}")
     private String questionAnswer;
     private String description;
+    @EachNotBlank(message = "{validation.question.selections.eachNotBlank}")
     @Size(min = 1, max = 4, message = "{validation.question.selections.size}")
     private List<String> selections;
 
