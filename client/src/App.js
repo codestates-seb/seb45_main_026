@@ -17,12 +17,11 @@ import "./App.css";
 import ProblemPage from "./pages/contents/ProblemPage";
 import LectureListPage from "./pages/contents/LectureListPage";
 import { getUserInfoService } from "./services/userInfoService";
-import { setLoginInfo, setToken } from "./redux/createSlice/LoginInfoSlice";
+import { setIsLogin, setLoginInfo, setToken } from "./redux/createSlice/LoginInfoSlice";
 import useConfirm from "./hooks/useConfirm";
 import FindPasswordPage from "./pages/auth/FindPasswordPage";
 
 function App() {
-  const url = new URL(window.location.href);
   const dispatch = useDispatch();  
   const tokens = useSelector(state=>state.loginInfo.accessToken);
   const tokenFinishConfirm = useConfirm('토큰이 만료되었거나, 서버 오류로 로그아웃 되었습니다.');
@@ -33,40 +32,26 @@ function App() {
 
   useMemo(() => {
     window.addEventListener("resize", handleResize);
-  }, []);
+  },[]);
 
   //웹을 실행했을 때 저장된 토큰이 있으면 토큰을 가지고 프로필 조회를 한다.
   useEffect(() => {
-    // console.log("app.js가 실행됨");
-    if (tokens.authorization) {
+    if (!(tokens.authorization==='')) {
       getUserInfoService(tokens.authorization).then((res) => {
         if (res.status === "success") {
-          //토큰이 유효하면 회원 정보를 dispatch한다.
-          dispatch(
-            setLoginInfo({
-              email: res.data.email,
-              nickname: res.data.nickname,
-            })
-          );
+          //토큰이 유효하면 회원 정보를 dispatch 후, isLogin을 true로 설정한다. 
+          dispatch( setLoginInfo({ email: res.data.email, nickname: res.data.nickname, }));
+          dispatch(setIsLogin(true));
         } else {
-          //토큰이 유효하지 않으면 저장된 토큰을 삭제한다.
+          //토큰이 유효하지 않으면 저장된 토큰, 로그인 정보를 삭제하고 isLogin을 false로 설정한다.
           tokenFinishConfirm();
-          dispatch(
-            setToken({
-              authorization: "",
-              refresh: "",
-            })
-          );
-          dispatch(
-            setLoginInfo({
-              email: "",
-              nickname: "",
-            })
-          );
+          dispatch( setToken({ authorization: "", refresh: "", }));
+          dispatch( setLoginInfo({ email: "", nickname: "", }));
+          dispatch(setIsLogin(false));
         }
       });
     }
-  }, [tokens]);
+  });
 
   return (
     <BrowserRouter>
