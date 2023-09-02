@@ -1,0 +1,26 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Channel]]
+= 채널 수정 API
+
+== 채널 수정
+=== HTTP Request
+include::{snippets}/channel/updatechannelinfo/http-request.adoc[]
+==== Request Header
+include::{snippets}/channel/updatechannelinfo/request-headers.adoc[]
+==== Request Path Parameters
+include::{snippets}/channel/updatechannelinfo/path-parameters.adoc[]
+==== Request Body
+include::{snippets}/channel/updatechannelinfo/request-body.adoc[]
+==== Request Fields
+include::{snippets}/channel/updatechannelinfo/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/channel/updatechannelinfo/http-response.adoc[]
+
+

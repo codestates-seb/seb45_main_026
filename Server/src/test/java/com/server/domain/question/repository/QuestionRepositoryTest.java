@@ -9,6 +9,7 @@ import com.server.domain.question.entity.Question;
 import com.server.domain.question.repository.dto.QuestionData;
 import com.server.domain.video.entity.Video;
 import com.server.global.testhelper.RepositoryTest;
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -153,8 +155,29 @@ class QuestionRepositoryTest extends RepositoryTest {
                 assertThat(data.getMyAnswer()).isNull();
             }
         });
+    }
 
+    @Test
+    @DisplayName("videoId 로 해당 video 의 모든 question 정보를 조회한다. video 도 초기화되어있다.")
+    void findByVideoId() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
+        List<Question> questions = createAndSaveQuestions(video);
 
+        em.flush();
+        em.clear();
+
+        //when
+        List<Question> findQuestions = questionRepository.findQuestionsWithVideoByVideoId(video.getVideoId());
+
+        //then
+        assertThat(findQuestions).hasSize(questions.size())
+                .extracting("questionId")
+                .containsExactlyElementsOf(questions.stream().map(Question::getQuestionId).collect(Collectors.toList()));
+
+        assertThat(Hibernate.isInitialized(findQuestions.get(0).getVideo())).isTrue();
     }
 
     private List<Question> createAndSaveQuestions(Video video) {
@@ -178,7 +201,7 @@ class QuestionRepositoryTest extends RepositoryTest {
         return questions;
     }
 
-    private Answer createAndSaveAnswer(Member member, Question question) {
+    protected Answer createAndSaveAnswer(Member member, Question question) {
         Answer answer = Answer.builder()
                 .member(member)
                 .question(question)

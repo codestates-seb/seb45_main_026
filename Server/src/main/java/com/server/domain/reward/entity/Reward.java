@@ -57,6 +57,8 @@ public class Reward extends BaseEntity {
 	public static Reward createReward(RewardType rewardType,
 										Integer rewardPoint, Member member, Video video) {
 
+		member.addReward(rewardPoint);
+
 		return Reward.builder()
 			.rewardType(rewardType)
 			.rewardPoint(rewardPoint)
@@ -68,21 +70,15 @@ public class Reward extends BaseEntity {
 	public static Reward createReward(RewardType rewardType,
 		Integer rewardPoint, Member member, Question question) {
 
+		member.addReward(rewardPoint);
+
 		return Reward.builder()
 			.rewardType(rewardType)
 			.rewardPoint(rewardPoint)
 			.member(member)
 			.question(question)
+			.video(question.getVideo())
 			.build();
-	}
-
-	public void updateMemberReward(Member member) {
-		member.addReward(this.rewardPoint);
-	}
-
-	public void cancelReward(Member member) {
-		this.isCanceled = true;
-		member.minusReward(this.rewardPoint);
 	}
 
 	public void cancelReward() {

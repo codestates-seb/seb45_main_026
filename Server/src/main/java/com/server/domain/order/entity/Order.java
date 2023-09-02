@@ -105,6 +105,10 @@ public class Order extends BaseEntity {
         this.orderStatus = OrderStatus.CANCELED;
     }
 
+    public void refund(){
+        this.member.addReward(this.reward);
+    }
+
     public void setPaymentKey(String paymentKey) {
         this.paymentKey = paymentKey;
     }

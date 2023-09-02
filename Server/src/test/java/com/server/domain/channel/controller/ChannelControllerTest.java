@@ -3,28 +3,36 @@ package com.server.domain.channel.controller;
 import com.server.domain.announcement.service.dto.request.AnnouncementCreateServiceRequest;
 import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
 import com.server.domain.channel.controller.dto.request.CreateAnnouncementApiRequest;
+import com.server.domain.channel.service.dto.ChannelInfo;
+import com.server.domain.channel.service.dto.ChannelUpdate;
 import com.server.domain.channel.service.dto.request.ChannelVideoGetServiceRequest;
 import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
 import com.server.domain.video.controller.dto.request.VideoSort;
 import com.server.domain.video.service.dto.response.VideoCategoryResponse;
 import com.server.global.reponse.ApiPageResponse;
+import com.server.global.reponse.ApiSingleResponse;
 import com.server.global.testhelper.ControllerTest;
+import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static com.server.global.testhelper.RestDocsUtil.pageResponseFields;
+import static com.server.global.testhelper.RestDocsUtil.singleResponseFields;
+import static org.junit.jupiter.api.DynamicTest.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
@@ -34,6 +42,176 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ChannelControllerTest extends ControllerTest {
 
     private final String BASE_URL = "/channels";
+
+    @Test
+    @DisplayName("채널 조회 API")
+    void getChannel() throws Exception {
+        //given
+        Long memberId = 1L;
+
+        ChannelInfo response = ChannelInfo.builder()
+                .memberId(memberId)
+                .channelName("channel Name")
+                .subscribers(1000)
+                .isSubscribed(true)
+                .description("channel description")
+                .imageUrl("https://fsafasf.cloudfront.net/1/profile/sksjsksh")
+                .createdDate(LocalDateTime.now())
+                .build();
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(response, "채널 조회가 완료되었습니다"));
+
+        given(channelService.getChannel(anyLong(), anyLong())).willReturn(response);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                get(BASE_URL + "/{member-id}", memberId)
+                        .contentType(APPLICATION_JSON)
+                        .accept(APPLICATION_JSON)
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse));
+
+        //restdocs
+        actions.andDo(documentHandler.document(
+                pathParameters(
+                        parameterWithName("member-id").description("조회할 채널의 member ID")
+                ),
+                requestHeaders(
+                        headerWithName(AUTHORIZATION).description("Access Token").optional()
+                ),
+                singleResponseFields(
+                        fieldWithPath("data").description("채널 정보"),
+                        fieldWithPath("data.memberId").description("채널의 member ID"),
+                        fieldWithPath("data.channelName").description("채널의 이름"),
+                        fieldWithPath("data.subscribers").description("채널의 구독자 수"),
+                        fieldWithPath("data.isSubscribed").description("로그인 사용자의 채널의 구독 여부"),
+                        fieldWithPath("data.description").description("채널의 설명"),
+                        fieldWithPath("data.imageUrl").description("채널의 이미지 URL"),
+                        fieldWithPath("data.createdDate").description("채널의 생성일")
+                )
+        ));
+    }
+
+    @Test
+    @DisplayName("채널 수정 API")
+    void updateChannelInfo() throws Exception {
+        //given
+        Long memberId = 1L;
+
+        ChannelUpdate request = ChannelUpdate.builder()
+                .channelName("channel Name")
+                .description("channel description")
+                .build();
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                patch(BASE_URL + "/{member-id}", memberId)
+                        .header(AUTHORIZATION, TOKEN)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isNoContent());
+
+        //restdocs
+        setConstraintClass(ChannelUpdate.class);
+
+        actions.andDo(documentHandler.document(
+                pathParameters(
+                        parameterWithName("member-id").description("수정할 채널의 member ID")
+                ),
+                requestHeaders(
+                        headerWithName(AUTHORIZATION).description("Access Token")
+                ),
+                requestFields(
+                        fieldWithPath("channelName").description("수정할 채널의 이름")
+                                .attributes(getConstraint("channelName")).optional(),
+                        fieldWithPath("description").description("수정할 채널의 설명")
+                                .attributes(getConstraint("description")).optional()
+                )
+        ));
+    }
+
+    @Test
+    @DisplayName("구독 업데이트 API - 구독을 할 때")
+    void updateSubscribe() throws Exception {
+        //given
+        Long memberId = 1L;
+
+        String apiResponse =
+                objectMapper.writeValueAsString(ApiSingleResponse.ok(true, "구독상태가 업데이트되었습니다."));
+
+        given(channelService.updateSubscribe(anyLong(), anyLong())).willReturn(true);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                patch(BASE_URL + "/{member-id}/subscribe", memberId)
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse)
+        );
+
+        //restdocs
+        actions.andDo(documentHandler.document(
+                pathParameters(
+                        parameterWithName("member-id").description("구독할 채널의 member ID")
+                ),
+                requestHeaders(
+                        headerWithName(AUTHORIZATION).description("Access Token")
+                ),
+                singleResponseFields(
+                        fieldWithPath("data").description("업데이트 후 구독 상태")
+                )
+        ));
+    }
+
+    @Test
+    @DisplayName("구독 업데이트 API - 구독을 취소할 때")
+    void updateUnSubscribe() throws Exception {
+        //given
+        Long memberId = 1L;
+
+        String apiResponse =
+                objectMapper.writeValueAsString(ApiSingleResponse.ok(false, "구독상태가 업데이트되었습니다."));
+
+        given(channelService.updateSubscribe(anyLong(), anyLong())).willReturn(false);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                patch(BASE_URL + "/{member-id}/subscribe", memberId)
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse)
+                );
+
+        //restdocs
+        actions.andDo(documentHandler.document(
+                pathParameters(
+                        parameterWithName("member-id").description("구독할 채널의 member ID")
+                ),
+                requestHeaders(
+                        headerWithName(AUTHORIZATION).description("Access Token")
+                ),
+                singleResponseFields(
+                        fieldWithPath("data").description("업데이트 후 구독 상태")
+                )
+        ));
+    }
 
     @Test
     @DisplayName("채널의 공지사항 생성 API")
@@ -156,6 +334,7 @@ class ChannelControllerTest extends ControllerTest {
                         .param("size", String.valueOf(size))
                         .param("sort", sort)
                         .param("category", category)
+                        .param("free", "false")
                         .header(AUTHORIZATION, TOKEN)
                         .accept(APPLICATION_JSON)
         );
@@ -178,7 +357,8 @@ class ChannelControllerTest extends ControllerTest {
                                 parameterWithName("page").description("페이지 번호").optional(),
                                 parameterWithName("size").description("페이지 사이즈").optional(),
                                 parameterWithName("sort").description(generateLinkCode(VideoSort.class)).optional(),
-                                parameterWithName("category").description("카테고리").optional()
+                                parameterWithName("category").description("카테고리").optional(),
+                                parameterWithName("free").description("무료/유료 여부").optional()
                         ),
                         pageResponseFields(
                                 fieldWithPath("data").description("비디오 목록"),
@@ -195,6 +375,168 @@ class ChannelControllerTest extends ControllerTest {
                         )
                 )
         );
+    }
+
+    @TestFactory
+    @DisplayName("채널 수정 validation 테스트")
+    Collection<DynamicTest> updateChannelInfoValidation() {
+
+        return List.of(
+                dynamicTest("channelName 및 description 이 Null 이라도 검증에 통과한다.", ()-> {
+                    //given
+                    Long memberId = 1L;
+
+                    ChannelUpdate request = ChannelUpdate.builder()
+                            .build();
+
+                    //when
+                    ResultActions resultActions = mockMvc.perform(
+                            patch(BASE_URL + "/{member-id}", memberId)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    resultActions.andDo(print())
+                            .andExpect(status().isNoContent())
+                    ;
+                }),
+                dynamicTest("memberId 가 양수가 아닐 때 검증에 실패한다.", ()-> {
+                    //given
+                    Long invalidMemberId = -1L;
+
+                    ChannelUpdate request = ChannelUpdate.builder()
+                            .channelName("channel Name")
+                            .description("channel description")
+                            .build();
+
+                    //when
+                    ResultActions resultActions = mockMvc.perform(
+                            patch(BASE_URL + "/{member-id}", invalidMemberId)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    resultActions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("memberId"))
+                            .andExpect(jsonPath("$.data[0].value").value(invalidMemberId))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("channelName 이 공백이면 검증에 실패한다.", ()-> {
+                    //given
+                    Long memberId = 1L;
+
+                    ChannelUpdate request = ChannelUpdate.builder()
+                            .channelName("")
+                            .build();
+
+                    //when
+                    ResultActions resultActions = mockMvc.perform(
+                            patch(BASE_URL + "/{member-id}", memberId)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    resultActions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("channelName"))
+                            .andExpect(jsonPath("$.data[0].value").value(""))
+                            .andExpect(jsonPath("$.data[0].reason").value("허용된 글자 수는 1자에서 20자 입니다."));
+                }),
+                dynamicTest("channelName 이 21자 이상이면 검증에 실패한다.", ()-> {
+                    //given
+                    Long memberId = 1L;
+                    String wrongChannelName = "123451234512345123451";
+
+                    ChannelUpdate request = ChannelUpdate.builder()
+                            .channelName(wrongChannelName)
+                            .build();
+
+                    //when
+                    ResultActions resultActions = mockMvc.perform(
+                            patch(BASE_URL + "/{member-id}", memberId)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    resultActions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("channelName"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongChannelName))
+                            .andExpect(jsonPath("$.data[0].reason").value("허용된 글자 수는 1자에서 20자 입니다."));
+                }),
+                dynamicTest("channelName 에 특수문자가 있으면 검증에 실패한다.", ()-> {
+                    //given
+                    Long memberId = 1L;
+                    String wrongChannelName = "!123";
+
+                    ChannelUpdate request = ChannelUpdate.builder()
+                            .channelName(wrongChannelName)
+                            .build();
+
+                    //when
+                    ResultActions resultActions = mockMvc.perform(
+                            patch(BASE_URL + "/{member-id}", memberId)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    resultActions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("channelName"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongChannelName))
+                            .andExpect(jsonPath("$.data[0].reason").value("채널 이름은 한글, 영문, 숫자만 가능합니다."));
+                })
+        );
+    }
+
+    @Test
+    @DisplayName("채널 조회 validation 테스트 - memberId 가 양수가 아닐 때 검증에 실패한다.")
+    void getChannelValidation() throws Exception {
+        //given
+        Long invalidMemberId = -1L;
+
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                get(BASE_URL + "/{member-id}", invalidMemberId)
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        resultActions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.data[0].field").value("memberId"))
+                .andExpect(jsonPath("$.data[0].value").value("-1"))
+                .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+    }
+
+    @Test
+    @DisplayName("구독 업데이트 validation 테스트 - memberId 가 양수가 아닐 때 검증에 실패한다.")
+    void updateSubscribeValidation() throws Exception {
+        //given
+        Long invalidMemberId = -1L;
+
+        //when
+        ResultActions resultActions = mockMvc.perform(
+                patch(BASE_URL + "/{member-id}/subscribe", invalidMemberId)
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        resultActions.andDo(print())
+                .andExpect(jsonPath("$.data[0].field").value("memberId"))
+                .andExpect(jsonPath("$.data[0].value").value("-1"))
+                .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
     }
 
     private List<ChannelVideoResponse> createChannelVideoResponse(int count) {
@@ -215,6 +557,205 @@ class ChannelControllerTest extends ControllerTest {
         }
 
         return responses;
+    }
+
+    @TestFactory
+    @DisplayName("채널 내 비디오 조회 validation 테스트")
+    Collection<DynamicTest> getChannelVideosValidation() {
+
+        Long memberId = 1L;
+
+        return List.of(
+                dynamicTest("memberId 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Long invalidMemberId = -1L;
+
+                    //when
+                    ResultActions resultActions = mockMvc.perform(
+                            get(BASE_URL + "/{member-id}/videos", invalidMemberId)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    resultActions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("memberId"))
+                            .andExpect(jsonPath("$.data[0].value").value("-1"))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("page 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //when
+                    ResultActions resultActions = mockMvc.perform(
+                            get(BASE_URL + "/{member-id}/videos", memberId)
+                                    .param("page", "-1")
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    resultActions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("page"))
+                            .andExpect(jsonPath("$.data[0].value").value("-1"))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("size 가 양수가 아니면 검증에 실패한다", ()-> {
+                    //when
+                    ResultActions resultActions = mockMvc.perform(
+                            get(BASE_URL + "/{member-id}/videos", memberId)
+                                    .param("size", "-1")
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    resultActions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("size"))
+                            .andExpect(jsonPath("$.data[0].value").value("-1"))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                })
+        );
+    }
+
+    @TestFactory
+    @DisplayName("공지사항 생성 시 validation 테스트")
+    Collection<DynamicTest> createAnnouncementValidation() {
+        //given
+        Long memberId = 1L;
+
+        given(announcementService
+                .createAnnouncement(anyLong(), any(AnnouncementCreateServiceRequest.class)))
+                .willReturn(1L);
+
+        return List.of(
+                dynamicTest("memberId 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Long invalidMemberId = 0L;
+
+                    CreateAnnouncementApiRequest request = CreateAnnouncementApiRequest.builder()
+                            .content("announcement content")
+                            .build();
+
+                    //when
+                    ResultActions resultActions = mockMvc.perform(
+                            post(BASE_URL + "/{member-id}/announcements", invalidMemberId)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    resultActions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("memberId"))
+                            .andExpect(jsonPath("$.data[0].value").value(invalidMemberId))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("공지사항 내용이 null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    CreateAnnouncementApiRequest request = CreateAnnouncementApiRequest.builder()
+                            .build();
+
+                    //when
+                    ResultActions resultActions = mockMvc.perform(
+                            post(BASE_URL + "/{member-id}/announcements", memberId)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    resultActions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("content"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("공지사항 내용은 필수입니다."));
+                }),
+                dynamicTest("공지사항 내용이 공백이면 검증에 실패한다.", ()-> {
+                    //given
+                    Long invalidMemberId = 0L;
+
+                    CreateAnnouncementApiRequest request = CreateAnnouncementApiRequest.builder()
+                            .content("")
+                            .build();
+
+                    //when
+                    ResultActions resultActions = mockMvc.perform(
+                            post(BASE_URL + "/{member-id}/announcements", memberId)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    resultActions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("content"))
+                            .andExpect(jsonPath("$.data[0].value").value(""))
+                            .andExpect(jsonPath("$.data[0].reason").value("공지사항 내용은 필수입니다."));
+                })
+        );
+    }
+    
+    @TestFactory
+    @DisplayName("공지사항 조회 시 validation 테스트")
+    Collection<DynamicTest> getAnnouncementsValidation() {
+        //given
+        Long memberId = 1L;
+    
+        return List.of(
+                dynamicTest("memberId 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Long invalidMemberId = 0L;
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL + "/{member-id}/announcements", invalidMemberId)
+                                    .accept(APPLICATION_JSON)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("memberId"))
+                            .andExpect(jsonPath("$.data[0].value").value(invalidMemberId))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("page 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    int page = 0;
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL + "/{member-id}/announcements", memberId)
+                                    .param("page", String.valueOf(page))
+                                    .accept(APPLICATION_JSON)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("page"))
+                            .andExpect(jsonPath("$.data[0].value").value(page))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),dynamicTest("size 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    int size = 0;
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL + "/{member-id}/announcements", memberId)
+                                    .param("size", String.valueOf(size))
+                                    .accept(APPLICATION_JSON)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("size"))
+                            .andExpect(jsonPath("$.data[0].value").value(size))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                })
+        );
     }
 
     private List<VideoCategoryResponse> createVideoCategoryResponse(String... categoryNames) {

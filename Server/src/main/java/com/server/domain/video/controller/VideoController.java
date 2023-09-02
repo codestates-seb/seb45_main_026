@@ -4,6 +4,7 @@ import com.server.domain.question.service.QuestionService;
 import com.server.domain.question.service.dto.response.QuestionResponse;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.service.VideoService;
+import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
 import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
 import com.server.domain.video.service.dto.response.VideoDetailResponse;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
@@ -81,11 +82,22 @@ public class VideoController {
     public ResponseEntity<ApiPageResponse<VideoPageResponse>> getVideos(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                         @RequestParam(value = "size", defaultValue = "12") int size,
                                                                         @RequestParam(value = "sort", defaultValue = "created-date") VideoSort sort,
-                                                                        @RequestParam(value = "category", defaultValue = "") String category,
+                                                                        @RequestParam(value = "category", required = false) String category,
                                                                         @RequestParam(value = "subscribe", defaultValue = "false") boolean subscribe,
+                                                                        @RequestParam(value = "search", required = false) Boolean free,
                                                                         @LoginId Long loginMemberId) {
 
-        Page<VideoPageResponse> videos = videoService.getVideos(loginMemberId, page - 1, size, sort.getSort(), category, subscribe);
+        VideoGetServiceRequest request = VideoGetServiceRequest.builder()
+                .loginMemberId(loginMemberId)
+                .page(page - 1)
+                .size(size)
+                .categoryName(category)
+                .sort(sort.getSort())
+                .subscribe(subscribe)
+                .free(free)
+                .build();
+
+        Page<VideoPageResponse> videos = videoService.getVideos(loginMemberId, request);
 
         return ResponseEntity.ok(ApiPageResponse.ok(videos, "비디오 목록 조회 성공"));
     }

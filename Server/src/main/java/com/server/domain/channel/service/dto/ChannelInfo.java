@@ -14,7 +14,7 @@ public class ChannelInfo {
     private Long memberId;
     private String channelName;
     private int subscribers;
-    private boolean isSubscribed;
+    private Boolean isSubscribed;
     private String description;
     private String imageUrl;
     private LocalDateTime createdDate;

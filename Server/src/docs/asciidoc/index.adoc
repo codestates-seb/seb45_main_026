@@ -21,6 +21,8 @@ include::overview.adoc[]
 
 === Channel API
 * link:snippets/channel/getchannel.html[채널 정보/채널 비디오 목록 조회 API, onclick="window.location.href='snippets/channel/getchannel.html'"]
+* link:snippets/channel/updatechannel.html[채널 정보 수정 API, onclick="window.location.href='snippets/channel/updatechannel.html'"]
+* link:snippets/channel/subscribechannel.html[채널 구독/구독 취소 API, onclick="window.location.href='snippets/channel/subscribechannel.html'"]
 
 === Announcement API
 * link:snippets/announcement/getannouncement.html[공지사항 조회 API, onclick="window.location.href='snippets/announcement/getannouncement.html'"]
