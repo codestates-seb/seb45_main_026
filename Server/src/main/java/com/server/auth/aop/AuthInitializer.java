@@ -8,6 +8,7 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,8 @@ import com.server.domain.member.repository.MemberRepository;
 
 import java.util.List;
 
-//@Component
+@Component
+@Profile("local")
 public class AuthInitializer {
 	private final MemberRepository memberRepository;
 	private final ChannelRepository channelRepository;
@@ -28,7 +30,7 @@ public class AuthInitializer {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-//	@PostConstruct
+	@PostConstruct
 	public void initialize() {
 		Member member = Member.createMember(
 				"test@email.com",
