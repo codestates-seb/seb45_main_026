@@ -17,8 +17,6 @@ const MainPage = () => {
         }
     });
 
-    
-
     useEffect(()=>{
         const wheelHandler = (e) => {
             e.preventDefault();
