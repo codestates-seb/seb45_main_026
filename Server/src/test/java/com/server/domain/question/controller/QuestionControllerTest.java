@@ -471,6 +471,86 @@ class QuestionControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
     }
 
+    @TestFactory
+    @DisplayName("개별 문제 풀기 validation 테스트")
+    Collection<DynamicTest> solveQuestionValidation() {
+        //given
+        Long questionId = 1L;
+
+        return List.of(
+                dynamicTest("questionId 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Long wrongQuestionId = 0L;
+
+                    AnswerCreateApiRequest request = AnswerCreateApiRequest.builder()
+                            .myAnswer("1")
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post("/questions/{question-id}/answers", wrongQuestionId)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("questionId"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongQuestionId))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("myAnswer 이 null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    AnswerCreateApiRequest request = AnswerCreateApiRequest.builder()
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post("/questions/{question-id}/answers", questionId)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("myAnswer"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("답변 내용은 필수입니다."));
+                }),
+                dynamicTest("myAnswer 이 공백이면 검증에 실패한다.", ()-> {
+                    //given
+                    String wrongMyAnswer = " ";
+
+                    AnswerCreateApiRequest request = AnswerCreateApiRequest.builder()
+                            .myAnswer(wrongMyAnswer)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post("/questions/{question-id}/answers", questionId)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("myAnswer"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongMyAnswer))
+                            .andExpect(jsonPath("$.data[0].reason").value("답변 내용은 필수입니다."));
+                })
+
+
+
+
+        );
+    }
+
     private QuestionResponse createQuestionResponse(Long questionId) {
         return QuestionResponse.builder()
                 .questionId(questionId)
