@@ -4,11 +4,22 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
+import com.server.domain.member.service.dto.response.CartsResponse;
+import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
+import com.server.domain.question.entity.Question;
+import com.server.domain.reward.entity.Reward;
+import com.server.domain.reward.entity.RewardType;
+import com.server.domain.video.entity.Video;
 import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -103,11 +114,81 @@ public class MemberServiceTest extends ServiceTest {
 
 		Iterator<SubscribesResponse> responseIterator = responses.iterator();
 
-		System.out.println("여기");
-
 		assertThat(responseIterator.next().getMemberId()).isEqualTo(channel3.getMember().getMemberId());
 		assertThat(responseIterator.next().getMemberId()).isEqualTo(channel2.getMember().getMemberId());
 		assertThat(responseIterator.next().getMemberId()).isEqualTo(channel1.getMember().getMemberId());
+	}
+
+	@Test
+	@DisplayName("로그인한 사용자의 리워드 목록을 조회한다.")
+	void getRewards() {
+		Member member = createAndSaveMember();
+		Channel channel = createAndSaveChannel(member);
+		Video video = createAndSaveVideo(channel);
+		Question question = createAndSaveQuestion(video);
+
+		Member user = createAndSaveMember();
+
+		Reward reward1 = createAndSaveVideoReward(user, video);
+		Reward reward2 = createAndSaveQuestionReward(user, question);
+
+		Page<RewardsResponse> page = memberService.getRewards(user.getMemberId(), 1, 10);
+
+		assertThat(page.getTotalElements()).isEqualTo(2);
+		assertThat(page.getTotalPages()).isEqualTo(1);
+
+		Iterator<RewardsResponse> pageIterator = page.iterator();
+
+		assertThat(pageIterator.next().getRewardType()).isEqualTo(RewardType.QUIZ);
+		assertThat(pageIterator.next().getRewardType()).isEqualTo(RewardType.VIDEO);
+	}
+
+	@Test
+	@DisplayName("로그인한 회원의 장바구니 목록을 조회한다.")
+	void getCarts() throws JsonProcessingException {
+		Member user = createAndSaveMember();
+
+		List<Cart> carts = new ArrayList<>();
+		List<Video> videos = new ArrayList<>();
+
+		for (int i = 0; i < 20; i++) {
+			Member member = createAndSaveMember();
+			Channel channel = createAndSaveChannel(member);
+			Video video = createAndSaveVideo(channel);
+
+			videos.add(video);
+			carts.add(createAndSaveCartWithVideo(user, video));
+		}
+
+		Page<CartsResponse> page = memberService.getCarts(user.getMemberId(), 1, 10);
+
+		assertThat(page.getTotalElements()).isEqualTo(20);
+		assertThat(page.getTotalPages()).isEqualTo(2);
+
+		List<CartsResponse> cartList = page.getContent();
+
+		assertThat(cartList.get(0).getVideoId()).isEqualTo(videos.get(videos.size() - 1).getVideoId());
+		assertThat(cartList.get(cartList.size() - 1).getVideoId()).isEqualTo(videos.get(0).getVideoId());
+
+		// for (CartsResponse cart : cartList) {
+		// 	System.out.println(cart.getVideoId());
+		// 	System.out.println(cart.getVideoName());
+		// 	System.out.println(cart.getThumbnailUrl());
+		// 	System.out.println(cart.getViews());
+		// 	System.out.println(cart.getCreatedDate());
+		// 	System.out.println(cart.getPrice());
+		// 	System.out.println(cart.getChannel().getMemberId());
+		// 	System.out.println(cart.getChannel().getChannelName());
+		// 	System.out.println(cart.getChannel().getSubscribes());
+		// 	System.out.println(cart.getChannel().getImageUrl());
+		// 	System.out.println("=".repeat(10));
+		// }
+	}
+
+	@Test
+	@DisplayName("로그인한 회원의 결제 목록을 조회한다.")
+	void getOrders() {
+
 	}
 
 	@Test

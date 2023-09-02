@@ -22,15 +22,27 @@ public class RewardsResponse {
 
 	public static List<RewardsResponse> convert(List<Reward> rewards) {
 		return rewards.stream()
-			.map(reward -> RewardsResponse.builder()
-				.videoId(reward.getVideo().getVideoId())
-				.questionId(reward.getQuestion().getQuestionId())
-				.rewardType(reward.getRewardType())
-				.rewardPoint(reward.getRewardPoint())
-				.isCanceled(reward.isCanceled())
-				.createdDate(reward.getCreatedDate())
-				.build()
-			)
+			.map(reward -> {
+				RewardsResponseBuilder builder = RewardsResponse.builder()
+					.rewardType(reward.getRewardType())
+					.rewardPoint(reward.getRewardPoint())
+					.isCanceled(reward.isCanceled())
+					.createdDate(reward.getCreatedDate());
+
+				if (reward.getVideo() != null) {
+					builder.videoId(reward.getVideo().getVideoId());
+				} else {
+					builder.videoId(0L);
+				}
+
+				if (reward.getQuestion() != null) {
+					builder.questionId(reward.getQuestion().getQuestionId());
+				} else {
+					builder.questionId(0L);
+				}
+
+				return builder.build();
+			})
 			.collect(Collectors.toList());
 	}
 }

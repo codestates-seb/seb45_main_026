@@ -2,6 +2,7 @@ package com.server.global.testhelper;
 
 import com.server.domain.announcement.repository.AnnouncementRepository;
 import com.server.domain.answer.repository.AnswerRepository;
+import com.server.domain.cart.entity.Cart;
 import com.server.domain.cart.repository.CartRepository;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.entity.CategoryRepository;
@@ -242,5 +243,11 @@ public abstract class ServiceTest {
         em.persist(reward);
 
         return reward;
+    }
+
+    protected Cart createAndSaveCartWithVideo(Member member, Video video) {
+        Cart cart = Cart.createCart(member, video, video.getPrice());
+
+        return cartRepository.save(cart);
     }
 }

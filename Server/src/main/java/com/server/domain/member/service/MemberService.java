@@ -2,13 +2,16 @@ package com.server.domain.member.service;
 
 import java.util.List;
 
+import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.*;
+import com.server.domain.order.entity.Order;
 import com.server.domain.reward.entity.Reward;
+import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
@@ -20,6 +23,7 @@ import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,13 +70,6 @@ public class MemberService {
 		return ProfileResponse.getMember(member, getFileUrl(member));
 	}
 
-	private String getFileUrl(Member member) {
-		return awsService.getFileUrl(
-			member.getMemberId(),
-			member.getImageFile(),
-			FileType.PROFILE_IMAGE);
-	}
-
 	public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
 
@@ -88,13 +85,7 @@ public class MemberService {
 
 		List<MemberSubscribesData> memberSubscribesData = memberRepository.findSubscribeWithChannelForMember(member.getMemberId());
 
-		for (MemberSubscribesData response : memberSubscribesData) {
-			    String imageUrl = awsService.getFileUrl(
-			        response.getMemberId(),
-			        response.getImageUrl(),
-			        FileType.PROFILE_IMAGE);
-			    response.setImageUrl(imageUrl);
-		}
+		setProfileImage(memberSubscribesData);
 
 		List<SubscribesResponse> result = SubscribesResponse.convertSubscribesResponse(memberSubscribesData);
 
@@ -105,13 +96,23 @@ public class MemberService {
 	public Page<CartsResponse> getCarts(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
 
-		return memberRepository.findCartsOrderByCreatedDateForMember(member.getMemberId(), PageRequest.of(page - 1, size));
+		List<Cart> carts = memberRepository.findCartsOrderByCreatedDateForMember(member.getMemberId());
+
+		List<CartsResponse> result = CartsResponse.convert(carts);
+
+		setImageUrl(result);
+
+		return new PageImpl<>(result, PageRequest.of(page - 1, size), result.size());
 	}
 
 	public Page<OrdersResponse> getOrders(Long loginId, int page, int size, int month) {
 		Member member = validateMember(loginId);
 
-		return memberRepository.findOrdersOrderByCreatedDateForMember(member.getMemberId(), PageRequest.of(page - 1, size), month);
+		List<Order> orders = memberRepository.findOrdersOrderByCreatedDateForMember(member.getMemberId(), month);
+
+		List<OrdersResponse> responses = OrdersResponse.convert(orders);
+
+		return new PageImpl<>(responses, PageRequest.of(page - 1, size), responses.size());
 	}
 
 	public Page<PlaylistsResponse> getPlaylists(Long loginId, int page, int size, String sort) {
@@ -193,5 +194,41 @@ public class MemberService {
 		memberRepository.findByEmail(email).ifPresent(member -> {
 			throw new MemberDuplicateException();
 		});
+	}
+
+	private void setImageUrl(List<CartsResponse> result) {
+		for (CartsResponse c : result) {
+			c.setThumbnailUrl(
+				getThumbnailUrl(
+					c.getChannel().getMemberId(), c.getThumbnailUrl())
+			);
+			c.getChannel().setImageUrl(
+				awsService.getFileUrl(
+					c.getChannel().getMemberId(),
+					c.getChannel().getImageUrl(),
+					FileType.PROFILE_IMAGE)
+			);
+		}
+	}
+
+	private void setProfileImage(List<MemberSubscribesData> memberSubscribesData) {
+		for (MemberSubscribesData response : memberSubscribesData) {
+			String imageUrl = awsService.getFileUrl(
+				response.getMemberId(),
+				response.getImageUrl(),
+				FileType.PROFILE_IMAGE);
+			response.setImageUrl(imageUrl);
+		}
+	}
+
+	private String getFileUrl(Member member) {
+		return awsService.getFileUrl(
+			member.getMemberId(),
+			member.getImageFile(),
+			FileType.PROFILE_IMAGE);
+	}
+
+	private String getThumbnailUrl(Long memberId, String thumbnailFile) {
+		return awsService.getFileUrl(memberId, thumbnailFile, FileType.THUMBNAIL);
 	}
 }

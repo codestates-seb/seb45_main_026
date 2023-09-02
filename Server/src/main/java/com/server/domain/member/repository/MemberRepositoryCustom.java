@@ -1,5 +1,6 @@
 package com.server.domain.member.repository;
 
+import com.server.domain.cart.entity.Cart;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.repository.dto.MemberVideoData;
@@ -8,7 +9,9 @@ import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
+import com.server.domain.order.entity.Order;
 import com.server.domain.reward.entity.Reward;
+import com.server.domain.video.entity.Video;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,9 +33,9 @@ public interface MemberRepositoryCustom {
 
     List<MemberSubscribesData> findSubscribeWithChannelForMember(Long memberId);
 
-    Page<CartsResponse> findCartsOrderByCreatedDateForMember(Long memberId, Pageable pageable);
+    List<Cart> findCartsOrderByCreatedDateForMember(Long memberId);
 
-    Page<OrdersResponse> findOrdersOrderByCreatedDateForMember(Long memberId, Pageable pageable, int month);
+    List<Order> findOrdersOrderByCreatedDateForMember(Long memberId, int month);
 
     Page<WatchsResponse> findWatchesForMember(Long memberId, int days, Pageable pageable);
 

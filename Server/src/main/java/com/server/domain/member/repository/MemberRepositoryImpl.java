@@ -6,6 +6,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.QChannel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.entity.QMember;
@@ -166,82 +167,36 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public Page<CartsResponse> findCartsOrderByCreatedDateForMember(Long memberId, Pageable pageable) {
-        QMember loginMember = new QMember("loginMember");
+    public List<Cart> findCartsOrderByCreatedDateForMember(Long memberId) {
 
-        List<Video> videos = queryFactory
-            .select(video)
-            .from(cart)
-            .join(cart.video, video).fetchJoin()
-            .join(video.channel, channel).fetchJoin()
-            .join(channel.member, member).fetchJoin()
-            .join(cart.member, loginMember)
-            .where(loginMember.memberId.eq(memberId))
+        return queryFactory
+            .selectFrom(cart)
+            .leftJoin(cart.video, video).fetchJoin()
+            .leftJoin(video.channel, channel).fetchJoin()
+            .leftJoin(channel.member, member).fetchJoin()
+            .where(cart.member.memberId.eq(memberId))
             .orderBy(cart.createdDate.desc())
             .fetch();
-
-        List<CartsResponse> cartsResponses = videos.stream()
-            .map(video -> CartsResponse.builder()
-                .videoId(video.getVideoId())
-                .videoName(video.getVideoName())
-                .thumbnailUrl(video.getThumbnailFile())
-                .views(video.getView())
-                .createdDate(video.getCreatedDate())
-                .price(video.getPrice())
-                .channel(CartsResponse.Channel.builder()
-                    .memberId(video.getChannel().getChannelId())
-                    .channelName(video.getChannel().getChannelName())
-                    .subscribes(video.getChannel().getSubscribers())
-                    .imageUrl(video.getChannel().getMember().getImageFile())
-                    .build())
-                .build())
-            .collect(Collectors.toList());
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), cartsResponses.size());
-
-        return new PageImpl<>(cartsResponses.subList(start, end), pageable, cartsResponses.size());
     }
 
     @Override
-    public Page<OrdersResponse> findOrdersOrderByCreatedDateForMember(Long memberId, Pageable pageable, int month) {
+    public List<Order> findOrdersOrderByCreatedDateForMember(Long memberId, int month) {
         LocalDateTime currentDateTime = LocalDateTime.now();
         LocalDateTime startDateTime = currentDateTime.minusMonths(month).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
         LocalDateTime endDateTime = currentDateTime.minusMonths(month).withDayOfMonth(currentDateTime.getMonth().maxLength()).withHour(23).withMinute(59).withSecond(59);
 
-        JPAQuery<OrdersResponse> query = queryFactory
-            .select(Projections.constructor(OrdersResponse.class,
-                order.orderId,
-                order.reward,
-                order.orderVideos.size().as("orderCount"),
-                order.orderStatus,
-                order.createdDate,
-                Projections.constructor(OrdersResponse.OrderVideo.class,
-                    orderVideo.video.videoId,
-                    orderVideo.video.videoName,
-                    orderVideo.video.thumbnailFile,
-                    orderVideo.video.channel.channelName,
-                    orderVideo.price)))
-            .from(order)
+        return queryFactory
+            .selectFrom(order)
             .leftJoin(order.orderVideos, orderVideo).fetchJoin()
-            .where(order.member.memberId.eq(memberId)
-                .and(order.createdDate.between(startDateTime, endDateTime)))
-            .orderBy(order.createdDate.desc());
-
-        QueryResults<OrdersResponse> queryResults = query
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetchResults();
-
-        if (queryResults.getTotal() == 0) {
-            return Page.empty(pageable);
-        }
-
-        return new PageImpl<>(
-            queryResults.getResults(),
-            pageable,
-            queryResults.getTotal()
-        );
+            .leftJoin(orderVideo.video, video).fetchJoin()
+            .leftJoin(video.channel, channel).fetchJoin()
+            .leftJoin(channel.member, member).fetchJoin()
+            .where(
+                order.member.memberId.eq(memberId)
+                .and(order.createdDate.between(startDateTime, endDateTime))
+            )
+            .orderBy(order.createdDate.desc())
+            .fetch();
     }
 
     public Page<PlaylistsResponse> findPlaylistsOrderBySort(Long memberId, String sort, Pageable pageable) {
