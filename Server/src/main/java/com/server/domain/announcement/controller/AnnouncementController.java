@@ -25,7 +25,7 @@ public class AnnouncementController {
 
     @GetMapping("/{announcement-id}")
     public ResponseEntity<ApiSingleResponse<AnnouncementResponse>> getAnnouncement(
-            @PathVariable("announcement-id") @Positive Long announcementId) {
+            @PathVariable("announcement-id") @Positive(message = "{validation.positive}") Long announcementId) {
 
         AnnouncementResponse response = announcementService.getAnnouncement(announcementId);
 
@@ -34,7 +34,7 @@ public class AnnouncementController {
 
     @PatchMapping("/{announcement-id}")
     public ResponseEntity<Void> updateAnnouncement(
-            @PathVariable("announcement-id") @Positive Long announcementId,
+            @PathVariable("announcement-id") @Positive(message = "{validation.positive}") Long announcementId,
             @RequestBody @Valid AnnouncementUpdateApiRequest request,
             @LoginId Long loginMemberId
     ) {
@@ -46,7 +46,7 @@ public class AnnouncementController {
 
     @DeleteMapping("/{announcement-id}")
     public ResponseEntity<Void> deleteAnnouncement(
-            @PathVariable("announcement-id") @Positive Long announcementId,
+            @PathVariable("announcement-id") @Positive(message = "{validation.positive}") Long announcementId,
             @LoginId Long loginMemberId) {
 
         announcementService.deleteAnnouncement(loginMemberId, announcementId);
