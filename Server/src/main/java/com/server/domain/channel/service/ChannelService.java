@@ -15,7 +15,6 @@ import com.server.domain.video.repository.VideoRepository;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
-import com.server.global.exception.businessexception.subscribeException.SubscribeNotFoundException;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
