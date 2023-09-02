@@ -19,7 +19,9 @@ import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
+import com.server.domain.reward.entity.Reward;
 import com.server.domain.subscribe.entity.QSubscribe;
+import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.QVideo;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
@@ -36,6 +38,7 @@ import static com.server.domain.channel.entity.QChannel.channel;
 import static com.server.domain.member.entity.QMember.*;
 import static com.server.domain.order.entity.QOrder.*;
 import static com.server.domain.order.entity.QOrderVideo.*;
+import static com.server.domain.question.entity.QQuestion.*;
 import static com.server.domain.reward.entity.QReward.*;
 import static com.server.domain.subscribe.entity.QSubscribe.*;
 import static com.server.domain.video.entity.QVideo.*;
@@ -143,14 +146,13 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     @Override
     public List<MemberSubscribesData> findSubscribeWithChannelForMember(Long memberId) {
         QMember loginMember = new QMember("loginMember");
-        QMember member = new QMember("member");
         QChannel qChannel = QChannel.channel;
         QSubscribe qSubscribe = subscribe1;
 
         JPAQuery<MemberSubscribesData> query = queryFactory
             .select(Projections.constructor(
                 MemberSubscribesData.class,
-                qChannel.channelId,
+                qChannel.member.memberId,
                 qChannel.channelName,
                 qChannel.subscribers,
                 qChannel.member.imageFile))
@@ -158,23 +160,9 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
             .join(qSubscribe.channel, qChannel)
             .join(qSubscribe.member, loginMember)
             .where(loginMember.memberId.eq(memberId))
-            .orderBy(qChannel.channelId.asc());
+            .orderBy(qSubscribe.createdDate.desc());
 
         return query.fetch();
-
-        // if (result.isEmpty()) {
-        //     return Page.empty(pageable);
-        // }
-
-        // for (SubscribesResponse response : result) {
-        //     String imageUrl = awsService.getFileUrl(
-        //         response.getMemberId(),
-        //         response.getImageUrl(),
-        //         FileType.PROFILE_IMAGE);
-        //     response.setImageUrl(imageUrl);
-        // }
-
-        // return new PageImpl<>(result, pageable, totalCount);
     }
 
     @Override
@@ -356,33 +344,15 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         return new PageImpl<>(watchsResponses, pageable, watchsResponses.size());
     }
 
-    // public Page<RewardsResponse> findRewardsByMemberId(Long memberId, Pageable pageable) {
-    //     QueryResults<Tuple> queryResults = queryFactory
-    //         .select(
-    //             reward.entityId, reward.rewardType, reward.rewardPoint, reward.createdDate
-    //         )
-    //         .from(reward)
-    //         .where(reward.member.memberId.eq(memberId))
-    //         .offset(pageable.getOffset())
-    //         .limit(pageable.getPageSize())
-    //         .fetchResults();
-    //
-    //     List<Tuple> tuples = queryResults.getResults();
-    //     long total = queryResults.getTotal();
-    //
-    //     if (total == 0) {
-    //         return Page.empty(pageable);
-    //     }
-    //
-    //     List<RewardsResponse> rewardsResponses = tuples.stream()
-    //         .map(tuple -> RewardsResponse.builder()
-    //             .entityId(tuple.get(reward.entityId))
-    //             .rewardType(tuple.get(reward.rewardType))
-    //             .rewardPoint(tuple.get(reward.rewardPoint))
-    //             .createdDate(tuple.get(reward.createdDate))
-    //             .build())
-    //         .collect(Collectors.toList());
-    //
-    //     return new PageImpl<>(rewardsResponses, pageable, total);
-    // }
+    public List<Reward> findRewardsByMemberId(Long memberId) {
+
+        return queryFactory
+            .selectDistinct(reward)
+            .from(reward)
+            .leftJoin(reward.video, video).fetchJoin()
+            .leftJoin(reward.question, question).fetchJoin()
+            .where(reward.member.memberId.eq(memberId))
+            .orderBy(reward.createdDate.desc())
+            .fetch();
+    }
 }

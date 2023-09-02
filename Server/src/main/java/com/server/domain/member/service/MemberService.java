@@ -8,6 +8,7 @@ import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.*;
+import com.server.domain.reward.entity.Reward;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
@@ -72,11 +73,15 @@ public class MemberService {
 			FileType.PROFILE_IMAGE);
 	}
 
-	// public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
-	// 	Member member = validateMember(loginId);
-	//
-	// 	return memberRepository.findRewardsByMemberId(member.getMemberId(), PageRequest.of(page, size));
-	// }
+	public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
+		Member member = validateMember(loginId);
+
+		List<Reward> rewards = memberRepository.findRewardsByMemberId(member.getMemberId());
+
+		List<RewardsResponse> rewardsResponses = RewardsResponse.convert(rewards);
+
+		return new PageImpl<>(rewardsResponses, PageRequest.of(page - 1, size), rewardsResponses.size());
+	}
 
 	public Page<SubscribesResponse> getSubscribes(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
@@ -93,7 +98,8 @@ public class MemberService {
 
 		List<SubscribesResponse> result = SubscribesResponse.convertSubscribesResponse(memberSubscribesData);
 
-		return new PageImpl<>(result); // 아직 미완성
+
+		return new PageImpl<>(result, PageRequest.of(page - 1, size), result.size());
 	}
 
 	public Page<CartsResponse> getCarts(Long loginId, int page, int size) {

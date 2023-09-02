@@ -61,33 +61,23 @@ public class MemberController {
 
 	@GetMapping("/rewards")
 	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(@RequestParam(value = "page", defaultValue = "1") int page,
-																		@RequestParam(value = "size", defaultValue = "10") int size,
+																		@RequestParam(value = "size", defaultValue = "16") int size,
 																		@LoginId Long loginId) {
 
-		// Page<RewardsResponse> responses = memberService.getRewards(loginId, page, size);
-		//
-		// return ResponseEntity.ok(ApiPageResponse.ok(responses));
-		return null;
+		Page<RewardsResponse> responses = memberService.getRewards(loginId, page, size);
+
+		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
 
 	@GetMapping("/subscribes")
 	public ResponseEntity<ApiPageResponse<SubscribesResponse>> getSubscribes(@RequestParam(value = "page", defaultValue = "1") int page,
-																			@RequestParam(value = "size", defaultValue = "10") int size,
+																			@RequestParam(value = "size", defaultValue = "16") int size,
 																			@LoginId Long loginId) {
 
 		Page<SubscribesResponse> responses = memberService.getSubscribes(loginId, page, size);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}
-
-	// 좋아요 기능은 구현하지 않기로 함
-	// @GetMapping("/likes")
-	// public ResponseEntity<ApiPageResponse<Void>> getLikes(@LoginId Long loginId,
-	// 												@RequestParam("page") int page) {
-	// 	memberService.getLikes(loginId, page);
-	//
-	// 	return new ResponseEntity<>(HttpStatus.OK);
-	// }
 
 	@GetMapping("/carts")
 	public ResponseEntity<ApiPageResponse<CartsResponse>> getCarts(@LoginId Long loginId,

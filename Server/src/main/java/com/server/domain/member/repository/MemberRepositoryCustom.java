@@ -8,6 +8,7 @@ import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
+import com.server.domain.reward.entity.Reward;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,5 +38,5 @@ public interface MemberRepositoryCustom {
 
     Page<PlaylistsResponse> findPlaylistsOrderBySort(Long memberId, String sort, Pageable pageable);
 
-    // Page<RewardsResponse> findRewardsByMemberId(Long memberId, Pageable pageable);
+    List<Reward> findRewardsByMemberId(Long memberId);
 }
