@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class AnswerCreateApiRequest {
 
-    @NotBlank(message = "{validation.question.answer}")
+    @NotBlank(message = "{validation.question.myAnswer}")
     private String myAnswer;
 
     public AnswerCreateServiceRequest toServiceRequest(Long questionId) {
