@@ -10,6 +10,7 @@ import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
+import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
 import com.server.domain.video.service.dto.request.VideoUpdateServiceRequest;
 import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
 import com.server.domain.video.service.dto.response.VideoDetailResponse;
@@ -63,15 +64,13 @@ public class VideoService {
         this.redisService = redisService;
     }
 
-    public Page<VideoPageResponse> getVideos(Long loginMemberId, int page, int size, String sort, String category, boolean subscribe) {
+    public Page<VideoPageResponse> getVideos(Long loginMemberId, VideoGetServiceRequest request) {
 
-        PageRequest pageRequest = PageRequest.of(page, size);
-
-        Page<Video> video = videoRepository.findAllByCategoryPaging(category, pageRequest, sort, loginMemberId, subscribe);
+        Page<Video> video = videoRepository.findAllByCategoryPaging(request.toDataRequest());
 
         List<Boolean> isPurchaseInOrder = isPurchaseInOrder(loginMemberId, video.getContent());
 
-        List<Boolean> isSubscribeInOrder = isSubscribeInOrder(loginMemberId, video.getContent(), subscribe);
+        List<Boolean> isSubscribeInOrder = isSubscribeInOrder(loginMemberId, video.getContent(), request.isSubscribe());
 
         List<String[]> urlsInOrder = getThumbnailAndImageUrlsInOrder(video.getContent());
 
