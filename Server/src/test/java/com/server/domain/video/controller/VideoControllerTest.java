@@ -239,7 +239,7 @@ class VideoControllerTest extends ControllerTest {
                         parameterWithName("sort").description(generateLinkCode(VideoSort.class)).optional(),
                         parameterWithName("category").description("카테고리").optional(),
                         parameterWithName("subscribe").description("구독 여부").optional(),
-                        parameterWithName("free").description("무료 여부").optional()
+                        parameterWithName("free").description("무료/유료 여부").optional()
                 ),
                 responseFields(
                         fieldWithPath("data").description("비디오 목록"),

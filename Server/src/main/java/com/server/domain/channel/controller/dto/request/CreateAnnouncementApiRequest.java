@@ -14,7 +14,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class CreateAnnouncementApiRequest {
 
-    @NotBlank(message = "{validation.auth.code}")
+    @NotBlank(message = "{validation.announcement.content}")
     private String content;
     public AnnouncementCreateServiceRequest toServiceRequest(Long memberId) {
         return AnnouncementCreateServiceRequest.builder()
