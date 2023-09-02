@@ -14,4 +14,5 @@ public class ChannelVideoGetServiceRequest {
     private int size;
     private String categoryName;
     private String sort;
+    private Boolean free;
 }

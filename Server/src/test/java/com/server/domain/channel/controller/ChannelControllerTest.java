@@ -156,6 +156,7 @@ class ChannelControllerTest extends ControllerTest {
                         .param("size", String.valueOf(size))
                         .param("sort", sort)
                         .param("category", category)
+                        .param("free", "false")
                         .header(AUTHORIZATION, TOKEN)
                         .accept(APPLICATION_JSON)
         );
@@ -178,7 +179,8 @@ class ChannelControllerTest extends ControllerTest {
                                 parameterWithName("page").description("페이지 번호").optional(),
                                 parameterWithName("size").description("페이지 사이즈").optional(),
                                 parameterWithName("sort").description(generateLinkCode(VideoSort.class)).optional(),
-                                parameterWithName("category").description("카테고리").optional()
+                                parameterWithName("category").description("카테고리").optional(),
+                                parameterWithName("free").description("무료 비디오만 조회 여부").optional()
                         ),
                         pageResponseFields(
                                 fieldWithPath("data").description("비디오 목록"),

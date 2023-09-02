@@ -74,7 +74,8 @@ public class ChannelController {
             @RequestParam(value = "page", defaultValue = "1") @Positive int page,
             @RequestParam(value = "size", defaultValue = "12") @Positive int size,
             @RequestParam(value = "sort", defaultValue = "created-date") VideoSort sort,
-            @RequestParam(value = "category", defaultValue = "") String category,
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "free", required = false) Boolean free,
             @LoginId Long loginMemberId
     ) {
         ChannelVideoGetServiceRequest request = ChannelVideoGetServiceRequest.builder()
@@ -83,6 +84,7 @@ public class ChannelController {
                 .size(size)
                 .sort(sort.getSort())
                 .categoryName(category)
+                .free(free)
                 .build();
 
         Page<ChannelVideoResponse> responses = channelService.getChannelVideos(loginMemberId, request);

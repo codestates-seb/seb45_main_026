@@ -18,7 +18,7 @@ public interface VideoRepositoryCustom {
 
     List<Boolean> isPurchasedAndIsReplied(Long memberId, Long videoId);
 
-    Page<Video> findChannelVideoByCategoryPaging(Long memberId, String category, Pageable pageable, String sort);
+    Page<Video> findChannelVideoByCategoryPaging(Long memberId, String category, Pageable pageable, String sort, Boolean free);
 
     Optional<Video> findVideoByNameWithMember(Long memberId, String videoName);
 }

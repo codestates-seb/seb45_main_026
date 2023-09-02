@@ -82,7 +82,7 @@ public class VideoController {
     public ResponseEntity<ApiPageResponse<VideoPageResponse>> getVideos(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                         @RequestParam(value = "size", defaultValue = "12") int size,
                                                                         @RequestParam(value = "sort", defaultValue = "created-date") VideoSort sort,
-                                                                        @RequestParam(value = "category", defaultValue = "") String category,
+                                                                        @RequestParam(value = "category", required = false) String category,
                                                                         @RequestParam(value = "subscribe", defaultValue = "false") boolean subscribe,
                                                                         @RequestParam(value = "search", required = false) Boolean free,
                                                                         @LoginId Long loginMemberId) {

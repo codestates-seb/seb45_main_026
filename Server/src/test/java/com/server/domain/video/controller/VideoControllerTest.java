@@ -218,6 +218,7 @@ class VideoControllerTest extends ControllerTest {
                         .param("sort", "created-date")
                         .param("category", "spring")
                         .param("subscribe", "true")
+                        .param("free", "false")
                         .accept(APPLICATION_JSON)
                         .header(AUTHORIZATION, TOKEN)
         );
@@ -237,7 +238,8 @@ class VideoControllerTest extends ControllerTest {
                         parameterWithName("size").description("페이지 사이즈").optional(),
                         parameterWithName("sort").description(generateLinkCode(VideoSort.class)).optional(),
                         parameterWithName("category").description("카테고리").optional(),
-                        parameterWithName("subscribe").description("구독 여부").optional()
+                        parameterWithName("subscribe").description("구독 여부").optional(),
+                        parameterWithName("free").description("무료 여부").optional()
                 ),
                 responseFields(
                         fieldWithPath("data").description("비디오 목록"),

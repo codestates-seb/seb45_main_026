@@ -160,7 +160,11 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
     }
 
     @Override
-    public Page<Video> findChannelVideoByCategoryPaging(Long memberId, String categoryName, Pageable pageable, String sort) {
+    public Page<Video> findChannelVideoByCategoryPaging(Long memberId,
+                                                        String categoryName,
+                                                        Pageable pageable,
+                                                        String sort,
+                                                        Boolean free) {
 
         List<OrderSpecifier<?>> orders = new ArrayList<>();
         orders.add(getOrderSpecifier(sort));
@@ -174,7 +178,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .where(member.memberId.eq(memberId))
-                .where(video.videoStatus.eq(VideoStatus.CREATED))
+                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(free)))
                 .orderBy(orders.toArray(new OrderSpecifier[0]));
 
         if (categoryName != null && !categoryName.isEmpty()) {
@@ -187,7 +191,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
         JPAQuery<Video> countQuery = queryFactory.selectFrom(video)
                 .join(video.channel, channel)
                 .join(channel.member, member)
-                .where(video.videoStatus.eq(VideoStatus.CREATED))
+                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(free)))
                 .where(member.memberId.eq(memberId));
 
         if (categoryName != null && !categoryName.isEmpty()) {
