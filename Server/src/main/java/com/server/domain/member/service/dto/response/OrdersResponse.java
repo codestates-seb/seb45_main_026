@@ -13,6 +13,7 @@ import com.server.domain.order.entity.OrderVideo;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Builder
@@ -32,26 +33,5 @@ public class OrdersResponse {
 		private String thumbnailFile; //video + channel.member.memberid
 		private String channelName; //channel
 		private int price; //video
-	}
-
-	public static List<OrdersResponse> convert(List<Order> orders) {
-		return orders.stream()
-			.map(order -> OrdersResponse.builder()
-				.orderId(order.getOrderId())
-				.reward(order.getReward())
-				.orderCount(order.getOrderVideos().size())
-				.orderStatus(order.getOrderStatus())
-				.createdDate(order.getCreatedDate())
-				.orderVideos(order.getOrderVideos().stream()
-					.map(orderVideo -> OrdersResponse.OrderVideo.builder()
-						.videoId(orderVideo.getVideo().getVideoId())
-						.videoName(orderVideo.getVideo().getVideoName())
-						.thumbnailFile(orderVideo.getVideo().getChannel().getMember().getMemberId() + "/" + orderVideo.getVideo().getThumbnailFile())
-						.channelName(orderVideo.getVideo().getChannel().getChannelName())
-						.price(orderVideo.getVideo().getPrice())
-						.build())
-					.collect(Collectors.toList()))
-				.build())
-			.collect(Collectors.toList());
 	}
 }

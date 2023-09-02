@@ -20,6 +20,7 @@ import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.subscribe.entity.QSubscribe;
 import com.server.domain.subscribe.entity.Subscribe;
@@ -183,7 +184,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     public List<Order> findOrdersOrderByCreatedDateForMember(Long memberId, int month) {
         LocalDateTime currentDateTime = LocalDateTime.now();
         LocalDateTime startDateTime = currentDateTime.minusMonths(month).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
-        LocalDateTime endDateTime = currentDateTime.minusMonths(month).withDayOfMonth(currentDateTime.getMonth().maxLength()).withHour(23).withMinute(59).withSecond(59);
+        LocalDateTime endDateTime = currentDateTime.withHour(23).withMinute(59).withSecond(59);
 
         return queryFactory
             .selectFrom(order)
@@ -196,10 +197,11 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .and(order.createdDate.between(startDateTime, endDateTime))
             )
             .orderBy(order.createdDate.desc())
+            .distinct()
             .fetch();
     }
 
-    public Page<PlaylistsResponse> findPlaylistsOrderBySort(Long memberId, String sort, Pageable pageable) {
+    public List<Video> findPlaylistsOrderBySort(Long memberId, String sort) {
         OrderSpecifier<?> orderSpecifier;
 
         QVideo video = new QVideo("playlist");
@@ -220,47 +222,18 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 break;
         }
 
-        QueryResults<Tuple> queryResults = queryFactory
-            .select(
-                video.videoId, video.videoName, video.thumbnailFile, video.star, video.modifiedDate,
-                channel.member.memberId, channel.channelName
-            )
-            .from(member)
-            .join(order).on(member.memberId.eq(order.member.memberId))
-            .join(orderVideo).on(order.orderId.eq(orderVideo.order.orderId))
-            .join(video).on(orderVideo.video.videoId.eq(video.videoId))
-            .join(channel).on(video.channel.channelId.eq(channel.channelId))
+        return queryFactory
+            .selectFrom(video)
+            .join(video.orderVideos, orderVideo)
+            .join(orderVideo.order, order)
+            .join(video.channel, channel).fetchJoin()
+            .join(channel.member, member).fetchJoin()
             .where(
-                member.memberId.eq(memberId),
-                order.orderStatus.eq(OrderStatus.COMPLETED)
+                order.member.memberId.eq(memberId)
+                .and(order.orderStatus.eq(OrderStatus.COMPLETED))
             )
             .orderBy(orderSpecifier)
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetchResults();
-
-        List<Tuple> tuples = queryResults.getResults();
-        long total = queryResults.getTotal();
-
-        if (total == 0) {
-            return Page.empty(pageable);
-        }
-
-        List<PlaylistsResponse> playlistsResponses = tuples.stream()
-            .map(tuple -> PlaylistsResponse.builder()
-                .videoId(tuple.get(video.videoId))
-                .videoName(tuple.get(video.videoName))
-                .thumbnailFile(tuple.get(video.thumbnailFile))
-                .star(tuple.get(video.star))
-                .modifiedDate(tuple.get(video.modifiedDate))
-                .channel(PlaylistsResponse.Channel.builder()
-                    .memberId(tuple.get(channel.member.memberId))
-                    .channelName(tuple.get(channel.channelName))
-                    .build())
-                .build())
-            .collect(Collectors.toList());
-
-        return new PageImpl<>(playlistsResponses, pageable, total);
+            .fetch();
     }
 
     public Page<WatchsResponse> findWatchesForMember(Long memberId, int days, Pageable pageable) {

@@ -90,6 +90,14 @@ public abstract class ServiceTest {
         return channel;
     }
 
+    protected Channel createAndSaveChannelWithName(Member member, String channelName) {
+        Channel channel = Channel.createChannel(channelName);
+        channel.setMember(member);
+        channelRepository.save(channel);
+
+        return channel;
+    }
+
     protected Video createAndSaveVideo(Channel channel) {
         Video video = Video.builder()
                 .videoName("title")

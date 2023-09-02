@@ -1,6 +1,7 @@
 package com.server.domain.member.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.service.ChannelService;
@@ -19,6 +20,7 @@ import com.server.global.exception.businessexception.memberexception.MemberPassw
 import com.server.global.exception.businessexception.s3exception.S3FileNotVaildException;
 import com.server.module.email.service.MailService;
 import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.AwsServiceImpl;
 import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -110,7 +112,7 @@ public class MemberService {
 
 		List<Order> orders = memberRepository.findOrdersOrderByCreatedDateForMember(member.getMemberId(), month);
 
-		List<OrdersResponse> responses = OrdersResponse.convert(orders);
+		List<OrdersResponse> responses = convertOrdersToOrdersResponses(orders);
 
 		return new PageImpl<>(responses, PageRequest.of(page - 1, size), responses.size());
 	}
@@ -118,7 +120,11 @@ public class MemberService {
 	public Page<PlaylistsResponse> getPlaylists(Long loginId, int page, int size, String sort) {
 		Member member = validateMember(loginId);
 
-		return memberRepository.findPlaylistsOrderBySort(member.getMemberId(), sort, PageRequest.of(page, size));
+		List<Video> videos = memberRepository.findPlaylistsOrderBySort(member.getMemberId(), sort);
+
+		List<PlaylistsResponse> responses = convertVideosToPlaylistsResponses(videos);
+
+		return new PageImpl<>(responses, PageRequest.of(page - 1, size), responses.size());
 	}
 
 	public Page<WatchsResponse> getWatchs(Long loginId, int page, int size, int day) {
@@ -230,5 +236,48 @@ public class MemberService {
 
 	private String getThumbnailUrl(Long memberId, String thumbnailFile) {
 		return awsService.getFileUrl(memberId, thumbnailFile, FileType.THUMBNAIL);
+	}
+
+	private List<OrdersResponse> convertOrdersToOrdersResponses(List<Order> orders) {
+		return orders.stream()
+			.map(order -> OrdersResponse.builder()
+				.orderId(order.getOrderId())
+				.reward(order.getReward())
+				.orderCount(order.getOrderVideos().size())
+				.orderStatus(order.getOrderStatus())
+				.createdDate(order.getCreatedDate())
+				.orderVideos(order.getOrderVideos().stream()
+					.map(orderVideo -> OrdersResponse.OrderVideo.builder()
+						.videoId(orderVideo.getVideo().getVideoId())
+						.videoName(orderVideo.getVideo().getVideoName())
+						.thumbnailFile(getThumbnailUrl(orderVideo.getVideo().getChannel().getMember().getMemberId(), orderVideo.getVideo().getThumbnailFile()))
+						.channelName(orderVideo.getVideo().getChannel().getChannelName())
+						.price(orderVideo.getVideo().getPrice())
+						.build())
+					.collect(Collectors.toList()))
+				.build())
+			.collect(Collectors.toList());
+	}
+
+	private List<PlaylistsResponse> convertVideosToPlaylistsResponses(List<Video> videos) {
+		return videos.stream()
+			.map(video -> PlaylistsResponse.builder()
+				.videoId(video.getVideoId())
+				.videoName(video.getVideoName())
+				.thumbnailFile(
+					getThumbnailUrl(video.getChannel().getMember().getMemberId(),
+					video.getThumbnailFile())
+				)
+				.star(video.getStar())
+				.modifiedDate(video.getModifiedDate())
+				.channel(
+					PlaylistsResponse.Channel.builder()
+						.memberId(video.getChannel().getMember().getMemberId())
+						.channelName(video.getChannel().getChannelName())
+						.build()
+				)
+				.build()
+			)
+			.collect(Collectors.toList());
 	}
 }

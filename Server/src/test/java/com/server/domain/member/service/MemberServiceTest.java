@@ -4,18 +4,23 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.service.dto.response.CartsResponse;
+import com.server.domain.member.service.dto.response.OrdersResponse;
+import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
+import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.RewardType;
@@ -169,26 +174,56 @@ public class MemberServiceTest extends ServiceTest {
 
 		assertThat(cartList.get(0).getVideoId()).isEqualTo(videos.get(videos.size() - 1).getVideoId());
 		assertThat(cartList.get(cartList.size() - 1).getVideoId()).isEqualTo(videos.get(0).getVideoId());
-
-		// for (CartsResponse cart : cartList) {
-		// 	System.out.println(cart.getVideoId());
-		// 	System.out.println(cart.getVideoName());
-		// 	System.out.println(cart.getThumbnailUrl());
-		// 	System.out.println(cart.getViews());
-		// 	System.out.println(cart.getCreatedDate());
-		// 	System.out.println(cart.getPrice());
-		// 	System.out.println(cart.getChannel().getMemberId());
-		// 	System.out.println(cart.getChannel().getChannelName());
-		// 	System.out.println(cart.getChannel().getSubscribes());
-		// 	System.out.println(cart.getChannel().getImageUrl());
-		// 	System.out.println("=".repeat(10));
-		// }
 	}
 
 	@Test
 	@DisplayName("로그인한 회원의 결제 목록을 조회한다.")
 	void getOrders() {
+		Member user = createAndSaveMember();
+		List<Order> firstlast = new ArrayList<>();
 
+		createOrders(user, firstlast);
+
+		Page<OrdersResponse> page = memberService.getOrders(user.getMemberId(), 1, 10, 6);
+
+		assertThat(page.getContent().size()).isEqualTo(20);
+		assertThat(page.getTotalPages()).isEqualTo(2);
+
+		assertThat(page.getContent().get(0).getOrderId()).isEqualTo(firstlast.get(1).getOrderId());
+		assertThat(page.getContent().get(19).getOrderId()).isEqualTo(firstlast.get(0).getOrderId());
+	}
+
+	@Test
+	@DisplayName("로그인한 사용자의 구매한 강의 목록 보관함을 조회한다.")
+	void getPlaylists() {
+		Member user = createAndSaveMember();
+		List<Video> firstlast = new ArrayList<>();
+
+		for (int x = 1; x < 21; x++) {
+			List<Video> videos = new ArrayList<>();
+
+			String name = generateRandomString();
+
+			Member member = createAndSaveMember();
+			Channel channel = createAndSaveChannelWithName(member, name);
+			Video video = createAndSaveVideo(channel);
+
+			videos.add(video);
+
+			createAndSaveOrderWithPurchaseComplete(user, videos, 0);
+
+			if(x == 1 || x == 20) {
+				firstlast.add(video);
+			}
+		}
+
+		Page<PlaylistsResponse> page = memberService.getPlaylists(user.getMemberId(), 1, 10, "created-date");
+
+		assertThat(page.getContent().size()).isEqualTo(20);
+		assertThat(page.getTotalPages()).isEqualTo(2);
+
+		assertThat(page.getContent().get(0).getVideoId()).isEqualTo(firstlast.get(1).getVideoId());
+		assertThat(page.getContent().get(19).getVideoId()).isEqualTo(firstlast.get(0).getVideoId());
 	}
 
 	@Test
@@ -331,5 +366,38 @@ public class MemberServiceTest extends ServiceTest {
 		memberRepository.save(member);
 
 		return member;
+	}
+
+	private void createOrders(Member user, List<Order> firstlast) {
+		for (int x = 1; x < 21; x++) {
+			List<Video> videos = new ArrayList<>();
+
+			for (int i = 0; i < 3; i++) {
+				Member member = createAndSaveMember();
+				Channel channel = createAndSaveChannel(member);
+				Video video = createAndSaveVideo(channel);
+
+				videos.add(video);
+			}
+
+			Order order = createAndSaveOrderWithPurchaseComplete(user, videos, 0);
+			if(x == 1 || x == 20) {
+				firstlast.add(order);
+			}
+		}
+	}
+
+	private String generateRandomString() {
+		String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		StringBuilder randomString = new StringBuilder(10);
+		Random random = new SecureRandom();
+
+		for (int i = 0; i < 10; i++) {
+			int randomIndex = random.nextInt(characters.length());
+			char randomChar = characters.charAt(randomIndex);
+			randomString.append(randomChar);
+		}
+
+		return randomString.toString();
 	}
 }

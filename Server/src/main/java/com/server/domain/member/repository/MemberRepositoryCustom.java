@@ -10,6 +10,7 @@ import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
 
@@ -39,7 +40,7 @@ public interface MemberRepositoryCustom {
 
     Page<WatchsResponse> findWatchesForMember(Long memberId, int days, Pageable pageable);
 
-    Page<PlaylistsResponse> findPlaylistsOrderBySort(Long memberId, String sort, Pageable pageable);
+    List<Video>  findPlaylistsOrderBySort(Long memberId, String sort);
 
     List<Reward> findRewardsByMemberId(Long memberId);
 }
