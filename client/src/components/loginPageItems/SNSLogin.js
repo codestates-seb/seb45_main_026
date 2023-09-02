@@ -51,7 +51,6 @@ export const SNSLogin = () => {
                         authorization: authorization,
                         refresh: refresh
                     }));
-
                     navigate('/lecture');
                 } else {
                     loginFailConfirm();
