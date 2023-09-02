@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 public class ChannelInfo {
     private Long memberId;
     private String channelName;
-    private String description;
     private int subscribers;
-    private boolean isSubscribed;
+    private Boolean isSubscribed;
+    private String description;
     private String imageUrl;
     private LocalDateTime createdDate;
 

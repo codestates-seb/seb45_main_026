@@ -1,8 +1,11 @@
 package com.server.domain.member.service;
 
+import java.util.List;
+
 import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.*;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
@@ -14,6 +17,7 @@ import com.server.module.email.service.MailService;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -68,16 +72,28 @@ public class MemberService {
 			FileType.PROFILE_IMAGE);
 	}
 
-	public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
-		Member member = validateMember(loginId);
-
-		return memberRepository.findRewardsByMemberId(member.getMemberId(), PageRequest.of(page, size));
-	}
+	// public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
+	// 	Member member = validateMember(loginId);
+	//
+	// 	return memberRepository.findRewardsByMemberId(member.getMemberId(), PageRequest.of(page, size));
+	// }
 
 	public Page<SubscribesResponse> getSubscribes(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
 
-		return memberRepository.findSubscribeWithChannelForMember(member.getMemberId(), PageRequest.of(page - 1, size));
+		List<MemberSubscribesData> memberSubscribesData = memberRepository.findSubscribeWithChannelForMember(member.getMemberId());
+
+		for (MemberSubscribesData response : memberSubscribesData) {
+			    String imageUrl = awsService.getFileUrl(
+			        response.getMemberId(),
+			        response.getImageUrl(),
+			        FileType.PROFILE_IMAGE);
+			    response.setImageUrl(imageUrl);
+		}
+
+		List<SubscribesResponse> result = SubscribesResponse.convertSubscribesResponse(memberSubscribesData);
+
+		return new PageImpl<>(result); // 아직 미완성
 	}
 
 	public Page<CartsResponse> getCarts(Long loginId, int page, int size) {

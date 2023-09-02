@@ -1,0 +1,38 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Channel]]
+= 채널 구독 API
+
+IMPORTANT: 구독과 구독 취소는 API 가 같습니다.
+
+== 채널 구독
+=== HTTP Request
+include::{snippets}/channel/updatesubscribe/http-request.adoc[]
+==== Request Header
+include::{snippets}/channel/updatesubscribe/request-headers.adoc[]
+==== Request Path Parameters
+include::{snippets}/channel/updatesubscribe/path-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/channel/updatesubscribe/http-response.adoc[]
+==== Response Fields
+include::{snippets}/channel/updatesubscribe/response-fields.adoc[]
+
+== 채널 구독 취소
+=== HTTP Request
+include::{snippets}/channel/updateunsubscribe/http-request.adoc[]
+==== Request Header
+include::{snippets}/channel/updateunsubscribe/request-headers.adoc[]
+==== Request Path Parameters
+include::{snippets}/channel/updateunsubscribe/path-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/channel/updateunsubscribe/http-response.adoc[]
+==== Response Fields
+include::{snippets}/channel/updateunsubscribe/response-fields.adoc[]
+
+

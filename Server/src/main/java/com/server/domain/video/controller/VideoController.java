@@ -4,6 +4,7 @@ import com.server.domain.question.service.QuestionService;
 import com.server.domain.question.service.dto.response.QuestionResponse;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.service.VideoService;
+import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
 import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
 import com.server.domain.video.service.dto.response.VideoDetailResponse;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
@@ -17,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.net.URI;
 import java.util.List;
 
@@ -37,7 +39,7 @@ public class VideoController {
 
     @GetMapping("/{video-id}/questions")
     public ResponseEntity<ApiSingleResponse<List<QuestionResponse>>> getQuestions(
-                             @PathVariable("video-id") Long videoId,
+                             @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
                              @LoginId Long loginMemberId) {
 
         List<QuestionResponse> questions = questionService.getQuestions(loginMemberId, videoId);
@@ -47,7 +49,7 @@ public class VideoController {
 
     @PostMapping("/{video-id}/answers")
     public ResponseEntity<ApiSingleResponse<List<Boolean>>> solveQuestions(
-            @PathVariable("video-id") Long videoId,
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
             @RequestBody @Valid AnswersCreateApiRequest request,
             @LoginId Long loginMemberId) {
 
@@ -58,7 +60,7 @@ public class VideoController {
 
     @PostMapping("/{video-id}/questions")
     public ResponseEntity<ApiSingleResponse<List<Long>>> createQuestions(
-            @PathVariable("video-id") Long videoId,
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
             @RequestBody @Valid List<QuestionCreateApiRequest> requests,
             @LoginId Long loginMemberId) {
 
@@ -78,21 +80,33 @@ public class VideoController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiPageResponse<VideoPageResponse>> getVideos(@RequestParam(value = "page", defaultValue = "1") int page,
-                                                                        @RequestParam(value = "size", defaultValue = "12") int size,
-                                                                        @RequestParam(value = "sort", defaultValue = "created-date") VideoSort sort,
-                                                                        @RequestParam(value = "category", defaultValue = "") String category,
-                                                                        @RequestParam(value = "subscribe", defaultValue = "false") boolean subscribe,
-                                                                        @LoginId Long loginMemberId) {
+    public ResponseEntity<ApiPageResponse<VideoPageResponse>> getVideos(
+            @RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+            @RequestParam(value = "size", defaultValue = "16") @Positive(message = "{validation.positive}") int size,
+            @RequestParam(value = "sort", defaultValue = "created-date") VideoSort sort,
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "subscribe", defaultValue = "false") boolean subscribe,
+            @RequestParam(value = "search", required = false) Boolean free,
+            @LoginId Long loginMemberId) {
 
-        Page<VideoPageResponse> videos = videoService.getVideos(loginMemberId, page - 1, size, sort.getSort(), category, subscribe);
+        VideoGetServiceRequest request = VideoGetServiceRequest.builder()
+                .loginMemberId(loginMemberId)
+                .page(page - 1)
+                .size(size)
+                .categoryName(category)
+                .sort(sort.getSort())
+                .subscribe(subscribe)
+                .free(free)
+                .build();
+
+        Page<VideoPageResponse> videos = videoService.getVideos(loginMemberId, request);
 
         return ResponseEntity.ok(ApiPageResponse.ok(videos, "비디오 목록 조회 성공"));
     }
 
     @GetMapping("/{video-id}")
     public ResponseEntity<ApiSingleResponse<VideoDetailResponse>> getVideo(
-                                          @PathVariable("video-id") Long videoId,
+                                          @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
                                           @LoginId Long loginMemberId) {
 
         VideoDetailResponse video = videoService.getVideo(loginMemberId, videoId);
@@ -122,9 +136,10 @@ public class VideoController {
     }
 
     @PatchMapping("/{video-id}")
-    public ResponseEntity<Void> updateVideo(@RequestBody @Valid VideoUpdateApiRequest request,
-                                            @PathVariable("video-id") Long videoId,
-                                            @LoginId Long loginMemberId) {
+    public ResponseEntity<Void> updateVideo(
+            @RequestBody @Valid VideoUpdateApiRequest request,
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
+            @LoginId Long loginMemberId) {
 
         videoService.updateVideo(loginMemberId, request.toServiceRequest(videoId));
 
@@ -132,8 +147,9 @@ public class VideoController {
     }
 
     @PatchMapping("/{video-id}/carts")
-    public ResponseEntity<ApiSingleResponse<Boolean>> changeCart(@PathVariable("video-id") Long videoId,
-                                               @LoginId Long loginMemberId) {
+    public ResponseEntity<ApiSingleResponse<Boolean>> changeCart(
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
+           @LoginId Long loginMemberId) {
 
         Boolean isInCart = videoService.changeCart(loginMemberId, videoId);
 
@@ -142,7 +158,7 @@ public class VideoController {
     }
 
     @DeleteMapping("/{video-id}")
-    public ResponseEntity<Void> deleteVideo(@PathVariable("video-id") Long videoId,
+    public ResponseEntity<Void> deleteVideo(@PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
                                             @LoginId Long loginMemberId) {
 
         videoService.deleteVideo(loginMemberId, videoId);

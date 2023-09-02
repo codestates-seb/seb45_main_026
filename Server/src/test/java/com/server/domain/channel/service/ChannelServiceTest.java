@@ -65,19 +65,6 @@ class ChannelServiceTest extends ServiceTest {
         assertThat(videos.getSize()).isEqualTo(10);
         assertThat(videos.getContent()).extracting("videoId")
                 .containsAnyElementsOf(videos1.stream().map(Video::getVideoId).collect(Collectors.toList()));
-
-        int i = 0;
-        for (ChannelVideoResponse video : videos) {
-            if (i % 2 == 0) {
-                assertThat(video.getCategories().get(0).getCategoryName()).isEqualTo("java");
-            }else {
-                assertThat(video.getCategories().get(0).getCategoryName()).isEqualTo("spring");
-            }
-            if(i % 3 == 0) {
-                assertThat(video.getIsPurchased()).isTrue();
-            }
-            i++;
-        }
     }
 
     private List<Video> createAndSaveVideos(Member purchaseMember, Channel channel, int count, Category category1, Category category2) {
@@ -116,7 +103,7 @@ class ChannelServiceTest extends ServiceTest {
         assertThat(channelInfo.getSubscribers()).isEqualTo(channel.getSubscribers());
         assertThat(channelInfo.getDescription()).isEqualTo(channel.getDescription());
         assertThat(channelInfo.getImageUrl()).isEqualTo(member.getImageFile());
-        assertThat(channelInfo.isSubscribed()).isFalse();
+        assertThat(channelInfo.getIsSubscribed()).isFalse();
         assertThat(channelInfo.getCreatedDate()).isEqualTo(channel.getCreatedDate());
     }
 

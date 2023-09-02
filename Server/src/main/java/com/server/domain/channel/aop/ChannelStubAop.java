@@ -1,9 +1,11 @@
 package com.server.domain.channel.aop;
 
 import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
+import com.server.domain.channel.service.dto.ChannelInfo;
 import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
 import com.server.domain.video.service.dto.response.VideoCategoryResponse;
 import com.server.global.reponse.ApiPageResponse;
+import com.server.global.reponse.ApiSingleResponse;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -28,6 +30,37 @@ public class ChannelStubAop {
 
     public ChannelStubAop(AwsService awsService) {
         this.awsService = awsService;
+    }
+
+    @Around("execution(* com.server.domain.channel.controller.ChannelController.getChannel(..))")
+    public Object getChannel(ProceedingJoinPoint joinPoint) {
+
+        Object[] args = joinPoint.getArgs();
+        Long memberId = (Long) args[1];
+
+        ChannelInfo response = ChannelInfo.builder()
+                .memberId(memberId)
+                .channelName("channel Name")
+                .subscribers(1000)
+                .isSubscribed(true)
+                .description("channel description")
+                .imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
+                .createdDate(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(response, "채널 조회가 완료되었습니다"));
+    }
+
+    @Around("execution(* com.server.domain.channel.controller.ChannelController.updateChannelInfo(..))")
+    public Object updateChannelInfo(ProceedingJoinPoint joinPoint) {
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Around("execution(* com.server.domain.channel.controller.ChannelController.updateSubscribe(..))")
+    public Object updateSubscribe(ProceedingJoinPoint joinPoint) {
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(true, "구독상태가 업데이트되었습니다."));
     }
 
     @Around("execution(* com.server.domain.channel.controller.ChannelController.getChannelVideos(..))")

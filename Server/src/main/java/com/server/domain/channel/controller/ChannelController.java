@@ -37,8 +37,9 @@ public class ChannelController {
 
     // 채널 조회
     @GetMapping("/{member-id}")
-    public ResponseEntity<ApiSingleResponse<ChannelInfo>> getChannel(@PathVariable("member-id") Long memberId,
-                                                                     @LoginId Long loginMemberId) {
+    public ResponseEntity<ApiSingleResponse<ChannelInfo>> getChannel(
+            @PathVariable("member-id") @Positive(message = "{validation.positive}") Long memberId,
+            @LoginId Long loginMemberId) {
 
         ChannelInfo channelInfo = channelService.getChannel(memberId, loginMemberId);
 
@@ -48,9 +49,10 @@ public class ChannelController {
 
     // 채널 정보 수정
     @PatchMapping("/{member-id}")
-    public ResponseEntity<Void> updateChannelInfo(@PathVariable("member-id") Long memberId,
-                                                  @LoginId Long loginMemberId,
-                                                  @RequestBody ChannelUpdate updateChannel){
+    public ResponseEntity<Void> updateChannelInfo(
+            @PathVariable("member-id") @Positive(message="{validation.positive}") Long memberId,
+            @LoginId Long loginMemberId,
+            @RequestBody @Valid ChannelUpdate updateChannel){
 
         channelService.updateChannelInfo(memberId, loginMemberId, updateChannel);
 
@@ -59,8 +61,9 @@ public class ChannelController {
 
     // 구독 여부 업데이트
     @PatchMapping("/{member-id}/subscribe")
-    public ResponseEntity<ApiSingleResponse<Boolean>> updateSubscribe(@PathVariable("member-id") Long memberId,
-                                                                      @LoginId Long loginMemberId){
+    public ResponseEntity<ApiSingleResponse<Boolean>> updateSubscribe(
+            @PathVariable("member-id") @Positive(message = "{validation.positive}") Long memberId,
+            @LoginId Long loginMemberId){
 
         boolean isSubscribed = channelService.updateSubscribe(loginMemberId, memberId);
 
@@ -70,11 +73,12 @@ public class ChannelController {
 
     @GetMapping("/{member-id}/videos")
     public ResponseEntity<ApiPageResponse<ChannelVideoResponse>> getChannelVideos(
-            @PathVariable("member-id") @Positive Long memberId,
-            @RequestParam(value = "page", defaultValue = "1") @Positive int page,
-            @RequestParam(value = "size", defaultValue = "12") @Positive int size,
+            @PathVariable("member-id") @Positive(message = "{validation.positive}") Long memberId,
+            @RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+            @RequestParam(value = "size", defaultValue = "16") @Positive(message = "{validation.positive}") int size,
             @RequestParam(value = "sort", defaultValue = "created-date") VideoSort sort,
-            @RequestParam(value = "category", defaultValue = "") String category,
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "free", required = false) Boolean free,
             @LoginId Long loginMemberId
     ) {
         ChannelVideoGetServiceRequest request = ChannelVideoGetServiceRequest.builder()
@@ -83,6 +87,7 @@ public class ChannelController {
                 .size(size)
                 .sort(sort.getSort())
                 .categoryName(category)
+                .free(free)
                 .build();
 
         Page<ChannelVideoResponse> responses = channelService.getChannelVideos(loginMemberId, request);
@@ -94,7 +99,7 @@ public class ChannelController {
 
     @PostMapping("/{member-id}/announcements")
     public ResponseEntity<ApiSingleResponse<Void>> createAnnouncement(
-            @PathVariable("member-id") Long memberId,
+            @PathVariable("member-id") @Positive(message = "{validation.positive}") Long memberId,
             @RequestBody @Valid CreateAnnouncementApiRequest request,
             @LoginId Long loginMemberId
     ) {
@@ -108,9 +113,9 @@ public class ChannelController {
 
     @GetMapping("/{member-id}/announcements")
     public ResponseEntity<ApiPageResponse<AnnouncementResponse>> getAnnouncements(
-            @PathVariable("member-id") Long memberId,
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size
+            @PathVariable("member-id") @Positive(message = "{validation.positive}") Long memberId,
+            @RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+            @RequestParam(value = "size", defaultValue = "5") @Positive(message = "{validation.positive}") int size
     ) {
 
         Page<AnnouncementResponse> announcements = announcementService.getAnnouncements(memberId, page - 1, size);

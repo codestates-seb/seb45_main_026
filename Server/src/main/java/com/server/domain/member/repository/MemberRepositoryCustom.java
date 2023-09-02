@@ -1,14 +1,13 @@
 package com.server.domain.member.repository;
 
 import com.server.domain.member.entity.Member;
+import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.repository.dto.MemberVideoData;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
-import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
-import com.server.domain.reward.entity.Reward;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +27,7 @@ public interface MemberRepositoryCustom {
 
     Optional<Member> findByIdWithChannel(Long memberId);
 
-    Page<SubscribesResponse> findSubscribeWithChannelForMember(Long memberId, Pageable pageable);
+    List<MemberSubscribesData> findSubscribeWithChannelForMember(Long memberId);
 
     Page<CartsResponse> findCartsOrderByCreatedDateForMember(Long memberId, Pageable pageable);
 
@@ -38,5 +37,5 @@ public interface MemberRepositoryCustom {
 
     Page<PlaylistsResponse> findPlaylistsOrderBySort(Long memberId, String sort, Pageable pageable);
 
-    Page<RewardsResponse> findRewardsByMemberId(Long memberId, Pageable pageable);
+    // Page<RewardsResponse> findRewardsByMemberId(Long memberId, Pageable pageable);
 }

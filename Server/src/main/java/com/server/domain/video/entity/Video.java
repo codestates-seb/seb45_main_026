@@ -6,6 +6,7 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
+import com.server.domain.reward.entity.Reward;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.entity.BaseEntity;
@@ -32,13 +33,10 @@ public class Video extends BaseEntity {
     private String videoName;
 
     @Lob
-    @Column
     private String description;
 
-    @Column(nullable = false)
     private String thumbnailFile;
 
-    @Column(nullable = false)
     private String videoFile;
 
     @Column(nullable = false)
@@ -49,6 +47,10 @@ public class Video extends BaseEntity {
 
     @Column(nullable = false)
     private int price;
+
+    @Enumerated(value = EnumType.STRING)
+    @Builder.Default
+    private VideoStatus videoStatus = VideoStatus.UPLOADING;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "channel_id")
@@ -62,6 +64,9 @@ public class Video extends BaseEntity {
 
     @OneToMany(mappedBy = "video")
     private List<Cart> carts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "video")
+    private List<Reward> rewards = new ArrayList<>();
 
     @OneToMany(mappedBy = "video")
     private List<Question> questions = new ArrayList<>();
@@ -79,8 +84,7 @@ public class Video extends BaseEntity {
                 .videoName(videoName)
                 .price(price)
                 .description(description)
-                .videoFile(videoName)
-                .thumbnailFile(videoName)
+                .videoStatus(VideoStatus.UPLOADING)
                 .view(0)
                 .star(0f)
                 .videoCategories(new ArrayList<>())
@@ -125,5 +129,17 @@ public class Video extends BaseEntity {
         this.videoName = videoName == null ? this.videoName : videoName;
         this.price = price == null ? this.price : price;
         this.description = description == null ? this.description : description;
+    }
+
+    public void updateVideo(String description) {
+        this.description = description == null ? this.description : description;
+    }
+
+    public void additionalCreateProcess(Integer price, String description) {
+        this.price = price;
+        this.description = description;
+        this.videoStatus = VideoStatus.CREATED;
+        this.thumbnailFile = this.videoId + "/" + this.videoName;
+        this.videoFile = this.videoId + "/" + this.videoName;
     }
 }

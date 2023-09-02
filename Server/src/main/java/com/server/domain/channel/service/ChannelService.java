@@ -160,7 +160,8 @@ public class ChannelService {
                 request.getMemberId(),
                 request.getCategoryName(),
                 pageRequest,
-                request.getSort()
+                request.getSort(),
+                request.getFree()
         );
 
         List<Boolean> isPurchaseInOrder = isPurchaseInOrder(loginMemberId, videos.getContent());

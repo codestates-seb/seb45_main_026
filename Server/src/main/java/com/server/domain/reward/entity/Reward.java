@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 
 import com.server.domain.answer.entity.Answer;
 import com.server.domain.member.entity.Member;
+import com.server.domain.question.entity.Question;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
 
@@ -32,9 +33,6 @@ public class Reward extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long rewardId;
 
-	@Column(nullable = false)
-	private Long entityId;
-
 	@Enumerated(value = EnumType.STRING)
 	@Column(nullable = false)
 	private RewardType rewardType;
@@ -46,25 +44,45 @@ public class Reward extends BaseEntity {
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
 
-	// @ManyToOne(fetch = FetchType.LAZY)
-	// @JoinColumn(name = "video_id")
-	// private Video video;
-	//
-	// @ManyToOne(fetch = FetchType.LAZY)
-	// @JoinColumn(name = "answer_id")
-	// private Answer answer;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "video_id")
+	private Video video;
 
-	public static Reward createReward(Long entityId, RewardType rewardType,
-										Integer rewardPoint, Member member) {
+	private boolean isCanceled;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "question_id")
+	private Question question;
+
+	public static Reward createReward(RewardType rewardType,
+										Integer rewardPoint, Member member, Video video) {
+
+		member.addReward(rewardPoint);
+
 		return Reward.builder()
-			.entityId(entityId)
 			.rewardType(rewardType)
 			.rewardPoint(rewardPoint)
 			.member(member)
+			.video(video)
 			.build();
 	}
 
-	public void updateMemberReward(Member member) {
-		member.addReward(this.rewardPoint);
+	public static Reward createReward(RewardType rewardType,
+		Integer rewardPoint, Member member, Question question) {
+
+		member.addReward(rewardPoint);
+
+		return Reward.builder()
+			.rewardType(rewardType)
+			.rewardPoint(rewardPoint)
+			.member(member)
+			.question(question)
+			.video(question.getVideo())
+			.build();
+	}
+
+	public void cancelReward() {
+		this.isCanceled = true;
+		this.member.minusReward(this.rewardPoint);
 	}
 }
