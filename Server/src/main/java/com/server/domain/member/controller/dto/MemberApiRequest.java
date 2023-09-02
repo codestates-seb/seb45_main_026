@@ -35,7 +35,7 @@ public class MemberApiRequest {
 	@AllArgsConstructor
 	public static class Image {
 		private String imageName;
-		@ImageTypeValid(message = "jpg, jpeg, png 확장자만 지원합니다.")
+		@ImageTypeValid(message = "{validation.imageType}")
 		private ImageType imageType;
 	}
 
