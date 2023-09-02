@@ -6,13 +6,13 @@ import { useNavigate } from 'react-router-dom';
 
 const MainPage = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
-    const tokens = useSelector(state=>state.loginInfo.accessToken);
+    const isLogin = useSelector(state=>state.loginInfo.isLogin);
     const outerRef = useRef();
     const navigate = useNavigate();
 
     //로그인한 상태이면 lecture page로 이동
     useEffect(()=>{
-        if(!(tokens.authorization==='')) {
+        if(isLogin) {
             navigate('/lecture');
         }
     });
