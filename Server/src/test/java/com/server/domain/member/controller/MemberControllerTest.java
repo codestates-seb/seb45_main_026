@@ -137,6 +137,7 @@ public class MemberControllerTest extends ControllerTest {
 			get("/members/rewards")
 				.header(AUTHORIZATION, TOKEN)
 				.param("page","1")
+				.param("size","16")
 				.accept(APPLICATION_JSON)
 		);
 
@@ -150,7 +151,8 @@ public class MemberControllerTest extends ControllerTest {
 						headerWithName(AUTHORIZATION).description("액세스 토큰")
 					),
 					requestParameters(
-						parameterWithName("page").description("조회할 리워드 목록 페이지")
+						parameterWithName("page").description("조회할 리워드 목록 페이지"),
+						parameterWithName("size").description("조회할 리워드 목록 페이지")
 					),
 					pageResponseFields(
 						fieldWithPath("data[]").description("리워드 목록"),

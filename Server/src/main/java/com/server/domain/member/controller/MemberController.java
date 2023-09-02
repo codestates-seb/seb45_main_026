@@ -82,7 +82,7 @@ public class MemberController {
 	@GetMapping("/carts")
 	public ResponseEntity<ApiPageResponse<CartsResponse>> getCarts(@LoginId Long loginId,
 																	@RequestParam(value = "page", defaultValue = "1") int page,
-																	@RequestParam(value = "size", defaultValue = "10") int size) {
+																	@RequestParam(value = "size", defaultValue = "20") int size) {
 
 		Page<CartsResponse> responses = memberService.getCarts(loginId, page, size);
 
@@ -92,7 +92,7 @@ public class MemberController {
 	@GetMapping("/orders")
 	public ResponseEntity<ApiPageResponse<OrdersResponse>> getOrders(@LoginId Long loginId,
 													@RequestParam(value = "page", defaultValue = "1") int page,
-													@RequestParam(value = "size", defaultValue = "10") int size,
+													@RequestParam(value = "size", defaultValue = "4") int size,
 													@RequestParam(value = "month", defaultValue = "1") int month) {
 
 		Page<OrdersResponse> responses = memberService.getOrders(loginId, page, size, month);
@@ -103,7 +103,7 @@ public class MemberController {
 	@GetMapping("/playlists")
 	public ResponseEntity<ApiPageResponse<PlaylistsResponse>> getPlaylists(@LoginId Long loginId,
 													@RequestParam(value = "page", defaultValue = "1") int page,
-													@RequestParam(value = "size", defaultValue = "10") int size,
+													@RequestParam(value = "size", defaultValue = "16") int size,
 													@RequestParam(value = "sort", defaultValue = "created-date") PlaylistsSort sort) {
 
 		Page<PlaylistsResponse> responses = memberService.getPlaylists(loginId, page, size, sort.getSort());
@@ -114,7 +114,7 @@ public class MemberController {
 	@GetMapping("/watchs")
 	public ResponseEntity<ApiPageResponse<WatchsResponse>> getWatchs(@LoginId Long loginId,
 																	@RequestParam(value = "page", defaultValue = "1") int page,
-																	@RequestParam(value = "size", defaultValue = "10") int size,
+																	@RequestParam(value = "size", defaultValue = "16") int size,
 																	@RequestParam(value = "day", defaultValue = "30") int day) {
 
 		Page<WatchsResponse> responses = memberService.getWatchs(loginId, page, size, day);

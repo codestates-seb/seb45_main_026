@@ -13,6 +13,7 @@ import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
+import com.server.domain.watch.entity.Watch;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +39,7 @@ public interface MemberRepositoryCustom {
 
     List<Order> findOrdersOrderByCreatedDateForMember(Long memberId, int month);
 
-    Page<WatchsResponse> findWatchesForMember(Long memberId, int days, Pageable pageable);
+    List<Watch> findWatchesForMember(Long memberId, int days);
 
     List<Video>  findPlaylistsOrderBySort(Long memberId, String sort);
 

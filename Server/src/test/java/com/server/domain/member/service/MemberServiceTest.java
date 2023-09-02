@@ -20,11 +20,13 @@ import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
+import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.RewardType;
 import com.server.domain.video.entity.Video;
+import com.server.domain.watch.entity.Watch;
 import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -89,7 +91,7 @@ public class MemberServiceTest extends ServiceTest {
 
 	@Test
 	@DisplayName("로그인한 회원의 구독 목록 조회가 제대로 수행되는지 검증한다.")
-	void getSubscribes() throws InterruptedException {
+	void getSubscribes() {
 		Member owner1 = createAndSaveMember();
 		Channel channel1 = createAndSaveChannel(owner1);
 
@@ -106,9 +108,7 @@ public class MemberServiceTest extends ServiceTest {
 		Member loginMember = createAndSaveMember();
 
 		createAndSaveSubscribe(loginMember, channel1);
-		Thread.sleep(2000);
 		createAndSaveSubscribe(loginMember, channel2);
-		Thread.sleep(2000);
 		createAndSaveSubscribe(loginMember, channel3);
 
 		Page<SubscribesResponse> responses =
@@ -134,8 +134,8 @@ public class MemberServiceTest extends ServiceTest {
 
 		Member user = createAndSaveMember();
 
-		Reward reward1 = createAndSaveVideoReward(user, video);
-		Reward reward2 = createAndSaveQuestionReward(user, question);
+		createAndSaveVideoReward(user, video);
+		createAndSaveQuestionReward(user, question);
 
 		Page<RewardsResponse> page = memberService.getRewards(user.getMemberId(), 1, 10);
 
@@ -150,7 +150,7 @@ public class MemberServiceTest extends ServiceTest {
 
 	@Test
 	@DisplayName("로그인한 회원의 장바구니 목록을 조회한다.")
-	void getCarts() throws JsonProcessingException {
+	void getCarts() {
 		Member user = createAndSaveMember();
 
 		List<Cart> carts = new ArrayList<>();
@@ -217,13 +217,43 @@ public class MemberServiceTest extends ServiceTest {
 			}
 		}
 
-		Page<PlaylistsResponse> page = memberService.getPlaylists(user.getMemberId(), 1, 10, "created-date");
+		Page<PlaylistsResponse> page = memberService.getPlaylists(user.getMemberId(), 1, 10, "createdDate");
 
 		assertThat(page.getContent().size()).isEqualTo(20);
 		assertThat(page.getTotalPages()).isEqualTo(2);
 
 		assertThat(page.getContent().get(0).getVideoId()).isEqualTo(firstlast.get(1).getVideoId());
 		assertThat(page.getContent().get(19).getVideoId()).isEqualTo(firstlast.get(0).getVideoId());
+	}
+
+	@Test
+	@DisplayName("로그인한 사용자의 시청기록을 최신순으로 조회한다.")
+	void getWatchs() {
+		Member user = createAndSaveMember();
+
+		List<Watch> firstlast = new ArrayList<>();
+
+		for (int i = 0; i < 20; i++) {
+			String name = generateRandomString();
+
+			Member member = createAndSaveMember();
+			Channel channel = createAndSaveChannelWithName(member, name);
+			Video video = createAndSaveVideo(channel);
+
+			Watch watch = createAndSaveWatch(user, video);
+
+			if(i == 0 || i == 19) {
+				firstlast.add(watch);
+			}
+		}
+
+		Page<WatchsResponse> page = memberService.getWatchs(user.getMemberId(), 1, 10, 7);
+
+		assertThat(page.getContent().size()).isEqualTo(20);
+		assertThat(page.getTotalPages()).isEqualTo(2);
+
+		assertThat(page.getContent().get(0).getVideoId()).isEqualTo(firstlast.get(1).getVideo().getVideoId());
+		assertThat(page.getContent().get(19).getVideoId()).isEqualTo(firstlast.get(0).getVideo().getVideoId());
 	}
 
 	@Test
@@ -399,5 +429,12 @@ public class MemberServiceTest extends ServiceTest {
 		}
 
 		return randomString.toString();
+	}
+
+	private Watch createAndSaveWatch(Member loginMember, Video video) {
+		Watch watch = Watch.createWatch(loginMember, video);
+		em.persist(watch);
+
+		return watch;
 	}
 }

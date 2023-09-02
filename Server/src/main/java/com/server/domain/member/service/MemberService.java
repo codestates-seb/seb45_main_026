@@ -13,6 +13,7 @@ import com.server.domain.member.service.dto.response.*;
 import com.server.domain.order.entity.Order;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
+import com.server.domain.watch.entity.Watch;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
@@ -130,7 +131,11 @@ public class MemberService {
 	public Page<WatchsResponse> getWatchs(Long loginId, int page, int size, int day) {
 		Member member = validateMember(loginId);
 
-		return memberRepository.findWatchesForMember(member.getMemberId(), day, PageRequest.of(page, size));
+		List<Watch> watches = memberRepository.findWatchesForMember(member.getMemberId(), day);
+
+		List<WatchsResponse> responses = convertWatchToWatchResponses(watches);
+
+		return new PageImpl<>(responses, PageRequest.of(page - 1, size), responses.size());
 	}
 
 	@Transactional
@@ -278,6 +283,21 @@ public class MemberService {
 				)
 				.build()
 			)
+			.collect(Collectors.toList());
+	}
+
+	private List<WatchsResponse> convertWatchToWatchResponses(List<Watch> watches) {
+		return watches.stream()
+			.map(watch -> WatchsResponse.builder()
+				.videoId(watch.getVideo().getVideoId())
+				.videoName(watch.getVideo().getVideoName())
+				.thumbnailFile(getThumbnailUrl(watch.getVideo().getChannel().getMember().getMemberId(), watch.getVideo().getThumbnailFile()))
+				.modifiedDate(watch.getModifiedDate())
+				.channel(WatchsResponse.Channel.builder()
+					.memberId(watch.getVideo().getChannel().getMember().getMemberId())
+					.channelName(watch.getVideo().getChannel().getChannelName())
+					.build())
+				.build())
 			.collect(Collectors.toList());
 	}
 }

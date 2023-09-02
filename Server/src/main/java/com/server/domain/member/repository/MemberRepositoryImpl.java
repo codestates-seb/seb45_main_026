@@ -236,40 +236,20 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
             .fetch();
     }
 
-    public Page<WatchsResponse> findWatchesForMember(Long memberId, int days, Pageable pageable) {
+    public List<Watch> findWatchesForMember(Long memberId, int days) {
         LocalDateTime endDateTime = LocalDateTime.now();
         LocalDateTime startDateTime = endDateTime.minusDays(days);
 
-        List<Watch> watches = queryFactory
+        return queryFactory
             .selectFrom(watch)
-            .leftJoin(watch.video.channel, channel).fetchJoin()
+            .leftJoin(watch.video, video).fetchJoin()
+            .leftJoin(video.channel, channel).fetchJoin()
             .where(
                 watch.member.memberId.eq(memberId)
                     .and(watch.modifiedDate.between(startDateTime, endDateTime))
             )
             .orderBy(watch.modifiedDate.desc())
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
             .fetch();
-
-        List<WatchsResponse> watchsResponses = watches.stream()
-            .map(watch -> WatchsResponse.builder()
-                .videoId(watch.getVideo().getVideoId())
-                .videoName(watch.getVideo().getVideoName())
-                .thumbnailFile(watch.getVideo().getThumbnailFile())
-                .modifiedDate(watch.getModifiedDate())
-                .channel(WatchsResponse.Channel.builder()
-                    .memberId(watch.getVideo().getChannel().getChannelId())
-                    .channelName(watch.getVideo().getChannel().getChannelName())
-                    .build())
-                .build())
-            .collect(Collectors.toList());
-
-        if (watchsResponses.isEmpty()) {
-            return Page.empty(pageable);
-        }
-
-        return new PageImpl<>(watchsResponses, pageable, watchsResponses.size());
     }
 
     public List<Reward> findRewardsByMemberId(Long memberId) {
