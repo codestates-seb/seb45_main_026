@@ -16,7 +16,7 @@ import com.server.domain.member.repository.MemberRepository;
 
 import java.util.List;
 
-@Component
+//@Component
 public class AuthInitializer {
 	private final MemberRepository memberRepository;
 	private final ChannelRepository channelRepository;
@@ -28,7 +28,7 @@ public class AuthInitializer {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	@PostConstruct
+//	@PostConstruct
 	public void initialize() {
 		Member member = Member.createMember(
 				"test@email.com",
