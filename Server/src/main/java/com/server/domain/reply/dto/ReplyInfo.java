@@ -18,40 +18,34 @@ public class ReplyInfo {
     private Long replyId;
     private String content;
     private Integer star;
-    private Long memberId;
+    private MemberInfo member;
     private String nickname;
     private String imageUrl;
     private LocalDateTime createdDate;
 
+
+
     public static ReplyInfo of(Reply reply, AwsService awsService, Long memberId) {
-        Member member = reply.getMember();
-        String imageFile = awsService.getFileUrl(memberId, member.getImageFile(), FileType.PROFILE_IMAGE);
+        Member member2 = reply.getMember();
+        String imageUrl = awsService.getFileUrl(memberId, member2.getImageFile(), FileType.PROFILE_IMAGE);
+
+
+        MemberInfo member = MemberInfo.builder()
+                .memberId(member2.getMemberId())
+                .nickname(member2.getNickname())
+                .imageUrl(imageUrl)
+                .build();
+
 
         return ReplyInfo.builder()
-                .memberId(member.getMemberId())
-                .nickname(member.getNickname())
-                .imageUrl(imageFile)
                 .replyId(reply.getReplyId())
                 .content(reply.getContent())
                 .star(reply.getStar())
+                .nickname(member.getNickname())
+                .imageUrl(imageUrl)
                 .createdDate(reply.getCreatedDate())
                 .build();
     }
-//    public static ReplyInfo of(Reply reply) {
-//        Member member = reply.getMember();
-//
-//        return ReplyInfo.builder()
-//                .replyId(reply.getReplyId())
-//                .content(reply.getContent())
-//                .star(reply.getStar())
-//                .memberId(member.getMemberId())
-//                .nickname(member.getNickname())
-//                .imageUrl(member.getImageFile())
-//                .createdDate(reply.getCreatedDate())
-//                .build();
-//
-//    }
-
 
     public static Page<ReplyInfo> of(Page<Reply> replies, AwsService awsService, Long memberId) {
         return replies.map(reply -> ReplyInfo.of(reply, awsService, memberId));

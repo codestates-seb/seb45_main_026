@@ -8,11 +8,13 @@ import com.server.domain.channel.service.dto.request.ChannelVideoGetServiceReque
 import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.subscribe.repository.SubscribeRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
+import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -53,7 +56,17 @@ public class ChannelService {
     @Transactional(readOnly = true)
     public ChannelInfo getChannel(Long memberId, Long loginMemberId) {
 
+        if (loginMemberId == null) {
+            throw new MemberNotFoundException();
+        }
+
         Channel channel = existChannel(memberId); //memberId로 수정했음, memberId 없으면 예외발생하는 로직 삭제함
+
+        if (!loginMemberId.equals(memberId)) {
+            throw new MemberAccessDeniedException();
+        }
+
+        existChannel(memberId);
 
         Boolean subscribed = isSubscribed(memberId, loginMemberId);
 
@@ -69,15 +82,14 @@ public class ChannelService {
     @Transactional
     public void updateChannelInfo(Long loginMemberId, long memberId, ChannelUpdate updateInfo){
 
-        Channel channel = existChannel(memberId); //수정햇슴
-
         if(loginMemberId != memberId){
             throw new MemberAccessDeniedException();
         }
 
-        channel.updateChannel(updateInfo.getChannelName(), updateInfo.getDescription());
+        Channel channel = existChannel(memberId); //수정햇슴
 
-        }
+        channel.updateChannel(updateInfo.getChannelName(), updateInfo.getDescription());
+    }
 
 
 
@@ -86,40 +98,53 @@ public class ChannelService {
     // 구독 여부 업데이트
     public boolean updateSubscribe(Long loginMemberId, Long memberId) {
 
+        if (!loginMemberId.equals(memberId)) {
+            throw new MemberAccessDeniedException();
+        }
 
-        if(isSubscribed(loginMemberId, memberId)){ //구독확인중복로직 제거, 만약 if가 true면 //여기는 true/false 판별하는 값이 잇어야해서..... 이건 안 뺏는데...
-
-            unsubscribe(memberId, memberId); //구독해지
+        if(isSubscribed(loginMemberId, memberId)){
 
             return false;
 
-        } else { isSubscribed(loginMemberId, memberId);
+        } else { subscribe(loginMemberId, memberId);
 
             return true;
         }
+
+
     }
 
 
     // 구독.
-    private void subscribe(Long memberId, Long channelId) { //create할때만 save
+    private void subscribe(Long loginMemberId, Long memberId) {
+        Member loginMember = memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException());
 
-        if(isSubscribed(memberId, channelId)){
-            memberRepository.findById(memberId).get().getChannel().addSubscribers(1); //구독자 수 증가
+        Channel channel = member.getChannel();
+
+        if (channel != null && !isSubscribed(loginMemberId, memberId)) {
+            channel.addSubscribers(1);
+
+            Subscribe subscribe = Subscribe.builder()
+                    .member(loginMember)
+                    .channel(channel)
+                    .build();
+            subscribeRepository.save(subscribe);
         }
-
     }
 
-
     // 구독 취소
-    private void unsubscribe(Long memberId, Long channelId) {
+    private void unsubscribe(Long loginMemberId, Long memberId) {
+        if (isSubscribed(loginMemberId, memberId)) {
+            Channel channel = memberRepository.findById(memberId).get().getChannel();
+            channel.decreaseSubscribers(1);
 
-        if(isSubscribed(memberId, channelId)){
-            memberRepository.findById(channelId).get().getChannel().addSubscribers(-1); //구독자 수 감소
+            Member loginMember = memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
 
-       subscribeRepository.deleteSubscribeByChannelContains(channelId); //구독 취소
+            Optional<Subscribe> subscription = subscribeRepository.findByMemberAndChannel(loginMember, channel);
 
-
-        } //중복은 일단 .. 구현하지않음
+            subscription.ifPresent(subscribeRepository::delete);
+        }
     }
 
 
@@ -153,13 +178,11 @@ public class ChannelService {
 
 
 
-    private Boolean isSubscribed(Long loginMemberId, long memberId) { //구독중인지 확인, Channle로 받는 부분 수정 -> MemberId 받는 걸로
+    private Boolean isSubscribed(Long loginMemberId, long memberId) {
 
         if (loginMemberId == null) {
             return false;
         }
-
-
         return memberRepository.checkMemberSubscribeChannel(loginMemberId, List.of(memberId)).get(0);
 
     }
@@ -190,7 +213,12 @@ public class ChannelService {
 
 
     private Channel existChannel(Long memberId) {
-        return channelRepository.findByMember(memberId).orElseThrow(ChannelNotFoundException::new);
+
+        Member member = memberRepository.findById(memberId).orElseThrow(MemberAccessDeniedException::new);
+
+        channelRepository.findByMember(memberId).orElseThrow(ChannelNotFoundException::new);
+
+        return null;
     }
 
 }

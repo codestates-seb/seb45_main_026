@@ -46,7 +46,7 @@ public class ReplyService {
 
             Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
-            return ReplyInfo.of(reply, awsService, loginMemberId);
+            return ReplyInfo.of(reply, awsService, reply.getMember().getMemberId());
     }
 
     public void deleteReply(Long replyId, Long loginMemberId) {
