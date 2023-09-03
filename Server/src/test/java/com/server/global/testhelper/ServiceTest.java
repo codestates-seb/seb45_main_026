@@ -5,7 +5,7 @@ import com.server.domain.answer.repository.AnswerRepository;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.cart.repository.CartRepository;
 import com.server.domain.category.entity.Category;
-import com.server.domain.category.entity.CategoryRepository;
+import com.server.domain.category.repository.CategoryRepository;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.member.entity.Authority;
