@@ -7,6 +7,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.cart.entity.Cart;
+import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.entity.QChannel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.entity.QMember;
@@ -146,47 +147,54 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     @Override
-    public List<MemberSubscribesData> findSubscribeWithChannelForMember(Long memberId) {
-        QMember loginMember = new QMember("loginMember");
-        QChannel qChannel = QChannel.channel;
-        QSubscribe qSubscribe = subscribe1;
+    public Page<Channel> findSubscribeWithChannelForMember(Long memberId, Pageable pageable) {
 
-        JPAQuery<MemberSubscribesData> query = queryFactory
-            .select(Projections.constructor(
-                MemberSubscribesData.class,
-                qChannel.member.memberId,
-                qChannel.channelName,
-                qChannel.subscribers,
-                qChannel.member.imageFile))
-            .from(qSubscribe)
-            .join(qSubscribe.channel, qChannel)
-            .join(qSubscribe.member, loginMember)
-            .where(loginMember.memberId.eq(memberId))
-            .orderBy(qSubscribe.createdDate.desc());
+        JPAQuery<Channel> query = queryFactory
+            .select(channel)
+            .from(subscribe1)
+            .join(subscribe1.channel, channel)
+            .join(subscribe1.member, member)
+            .where(member.memberId.eq(memberId))
+            .orderBy(subscribe1.createdDate.desc());
 
-        return query.fetch();
+        long totalCount = query.fetchCount();
+
+        List<Channel> results = query
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+
+        return new PageImpl<>(results, pageable, totalCount);
     }
 
     @Override
-    public List<Cart> findCartsOrderByCreatedDateForMember(Long memberId) {
+    public Page<Cart> findCartsOrderByCreatedDateForMember(Long memberId, Pageable pageable) {
 
-        return queryFactory
+        JPAQuery<Cart> query = queryFactory
             .selectFrom(cart)
             .leftJoin(cart.video, video).fetchJoin()
             .leftJoin(video.channel, channel).fetchJoin()
             .leftJoin(channel.member, member).fetchJoin()
             .where(cart.member.memberId.eq(memberId))
-            .orderBy(cart.createdDate.desc())
+            .orderBy(cart.createdDate.desc());
+
+        long totalCount = query.fetchCount();
+
+        List<Cart> results = query
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
             .fetch();
+
+        return new PageImpl<>(results, pageable, totalCount);
     }
 
     @Override
-    public List<Order> findOrdersOrderByCreatedDateForMember(Long memberId, int month) {
+    public Page<Order> findOrdersOrderByCreatedDateForMember(Long memberId, Pageable pageable, int month) {
         LocalDateTime currentDateTime = LocalDateTime.now();
         LocalDateTime startDateTime = currentDateTime.minusMonths(month).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
         LocalDateTime endDateTime = currentDateTime.withHour(23).withMinute(59).withSecond(59);
 
-        return queryFactory
+        JPAQuery<Order> query = queryFactory
             .selectFrom(order)
             .leftJoin(order.orderVideos, orderVideo).fetchJoin()
             .leftJoin(orderVideo.video, video).fetchJoin()
@@ -197,11 +205,19 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .and(order.createdDate.between(startDateTime, endDateTime))
             )
             .orderBy(order.createdDate.desc())
-            .distinct()
+            .distinct();
+
+        long totalCount = query.fetchCount();
+
+        List<Order> results = query
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
             .fetch();
+
+        return new PageImpl<>(results, pageable, totalCount);
     }
 
-    public List<Video> findPlaylistsOrderBySort(Long memberId, String sort) {
+    public Page<Video> findPlaylistsOrderBySort(Long memberId, Pageable pageable, String sort) {
         OrderSpecifier<?> orderSpecifier;
 
         QVideo video = new QVideo("playlist");
@@ -222,7 +238,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 break;
         }
 
-        return queryFactory
+        JPAQuery<Video> query =  queryFactory
             .selectFrom(video)
             .join(video.orderVideos, orderVideo)
             .join(orderVideo.order, order)
@@ -232,15 +248,23 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 order.member.memberId.eq(memberId)
                 .and(order.orderStatus.eq(OrderStatus.COMPLETED))
             )
-            .orderBy(orderSpecifier)
+            .orderBy(orderSpecifier);
+
+        long totalCount = query.fetchCount();
+
+        List<Video> results = query
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
             .fetch();
+
+        return new PageImpl<>(results, pageable, totalCount);
     }
 
-    public List<Watch> findWatchesForMember(Long memberId, int days) {
+    public Page<Watch> findWatchesForMember(Long memberId, Pageable pageable, int days) {
         LocalDateTime endDateTime = LocalDateTime.now();
         LocalDateTime startDateTime = endDateTime.minusDays(days);
 
-        return queryFactory
+        JPAQuery<Watch> query = queryFactory
             .selectFrom(watch)
             .leftJoin(watch.video, video).fetchJoin()
             .leftJoin(video.channel, channel).fetchJoin()
@@ -248,19 +272,35 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 watch.member.memberId.eq(memberId)
                     .and(watch.modifiedDate.between(startDateTime, endDateTime))
             )
-            .orderBy(watch.modifiedDate.desc())
+            .orderBy(watch.modifiedDate.desc());
+
+        long totalCount = query.fetchCount();
+
+        List<Watch> results = query
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
             .fetch();
+
+        return new PageImpl<>(results, pageable, totalCount);
     }
 
-    public List<Reward> findRewardsByMemberId(Long memberId, Pageable pageable) {
+    public Page<Reward> findRewardsByMemberId(Long memberId, Pageable pageable) {
 
-        return queryFactory
+        JPAQuery<Reward> query = queryFactory
             .selectDistinct(reward)
             .from(reward)
             .leftJoin(reward.video, video).fetchJoin()
             .leftJoin(reward.question, question).fetchJoin()
             .where(reward.member.memberId.eq(memberId))
-            .orderBy(reward.createdDate.desc())
+            .orderBy(reward.createdDate.desc());
+
+        List<Reward> results = query
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
             .fetch();
+
+        long totalCount = query.fetchCount();
+
+        return new PageImpl<>(results, pageable, totalCount);
     }
 }

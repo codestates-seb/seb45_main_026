@@ -1,6 +1,7 @@
 package com.server.domain.member.repository;
 
 import com.server.domain.cart.entity.Cart;
+import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.repository.dto.MemberVideoData;
@@ -33,15 +34,15 @@ public interface MemberRepositoryCustom {
 
     Optional<Member> findByIdWithChannel(Long memberId);
 
-    List<MemberSubscribesData> findSubscribeWithChannelForMember(Long memberId);
+    Page<Channel> findSubscribeWithChannelForMember(Long memberId, Pageable pageable);
 
-    List<Cart> findCartsOrderByCreatedDateForMember(Long memberId);
+    Page<Cart> findCartsOrderByCreatedDateForMember(Long memberId, Pageable pageable);
 
-    List<Order> findOrdersOrderByCreatedDateForMember(Long memberId, int month);
+    Page<Order> findOrdersOrderByCreatedDateForMember(Long memberId, Pageable pageable, int month);
 
-    List<Watch> findWatchesForMember(Long memberId, int days);
+    Page<Watch> findWatchesForMember(Long memberId, Pageable pageable, int days);
 
-    List<Video>  findPlaylistsOrderBySort(Long memberId, String sort);
+    Page<Video>  findPlaylistsOrderBySort(Long memberId, Pageable pageable, String sort);
 
-    List<Reward> findRewardsByMemberId(Long memberId, Pageable pageable);
+    Page<Reward> findRewardsByMemberId(Long memberId, Pageable pageable);
 }
