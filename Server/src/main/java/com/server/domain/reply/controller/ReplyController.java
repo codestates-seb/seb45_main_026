@@ -1,7 +1,7 @@
 package com.server.domain.reply.controller;
 
+import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.dto.ReplyRequest;
-import com.server.domain.reply.dto.ReplyRequestApi;
 import com.server.domain.reply.service.ReplyService;
 import com.server.global.annotation.LoginId;
 import org.springframework.http.ResponseEntity;
@@ -32,10 +32,10 @@ public class ReplyController {
     }
 
     @GetMapping("/{reply-id}")
-    public ResponseEntity<ReplyRequestApi> getReply(@PathVariable("reply-id") Long replyId,
-                                                    @LoginId Long loginMemberId) {
+    public ResponseEntity<ReplyInfo> getReply(@PathVariable("reply-id") Long replyId,
+                                              @LoginId Long loginMemberId) {
 
-        ReplyRequestApi reply = replyService.getReply(replyId, loginMemberId);
+        ReplyInfo reply = replyService.getReply(replyId, loginMemberId);
 
         return ResponseEntity.ok(reply);
     }

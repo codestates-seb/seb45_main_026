@@ -34,6 +34,7 @@ import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -365,7 +366,7 @@ public class VideoService {
 
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        return ReplyInfo.of(replyRepository.findAllByReplyId(pageRequest, sort, videoId));
+        return ReplyInfo.of(replyRepository.findAllByReplyId(pageRequest, sort, videoId), awsService, videoId);
     }
 
     public Long createReply(Long loginMemberId, ReplyRequest request) {
