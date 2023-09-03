@@ -13,12 +13,12 @@ public enum ReplySort implements BaseEnum {
 
 
     private final String description;
-    private final Integer star ;
+    private final Integer property ;
     private final String sort;
 
     ReplySort(String description, String star, String sort) {
         this.description = description;
-        this.star = Integer.parseInt(star);
+        this.property = Integer.parseInt(star);
         this.sort = sort;
     }
 
@@ -29,7 +29,7 @@ public enum ReplySort implements BaseEnum {
 
     @Override
     public String getDescription() {
-        return star.toString();
+        return property.toString();
     }
 
     public String getSort() {

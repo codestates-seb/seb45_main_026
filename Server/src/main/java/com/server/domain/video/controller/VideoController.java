@@ -4,7 +4,7 @@ import com.server.domain.question.service.QuestionService;
 import com.server.domain.question.service.dto.response.QuestionResponse;
 import com.server.domain.reply.controller.convert.ReplySort;
 import com.server.domain.reply.dto.ReplyInfo;
-import com.server.domain.reply.dto.ReplyResponse;
+import com.server.domain.reply.dto.ReplyRequest;
 import com.server.domain.reply.service.ReplyService;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.service.VideoService;
@@ -184,13 +184,15 @@ public class VideoController {
     }
 
     @PostMapping("{video-id}/replies")
-    public ResponseEntity<ApiSingleResponse<ReplyResponse>> createReply(@PathVariable("video-id") Long videoId,
-                                                                        @LoginId Long loginMemberId,
-                                                                        @RequestBody ReplyResponse request) {
+    public ResponseEntity<ApiSingleResponse<Void>> createReply(@PathVariable("video-id") Long videoId,
+                                                               @Valid ReplyRequest request,
+                                                               @LoginId Long loginMemberId) {
 
-        ReplyResponse createdReply = ReplyResponse.of(videoService.createReply(loginMemberId, request));
+        Long replyId = videoService.createReply(loginMemberId, request);
+
+        URI uri = URI.create("/videos/" + videoId + "/replies/" + replyId); //
 
 
-        return ResponseEntity.ok(ApiSingleResponse.ok(createdReply, "댓글 생성 성공"));
+        return ResponseEntity.created(uri).build();
     }
 }

@@ -7,7 +7,7 @@ import com.server.domain.category.entity.CategoryRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.reply.dto.ReplyInfo;
-import com.server.domain.reply.dto.ReplyResponse;
+import com.server.domain.reply.dto.ReplyRequest;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
@@ -22,6 +22,7 @@ import com.server.domain.video.service.dto.response.VideoPageResponse;
 import com.server.domain.watch.entity.Watch;
 import com.server.domain.watch.repository.WatchRepository;
 import com.server.global.exception.businessexception.categoryexception.CategoryNotFoundException;
+import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
 import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
@@ -34,7 +35,6 @@ import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -369,23 +369,21 @@ public class VideoService {
         return ReplyInfo.of(replyRepository.findAllByReplyId(pageRequest, sort, videoId));
     }
 
-    public Reply createReply(Long loginMemberId, ReplyResponse response) {
+    public Long createReply(Long loginMemberId, ReplyRequest request) {
 
-        Member loginMember = memberRepository.findById(loginMemberId)
-                .orElseThrow(() -> new MemberNotFoundException());
+        memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberAccessDeniedException());
 
-        Integer star = response.getStar();
+        Integer star = request.getStar();
 
-        if (star < 1 || star > 10) {
+        if (star < 1 || star > 5) {         //별점 1~5인지 api명세에는 10 -> 확인하기
             throw new ReplyNotValidException();
         }
 
         Reply reply = Reply.builder()
-                .member(loginMember)
-                .content(response.getContent())
-                .star(response.getStar())
+                .content(request.getContent())
+                .star(request.getStar())
                 .build();
 
-        return replyRepository.save(reply);
+        return replyRepository.save(reply).getReplyId();
     }
 }

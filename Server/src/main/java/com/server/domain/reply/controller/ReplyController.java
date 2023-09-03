@@ -1,15 +1,13 @@
 package com.server.domain.reply.controller;
 
-import com.server.domain.reply.controller.convert.ReplySort;
-import com.server.domain.reply.dto.ReplyInfo;
-import com.server.domain.reply.dto.ReplyResponse;
+import com.server.domain.reply.dto.ReplyRequest;
+import com.server.domain.reply.dto.ReplyRequestApi;
 import com.server.domain.reply.service.ReplyService;
 import com.server.global.annotation.LoginId;
-import com.server.global.reponse.ApiPageResponse;
-import com.server.global.reponse.ApiSingleResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/replies")
@@ -24,13 +22,22 @@ public class ReplyController {
 
 
     @PatchMapping("/replies/{reply-id}")
-    public ResponseEntity<ReplyResponse> updateReply(@PathVariable("reply-id") Long replyId,
-                                             @LoginId Long loginMemberId,
-                                             @RequestBody ReplyResponse replyUpdate) {
+    public ResponseEntity<Void> updateReply(@PathVariable("reply-id") Long replyId,
+                                            @RequestBody @Valid ReplyRequest response,
+                                             @LoginId Long loginMemberId) {
 
-        replyService.updateReply(loginMemberId, replyId, replyUpdate);
+        replyService.updateReply(loginMemberId, replyId, response);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{reply-id}")
+    public ResponseEntity<ReplyRequestApi> getReply(@PathVariable("reply-id") Long replyId,
+                                                    @LoginId Long loginMemberId) {
+
+        ReplyRequestApi reply = replyService.getReply(replyId, loginMemberId);
+
+        return ResponseEntity.ok(reply);
     }
 
     @DeleteMapping("/replies/{reply-id}")
