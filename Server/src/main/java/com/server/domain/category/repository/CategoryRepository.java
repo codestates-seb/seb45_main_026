@@ -1,5 +1,6 @@
-package com.server.domain.category.entity;
+package com.server.domain.category.repository;
 
+import com.server.domain.category.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

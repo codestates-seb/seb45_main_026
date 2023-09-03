@@ -1,5 +1,6 @@
 package com.server.domain.category.entity;
 
+import com.server.domain.category.repository.CategoryRepository;
 import com.server.global.testhelper.RepositoryTest;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -8,11 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class CategoryRepositoryTest extends RepositoryTest {
 
-    @Autowired CategoryRepository categoryRepository;
+    @Autowired
+    CategoryRepository categoryRepository;
 
     @Test
     @DisplayName("카테고리 이름으로 카테고리를 조회한다.")
