@@ -27,8 +27,8 @@ import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.module.s3.service.AwsService;
 
-@Aspect
-@Component
+// @Aspect
+// @Component
 public class MemberStubAop {
 	private final AwsService awsService;
 
