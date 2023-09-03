@@ -2,6 +2,10 @@ package com.server.domain.video.controller;
 
 import com.server.domain.question.service.QuestionService;
 import com.server.domain.question.service.dto.response.QuestionResponse;
+import com.server.domain.reply.controller.convert.ReplySort;
+import com.server.domain.reply.dto.ReplyInfo;
+import com.server.domain.reply.dto.ReplyResponse;
+import com.server.domain.reply.service.ReplyService;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.service.VideoService;
 import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
@@ -31,10 +35,12 @@ public class VideoController {
 
     private final QuestionService questionService;
     private final VideoService videoService;
+    private final ReplyService replyService;
 
-    public VideoController(QuestionService questionService, VideoService videoService) {
+    public VideoController(QuestionService questionService, VideoService videoService, ReplyService replyService) {
         this.questionService = questionService;
         this.videoService = videoService;
+        this.replyService = replyService;
     }
 
     @GetMapping("/{video-id}/questions")
@@ -164,5 +170,27 @@ public class VideoController {
         videoService.deleteVideo(loginMemberId, videoId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{video-id}/replies")
+    public ResponseEntity<ApiPageResponse<ReplyInfo>> getReplies(@PathVariable("video-id") Long videoId,
+                                                                 @RequestParam(defaultValue = "1") int page,
+                                                                 @RequestParam(defaultValue = "10") int size,
+                                                                 @RequestParam(defaultValue = "created-date") ReplySort sort) {
+
+        Page<ReplyInfo> replies = videoService.getReplies(videoId, page -1, size, sort.getSort());
+
+        return ResponseEntity.ok(ApiPageResponse.ok(replies, "댓글 조회 성공"));
+    }
+
+    @PostMapping("{video-id}/replies")
+    public ResponseEntity<ApiSingleResponse<ReplyResponse>> createReply(@PathVariable("video-id") Long videoId,
+                                                                        @LoginId Long loginMemberId,
+                                                                        @RequestBody ReplyResponse request) {
+
+        ReplyResponse createdReply = ReplyResponse.of(videoService.createReply(loginMemberId, request));
+
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(createdReply, "댓글 생성 성공"));
     }
 }

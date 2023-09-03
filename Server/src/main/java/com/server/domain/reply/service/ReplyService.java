@@ -25,35 +25,6 @@ public class ReplyService {
         this.memberRepository = memberRepository;
     }
 
-    public Page<ReplyInfo> getReplies(Long replyId, int page, int size, String sort) {
-
-        PageRequest pageRequest = PageRequest.of(page, size);
-
-        return ReplyInfo.of(replyRepository.findAllByReplyId(pageRequest, sort, replyId));
-    }
-
-
-
-    public Reply createReply(Long loginMemberId, ReplyResponse response) {
-
-        Member loginMember = memberRepository.findById(loginMemberId)
-                .orElseThrow(() -> new MemberNotFoundException());
-
-        Integer star = response.getStar();
-
-        if (star < 1 || star > 10) {
-            throw new ReplyNotValidException();
-        }
-
-        Reply reply = Reply.builder()
-                .member(loginMember)
-                .content(response.getContent())
-                .star(response.getStar())
-                .build();
-
-        return replyRepository.save(reply);
-    }
-
 
     public Reply updateReply(Long loginMemberId, Long replyId, ReplyResponse response) {
 
