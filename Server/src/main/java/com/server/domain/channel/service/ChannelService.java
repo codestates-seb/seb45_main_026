@@ -35,7 +35,6 @@ public class ChannelService {
     private final ChannelRepository channelRepository;
     private final AwsService awsService;
     private final MemberRepository memberRepository;
-
     private final SubscribeRepository subscribeRepository;
     private final VideoRepository videoRepository;
 
@@ -62,17 +61,15 @@ public class ChannelService {
             throw new MemberNotFoundException();
         }
 
-        Channel channel = existChannel(memberId); //memberId로 수정했음, memberId 없으면 예외발생하는 로직 삭제함
+        Channel channel = existChannel(memberId);
 
         if (!loginMemberId.equals(memberId)) {
             throw new MemberAccessDeniedException();
         }
 
-        existChannel(memberId);
+        //existChannel(memberId);
 
         Boolean subscribed = isSubscribed(memberId, loginMemberId);
-
-
 
         return ChannelInfo.of(channel, subscribed, awsService.getFileUrl(memberId, channel.getMember().getImageFile(), FileType.PROFILE_IMAGE));
     }
@@ -88,11 +85,10 @@ public class ChannelService {
             throw new MemberAccessDeniedException();
         }
 
-        Channel channel = existChannel(memberId); //수정햇슴
+        Channel channel = existChannel(memberId);
 
         channel.updateChannel(updateInfo.getChannelName(), updateInfo.getDescription());
     }
-
 
 
 
@@ -112,13 +108,12 @@ public class ChannelService {
 
             return true;
         }
-
-
     }
 
 
     // 구독.
     private void subscribe(Long loginMemberId, Long memberId) {
+
         Member loginMember = memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException());
 
@@ -131,6 +126,7 @@ public class ChannelService {
                     .member(loginMember)
                     .channel(channel)
                     .build();
+
             subscribeRepository.save(subscribe);
         }
     }
@@ -138,6 +134,7 @@ public class ChannelService {
     // 구독 취소
     private void unsubscribe(Long loginMemberId, Long memberId) {
         if (isSubscribed(loginMemberId, memberId)) {
+
             Channel channel = memberRepository.findById(memberId).get().getChannel();
             channel.decreaseSubscribers(1);
 

@@ -11,6 +11,7 @@ import com.server.global.exception.businessexception.replyException.ReplyNotFoun
 import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,9 +28,9 @@ public class ReplyService {
 
     public Page<ReplyResponse> getReplies(Long replyId, int page, int size, String sort) {
 
-        PageRequest pageRequest = PageRequest.of(page, size);
+        PageRequest pageRequest = PageRequest.of(page, size , Sort.by("createdDate").descending());
 
-        return ReplyResponse.of(replyRepository.findAllByReplyId(pageRequest, sort, replyId));
+        return ReplyResponse.of(replyRepository.findAllBy(pageRequest, sort));
     }
 
 
@@ -72,7 +73,9 @@ public class ReplyService {
         Member member = memberRepository.findById(loginMemberId)
                 .orElseThrow(() -> new MemberNotFoundException());
 
-        replyRepository.deleteById(replyId);
+        Reply reply = existReply(replyId);
+
+        replyRepository.delete(reply);
     }
 
 

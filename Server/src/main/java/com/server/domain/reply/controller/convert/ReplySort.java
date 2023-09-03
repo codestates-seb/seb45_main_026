@@ -3,22 +3,21 @@ package com.server.domain.reply.controller.convert;
 import com.server.global.entity.BaseEnum;
 import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
+
 public enum ReplySort implements BaseEnum {
     CREATED_DATE("최신순", "created-date", "createdDate"),
     STAR("별점순", "star", "star"),
-    STAR_SCORE("별점별", "star-score", "star-score");
+    STAR_SCORE("별점별", "star-score", "starScore");
 
-    ;
 
 
     private final String description;
-    private final Integer star ;
+    private final String property ;
     private final String sort;
 
-    ReplySort(String description, String star, String sort) {
+    ReplySort(String description, String property, String sort) {
         this.description = description;
-        this.star = Integer.parseInt(star);
+        this.property = property;
         this.sort = sort;
     }
 
@@ -29,11 +28,11 @@ public enum ReplySort implements BaseEnum {
 
     @Override
     public String getDescription() {
-        return star.toString();
+        return property;
     }
 
     public String getSort() {
-        return this.sort;
+        return sort;
     }
 
 
