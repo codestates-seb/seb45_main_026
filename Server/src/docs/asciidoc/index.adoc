@@ -44,6 +44,8 @@ include::overview.adoc[]
 * link:snippets/question/cudquestion.html[문제 생성/수정/삭제 API, onclick="window.location.href='snippets/question/cudquestion.html'"]
 * link:snippets/question/solvequestion.html[문제 풀기 API, onclick="window.location.href='snippets/question/solvequestion.html'"]
 
+=== Category API
+* link:snippets/category/getcategory.html[카테고리 목록 전체 조회 API, onclick="window.location.href='snippets/category/getcategory.html'"]
 
 
 
