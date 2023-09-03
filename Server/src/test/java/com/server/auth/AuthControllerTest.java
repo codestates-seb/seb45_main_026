@@ -13,7 +13,16 @@ import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Locale;
+import java.util.Set;
+
 import javax.persistence.EntityManager;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import javax.validation.metadata.BeanDescriptor;
+import javax.validation.metadata.ConstraintDescriptor;
+import javax.validation.metadata.PropertyDescriptor;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -26,6 +35,7 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.snippet.Attributes;
@@ -79,6 +89,14 @@ public class AuthControllerTest {
 	@Autowired
 	private MemberRepository memberRepository;
 
+	@Autowired
+	private MessageSource messageSource;
+
+	private BeanDescriptor beanDescriptor;
+
+	private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+	private Validator validator = factory.getValidator();
+
 	// @BeforeAll
 	// void addMember() {
 	// 	Member member = Member.createMember(
@@ -112,14 +130,16 @@ public class AuthControllerTest {
 			.andExpect(header().exists("Authorization"))
 			.andExpect(header().exists("Refresh"));
 
+		setConstraintClass(AuthApiRequest.Login.class);
+
 		//restdocs
 		actions.andDo(
 			document("auth/login",
 				preprocessRequest(prettyPrint()),
 				preprocessResponse(prettyPrint()),
 				requestFields(
-					fieldWithPath("email").description("로그인 이메일"),
-					fieldWithPath("password").description("로그인 비밀번호")
+					fieldWithPath("email").description("로그인 이메일").attributes(getConstraint("email")),
+					fieldWithPath("password").description("로그인 비밀번호").attributes(getConstraint("password"))
 				),
 				responseHeaders(
 					headerWithName("Authorization").description("액세스 토큰"),
@@ -157,6 +177,8 @@ public class AuthControllerTest {
 			.andExpect(header().exists("Authorization"))
 			.andExpect(header().exists("Refresh"));
 
+		setConstraintClass(AuthApiRequest.OAuth.class);
+
 		actions
 			.andDo(
 				document(
@@ -164,8 +186,8 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("provider").description(generateLinkCode(OAuthProvider.class)),
-						fieldWithPath("code").description("OAuth 인증 코드")
+						fieldWithPath("provider").description(generateLinkCode(OAuthProvider.class)).attributes(getConstraint("provider")),
+						fieldWithPath("code").description("OAuth 인증 코드").attributes(getConstraint("code"))
 					),
 					responseHeaders(
 						headerWithName("Authorization").description("accessToken"),
@@ -194,6 +216,8 @@ public class AuthControllerTest {
 			.andDo(print())
 			.andExpect(status().isNoContent());
 
+		setConstraintClass(AuthApiRequest.Send.class);
+
 		signup
 			.andDo(
 				document(
@@ -201,7 +225,7 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("email").description("이메일")
+						fieldWithPath("email").description("이메일").attributes(getConstraint("email"))
 					)
 				)
 			);
@@ -223,7 +247,7 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("email").description("이메일")
+						fieldWithPath("email").description("이메일").attributes(getConstraint("email"))
 					)
 				)
 			);
@@ -247,6 +271,8 @@ public class AuthControllerTest {
 				.content(content)
 		);
 
+		setConstraintClass(AuthApiRequest.Confirm.class);
+
 		signup
 			.andDo(print())
 			.andExpect(status().isNoContent())
@@ -256,8 +282,8 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("email").description("이메일"),
-						fieldWithPath("code").description("이메일로 받은 인증번호")
+						fieldWithPath("email").description("이메일").attributes(getConstraint("email")),
+						fieldWithPath("code").description("이메일로 받은 인증번호").attributes(getConstraint("code"))
 					)
 				)
 			);
@@ -277,8 +303,8 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("email").description("이메일"),
-						fieldWithPath("code").description("이메일로 받은 인증번호")
+						fieldWithPath("email").description("이메일").attributes(getConstraint("email")),
+						fieldWithPath("code").description("이메일로 받은 인증번호").attributes(getConstraint("code"))
 					)
 				)
 			);
@@ -307,6 +333,8 @@ public class AuthControllerTest {
 			.andDo(print())
 			.andExpect(status().isCreated());
 
+		setConstraintClass(AuthApiRequest.SignUp.class);
+
 		actions
 			.andDo(
 				document(
@@ -314,9 +342,9 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("email").description("이메일"),
-						fieldWithPath("password").description("패스워드"),
-						fieldWithPath("nickname").description("닉네임(기본 채널명)")
+						fieldWithPath("email").description("이메일").attributes(getConstraint("email")),
+						fieldWithPath("password").description("패스워드").attributes(getConstraint("password")),
+						fieldWithPath("nickname").description("닉네임(기본 채널명)").attributes(getConstraint("nickname"))
 					)
 				)
 			);
@@ -345,6 +373,8 @@ public class AuthControllerTest {
 			.andDo(print())
 			.andExpect(status().isNoContent());
 
+		setConstraintClass(AuthApiRequest.Reset.class);
+
 		actions
 			.andDo(
 				document(
@@ -352,8 +382,8 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("email").description("이메일"),
-						fieldWithPath("password").description("변경할 패스워드")
+						fieldWithPath("email").description("이메일").attributes(getConstraint("email")),
+						fieldWithPath("password").description("변경할 패스워드").attributes(getConstraint("password"))
 					)
 				)
 			);
@@ -366,5 +396,54 @@ public class AuthControllerTest {
 			.password(password)
 			.authority(Authority.ROLE_USER)
 			.build();
+	}
+
+	private void setConstraintClass(Class<?> clazz){
+		this.beanDescriptor = validator.getConstraintsForClass(clazz);
+	}
+
+	private Attributes.Attribute getConstraint(String value){
+		assert(beanDescriptor != null) : "constraint 설정이 되어있지 않습니다. setConstraintClass() 를 통해 설정해주세요 ";
+
+		PropertyDescriptor propertyDescriptor = beanDescriptor.getConstraintsForProperty(value);
+
+		StringBuilder sb = new StringBuilder();
+
+		if(propertyDescriptor == null){
+			return new Attributes.Attribute("constraints", sb.toString());
+		}
+
+		Set<ConstraintDescriptor<?>> constraintDescriptors = propertyDescriptor.getConstraintDescriptors();
+
+		for (ConstraintDescriptor<?> constraintDescriptor : constraintDescriptors) {
+
+			String type = constraintDescriptor.getAnnotation().annotationType().getSimpleName();
+
+			String message = (String) constraintDescriptor.getAttributes().get("message");
+			Integer min = (Integer) constraintDescriptor.getAttributes().get("min");
+			Integer max = (Integer) constraintDescriptor.getAttributes().get("max");
+
+			String actualMessage = getActualMessage(message, min, max);
+
+			sb.append(" [");
+			sb.append(type);
+			sb.append(" : ");
+			sb.append(actualMessage);
+			sb.append("] ");
+		}
+
+		return new Attributes.Attribute("constraints", sb.toString());
+	}
+
+	private String getActualMessage(String messageKey, Integer min, Integer max) {
+		String actualMessageKey = messageKey.replace("{", "").replace("}", "");
+
+		String message = messageSource.getMessage(actualMessageKey, null, Locale.getDefault());
+
+		if(min == null || max == null){
+			return message;
+		}
+
+		return message.replace("{min}", min.toString()).replace("{max}", max.toString());
 	}
 }

@@ -5,6 +5,8 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 import com.server.auth.oauth.service.OAuthProvider;
 import com.server.auth.service.dto.AuthServiceRequest;
@@ -21,7 +23,7 @@ public class AuthApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Send {
-		@NotBlank(message = "{validation.notblank}")
+		@NotNull(message = "{validation.not-blank}")
 		@Email(message = "{validation.auth.email}")
 		private String email;
 
@@ -36,11 +38,11 @@ public class AuthApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Confirm {
-		@NotBlank(message = "{validation.notblank}")
+		@NotNull(message = "{validation.not-blank}")
 		@Email(message = "{validation.auth.email}")
 		private String email;
 
-		@NotBlank(message = "{validation.auth.code}")
+		@NotNull(message = "{validation.auth.code}")
 		private String code;
 
 		public MailServiceRequest.Confirm toServiceRequest() {
@@ -55,14 +57,18 @@ public class AuthApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class SignUp {
-		@NotBlank(message = "{validation.notblank}")
+		@NotNull(message = "{validation.not-blank}")
 		@Email(message = "{validation.auth.email}")
 		private String email;
 
-		@NotBlank(message = "{validation.auth.password}")
+		@NotNull(message = "{validation.auth.password}")
+		@Size(min = 9, max = 20, message = "{validation.size}")
+		@Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$", message = "{validation.auth.password}")
 		private String password;
 
-		@NotBlank(message = "{validation.auth.nickname}")
+		@NotNull(message = "{validation.auth.nickname}")
+		@Size(min = 1, max = 20, message = "{validation.size}")
+		@Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,20}$", message = "{validation.auth.nickname}")
 		private String nickname;
 
 		public MemberServiceRequest.Create toServiceRequest() {
@@ -78,10 +84,13 @@ public class AuthApiRequest {
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class Login {
-		@NotBlank(message = "{validation.notblank}")
+		@NotNull(message = "{validation.not-blank}")
 		@Email(message = "{validation.auth.email}")
 		private String email;
-		@NotBlank(message = "{validation.notblank}")
+
+		@NotNull(message = "{validation.not-blank}")
+		@Size(min = 9, max = 20, message = "{validation.size}")
+		@Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$", message = "{validation.auth.password}")
 		private String password;
 	}
 
@@ -101,6 +110,8 @@ public class AuthApiRequest {
 	public static class OAuth {
 		@NotNull(message = "{validation.auth.provider}")
 		private OAuthProvider provider;
+
+		@NotNull(message = "{validation.auth.code}")
 		private String code;
 	}
 
@@ -108,10 +119,13 @@ public class AuthApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Reset {
-		@NotBlank(message = "{validation.notblank}")
+		@NotNull(message = "{validation.not-blank}")
 		@Email(message = "{validation.auth.email}")
 		private String email;
-		@NotBlank(message = "{validation.notblank}")
+
+		@NotNull(message = "{validation.not-blank}")
+		@Size(min = 9, max = 20, message = "{validation.size}")
+		@Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$", message = "{validation.auth.password}")
 		private String password;
 
 		public AuthServiceRequest.Reset toServiceRequest() {

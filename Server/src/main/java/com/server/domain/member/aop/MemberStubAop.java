@@ -27,8 +27,8 @@ import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.module.s3.service.AwsService;
 
-@Aspect
-@Component
+// @Aspect
+// @Component
 public class MemberStubAop {
 	private final AwsService awsService;
 
@@ -55,25 +55,27 @@ public class MemberStubAop {
 	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(ProceedingJoinPoint joinPoint) {
 		List<RewardsResponse> responses = List.of(
 			RewardsResponse.builder()
-				.entityId(1L)
-				.rewardType(RewardType.VIDEO)
+				.questionId(1L)
+				.videoId(1L)
+				.rewardType(RewardType.QUIZ)
 				.rewardPoint(100)
 				.createdDate(LocalDateTime.now())
 				.build(),
 			RewardsResponse.builder()
-				.entityId(33L)
-				.rewardType(RewardType.QUIZ)
+				.videoId(298L)
+				.rewardType(RewardType.VIDEO)
 				.rewardPoint(10)
 				.createdDate(LocalDateTime.now())
 				.build(),
 			RewardsResponse.builder()
-				.entityId(114L)
+				.videoId(114L)
 				.rewardType(RewardType.VIDEO)
 				.rewardPoint(300)
 				.createdDate(LocalDateTime.now())
 				.build(),
 			RewardsResponse.builder()
-				.entityId(418L)
+				.questionId(1L)
+				.videoId(418L)
 				.rewardType(RewardType.QUIZ)
 				.rewardPoint(5)
 				.createdDate(LocalDateTime.now())
