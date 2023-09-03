@@ -252,7 +252,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
             .fetch();
     }
 
-    public List<Reward> findRewardsByMemberId(Long memberId) {
+    public List<Reward> findRewardsByMemberId(Long memberId, Pageable pageable) {
 
         return queryFactory
             .selectDistinct(reward)

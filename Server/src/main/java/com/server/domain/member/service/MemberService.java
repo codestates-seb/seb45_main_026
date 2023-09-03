@@ -76,11 +76,13 @@ public class MemberService {
 	public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
 
-		List<Reward> rewards = memberRepository.findRewardsByMemberId(member.getMemberId());
+		Pageable pageable = PageRequest.of(page - 1, size);
+
+		List<Reward> rewards = memberRepository.findRewardsByMemberId(member.getMemberId(), pageable);
 
 		List<RewardsResponse> rewardsResponses = RewardsResponse.convert(rewards);
 
-		return new PageImpl<>(rewardsResponses, PageRequest.of(page - 1, size), rewardsResponses.size());
+		return new PageImpl<>(rewardsResponses, pageable, rewardsResponses.size());
 	}
 
 	public Page<SubscribesResponse> getSubscribes(Long loginId, int page, int size) {

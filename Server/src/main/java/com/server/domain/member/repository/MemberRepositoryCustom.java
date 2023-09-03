@@ -43,5 +43,5 @@ public interface MemberRepositoryCustom {
 
     List<Video>  findPlaylistsOrderBySort(Long memberId, String sort);
 
-    List<Reward> findRewardsByMemberId(Long memberId);
+    List<Reward> findRewardsByMemberId(Long memberId, Pageable pageable);
 }
