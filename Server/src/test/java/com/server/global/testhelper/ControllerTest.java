@@ -18,6 +18,8 @@ import javax.validation.metadata.PropertyDescriptor;
 
 import com.server.domain.announcement.controller.AnnouncementController;
 import com.server.domain.announcement.service.AnnouncementService;
+import com.server.domain.category.controller.CategoryController;
+import com.server.domain.category.service.CategoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -79,7 +81,8 @@ import com.server.module.s3.service.AwsService;
 	OrderController.class,
 	ReplyController.class,
 	VideoController.class,
-	AnnouncementController.class
+	AnnouncementController.class,
+	CategoryController.class
 })
 @ExtendWith({RestDocumentationExtension.class})
 @ActiveProfiles("local")
@@ -107,6 +110,8 @@ public class ControllerTest {
 	protected VideoService videoService;
 	@MockBean
 	protected AnnouncementService announcementService;
+	@MockBean
+	protected CategoryService categoryService;
 
 	// 컨트롤러 테스트에 필요한 것들
 	@Autowired
