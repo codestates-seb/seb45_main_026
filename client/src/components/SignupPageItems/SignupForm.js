@@ -8,6 +8,7 @@ import {
     SignupAgreeCheckContainer,
     SignupAgreeCheckLabel,
     SignupAgreeContainer,
+    SignupPositiveTypo,
 } from './SignupForm.style';
 import SignupInput from './SignupInput';
 import { emailValidationConfirmService, emailValidationService, signupService } from '../../services/authServices';
@@ -60,7 +61,7 @@ export const SignupForm = () => {
     const handleCodeSendButtonClick = async () => {
         const email = watch('email','');
         const isValid = await trigger('email');
-        if( isValid && email.length>5) {
+        if( isValid ) {
             //이메일 유효성 검사를 통과했으면 입력한 이메일로 인증코드를 전송함
             const response = await emailValidationService(email);
             if(response.status==='success') {
@@ -141,6 +142,10 @@ export const SignupForm = () => {
             {
                 errors.emailCode && errors.emailCode.type==='required'
                     && <SignupErrorTypo isDark={isDark}>인증번호를 입력해 주세요.</SignupErrorTypo>
+            }
+            {
+                isEmailValid 
+                    && <SignupPositiveTypo isDark={isDark}>이메일이 인증되었습니다.</SignupPositiveTypo>
             }
             <SignupInput label='비밀번호' name='password' type='password' 
                 placeholder='비밀번호를 입력해 주세요.' 

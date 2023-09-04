@@ -2,7 +2,7 @@ import { styled } from 'styled-components';
 import { ErrorTextTypo, LoginButton, LoginFormContainer } from '../loginPageItems/LoginForm.style';
 import tokens from '../../styles/tokens.json'
 import { RegularButton } from '../../atoms/buttons/Buttons';
-import { BodyTextTypo } from '../../atoms/typographys/Typographys';
+import { BodyTextTypo, SmallTextTypo } from '../../atoms/typographys/Typographys';
 
 const globalTokens = tokens.global;
 
@@ -20,6 +20,10 @@ export const SignupButton = styled(LoginButton)`
     width: 300px;
 `
 export const SignupErrorTypo = styled(ErrorTextTypo)`
+    width: 95%;
+`
+export const SignupPositiveTypo = styled(SmallTextTypo)`
+    color: ${(props)=>props.isDark ? globalTokens.LightNavy.value : globalTokens.Positive.value };
     width: 95%;
     text-align: end;
 `

@@ -10,7 +10,7 @@ import SignupForm from '../../components/SignupPageItems/SignupForm';
 const globalTokens = tokens.global;
 
 export const SignupPageContainer = styled(PageContainer)`
-    height: 850px;
+    height: 950px;
     padding: ${globalTokens.Spacing40.value}px;
     display: flex;
     flex-direction: column;
