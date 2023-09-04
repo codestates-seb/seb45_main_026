@@ -56,8 +56,7 @@ public class SecurityConfig {
 			.accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN))
 			.authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "인증되지 않은 사용자입니다."))
 			.and()
-			.authorizeRequests()
-			.anyRequest().permitAll();
+			.authorizeRequests(getAuthorizeRequests());
 
 		return http.build();
 	}
@@ -82,7 +81,6 @@ public class SecurityConfig {
 
 	private Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> getAuthorizeRequests() {
 		return (http) -> http
-			.antMatchers("/members/*").permitAll()
 			.antMatchers("/members/**").hasRole("USER")
 
 			.antMatchers(HttpMethod.GET, "/channels/**").permitAll()
@@ -101,7 +99,8 @@ public class SecurityConfig {
 			.antMatchers(HttpMethod.GET, "/announcements/*").permitAll()
 			.antMatchers("/announcements/**").hasRole("USER")
 
-			.antMatchers("/auth/**").permitAll();
+			.antMatchers("/auth/**").permitAll()
+			.anyRequest().permitAll();
 	}
 
 	public class CustomFilterConfigurer extends AbstractHttpConfigurer<CustomFilterConfigurer, HttpSecurity> {

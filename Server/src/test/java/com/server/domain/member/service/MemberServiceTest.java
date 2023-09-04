@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.*;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -102,10 +103,6 @@ public class MemberServiceTest extends ServiceTest {
 		Member owner3 = createAndSaveMember();
 		Channel channel3 = createAndSaveChannel(owner3);
 
-		System.out.println(owner3.getMemberId());
-		System.out.println(owner2.getMemberId());
-		System.out.println(owner1.getMemberId());
-
 		Member loginMember = createAndSaveMember();
 
 		createAndSaveSubscribe(loginMember, channel1);
@@ -119,20 +116,6 @@ public class MemberServiceTest extends ServiceTest {
 
 		assertThat(responses.getTotalElements()).isEqualTo(3);
 		assertThat(responses.getTotalPages()).isEqualTo(1);
-
-		List<SubscribesResponse> result = responses.getContent();
-
-		System.out.println("멤버 아이디 : " + loginMember.getMemberId());
-
-		List<Subscribe> subscribes = subscribeRepository.findAll();
-
-		for (SubscribesResponse s : result) {
-			System.out.println(s.getMemberId());
-			System.out.println(s.getSubscribes());
-			System.out.println(s.getChannelName());
-			System.out.println(s.getImageUrl());
-		}
-
 
 		Iterator<SubscribesResponse> responseIterator = responses.iterator();
 
@@ -190,7 +173,7 @@ public class MemberServiceTest extends ServiceTest {
 		List<CartsResponse> cartList = page.getContent();
 
 		assertThat(cartList.get(0).getVideoId()).isEqualTo(videos.get(videos.size() - 1).getVideoId());
-		assertThat(cartList.get(cartList.size() - 1).getVideoId()).isEqualTo(videos.get(0).getVideoId());
+		assertThat(cartList.get(cartList.size() - 1).getVideoId()).isEqualTo(videos.get(10).getVideoId());
 	}
 
 	@Test
@@ -199,15 +182,19 @@ public class MemberServiceTest extends ServiceTest {
 		Member user = createAndSaveMember();
 		List<Order> firstlast = new ArrayList<>();
 
+		int pages = 1;
+		int size = 10;
+
 		createOrders(user, firstlast);
 
-		Page<OrdersResponse> page = memberService.getOrders(user.getMemberId(), 1, 10, 6);
+		Page<OrdersResponse> page = memberService.getOrders(user.getMemberId(), pages, size, 6);
 
-		assertThat(page.getContent().size()).isEqualTo(20);
-		assertThat(page.getTotalPages()).isEqualTo(2);
+		assertThat(page.getContent().size()).isEqualTo(size);
+		assertThat(page.getTotalElements()).isEqualTo(20);
+		assertThat(page.getTotalPages()).isEqualTo(page.getTotalElements()/size);
 
 		assertThat(page.getContent().get(0).getOrderId()).isEqualTo(firstlast.get(1).getOrderId());
-		assertThat(page.getContent().get(19).getOrderId()).isEqualTo(firstlast.get(0).getOrderId());
+		assertThat(page.getContent().get(9).getOrderId()).isEqualTo(firstlast.get(0).getOrderId());
 	}
 
 	@Test
@@ -229,18 +216,19 @@ public class MemberServiceTest extends ServiceTest {
 
 			createAndSaveOrderWithPurchaseComplete(user, videos, 0);
 
-			if(x == 1 || x == 20) {
+			if(x == 11 || x == 20) {
 				firstlast.add(video);
 			}
 		}
 
 		Page<PlaylistsResponse> page = memberService.getPlaylists(user.getMemberId(), 1, 10, "createdDate");
 
-		assertThat(page.getContent().size()).isEqualTo(20);
+		assertThat(page.getTotalElements()).isEqualTo(20);
+		assertThat(page.getContent().size()).isEqualTo(10);
 		assertThat(page.getTotalPages()).isEqualTo(2);
 
 		assertThat(page.getContent().get(0).getVideoId()).isEqualTo(firstlast.get(1).getVideoId());
-		assertThat(page.getContent().get(19).getVideoId()).isEqualTo(firstlast.get(0).getVideoId());
+		assertThat(page.getContent().get(9).getVideoId()).isEqualTo(firstlast.get(0).getVideoId());
 	}
 
 	@Test
@@ -259,18 +247,18 @@ public class MemberServiceTest extends ServiceTest {
 
 			Watch watch = createAndSaveWatch(user, video);
 
-			if(i == 0 || i == 19) {
+			if(i == 10 || i == 19) {
 				firstlast.add(watch);
 			}
 		}
 
 		Page<WatchsResponse> page = memberService.getWatchs(user.getMemberId(), 1, 10, 7);
 
-		assertThat(page.getContent().size()).isEqualTo(20);
+		assertThat(page.getTotalElements()).isEqualTo(20);
 		assertThat(page.getTotalPages()).isEqualTo(2);
 
 		assertThat(page.getContent().get(0).getVideoId()).isEqualTo(firstlast.get(1).getVideo().getVideoId());
-		assertThat(page.getContent().get(19).getVideoId()).isEqualTo(firstlast.get(0).getVideo().getVideoId());
+		assertThat(page.getContent().get(9).getVideoId()).isEqualTo(firstlast.get(0).getVideo().getVideoId());
 	}
 
 	@Test
@@ -428,7 +416,7 @@ public class MemberServiceTest extends ServiceTest {
 			}
 
 			Order order = createAndSaveOrderWithPurchaseComplete(user, videos, 0);
-			if(x == 1 || x == 20) {
+			if(x == 11 || x == 20) {
 				firstlast.add(order);
 			}
 		}

@@ -2,8 +2,12 @@ package com.server.domain.member.service.dto.response;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+
+import com.server.domain.question.entity.Question;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.RewardType;
 
@@ -20,29 +24,16 @@ public class RewardsResponse {
 	private Boolean isCanceled;
 	private LocalDateTime createdDate;
 
-	public static List<RewardsResponse> convert(List<Reward> rewards) {
-		return rewards.stream()
-			.map(reward -> {
-				RewardsResponseBuilder builder = RewardsResponse.builder()
-					.rewardType(reward.getRewardType())
-					.rewardPoint(reward.getRewardPoint())
-					.isCanceled(reward.isCanceled())
-					.createdDate(reward.getCreatedDate());
-
-				if (reward.getVideo() != null) {
-					builder.videoId(reward.getVideo().getVideoId());
-				} else {
-					builder.videoId(0L);
-				}
-
-				if (reward.getQuestion() != null) {
-					builder.questionId(reward.getQuestion().getQuestionId());
-				} else {
-					builder.questionId(0L);
-				}
-
-				return builder.build();
-			})
-			.collect(Collectors.toList());
+	public static Page<RewardsResponse> convert(Page<Reward> rewards) {
+		return rewards.map(reward -> new RewardsResponse(
+			reward.getVideo().getVideoId(),
+			Optional.ofNullable(reward.getQuestion())
+				.map(Question::getQuestionId)
+				.orElse(null),
+			reward.getRewardType(),
+			reward.getRewardPoint(),
+			reward.isCanceled(),
+			reward.getCreatedDate()
+		));
 	}
 }

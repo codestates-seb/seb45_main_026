@@ -38,23 +38,4 @@ public class CartsResponse {
 			this.imageUrl = imageUrl;
 		}
 	}
-
-	public static List<CartsResponse> convert(List<Cart> carts) {
-		return carts.stream()
-		    .map(cart -> CartsResponse.builder()
-		        .videoId(cart.getVideo().getVideoId())
-		        .videoName(cart.getVideo().getVideoName())
-		        .thumbnailUrl(cart.getVideo().getThumbnailFile())
-		        .views(cart.getVideo().getView())
-		        .createdDate(cart.getCreatedDate())
-		        .price(cart.getPrice())
-		        .channel(CartsResponse.Channel.builder()
-		            .memberId(cart.getVideo().getChannel().getMember().getMemberId())
-		            .channelName(cart.getVideo().getChannel().getChannelName())
-		            .subscribes(cart.getVideo().getChannel().getSubscribers())
-		            .imageUrl(cart.getVideo().getChannel().getMember().getImageFile())
-		            .build())
-		        .build())
-		    .collect(Collectors.toList());
-	}
 }

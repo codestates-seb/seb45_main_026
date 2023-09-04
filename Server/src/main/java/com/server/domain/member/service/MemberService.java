@@ -1,15 +1,16 @@
 package com.server.domain.member.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.server.domain.cart.entity.Cart;
+import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.*;
+import com.server.domain.member.util.MemberResponseConverter;
 import com.server.domain.order.entity.Order;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
@@ -18,10 +19,8 @@ import com.server.global.exception.businessexception.memberexception.MemberAcces
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
-import com.server.global.exception.businessexception.s3exception.S3FileNotVaildException;
 import com.server.module.email.service.MailService;
 import com.server.module.s3.service.AwsService;
-import com.server.module.s3.service.AwsServiceImpl;
 import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,14 +39,16 @@ public class MemberService {
 	private final ChannelService channelService;
 	private final AwsService awsService;
 	private final PasswordEncoder passwordEncoder;
+	private final MemberResponseConverter converter;
 
 	public MemberService(MemberRepository memberRepository, MailService mailService, ChannelService channelService,
-						 AwsService awsService, PasswordEncoder passwordEncoder) {
+		AwsService awsService, PasswordEncoder passwordEncoder, MemberResponseConverter converter) {
 		this.memberRepository = memberRepository;
 		this.mailService = mailService;
 		this.channelService = channelService;
 		this.awsService = awsService;
 		this.passwordEncoder = passwordEncoder;
+		this.converter = converter;
 	}
 
 	@Transactional
@@ -70,72 +71,67 @@ public class MemberService {
 				"프로필 이미지 미등록");
 		}
 
-		return ProfileResponse.getMember(member, getFileUrl(member));
+		return ProfileResponse.getMember(member, getProfileUrl(member));
 	}
 
 	public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
 
-		List<Reward> rewards = memberRepository.findRewardsByMemberId(member.getMemberId());
+		Pageable pageable = PageRequest.of(page - 1, size);
 
-		List<RewardsResponse> rewardsResponses = RewardsResponse.convert(rewards);
+		Page<Reward> rewards = memberRepository.findRewardsByMemberId(member.getMemberId(), pageable);
 
-		return new PageImpl<>(rewardsResponses, PageRequest.of(page - 1, size), rewardsResponses.size());
+		return RewardsResponse.convert(rewards);
 	}
 
 	public Page<SubscribesResponse> getSubscribes(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
 
-		List<MemberSubscribesData> memberSubscribesData = memberRepository.findSubscribeWithChannelForMember(member.getMemberId());
+		Pageable pageable = PageRequest.of(page - 1, size);
 
-		setProfileImage(memberSubscribesData);
+		Page<Channel> channels = memberRepository.findSubscribeWithChannelForMember(member.getMemberId(), pageable);
 
-		List<SubscribesResponse> result = SubscribesResponse.convertSubscribesResponse(memberSubscribesData);
-
-
-		return new PageImpl<>(result, PageRequest.of(page - 1, size), result.size());
+		return converter.convertSubscribesToSubscribesResponse(channels);
 	}
 
 	public Page<CartsResponse> getCarts(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
 
-		List<Cart> carts = memberRepository.findCartsOrderByCreatedDateForMember(member.getMemberId());
+		Pageable pageable = PageRequest.of(page - 1, size);
 
-		List<CartsResponse> result = CartsResponse.convert(carts);
+		Page<Cart> carts = memberRepository.findCartsOrderByCreatedDateForMember(member.getMemberId(), pageable);
 
-		setImageUrl(result);
-
-		return new PageImpl<>(result, PageRequest.of(page - 1, size), result.size());
+		return converter.convertCartToCartResponse(carts);
 	}
 
 	public Page<OrdersResponse> getOrders(Long loginId, int page, int size, int month) {
 		Member member = validateMember(loginId);
 
-		List<Order> orders = memberRepository.findOrdersOrderByCreatedDateForMember(member.getMemberId(), month);
+		Pageable pageable = PageRequest.of(page - 1, size);
 
-		List<OrdersResponse> responses = convertOrdersToOrdersResponses(orders);
+		Page<Order> orders = memberRepository.findOrdersOrderByCreatedDateForMember(member.getMemberId(), pageable, month);
 
-		return new PageImpl<>(responses, PageRequest.of(page - 1, size), responses.size());
+		return converter.convertOrdersToOrdersResponses(orders);
 	}
 
 	public Page<PlaylistsResponse> getPlaylists(Long loginId, int page, int size, String sort) {
 		Member member = validateMember(loginId);
 
-		List<Video> videos = memberRepository.findPlaylistsOrderBySort(member.getMemberId(), sort);
+		Pageable pageable = PageRequest.of(page - 1, size);
 
-		List<PlaylistsResponse> responses = convertVideosToPlaylistsResponses(videos);
+		Page<Video> videos = memberRepository.findPlaylistsOrderBySort(member.getMemberId(), pageable, sort);
 
-		return new PageImpl<>(responses, PageRequest.of(page - 1, size), responses.size());
+		return converter.convertVideosToPlaylistsResponses(videos);
 	}
 
 	public Page<WatchsResponse> getWatchs(Long loginId, int page, int size, int day) {
 		Member member = validateMember(loginId);
 
-		List<Watch> watches = memberRepository.findWatchesForMember(member.getMemberId(), day);
+		Pageable pageable = PageRequest.of(page - 1, size);
 
-		List<WatchsResponse> responses = convertWatchToWatchResponses(watches);
+		Page<Watch> watches = memberRepository.findWatchesForMember(member.getMemberId(), pageable, day);
 
-		return new PageImpl<>(responses, PageRequest.of(page - 1, size), responses.size());
+		return converter.convertWatchToWatchResponses(watches);
 	}
 
 	@Transactional
@@ -207,97 +203,11 @@ public class MemberService {
 		});
 	}
 
-	private void setImageUrl(List<CartsResponse> result) {
-		for (CartsResponse c : result) {
-			c.setThumbnailUrl(
-				getThumbnailUrl(
-					c.getChannel().getMemberId(), c.getThumbnailUrl())
-			);
-			c.getChannel().setImageUrl(
-				awsService.getFileUrl(
-					c.getChannel().getMemberId(),
-					c.getChannel().getImageUrl(),
-					FileType.PROFILE_IMAGE)
-			);
-		}
-	}
-
-	private void setProfileImage(List<MemberSubscribesData> memberSubscribesData) {
-		for (MemberSubscribesData response : memberSubscribesData) {
-			String imageUrl = awsService.getFileUrl(
-				response.getMemberId(),
-				response.getImageUrl(),
-				FileType.PROFILE_IMAGE);
-			response.setImageUrl(imageUrl);
-		}
-	}
-
-	private String getFileUrl(Member member) {
+	private String getProfileUrl(Member member) {
 		return awsService.getFileUrl(
 			member.getMemberId(),
 			member.getImageFile(),
 			FileType.PROFILE_IMAGE);
 	}
 
-	private String getThumbnailUrl(Long memberId, String thumbnailFile) {
-		return awsService.getFileUrl(memberId, thumbnailFile, FileType.THUMBNAIL);
-	}
-
-	private List<OrdersResponse> convertOrdersToOrdersResponses(List<Order> orders) {
-		return orders.stream()
-			.map(order -> OrdersResponse.builder()
-				.orderId(order.getOrderId())
-				.reward(order.getReward())
-				.orderCount(order.getOrderVideos().size())
-				.orderStatus(order.getOrderStatus())
-				.createdDate(order.getCreatedDate())
-				.orderVideos(order.getOrderVideos().stream()
-					.map(orderVideo -> OrdersResponse.OrderVideo.builder()
-						.videoId(orderVideo.getVideo().getVideoId())
-						.videoName(orderVideo.getVideo().getVideoName())
-						.thumbnailFile(getThumbnailUrl(orderVideo.getVideo().getChannel().getMember().getMemberId(), orderVideo.getVideo().getThumbnailFile()))
-						.channelName(orderVideo.getVideo().getChannel().getChannelName())
-						.price(orderVideo.getVideo().getPrice())
-						.build())
-					.collect(Collectors.toList()))
-				.build())
-			.collect(Collectors.toList());
-	}
-
-	private List<PlaylistsResponse> convertVideosToPlaylistsResponses(List<Video> videos) {
-		return videos.stream()
-			.map(video -> PlaylistsResponse.builder()
-				.videoId(video.getVideoId())
-				.videoName(video.getVideoName())
-				.thumbnailFile(
-					getThumbnailUrl(video.getChannel().getMember().getMemberId(),
-					video.getThumbnailFile())
-				)
-				.star(video.getStar())
-				.modifiedDate(video.getModifiedDate())
-				.channel(
-					PlaylistsResponse.Channel.builder()
-						.memberId(video.getChannel().getMember().getMemberId())
-						.channelName(video.getChannel().getChannelName())
-						.build()
-				)
-				.build()
-			)
-			.collect(Collectors.toList());
-	}
-
-	private List<WatchsResponse> convertWatchToWatchResponses(List<Watch> watches) {
-		return watches.stream()
-			.map(watch -> WatchsResponse.builder()
-				.videoId(watch.getVideo().getVideoId())
-				.videoName(watch.getVideo().getVideoName())
-				.thumbnailFile(getThumbnailUrl(watch.getVideo().getChannel().getMember().getMemberId(), watch.getVideo().getThumbnailFile()))
-				.modifiedDate(watch.getModifiedDate())
-				.channel(WatchsResponse.Channel.builder()
-					.memberId(watch.getVideo().getChannel().getMember().getMemberId())
-					.channelName(watch.getVideo().getChannel().getChannelName())
-					.build())
-				.build())
-			.collect(Collectors.toList());
-	}
 }
