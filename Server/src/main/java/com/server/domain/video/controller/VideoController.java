@@ -3,8 +3,8 @@ package com.server.domain.video.controller;
 import com.server.domain.question.service.QuestionService;
 import com.server.domain.question.service.dto.response.QuestionResponse;
 import com.server.domain.reply.controller.convert.ReplySort;
+import com.server.domain.reply.dto.ReplyCreateControllerApi;
 import com.server.domain.reply.dto.ReplyInfo;
-import com.server.domain.reply.dto.ReplyRequest;
 import com.server.domain.reply.service.ReplyService;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.service.VideoService;
@@ -36,7 +36,6 @@ public class VideoController {
     private final QuestionService questionService;
     private final VideoService videoService;
     private final ReplyService replyService;
-
     public VideoController(QuestionService questionService, VideoService videoService, ReplyService replyService) {
         this.questionService = questionService;
         this.videoService = videoService;
@@ -173,7 +172,8 @@ public class VideoController {
     }
 
     @GetMapping("/{video-id}/replies")
-    public ResponseEntity<ApiPageResponse<ReplyInfo>> getReplies(@PathVariable("video-id") Long videoId,
+    public ResponseEntity<ApiPageResponse<ReplyInfo>> getReplies(@PathVariable("video-id")
+                                                                 @Positive Long videoId,
                                                                  @RequestParam(defaultValue = "1") int page,
                                                                  @RequestParam(defaultValue = "10") int size,
                                                                  @RequestParam(defaultValue = "created-date") ReplySort sort) {
@@ -184,13 +184,15 @@ public class VideoController {
     }
 
     @PostMapping("{video-id}/replies")
-    public ResponseEntity<ApiSingleResponse<Void>> createReply(@PathVariable("video-id") Long videoId,
-                                                               @Valid ReplyRequest request,
+    public ResponseEntity<ApiSingleResponse<Void>> createReply(@PathVariable("video-id")
+                                                               @Positive Long videoId,
+                                                               @RequestBody @Valid ReplyCreateControllerApi request,
                                                                @LoginId Long loginMemberId) {
 
-        Long replyId = videoService.createReply(loginMemberId, request);
+        Long replyId = videoService.createReply(loginMemberId, videoId, request.toService());
 
-        URI uri = URI.create("/videos/" + videoId + "/replies/" + replyId); //
+
+        URI uri = URI.create("/replies/" + replyId); //
 
 
         return ResponseEntity.created(uri).build();

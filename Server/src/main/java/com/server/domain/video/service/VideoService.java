@@ -6,8 +6,8 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.category.repository.CategoryRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.reply.dto.ReplyCreateServiceApi;
 import com.server.domain.reply.dto.ReplyInfo;
-import com.server.domain.reply.dto.ReplyRequest;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
@@ -366,22 +366,24 @@ public class VideoService {
 
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        return ReplyInfo.of(replyRepository.findAllByReplyId(pageRequest, sort, videoId), awsService, videoId);
+        return ReplyInfo.of(replyRepository.findAllByReplyId(pageRequest, sort, videoId));
     }
 
-    public Long createReply(Long loginMemberId, ReplyRequest request) {
+    public Long createReply(Long loginMemberId, Long videoId, ReplyCreateServiceApi response) {
 
         memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberAccessDeniedException());
 
-        Integer star = request.getStar();
+        Integer star = response.getStar();
 
-        if (star < 1 || star > 5) {         //별점 1~5인지 api명세에는 10 -> 확인하기
+        if (star < 1 || star > 5) {
             throw new ReplyNotValidException();
         }
 
+        videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException());
+
         Reply reply = Reply.builder()
-                .content(request.getContent())
-                .star(request.getStar())
+                .content(response.getContent())
+                .star(response.getStar())
                 .build();
 
         return replyRepository.save(reply).getReplyId();

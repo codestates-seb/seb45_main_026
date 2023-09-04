@@ -5,19 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import javax.validation.constraints.NotNull;
-
 @Builder
 @Getter
 @AllArgsConstructor
-public class ReplyRequest {
-    @NotNull(message = "{validation.reply.content}")
+public class ReplyCreateServiceApi {
     private String content;
-    @NotNull(message = "{validation.reply.star}")
     private Integer star;
 
-    public static ReplyRequest of(Reply reply) {
-        return ReplyRequest.builder()
+    public static ReplyUpdateServiceApi of(Reply reply) {
+        return ReplyUpdateServiceApi.builder()
                 .content(reply.getContent())
                 .star(reply.getStar())
                 .build();

@@ -25,9 +25,9 @@ public class ReplyInfo {
 
 
 
-    public static ReplyInfo of(Reply reply, AwsService awsService, Long memberId) {
+    public static ReplyInfo of(Reply reply) {
         Member member2 = reply.getMember();
-        String imageUrl = awsService.getFileUrl(memberId, member2.getImageFile(), FileType.PROFILE_IMAGE);
+        String imageUrl = reply.getMember().getImageFile();
 
 
         MemberInfo member = MemberInfo.builder()
@@ -47,7 +47,7 @@ public class ReplyInfo {
                 .build();
     }
 
-    public static Page<ReplyInfo> of(Page<Reply> replies, AwsService awsService, Long memberId) {
-        return replies.map(reply -> ReplyInfo.of(reply, awsService, memberId));
+    public static Page<ReplyInfo> of(Page<Reply> replies) {
+        return replies.map(ReplyInfo::of);
     }
 }

@@ -2,7 +2,7 @@ package com.server.domain.reply.service;
 
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.reply.dto.ReplyInfo;
-import com.server.domain.reply.dto.ReplyRequest;
+import com.server.domain.reply.dto.ReplyUpdateServiceApi;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
@@ -28,16 +28,15 @@ public class ReplyService {
     }
 
 
-    public void updateReply(Long loginMemberId, Long replyId, ReplyRequest response) {
+    public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi response) {
 
-        memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberAccessDeniedException());
+            Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
-       existReply(replyId);
+            if (!reply.getMember().getMemberId().equals(loginMemberId)) {
+                throw new MemberAccessDeniedException();
+            }
 
-       ReplyRequest.builder()
-               .content(response.getContent())
-               .star(response.getStar())
-               .build();
+            reply.updateReply(response.getContent(), response.getStar());
     }
 
     public ReplyInfo getReply(Long replyId, Long loginMemberId) {
@@ -46,7 +45,7 @@ public class ReplyService {
 
             Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
-            return ReplyInfo.of(reply, awsService, reply.getMember().getMemberId());
+            return ReplyInfo.of(reply);
     }
 
     public void deleteReply(Long replyId, Long loginMemberId) {
@@ -61,7 +60,7 @@ public class ReplyService {
 
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
-        ReplyInfo.of(reply, awsService, reply.getMember().getMemberId());
+        ReplyInfo.of(reply);
 
     }
 }
