@@ -1,0 +1,50 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Reply]]
+= 댓글 생성, 수정, 삭제 API
+
+== 댓글 생성
+=== HTTP Request
+include::{snippets}/video/createreply/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/createreply/request-headers.adoc[]
+==== Request Path Parameters
+include::{snippets}/video/createreply/path-parameters.adoc[]
+==== Request Body
+include::{snippets}/video/createreply/request-body.adoc[]
+==== Request Fields
+include::{snippets}/video/createreply/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/video/createreply/http-response.adoc[]
+==== Response Headers
+include::{snippets}/video/createreply/response-headers.adoc[]
+
+== 댓글 수정
+=== HTTP Request
+include::{snippets}/reply/updatereply/http-request.adoc[]
+==== Request Headers
+include::{snippets}/reply/updatereply/request-headers.adoc[]
+==== Request Path Parameters
+include::{snippets}/reply/updatereply/path-parameters.adoc[]
+==== Request Body
+include::{snippets}/reply/updatereply/request-body.adoc[]
+==== Request Fields
+include::{snippets}/reply/updatereply/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/reply/updatereply/http-response.adoc[]
+
+== 댓글 수정
+=== HTTP Request
+include::{snippets}/reply/deletereply/http-request.adoc[]
+==== Request Headers
+include::{snippets}/reply/deletereply/request-headers.adoc[]
+==== Request Path Parameters
+include::{snippets}/reply/deletereply/path-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/reply/deletereply/http-response.adoc[]

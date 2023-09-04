@@ -1,0 +1,37 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Video]]
+= 비디오 장바구니 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 비디오 장바구니 담기
+=== HTTP Request
+include::{snippets}/video/changecartadd/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/changecartadd/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/video/changecartadd/http-response.adoc[]
+==== Response Fields
+include::{snippets}/video/changecartadd/response-fields.adoc[]
+
+
+== 비디오 장바구니 취소
+=== HTTP Request
+include::{snippets}/video/changecartcancel/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/changecartcancel/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/video/changecartcancel/http-response.adoc[]
+==== Response Fields
+include::{snippets}/video/changecartcancel/response-fields.adoc[]
+
+
+
+

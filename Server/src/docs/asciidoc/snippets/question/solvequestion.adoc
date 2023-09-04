@@ -1,0 +1,42 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Question]]
+= 문제 풀기 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 문제 전체 풀기
+=== HTTP Request
+include::{snippets}/video/solvequestions/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/solvequestions/request-headers.adoc[]
+==== Request Body
+include::{snippets}/video/solvequestions/request-body.adoc[]
+==== Request Fields
+include::{snippets}/video/solvequestions/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/video/solvequestions/http-response.adoc[]
+==== Response Fields
+include::{snippets}/video/solvequestions/response-fields.adoc[]
+
+== 문제 개별 풀기
+=== HTTP Request
+include::{snippets}/question/solvequestion/http-request.adoc[]
+==== Request Headers
+include::{snippets}/question/solvequestion/request-headers.adoc[]
+==== Request Body
+include::{snippets}/question/solvequestion/request-body.adoc[]
+==== Request Fields
+include::{snippets}/question/solvequestion/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/question/solvequestion/http-response.adoc[]
+==== Response Fields
+include::{snippets}/question/solvequestion/response-fields.adoc[]
+
+

@@ -1,0 +1,84 @@
+spring:
+  config:
+    import:
+      - classpath:/application-secret.yml
+#  config:
+#    activate:
+#      on-profile: local
+  h2:
+    console:
+      enabled: true
+      path: /h2
+  datasource:
+    url: jdbc:h2:mem:test
+    driver-class-name: org.h2.Driver
+  jpa:
+    database: h2
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+  mail:
+    host: smtp.naver.com
+    port: 465
+    properties:
+      debug: true
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+            trust: smtp.naver.com
+          starttls:
+            enable: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            scope: email
+            redirect-uri: http://localhost:3000/login
+          github:
+            scope: user:email, read:user
+            redirect-uri: http://localhost:3000/login
+          kakao:
+            client-authentication-method: POST
+            authorization-grant-type: authorization_code
+            scope: profile_nickname, account_email
+            client-name: Kakao
+            redirect-uri: http://localhost:3000/login
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+  redis:
+    host: 127.0.0.1
+    port: 6379
+
+# p6spy ?? ??
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+
+pem:
+  location: src/main/resources/prometheus.pem
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://sixman-rds.c2bhjqsi4ogs.ap-northeast-2.rds.amazonaws.com/sixmandb?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+
+pem:
+  location: /prometheus.pem

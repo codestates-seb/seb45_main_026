@@ -1,0 +1,38 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Question]]
+= 문제 조회 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 비디오에 대한 문제 목록 조회
+=== HTTP Request
+include::{snippets}/video/getquestions/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/getquestions/request-headers.adoc[]
+==== Request Path Parameters
+include::{snippets}/video/getquestions/path-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/video/getquestions/http-response.adoc[]
+==== Response Fields
+include::{snippets}/video/getquestions/response-fields.adoc[]
+
+== 문제 단건 조회
+=== HTTP Request
+include::{snippets}/question/getquestion/http-request.adoc[]
+==== Request Headers
+include::{snippets}/question/getquestion/request-headers.adoc[]
+==== Request Path Parameters
+include::{snippets}/question/getquestion/path-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/question/getquestion/http-response.adoc[]
+==== Response Fields
+include::{snippets}/question/getquestion/response-fields.adoc[]
+
+
