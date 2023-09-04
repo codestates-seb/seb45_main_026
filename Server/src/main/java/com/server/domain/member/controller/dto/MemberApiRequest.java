@@ -53,7 +53,7 @@ public class MemberApiRequest {
 		@Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$", message = "{validation.auth.password}")
 		private String newPassword;
 
-		public MemberServiceRequest.Password toServiceRequest(Long loginId) {
+		public MemberServiceRequest.Password toServiceRequest() {
 			return MemberServiceRequest.Password.builder()
 				.prevPassword(prevPassword)
 				.newPassword(newPassword)

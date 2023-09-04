@@ -10,6 +10,7 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.MemberService;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
+import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.module.email.service.MailService;
 
 @Service
@@ -29,19 +30,29 @@ public class AuthService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public void sendEmail(AuthServiceRequest.Send request) throws Exception {
+	public void sendEmail(AuthServiceRequest.Send request, String type) throws Exception {
 		String email = request.getEmail();
 
-		memberService.checkDuplicationEmail(email);
+		if(type.equals("signup")) {
+			memberService.checkDuplicationEmail(email);
+		}
+		else {
+			checkExistMember(email);
+		}
+
 		mailService.sendEmail(email);
 	}
 
-	public void updatePassword(AuthServiceRequest.Reset request, Long loginId) {
+	public void updatePassword(AuthServiceRequest.Reset request) {
 		mailService.checkEmailCertify(request.getEmail());
 
-		Member member = memberRepository.findById(loginId).orElseThrow(
-			MemberAccessDeniedException::new
-		);
+		Member member = checkExistMember(request.getEmail());
 		member.setPassword(passwordEncoder.encode(request.getPassword()));
+	}
+
+	private Member checkExistMember(String email) {
+		return memberRepository.findByEmail(email).orElseThrow(
+			MemberNotFoundException::new
+		);
 	}
 }
