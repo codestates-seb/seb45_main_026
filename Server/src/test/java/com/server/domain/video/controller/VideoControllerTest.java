@@ -92,6 +92,7 @@ class VideoControllerTest extends ControllerTest {
                         fieldWithPath("data[].answerStatus").description(generateLinkCode(AnswerStatus.class)),
                         fieldWithPath("data[].description").description("문제에 대한 답변 설명"),
                         fieldWithPath("data[].selections").description("문제에 대한 선택지"),
+                        fieldWithPath("data[].choice").description("객관식 여부"),
                         fieldWithPath("data[].solvedDate").description("문제 풀이 날짜"),
                         fieldWithPath("code").description("응답 코드"),
                         fieldWithPath("status").description("응답 상태"),
