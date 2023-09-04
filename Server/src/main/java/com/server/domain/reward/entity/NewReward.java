@@ -34,10 +34,6 @@ public abstract class NewReward extends BaseEntity {
 
 	public abstract RewardType getRewardType();
 
-	public abstract Long getEntityId();
-
-	public abstract Video getVideo();
-
 	protected NewReward(Member member, Integer rewardPoint) {
 		this.member = member;
 		this.rewardPoint = rewardPoint;
@@ -54,7 +50,7 @@ public abstract class NewReward extends BaseEntity {
 		} else if (entity instanceof Question) {
 			return new QuestionReward(member, rewardPoint, (Question) entity);
 		} else if (entity instanceof Reply) {
-			return new ReplyReward(member, rewardPoint, (Reply) entity);
+			return new ReplyReward(member, rewardPoint, ((Reply) entity).getVideo());
 		} else {
 			return null;
 		}

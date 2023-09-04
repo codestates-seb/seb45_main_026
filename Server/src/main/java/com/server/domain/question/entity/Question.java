@@ -64,4 +64,8 @@ public class Question extends BaseEntity implements Rewardable {
         this.description = description == null ? this.description : description;
         this.selections = selections == null ? this.selections : selections;
     }
+
+    public int getRewardPoint(){
+        return 10;
+    }
 }

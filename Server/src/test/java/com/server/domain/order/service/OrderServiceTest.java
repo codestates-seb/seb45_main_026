@@ -9,6 +9,7 @@ import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
+import com.server.domain.reward.entity.NewReward;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
@@ -296,8 +297,8 @@ class OrderServiceTest extends ServiceTest {
         Order order = createAndSaveOrder(member, List.of(video1, video2), 0);
         order.completeOrder(); // 완료된 주문
 
-        Reward reward1 = createAndSaveVideoReward(member, video1);
-        Reward reward2 = createAndSaveVideoReward(member, video2);
+        NewReward reward1 = createAndSaveReward(member, video1);
+        NewReward reward2 = createAndSaveReward(member, video2);
 
         member.minusReward(member.getReward()); // 리워드 소멸
 
@@ -320,8 +321,8 @@ class OrderServiceTest extends ServiceTest {
         Order order = createAndSaveOrder(member, List.of(video1, video2), 1000); // reward 를 1000원을 사용해서 주문
         order.completeOrder(); // 완료된 주문
 
-        Reward reward1 = createAndSaveVideoReward(member, video1);
-        Reward reward2 = createAndSaveVideoReward(member, video2);
+        NewReward reward1 = createAndSaveReward(member, video1);
+        NewReward reward2 = createAndSaveReward(member, video2);
 
         member.minusReward(member.getReward()); // 리워드 소멸
 
@@ -398,7 +399,7 @@ class OrderServiceTest extends ServiceTest {
 
         //then
         //멤버 리워드 생성
-        List<Reward> findRewards = rewardRepository.findAll();
+        List<NewReward> findRewards = newRewardRepository.findAll();
         assertThat(findRewards).hasSize(2)
                 .extracting("member")
                 .extracting("memberId")

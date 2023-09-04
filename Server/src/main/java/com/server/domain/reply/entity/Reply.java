@@ -66,4 +66,8 @@ public class Reply extends BaseEntity implements Rewardable {
         this.star = star;
     }
 
+    public int getRewardPoint(){
+        return 10;
+    }
+
 }
