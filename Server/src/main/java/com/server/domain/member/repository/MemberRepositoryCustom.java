@@ -1,5 +1,6 @@
 package com.server.domain.member.repository;
 
+import com.querydsl.jpa.impl.JPAQuery;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;

@@ -1,13 +1,19 @@
 package com.server.domain.member.repository;
 
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.dto.MemberVideoData;
+import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.Order;
 import com.server.domain.video.entity.Video;
+import com.server.domain.watch.entity.Watch;
 import com.server.global.testhelper.RepositoryTest;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -16,21 +22,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+import static com.server.domain.channel.entity.QChannel.*;
+import static com.server.domain.video.entity.QVideo.*;
+import static com.server.domain.watch.entity.QWatch.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.DynamicTest.*;
 
+import javax.persistence.PersistenceContext;
+
 class MemberRepositoryTest extends RepositoryTest {
 
     @Autowired MemberRepository memberRepository;
+    private JPAQueryFactory queryFactory;
 
     @Test
     @DisplayName("회원이 비디오를 구매한 적이 있는지 확인한다.")
@@ -348,6 +363,83 @@ class MemberRepositoryTest extends RepositoryTest {
         );
     }
 
+    @TestFactory
+    @DisplayName("회원의 시청 기록을 지정한 날짜의 범위에 한해 조회한다.")
+    Collection<DynamicTest> findWatchesForMember() {
+        Member user = createAndSaveMember();
+        Long memberId = user.getMemberId();
+
+        for (int i = 0; i < 20; i++) {
+            String name = generateRandomString();
+
+            Member member = createAndSaveMember();
+            Channel channel = createAndSaveChannelWithName(member, name);
+            Video video = createAndSaveVideo(channel);
+
+            if(i < 10) {
+                createAndSaveWatch(user, video); // 범위에 해당 하는 시청 기록
+            } else {
+                createAndSaveWatchWithTime(user, video, 9); // 해당 하지 않는 시청 기록
+            }
+        }
+
+        LocalDateTime endDateTime = LocalDateTime.now();
+        LocalDateTime startDateTime = endDateTime.minusDays(7);
+
+        int page = 1, size = 20; //16
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        return List.of(
+            dynamicTest(
+                "지정한 날짜의 범위에 한해서 시청 기록이 조회 되는지 테스트",
+                () -> {
+                    Page<Watch> result = memberRepository.findWatchesForMember(user.getMemberId(), pageable, 7);
+
+                    assertThat(result.getTotalElements()).isEqualTo(10);
+                }
+            ),
+            dynamicTest(
+                "지정한 날짜의 범위에 한해서 시청 기록이 조회 조건이 있는지 쿼리문 테스트",
+                () -> {
+                    queryFactory = new JPAQueryFactory(em);
+
+                    String expectedWhereClause = "where watch.member.memberId = ?1 " +
+                        "and watch.modifiedDate between ?2 and ?3";
+
+                    JPAQuery<Watch> query = queryFactory
+                        .selectFrom(watch)
+                        .leftJoin(watch.video, video).fetchJoin()
+                        .leftJoin(video.channel, channel).fetchJoin()
+                        .where(
+                            watch.member.memberId.eq(memberId)
+                                .and(watch.modifiedDate.between(startDateTime, endDateTime))
+                        )
+                        .orderBy(watch.modifiedDate.desc());
+
+                    String queryString = query.toString();
+
+                    assertThat(queryString).contains(expectedWhereClause);
+                }
+            )
+        );
+    }
+
+    // @TestFactory
+    // @DisplayName("테스트 할 내용 요약")
+    // Collection<DynamicTest> template() {
+    //     //given
+    //
+    //     //when
+    //     return List.of(
+    //         dynamicTest(
+    //             "",
+    //             () -> {
+    //                 //then
+    //             }
+    //         )
+    //     );
+    // }
+
     private String generateRandomString() {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder randomString = new StringBuilder(10);
@@ -360,5 +452,19 @@ class MemberRepositoryTest extends RepositoryTest {
         }
 
         return randomString.toString();
+    }
+
+    private Watch createAndSaveWatch(Member loginMember, Video video) {
+        Watch watch = Watch.createWatch(loginMember, video);
+        em.persist(watch);
+
+        return watch;
+    }
+
+    private Watch createAndSaveWatchWithTime(Member loginMember, Video video, int days) {
+        Watch watch = Watch.createWatch(loginMember, video);
+        em.persist(watch);
+        watch.setLastWatchedTime(LocalDateTime.now().minusDays(days));
+        return watch;
     }
 }

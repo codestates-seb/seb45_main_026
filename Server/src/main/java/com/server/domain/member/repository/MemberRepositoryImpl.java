@@ -32,6 +32,7 @@ import com.server.domain.watch.entity.Watch;
 import javax.persistence.EntityManager;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -274,12 +275,12 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
             )
             .orderBy(watch.modifiedDate.desc());
 
-        long totalCount = query.fetchCount();
-
         List<Watch> results = query
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();
+
+        long totalCount = query.fetchCount();
 
         return new PageImpl<>(results, pageable, totalCount);
     }
