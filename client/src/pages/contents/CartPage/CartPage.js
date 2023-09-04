@@ -1,12 +1,12 @@
 import { styled } from "styled-components";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 // import tokens from "../../../styles/tokens.json";
 import { PageContainer } from "../../../atoms/layouts/PageContainer";
+import { setCarts } from "../../../redux/createSlice/CartsSlice";
 import CartLeft from "./CartLeft";
 import CartRight from "./CartRight";
-import { useEffect } from "react";
-import axios from "axios";
-import { setCarts } from "../../../redux/createSlice/CartsSlice";
 
 // const globalTokens = tokens.global;
 
@@ -16,7 +16,6 @@ export const CartContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: start;
-  /* background-color: white; */
 `;
 
 export const CartTitle = styled.h2`
