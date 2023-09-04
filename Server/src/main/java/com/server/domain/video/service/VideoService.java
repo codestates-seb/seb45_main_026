@@ -6,6 +6,10 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.category.repository.CategoryRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.reply.dto.ReplyCreateServiceApi;
+import com.server.domain.reply.dto.ReplyInfo;
+import com.server.domain.reply.entity.Reply;
+import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
@@ -18,7 +22,9 @@ import com.server.domain.video.service.dto.response.VideoPageResponse;
 import com.server.domain.watch.entity.Watch;
 import com.server.domain.watch.repository.WatchRepository;
 import com.server.global.exception.businessexception.categoryexception.CategoryNotFoundException;
+import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
+import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
 import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
 import com.server.global.exception.businessexception.videoexception.VideoFileNameNotMatchException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
@@ -28,6 +34,7 @@ import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,10 +57,12 @@ public class VideoService {
     private final CartRepository cartRepository;
     private final AwsService awsService;
     private final RedisService redisService;
+    private final ReplyRepository replyRepository;
 
     public VideoService(VideoRepository videoRepository, MemberRepository memberRepository,
                         WatchRepository watchRepository, CategoryRepository categoryRepository,
-                        CartRepository cartRepository, AwsService awsService, RedisService redisService) {
+                        CartRepository cartRepository, AwsService awsService, RedisService redisService,
+                        ReplyRepository replyRepository) {
         this.videoRepository = videoRepository;
         this.memberRepository = memberRepository;
         this.watchRepository = watchRepository;
@@ -61,6 +70,7 @@ public class VideoService {
         this.cartRepository = cartRepository;
         this.awsService = awsService;
         this.redisService = redisService;
+        this.replyRepository = replyRepository;
     }
 
     public Page<VideoPageResponse> getVideos(Long loginMemberId, VideoGetServiceRequest request) {
@@ -350,5 +360,32 @@ public class VideoService {
     private boolean createCart(Member member, Video video) {
         cartRepository.save(Cart.createCart(member, video, video.getPrice()));
         return true;
+    }
+
+    public Page<ReplyInfo> getReplies(Long videoId, int page, int size, String sort) {
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        return ReplyInfo.of(replyRepository.findAllByReplyId(pageRequest, sort, videoId));
+    }
+
+    public Long createReply(Long loginMemberId, Long videoId, ReplyCreateServiceApi response) {
+
+        memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberAccessDeniedException());
+
+        Integer star = response.getStar();
+
+        if (star < 1 || star > 5) {
+            throw new ReplyNotValidException();
+        }
+
+        videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException());
+
+        Reply reply = Reply.builder()
+                .content(response.getContent())
+                .star(response.getStar())
+                .build();
+
+        return replyRepository.save(reply).getReplyId();
     }
 }
