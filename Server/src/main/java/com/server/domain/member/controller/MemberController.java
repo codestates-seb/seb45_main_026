@@ -159,7 +159,7 @@ public class MemberController {
 	public ResponseEntity<Void> updatePassword(@LoginId Long loginId,
 												@RequestBody @Valid MemberApiRequest.Password request) {
 
-		memberService.updatePassword(request.toServiceRequest(loginId), loginId);
+		memberService.updatePassword(request.toServiceRequest(), loginId);
 
 		return ResponseEntity.noContent().build();
 	}

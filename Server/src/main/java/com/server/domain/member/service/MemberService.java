@@ -175,12 +175,6 @@ public class MemberService {
 		member.deleteImageFile();
 	}
 
-	public Member findMemberBy(Long id) {
-		return memberRepository.findById(id).orElseThrow(
-				MemberNotFoundException::new
-		);
-	}
-
 	public void validatePassword(String password, String encodedPassword) {
 		if(!passwordEncoder.matches(password, encodedPassword)) {
 			throw new MemberPasswordException();
