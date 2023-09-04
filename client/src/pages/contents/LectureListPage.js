@@ -48,7 +48,7 @@ const VerticalItemContainer = styled.ul`
     min-height: 400px;
     display: flex;
     flex-direction: row;
-    justify-content: start;
+    justify-content: center;
     flex-wrap: wrap;
     gap: ${globalTokens.Spacing28.value}px;
     margin-bottom: ${globalTokens.Spacing28.value}px;

@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { PageContainer,MainContainer } from "../../atoms/layouts/PageContainer";
 import tokens from "../../styles/tokens.json";
 import CategoryFilter from "../../components/filters/CategoryFilter";
+import PurchasedItem from "../../components/contentListItems/PurchasedItem";
 
 const globalTokens = tokens.global;
 
@@ -33,6 +34,12 @@ export default function PurchasedListPage() {
             <PurchasedListContainer>
                 <ListTitle>구매한 강의 목록</ListTitle>
                 <CategoryFilter/>
+                <PurchasedItem/>
+                <PurchasedItem/>
+                <PurchasedItem/>
+                <PurchasedItem/>
+                <PurchasedItem/>
+                <PurchasedItem/>
             </PurchasedListContainer>
         </PageContainer>
     )
