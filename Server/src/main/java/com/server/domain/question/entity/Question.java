@@ -2,6 +2,7 @@ package com.server.domain.question.entity;
 
 import com.server.domain.answer.entity.Answer;
 import com.server.domain.question.service.dto.request.QuestionUpdateServiceRequest;
+import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
 import lombok.*;
@@ -19,7 +20,7 @@ import static lombok.AccessLevel.*;
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor(access = PRIVATE)
 @Builder
-public class Question extends BaseEntity {
+public class Question extends BaseEntity implements Rewardable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long questionId;

@@ -7,6 +7,7 @@ import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.Reward;
+import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.entity.BaseEntity;
@@ -24,7 +25,7 @@ import static javax.persistence.FetchType.LAZY;
 @AllArgsConstructor(access= AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class Video extends BaseEntity {
+public class Video extends BaseEntity implements Rewardable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long videoId;
