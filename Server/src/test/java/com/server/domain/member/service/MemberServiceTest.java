@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -256,6 +257,10 @@ public class MemberServiceTest extends ServiceTest {
 
 		assertThat(page.getTotalElements()).isEqualTo(20);
 		assertThat(page.getTotalPages()).isEqualTo(2);
+
+		assertThat(page.getContent()).isSortedAccordingTo(
+			Comparator.comparing(WatchsResponse::getModifiedDate).reversed()
+		);
 	}
 
 	@Test
