@@ -24,9 +24,7 @@ import com.server.global.exception.businessexception.videoexception.VideoNotPurc
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -79,12 +77,16 @@ public class QuestionService {
 
         return requests.stream()
                 .map(request -> {
+
+                    List<String> reversedSelections = new ArrayList<>(request.getSelections());
+                    Collections.reverse(reversedSelections);
+
                     Question question = Question.createQuestion(
                             request.getPosition(),
                             request.getContent(),
                             request.getQuestionAnswer(),
                             request.getDescription(),
-                            request.getSelections(),
+                            reversedSelections,
                             video
                     );
                     return questionRepository.save(question).getQuestionId();
