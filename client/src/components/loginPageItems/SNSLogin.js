@@ -19,21 +19,21 @@ export const SNSLogin = () => {
     const handleGoogleButonClick = () => {
         dispatch(setProvider('google'));
         window.location.assign(
-            'https://accounts.google.com/o/oauth2/v2/auth?client_id=577159361441-tdcsm80fn4rodt1m16r05qtb48cakrkp.apps.googleusercontent.com&redirect_uri=http://localhost:3000/login&response_type=code&scope=email'
+            'https://accounts.google.com/o/oauth2/v2/auth?client_id=577159361441-tdcsm80fn4rodt1m16r05qtb48cakrkp.apps.googleusercontent.com&redirect_uri=https://www.itprometheus.net/login&response_type=code&scope=email'
         );
     }
 
     const handleGithubButtonClick = () => {
         dispatch(setProvider('github'));
         window.location.assign(
-            'https://github.com/login/oauth/authorize?client_id=9b59d1e4333c5a338c6f&redirect_uri=http://localhost:3000/login&scope=user:email,read:user'
+            'https://github.com/login/oauth/authorize?client_id=9b59d1e4333c5a338c6f&redirect_uri=https://www.itprometheus.net/login&scope=user:email,read:user'
         );
     }
 
     const handleKakaoButtonClick = () => {
         dispatch(setProvider('kakao'));
         window.location.assign(
-            'https://kauth.kakao.com/oauth/authorize?client_id=655f82c50a175820dccd0357df745c73&scope=profile_nickname,account_email&response_type=code&redirect_uri=http://localhost:3000/login'
+            'https://kauth.kakao.com/oauth/authorize?client_id=655f82c50a175820dccd0357df745c73&scope=profile_nickname,account_email&response_type=code&redirect_uri=https://www.itprometheus.net/login'
         );
     }
 
