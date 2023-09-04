@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import HeaderLogo from './HeaderLogo';
 import { HeaderContainer, HeaderLoginButton, MainPageHeaderContainer } from './Header.style';
-import { useNavigate,useMatch } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import HeaderProfile from './HeaderProfile';
 
 export const MainPageHeader = () => {
@@ -31,12 +31,7 @@ export const Header = () => {
     const handleLoginButtonClick = () => {
         navigate('/login');
     }
-    const match = useMatch("/");
-    if (match) {
-        console.log("hi")
-    } else {
-        console.log("bye")
-    }
+
     return (
         <HeaderContainer isDark={isDark}>
             <HeaderLogo/>
