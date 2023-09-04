@@ -38,6 +38,8 @@ include::overview.adoc[]
 * link:snippets/video/updatedeletevideo.html[비디오 수정/삭제 API, onclick="window.location.href='snippets/video/updatedeletevideo.html'"]
 
 === Reply API
+* link:snippets/reply/getreply.html[댓글 목록/단건 조회 API, onclick="window.location.href='snippets/reply/getreply.html'"]
+* link:snippets/reply/replycud.html[댓글 생성/수정/삭제 API, onclick="window.location.href='snippets/reply/replycud.html'"]
 
 === Question API
 * link:snippets/question/getquestion.html[비디오 내 문제 조회 API, onclick="window.location.href='snippets/question/getquestion.html'"]

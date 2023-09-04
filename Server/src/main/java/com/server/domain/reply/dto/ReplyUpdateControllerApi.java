@@ -6,13 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import javax.validation.constraints.Positive;
+
 @Builder
 @Getter
 @AllArgsConstructor
 public class ReplyUpdateControllerApi {
     @OnlyNotBlank(message = "{validation.reply.content}")
     private String content;
-    @OnlyNotBlank(message = "{validation.reply.star}")
+    @Positive(message = "{validation.positive}")
     private Integer star;
 
     public static ReplyUpdateServiceApi of(Reply reply) {

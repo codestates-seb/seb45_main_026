@@ -96,14 +96,16 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
         }
 
         JPAQuery<Video> countQuery = queryFactory.selectFrom(video)
+                .distinct()
                 .join(video.channel, channel)
                 .join(channel.member, member)
-                .join(video.videoCategories, videoCategory)
-                .join(videoCategory.category, category)
                 .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(request.getFree())));
 
         if (hasCategory(request)) {
-            countQuery.where(category.categoryName.eq(request.getCategoryName()));
+            countQuery
+                    .join(video.videoCategories, videoCategory)
+                    .join(videoCategory.category, category)
+                    .where(category.categoryName.eq(request.getCategoryName()));
         }
 
         if(request.isSubscribe()){
@@ -191,8 +193,8 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
         JPAQuery<Video> countQuery = queryFactory.selectFrom(video)
                 .join(video.channel, channel)
                 .join(channel.member, member)
-                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(free)))
-                .where(member.memberId.eq(memberId));
+                .where(member.memberId.eq(memberId))
+                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(free)));
 
         if (categoryName != null && !categoryName.isEmpty()) {
             countQuery

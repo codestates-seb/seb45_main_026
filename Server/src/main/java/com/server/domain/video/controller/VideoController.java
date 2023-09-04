@@ -172,28 +172,28 @@ public class VideoController {
     }
 
     @GetMapping("/{video-id}/replies")
-    public ResponseEntity<ApiPageResponse<ReplyInfo>> getReplies(@PathVariable("video-id")
-                                                                 @Positive Long videoId,
-                                                                 @RequestParam(defaultValue = "1") int page,
-                                                                 @RequestParam(defaultValue = "10") int size,
-                                                                 @RequestParam(defaultValue = "created-date") ReplySort sort) {
+    public ResponseEntity<ApiPageResponse<ReplyInfo>> getReplies(
+            @PathVariable("video-id")
+            @Positive(message = "{validation.positive}") Long videoId,
+            @RequestParam(defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+            @RequestParam(defaultValue = "10") @Positive(message = "{validation.positive}") int size,
+            @RequestParam(defaultValue = "created-date") ReplySort sort,
+            @RequestParam(required = false) @Positive(message = "{validation.positive}") Integer star) {
 
         Page<ReplyInfo> replies = videoService.getReplies(videoId, page -1, size, sort.getSort());
 
         return ResponseEntity.ok(ApiPageResponse.ok(replies, "댓글 조회 성공"));
     }
 
-    @PostMapping("{video-id}/replies")
-    public ResponseEntity<ApiSingleResponse<Void>> createReply(@PathVariable("video-id")
-                                                               @Positive Long videoId,
-                                                               @RequestBody @Valid ReplyCreateControllerApi request,
-                                                               @LoginId Long loginMemberId) {
+    @PostMapping("/{video-id}/replies")
+    public ResponseEntity<ApiSingleResponse<Void>> createReply(
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
+            @RequestBody @Valid ReplyCreateControllerApi request,
+            @LoginId Long loginMemberId) {
 
         Long replyId = videoService.createReply(loginMemberId, videoId, request.toService());
 
-
-        URI uri = URI.create("/replies/" + replyId); //
-
+        URI uri = URI.create("/replies/" + replyId);
 
         return ResponseEntity.created(uri).build();
     }
