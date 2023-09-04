@@ -2,6 +2,7 @@ package com.server.domain.video.controller;
 
 import com.server.domain.answer.entity.AnswerStatus;
 import com.server.domain.question.service.dto.response.QuestionResponse;
+import com.server.domain.reply.controller.convert.ReplySort;
 import com.server.domain.reply.dto.MemberInfo;
 import com.server.domain.reply.dto.ReplyCreateControllerApi;
 import com.server.domain.reply.dto.ReplyCreateServiceApi;
@@ -625,7 +626,7 @@ class VideoControllerTest extends ControllerTest {
                         requestParameters(
                                 parameterWithName("page").description("페이지 번호").optional(),
                                 parameterWithName("size").description("페이지 크기").optional(),
-                                parameterWithName("sort").description("정렬 방식").optional(),
+                                parameterWithName("sort").description(generateLinkCode(ReplySort.class)).optional(),
                                 parameterWithName("star").description("별점").optional()
                         ),
                         pageResponseFields(
