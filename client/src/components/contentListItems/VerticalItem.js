@@ -17,11 +17,21 @@ const ComponentBody = styled.li`
     justify-content: space-between;
     background-color: white;
 `
-const Thumbnail = styled.img`
+const ThumbnailContainer = styled.div`
     width: 250px;
+    min-width: 250px;
     height: 160px;
-    background-color: lightgray;
     border-radius: ${globalTokens.RegularRadius.value}px;
+    background-color: ${globalTokens.White.value};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+`
+const Thumbnail = styled.img`
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
 `
 const ItemTitle = styled.h2`
     font-size: ${globalTokens.BodyText.value}px;
@@ -106,7 +116,9 @@ const ScoreText = styled.span`
 export default function VerticalItem() { 
     return (
       <ComponentBody>
-        <Thumbnail />
+        <ThumbnailContainer>
+          <Thumbnail src="https://cdn.inflearn.com/public/courses/329922/cover/364e7406-3569-437b-b719-7f146cad3d60/thumbnail-js.png" />
+        </ThumbnailContainer>
         <ItemTitle>대충 영상 제목대충 영상 제목</ItemTitle>
         <ItemInfors>
           <InforContainerLeft>

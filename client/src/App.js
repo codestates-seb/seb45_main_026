@@ -20,6 +20,7 @@ import { getUserInfoService } from "./services/userInfoService";
 import { setIsLogin, setLoginInfo, setToken } from "./redux/createSlice/LoginInfoSlice";
 import useConfirm from "./hooks/useConfirm";
 import FindPasswordPage from "./pages/auth/FindPasswordPage";
+import PurchasedListPage from "./pages/contents/PurchasedListPage";
 
 function App() {
   const dispatch = useDispatch();  
@@ -68,6 +69,7 @@ function App() {
         <Route path="/carts" element={<CartPage />} />
         <Route path="/upload" element={<UploadPage />} />
         <Route path="/problems" element={<ProblemPage />} />
+        <Route path="/purchased" element={<PurchasedListPage />} />
       </Routes>
       <Footer />
     </BrowserRouter>
