@@ -17,8 +17,11 @@ import com.server.domain.question.entity.Question;
 import com.server.domain.question.repository.QuestionRepository;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
+import com.server.domain.reward.entity.NewReward;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.RewardType;
+import com.server.domain.reward.entity.Rewardable;
+import com.server.domain.reward.repository.NewRewardRepository;
 import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.reward.service.RewardService;
 import com.server.domain.subscribe.entity.Subscribe;
@@ -61,6 +64,7 @@ public abstract class ServiceTest {
     @Autowired protected AnnouncementRepository announcementRepository;
     @Autowired protected CartRepository cartRepository;
     @Autowired protected RewardRepository rewardRepository;
+    @Autowired protected NewRewardRepository newRewardRepository;
     @Autowired protected EntityManager em;
     @Autowired private RewardService rewardService;
 
@@ -236,7 +240,7 @@ public abstract class ServiceTest {
     protected Reward createAndSaveVideoReward(Member member, Video video) {
 
         Reward reward = Reward.createReward(RewardType.VIDEO,
-                (int) (video.getPrice() * rewardService.getVideoRewardPolicy()),
+                video.getRewardPoint(),
                 member, video);
 
         em.persist(reward);
@@ -246,7 +250,16 @@ public abstract class ServiceTest {
 
     protected Reward createAndSaveQuestionReward(Member member, Question question) {
 
-        Reward reward = Reward.createReward(RewardType.QUIZ, rewardService.getQuestionRewardPolicy(), member, question);
+        Reward reward = Reward.createReward(RewardType.QUIZ, question.getRewardPoint(), member, question);
+
+        em.persist(reward);
+
+        return reward;
+    }
+
+    protected NewReward createAndSaveReward(Member member, Rewardable rewardable) {
+
+        NewReward reward = NewReward.createReward(rewardable.getRewardPoint(), member, rewardable);
 
         em.persist(reward);
 

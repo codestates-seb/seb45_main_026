@@ -29,12 +29,6 @@ public class QuestionReward extends NewReward {
         return RewardType.QUIZ;
     }
 
-    @Override
-    public Long getEntityId() {
-        return question.getQuestionId();
-    }
-
-    @Override
     public Video getVideo() {
         return question.getVideo();
     }

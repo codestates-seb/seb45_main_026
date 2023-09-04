@@ -4,8 +4,7 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
-import com.server.domain.reward.entity.Reward;
-import com.server.domain.reward.entity.RewardType;
+import com.server.domain.reward.entity.*;
 import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.orderexception.RewardNotEnoughException;
 import com.server.global.testhelper.ServiceTest;
@@ -33,14 +32,14 @@ class RewardServiceTest extends ServiceTest {
         Member member = createAndSaveMember();
 
         //when
-        rewardService.createVideoReward(video, member);
+        rewardService.createRewardIfNotPresent(video, member);
 
         //then
-        Reward reward = rewardRepository.findAll().get(0);
+        VideoReward reward = (VideoReward) newRewardRepository.findAll().get(0);
         assertThat(reward.getMember()).isEqualTo(member);
         assertThat(reward.getVideo()).isEqualTo(video);
         assertThat(reward.getRewardType()).isEqualTo(RewardType.VIDEO);
-        assertThat(reward.getRewardPoint()).isEqualTo((int) (video.getPrice() * rewardService.getVideoRewardPolicy()));
+        assertThat(reward.getRewardPoint()).isEqualTo(video.getRewardPoint());
     }
 
     @Test
@@ -56,15 +55,19 @@ class RewardServiceTest extends ServiceTest {
         Member member = createAndSaveMember();
 
         //when
-        rewardService.createQuestionRewardIfNotPresent(question, member);
+        rewardService.createRewardIfNotPresent(question, member);
 
         //then
-        Reward reward = rewardRepository.findAll().get(0);
-        assertThat(reward.getMember()).isEqualTo(member);
-        assertThat(reward.getVideo()).isEqualTo(video);
-        assertThat(reward.getQuestion()).isEqualTo(question);
-        assertThat(reward.getRewardType()).isEqualTo(RewardType.QUIZ);
-        assertThat(reward.getRewardPoint()).isEqualTo(rewardService.getQuestionRewardPolicy());
+        NewReward reward = newRewardRepository.findAll().get(0);
+
+        assertThat(reward instanceof QuestionReward).isTrue();
+        QuestionReward questionReward = (QuestionReward) reward;
+
+        assertThat(questionReward.getMember()).isEqualTo(member);
+        assertThat(questionReward.getVideo()).isEqualTo(video);
+        assertThat(questionReward.getQuestion()).isEqualTo(question);
+        assertThat(questionReward.getRewardType()).isEqualTo(RewardType.QUIZ);
+        assertThat(questionReward.getRewardPoint()).isEqualTo(question.getRewardPoint());
     }
 
     @Test
@@ -80,10 +83,10 @@ class RewardServiceTest extends ServiceTest {
         Reward reward = createAndSaveQuestionReward(member, question);
 
         //when
-        rewardService.createQuestionRewardIfNotPresent(question, member);
+        rewardService.createRewardIfNotPresent(question, member);
 
         //then
-        assertThat(rewardRepository.findAll().size()).isEqualTo(1);
+        assertThat(newRewardRepository.findAll().size()).isEqualTo(1);
     }
 
     @Test
@@ -96,14 +99,14 @@ class RewardServiceTest extends ServiceTest {
         Question question = createAndSaveQuestion(video);
 
         Member member = createAndSaveMember();
-        Reward reward = createAndSaveQuestionReward(member, question);
+        NewReward reward = createAndSaveReward(member, question);
         reward.cancelReward();
 
         //when
-        rewardService.createQuestionRewardIfNotPresent(question, member);
+        rewardService.createRewardIfNotPresent(question, member);
 
         //then
-        assertThat(rewardRepository.findAll().size()).isEqualTo(2);
+        assertThat(newRewardRepository.findAll().size()).isEqualTo(2);
     }
 
     @Test
@@ -124,11 +127,11 @@ class RewardServiceTest extends ServiceTest {
         rewardService.createQuestionRewardsIfNotPresent(questions, member);
 
         //then
-        List<Reward> reward = rewardRepository.findAll();
+        List<NewReward> reward = newRewardRepository.findAll();
         assertThat(reward).hasSize(2)
                 .extracting("question").containsOnly(question1, question2);
         assertThat(reward).extracting("rewardType").containsOnly(RewardType.QUIZ);
-        assertThat(reward).extracting("rewardPoint").containsOnly(rewardService.getQuestionRewardPolicy());
+        assertThat(reward).extracting("rewardPoint").containsOnly(question1.getRewardPoint());
     }
 
     @Test
@@ -145,14 +148,14 @@ class RewardServiceTest extends ServiceTest {
 
         Member member = createAndSaveMember();
 
-        Reward reward1 = createAndSaveQuestionReward(member, question1);
-        Reward reward2 = createAndSaveQuestionReward(member, question2);
+        NewReward reward1 = createAndSaveReward(member, question1);
+        NewReward reward2 = createAndSaveReward(member, question2);
 
         //when
         rewardService.createQuestionRewardsIfNotPresent(questions, member);
 
         //then
-        assertThat(rewardRepository.findAll().size()).isEqualTo(2);
+        assertThat(newRewardRepository.findAll().size()).isEqualTo(2);
     }
 
     @Test
@@ -168,17 +171,18 @@ class RewardServiceTest extends ServiceTest {
         List<Question> questions = List.of(question1, question2);
 
         Member member = createAndSaveMember();
+        Channel memberChannel = createAndSaveChannel(member);
 
-        Reward reward1 = createAndSaveQuestionReward(member, question1);
+        NewReward reward1 = createAndSaveReward(member, question1);
         reward1.cancelReward();
-        Reward reward2 = createAndSaveQuestionReward(member, question2);
+        NewReward reward2 = createAndSaveReward(member, question2);
         reward2.cancelReward();
 
         //when
         rewardService.createQuestionRewardsIfNotPresent(questions, member);
 
         //then
-        assertThat(rewardRepository.findAll().size()).isEqualTo(4);
+        assertThat(newRewardRepository.findAll().size()).isEqualTo(4);
     }
 
     @Test
@@ -191,11 +195,14 @@ class RewardServiceTest extends ServiceTest {
         Question question = createAndSaveQuestion(video);
 
         Member member = createAndSaveMember();
+        Channel memberChannel = createAndSaveChannel(member);
+
         int currentPoint = member.getReward();
 
+        NewReward reward1 = createAndSaveReward(member, video);
+        NewReward reward2 = createAndSaveReward(member, question);
+
         Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 100);
-        Reward reward1 = createAndSaveVideoReward(member, video);
-        Reward reward2 = createAndSaveQuestionReward(member, question);
 
         //when
         rewardService.cancelReward(order);
@@ -217,10 +224,11 @@ class RewardServiceTest extends ServiceTest {
         Question question = createAndSaveQuestion(video);
 
         Member member = createAndSaveMember();
+        Channel memberChannel = createAndSaveChannel(member);
 
         Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
-        createAndSaveVideoReward(member, video);
-        createAndSaveQuestionReward(member, question);
+        createAndSaveReward(member, video);
+        createAndSaveReward(member, question);
 
         member.minusReward(member.getReward()); // 리워드를 0 으로 만든다.
 

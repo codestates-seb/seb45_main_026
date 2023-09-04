@@ -16,26 +16,16 @@ import javax.persistence.*;
 public class ReplyReward extends NewReward {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reply_id")
-    private Reply reply;
+    @JoinColumn(name = "video_id")
+    private Video video;
 
-    protected ReplyReward(Member member, Integer rewardPoint, Reply reply) {
+    protected ReplyReward(Member member, Integer rewardPoint, Video video) {
         super(member, rewardPoint);
-        this.reply = reply;
+        this.video = video;
     }
 
     @Override
     public RewardType getRewardType() {
         return RewardType.REPLY;
-    }
-
-    @Override
-    public Long getEntityId() {
-        return reply.getReplyId();
-    }
-
-    @Override
-    public Video getVideo() {
-        return reply.getVideo();
     }
 }

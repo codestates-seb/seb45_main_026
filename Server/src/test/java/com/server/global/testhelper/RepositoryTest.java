@@ -9,8 +9,10 @@ import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
+import com.server.domain.reward.entity.NewReward;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.RewardType;
+import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
@@ -202,6 +204,15 @@ public abstract class RepositoryTest {
     protected Reward createAndSaveQuestionReward(Member member, Question question) {
 
         Reward reward = Reward.createReward(RewardType.QUIZ, 10, member, question);
+
+        em.persist(reward);
+
+        return reward;
+    }
+
+    protected NewReward createAndSaveReward(Member member, Rewardable rewardable) {
+
+        NewReward reward = NewReward.createReward(10, member, rewardable);
 
         em.persist(reward);
 

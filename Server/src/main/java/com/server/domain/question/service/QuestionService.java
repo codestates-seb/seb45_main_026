@@ -167,7 +167,7 @@ public class QuestionService {
     }
 
     private void getReward(Answer answer) {
-        rewardService.createQuestionRewardIfNotPresent(answer.getQuestion(), answer.getMember());
+        rewardService.createRewardIfNotPresent(answer.getQuestion(), answer.getMember());
     }
 
     private List<Answer> createOrGetAnswersInPositionOrder(Long loginMemberId, List<Question> questions) {
