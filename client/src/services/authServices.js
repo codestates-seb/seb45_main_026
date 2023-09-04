@@ -4,7 +4,6 @@ import { ROOT_URL } from '.';
 //회원가입 API
 export const signupService = async ({data}) => {
     try {
-        console.log(data)
         const response = await axios.post(
             `${ROOT_URL}/auth/signup`,
             {
