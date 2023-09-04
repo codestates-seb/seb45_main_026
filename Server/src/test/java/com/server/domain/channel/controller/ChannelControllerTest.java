@@ -89,7 +89,7 @@ class ChannelControllerTest extends ControllerTest {
                         fieldWithPath("data.memberId").description("채널의 member ID"),
                         fieldWithPath("data.channelName").description("채널의 이름"),
                         fieldWithPath("data.subscribers").description("채널의 구독자 수"),
-                        fieldWithPath("data.isSubscribed").description("로그인 사용자의 채널의 구독 여부"),
+                        fieldWithPath("data.subscribed").description("로그인 사용자의 채널의 구독 여부"),
                         fieldWithPath("data.description").description("채널의 설명"),
                         fieldWithPath("data.imageUrl").description("채널의 이미지 URL"),
                         fieldWithPath("data.createdDate").description("채널의 생성일")

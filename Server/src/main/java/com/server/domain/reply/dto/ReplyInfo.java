@@ -19,8 +19,6 @@ public class ReplyInfo {
     private String content;
     private Integer star;
     private MemberInfo member;
-    private String nickname;
-    private String imageUrl;
     private LocalDateTime createdDate;
 
 
@@ -41,8 +39,7 @@ public class ReplyInfo {
                 .replyId(reply.getReplyId())
                 .content(reply.getContent())
                 .star(reply.getStar())
-                .nickname(member.getNickname())
-                .imageUrl(imageUrl)
+                .member(member)
                 .createdDate(reply.getCreatedDate())
                 .build();
     }
