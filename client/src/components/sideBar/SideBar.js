@@ -1,6 +1,6 @@
 import React from 'react';
 import { styled } from 'styled-components';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { BodyTextTypo } from '../../atoms/typographys/Typographys'
 import profileGray from '../../assets/images/icons/profile/profileGray.svg'
 import help from '../../assets/images/icons/sideBar/help.svg';
@@ -16,6 +16,8 @@ import basketWhite from '../../assets/images/icons/sideBar/basketWhite.svg';
 import write from '../../assets/images/icons/sideBar/write.svg';
 import writeWhite from '../../assets/images/icons/sideBar/writeWhite.svg';
 import tokens from '../../styles/tokens.json'
+import { setIsLogin, setLoginInfo, setMyid, setProvider, setToken } from '../../redux/createSlice/LoginInfoSlice';
+import { useNavigate } from 'react-router-dom';
 
 const globalTokens = tokens.global;
 
@@ -68,8 +70,19 @@ export const DivisionLine = styled.div`
 `
 
 export const SideBar = () => {
+    const dispatch = useDispatch();
     const isDark = useSelector(state=>state.uiSetting.isDark);
     const isSideBar = useSelector(state=>state.uiSetting.isSideBar);
+    const navigate = useNavigate();
+
+    const handleLogoutClick = () => {
+        dispatch(setToken({ authorization: '', refresh: '' }));
+        dispatch(setLoginInfo({ email: '', nickname: '' }));
+        dispatch(setProvider(''));
+        dispatch(setMyid(''));
+        dispatch(setIsLogin(false));
+        navigate('/');
+    }
 
     return (
         <SideBarContainer isDark={isDark} isSideBar={isSideBar}>
@@ -81,7 +94,7 @@ export const SideBar = () => {
                 <SideBarButtonIcon src={isDark?helpWhite:help}/>
                 <SideBarButtonTitle isDark={isDark}>문의하기</SideBarButtonTitle>
             </SideBarButtonContainer>
-            <SideBarButtonContainer>
+            <SideBarButtonContainer onClick={handleLogoutClick}>
                 <SideBarButtonIcon src={isDark?logoutWhite:logout}/>
                 <SideBarButtonTitle isDark={isDark}>로그아웃</SideBarButtonTitle>
             </SideBarButtonContainer>

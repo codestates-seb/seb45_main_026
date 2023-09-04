@@ -1,6 +1,6 @@
 import "./App.css";
 import { useEffect, useMemo } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useMatch } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setBrowserWidth } from "./redux/createSlice/UISettingSlice";
 import MainPage from "./pages/contents/MainPage";
