@@ -78,13 +78,9 @@ export const PayBtn = styled.button`
 const CartPayInfo = () => {
   return (
     <PayForm>
-      <PointLabel for="point">포인트</PointLabel>
+      <PointLabel>포인트</PointLabel>
       <PointBox>
-        <PointInput
-          id="point"
-          type="text"
-          placeholder="1,000원 이상 사용가능"
-        />
+        <PointInput type="text" placeholder="1,000원 이상 사용가능" />
         <SubmitBtn>전액 사용</SubmitBtn>
       </PointBox>
       <Payment>

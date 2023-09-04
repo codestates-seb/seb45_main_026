@@ -1,30 +1,36 @@
-import { useState } from "react";
 import { styled } from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+import { setContnentOpen } from "../../../redux/createSlice/VideoInfoSlice";
 
 const DetailContent = () => {
-  const [isOpened, setOpened] = useState(false);
+  const dispatch = useDispatch();
+  const videoDatas = useSelector((state) => state.videoInfo.data);
+  const contentOpend = useSelector(
+    (state) => state.videoInfo.mode.contentOpend
+  );
 
   return (
     <ContentInfo>
       <ContentTitle>강의 소개</ContentTitle>
 
       <SubTitle>
-        <Views>조회수 1.8만회</Views>
-        <Createdate>2023.08.26</Createdate>
+        <Views>조회수 {videoDatas.views}회</Views>
+        <Createdate>{videoDatas.createdDate}</Createdate>
       </SubTitle>
 
-      <Content isOpened={isOpened}>
-        Create React App 덕분에 React 개발환경 구축이 쉬워진 것처럼 Redux
-        toolkit 을 사용하면 Redux 개발환경 구축을 쉽게 할 수 있습니다.
+      <Content isOpened={contentOpend}>
+        {videoDatas.description}
         <Category>
-          <CategoryLists>#JavaScript</CategoryLists>
-          <CategoryLists>#React</CategoryLists>
-          <CategoryLists>#Web</CategoryLists>
+          {videoDatas.categories.map((el) => (
+            <CategoryLists key={el.categoryId}>
+              #{el.categoryName}
+            </CategoryLists>
+          ))}
         </Category>
       </Content>
 
-      <ContentBtn onClick={() => setOpened(!isOpened)}>
-        {!isOpened ? "...더보기" : "간략히"}
+      <ContentBtn onClick={() => dispatch(setContnentOpen(!contentOpend))}>
+        {!contentOpend ? "...더보기" : "간략히"}
       </ContentBtn>
     </ContentInfo>
   );
@@ -54,6 +60,7 @@ export const ContentTitle = styled.div`
 
 export const SubTitle = styled.div`
   margin: 5px 0px;
+  padding-left: 5px;
   display: flex;
   flex-direction: row;
   justify-content: start;
@@ -71,6 +78,8 @@ export const Createdate = styled(Views)``;
 export const Content = styled.div`
   width: 100%;
   height: ${(props) => props.isOpened || "30px"};
+  margin-bottom: 10px;
+  padding: 10px 0px 0px 10px;
   flex-wrap: wrap;
   overflow: hidden;
 `;
@@ -79,7 +88,8 @@ export const Category = styled.ul`
   display: flex;
   justify-content: start;
   align-items: center;
-  margin: 5px 0px;
+  margin-top: 10px;
+  padding-left: 5px;
 `;
 
 export const CategoryLists = styled.li`
@@ -90,7 +100,7 @@ export const CategoryLists = styled.li`
 `;
 
 export const ContentBtn = styled.button`
-  background: none;
+  padding-left: 5px;
   font-size: small;
   color: gray;
   font-size: 16px;

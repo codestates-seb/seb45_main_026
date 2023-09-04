@@ -4,31 +4,50 @@ import {
   RegularRedButton,
   RegularNavyButton,
 } from "../../../atoms/buttons/Buttons";
+import { useDispatch, useSelector } from "react-redux";
+import { setPrev } from "../../../redux/createSlice/VideoInfoSlice";
+import { Link } from "react-router-dom";
 
 const DetailVideo = () => {
+  const dispatch = useDispatch();
+  const videoDatas = useSelector((state) => state.videoInfo.data);
+  console.log(videoDatas);
+
   return (
     <VideoContainer>
       <VideoHeader>
         강의를 다 들었다면?
-        <HeaderBtn>문제 풀러가기 →</HeaderBtn>
+        <Link to="/videos/1/problems">
+          <HeaderBtn>문제 풀러가기 →</HeaderBtn>
+        </Link>
       </VideoHeader>
 
-      <VideoWindow>
+      {videoDatas.isPurchased ? (
+        <VideoWindow
+          src={videoDatas.videoUrl}
+          controls
+          loop
+          muted
+          autoPlay={false}
+        />
+      ) : (
         <VideoCover>
-          <PrevBtn>1분 미리보기</PrevBtn>
+          <PrevBtn onClick={() => dispatch(setPrev(true))}>
+            1분 미리보기
+          </PrevBtn>
           <PurchaseBtn>구매하러 가기</PurchaseBtn>
         </VideoCover>
-      </VideoWindow>
+      )}
 
-      <VideoTitle>React 서버 통신에 회의가 든다면 - RTK Query</VideoTitle>
+      <VideoTitle>{videoDatas.videoName}</VideoTitle>
 
       <VideoInfo>
         <Profile>
-          <ProfileImg src="../logo512.png" alt="프로필 이미지" />
+          <ProfileImg src={videoDatas.channel.imageUrl} alt="프로필 이미지" />
 
           <ProfileRight>
-            <ProfileName>코딩생활</ProfileName>
-            <Subscribed>구독자 33.6만명</Subscribed>
+            <ProfileName>{videoDatas.channel.channelName}</ProfileName>
+            <Subscribed>구독자 {videoDatas.channel.subscribes}명</Subscribed>
           </ProfileRight>
         </Profile>
 
@@ -54,10 +73,10 @@ export const VideoContainer = styled.section`
 `;
 
 export const VideoCover = styled.div`
-  position: absolute;
   background-color: rgb(100, 100, 100, 90%);
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1.8/1;
+  margin-top: 5px;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -81,22 +100,19 @@ export const VideoHeader = styled.div`
   align-items: center;
   width: 100%;
 
-  font-size: small;
-  color: gray;
   font-size: 16px;
+  color: gray;
 `;
 
 export const HeaderBtn = styled.button`
-  font-size: small;
+  font-size: 16px;
   color: red;
   margin-left: 10px;
 `;
 
-export const VideoWindow = styled.div`
+export const VideoWindow = styled.video`
   position: relative;
-  background-color: rgb(230, 230, 230);
   width: 100%;
-  /* height: 500px; */
   aspect-ratio: 1.8/1;
   margin-top: 5px;
 `;
