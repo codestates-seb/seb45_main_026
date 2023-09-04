@@ -173,8 +173,7 @@ public class VideoController {
 
     @GetMapping("/{video-id}/replies")
     public ResponseEntity<ApiPageResponse<ReplyInfo>> getReplies(
-            @PathVariable("video-id")
-            @Positive(message = "{validation.positive}") Long videoId,
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
             @RequestParam(defaultValue = "1") @Positive(message = "{validation.positive}") int page,
             @RequestParam(defaultValue = "10") @Positive(message = "{validation.positive}") int size,
             @RequestParam(defaultValue = "created-date") ReplySort sort,

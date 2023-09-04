@@ -7,12 +7,14 @@ import lombok.Builder;
 import lombok.Getter;
 
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 
 @Builder
 @Getter
 @AllArgsConstructor
 public class ReplyUpdateControllerApi {
     @OnlyNotBlank(message = "{validation.reply.content}")
+    @Size(min = 1, max = 100, message = "{validation.size}")
     private String content;
     @Positive(message = "{validation.positive}")
     private Integer star;
