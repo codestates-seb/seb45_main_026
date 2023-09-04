@@ -9,7 +9,7 @@ const FilterContainer = styled.div`
     height: 50px;
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: ${globalTokens.Spacing8.value}px;
 `
 
 export default function CategoryFilter() {

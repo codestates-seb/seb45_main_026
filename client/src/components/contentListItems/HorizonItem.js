@@ -24,9 +24,9 @@ const ThumbnailContainer = styled.div`
     overflow: hidden;
 `
 const Thumbnail = styled.img`
-    max-height: 200px;
-    height: auto;
-    width: auto;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
 `
 const ItemInfors = styled.div`
     flex-grow: 1;

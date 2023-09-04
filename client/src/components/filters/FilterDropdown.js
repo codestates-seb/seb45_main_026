@@ -15,13 +15,14 @@ const DropdownContainer = styled.ul`
     gap: 1px;
     z-index: 1;
 `
-const ListContainer = styled.li`
+const DropdownItem = styled.li`
     width: 100px;
     height: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: white;
+    border-radius: ${globalTokens.RegularRadius.value}px;
     &:hover{
         background-color: lightgray;
     }
@@ -36,7 +37,7 @@ export default function FilterDropdown({ options, actionName }) {
     };
     return (
         <DropdownContainer>
-            {options.map((el,idx)=><ListContainer key={idx} onClick={()=>dispatch(actionMap[actionName](el))}>{el.text}</ListContainer>)}
+            {options.map((el,idx)=><DropdownItem key={idx} onClick={()=>dispatch(actionMap[actionName](el))}>{el.text}</DropdownItem>)}
         </DropdownContainer>
   );
 }

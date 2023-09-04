@@ -59,37 +59,21 @@ const VerticalItemContainer = styled.ul`
 `;
 
 const LectureListPage = () => {
-  const isDark = useSelector((state) => state.uiSetting.isDark);
-  const [isHorizon, setIsHorizon] = useState(true);
-  const a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-
-  return (
-    <PageContainer isDark={isDark}>
-      <LectureMainContainer>
-        <ListTitle>강의 목록</ListTitle>
-        <FilterContainer>
-          <CategoryFilter />
-          <StructureButton
-            isHorizon={isHorizon}
-            onClick={() => setIsHorizon(!isHorizon)}
-          />
-        </FilterContainer>
-        {isHorizon ? (
-          <HorizonItemContainer>
-            {a.map((el) => (
-              <HorizonItem />
-            ))}
-          </HorizonItemContainer>
-        ) : (
-          <VerticalItemContainer>
-            {a.map((el) => (
-              <VerticalItem />
-            ))}
-          </VerticalItemContainer>
-        )}
-      </LectureMainContainer>
-    </PageContainer>
-  );
+    const isDark = useSelector(state=>state.uiSetting.isDark);
+    const [isHorizon, setIsHorizon] = useState(true);
+    const a = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+    return (
+        <PageContainer isDark={isDark}>
+            <LectureMainContainer>
+                <ListTitle>강의 목록</ListTitle>
+                <FilterContainer>
+                    <CategoryFilter />
+                    <StructureButton isHorizon={isHorizon} onClick={()=>setIsHorizon(!isHorizon)} />
+                </FilterContainer>
+                {isHorizon?<HorizonItemContainer>{a.map((el,idx)=><HorizonItem key={idx}/>)}</HorizonItemContainer>:<VerticalItemContainer>{a.map((el,idx)=><VerticalItem key={idx}/>)}</VerticalItemContainer>}
+            </LectureMainContainer>
+        </PageContainer>
+    );
 };
 
 export default LectureListPage;

@@ -1,10 +1,6 @@
 import "./App.css";
 import { useEffect, useMemo } from "react";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setBrowserWidth,
@@ -30,6 +26,7 @@ import {
 } from "./redux/createSlice/LoginInfoSlice";
 import useConfirm from "./hooks/useConfirm";
 import FindPasswordPage from "./pages/auth/FindPasswordPage";
+import PurchasedListPage from "./pages/contents/PurchasedListPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -82,6 +79,7 @@ function App() {
         <Route path="/carts" element={<CartPage />} />
         <Route path="/upload" element={<UploadPage />} />
         <Route path="/videos/1/problems" element={<ProblemPage />} />
+        <Route path="/purchased" element={<PurchasedListPage />} />
       </Routes>
       <Footer />
     </BrowserRouter>
