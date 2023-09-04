@@ -8,7 +8,7 @@ import {
     LoginButton,
 } from './LoginForm.style';
 import { loginService } from '../../services/authServices';
-import { setToken } from '../../redux/createSlice/LoginInfoSlice';
+import { setToken, setIsLogin } from '../../redux/createSlice/LoginInfoSlice';
 import { useNavigate } from 'react-router-dom';
 import LoginInputs from './LoginInputs';
 import useConfirm from '../../hooks/useConfirm';
@@ -27,16 +27,18 @@ export const LoginForm = () => {
     const onSubmit = async (data) => {
         const response = await loginService(data);
         if(response.status==='success') {
+            //로그인에 성공하면 token을 state에 저장하고, 강의 목록 페이지로 이동한다.
             const authorization = response.authorization;
             const refresh = response.refresh;
-            console.log(response)
+            
             dispatch(setToken({
                 authorization: authorization,
                 refresh: refresh
             }));
-
+            dispatch(setIsLogin(true));
             navigate('/lecture');
         } else {
+            //로그인에 실패하면 로그인 실패 알림창을 띄운다.
             loginFailConfirm();
         }
     };

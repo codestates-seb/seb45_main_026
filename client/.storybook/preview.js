@@ -1,6 +1,11 @@
 /** @type { import('@storybook/react').Preview } */
 import './index.css';
 import tokens from '../src/styles/tokens.json'
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistStore } from "redux-persist";
+import store from "../src/redux/Store"
+import { MemoryRouter } from 'react-router-dom';
 
 const globalTokens = tokens.global;
 
@@ -22,5 +27,16 @@ const preview = {
     }
   },
 };
+
+export const decorators = [
+  (Story) => (
+    <Provider store={store}>
+      <MemoryRouter initialEntries={['/']}>
+        <Story/>
+      </MemoryRouter>
+    </Provider>
+  )
+]
+
 
 export default preview;
