@@ -1,30 +1,37 @@
-import React from 'react';
-import { PageContainer } from '../../atoms/layouts/PageContainer';
-import { useSelector } from 'react-redux';
-import { styled } from 'styled-components';
-import Login from '../../components/loginPageItems/Login';
-import tokens from '../../styles/tokens.json'
+import React, { useEffect } from "react";
+import { PageContainer } from "../../atoms/layouts/PageContainer";
+import { useDispatch, useSelector } from "react-redux";
+import { styled } from "styled-components";
+import Login from "../../components/loginPageItems/Login";
+import tokens from "../../styles/tokens.json";
+import { setLocation } from "../../redux/createSlice/UISettingSlice";
 
 const globalTokens = tokens.global;
 
 export const LoginPageContainer = styled(PageContainer)`
-    width: 100vw;
-    height: 700px;
-    padding: ${globalTokens.Spacing40.value}px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-`
+  width: 100vw;
+  height: 700px;
+  padding: ${globalTokens.Spacing40.value}px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
 
 const LoginPage = () => {
-    const isDark = useSelector(state=>state.uiSetting.isDark);
+  const dispatch = useDispatch();
+  const isDark = useSelector((state) => state.uiSetting.isDark);
 
-    return (
-        <LoginPageContainer isDark={isDark}>
-            <Login/>
-        </LoginPageContainer>
-    );
+//   useEffect(() => {
+//     const url = new URL(window.location.href);
+//     dispatch(setLocation(url.pathname));
+//   }, []);
+
+  return (
+    <LoginPageContainer isDark={isDark}>
+      <Login />
+    </LoginPageContainer>
+  );
 };
 
 export default LoginPage;

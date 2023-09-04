@@ -1,9 +1,12 @@
 import { styled } from "styled-components";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 // import tokens from "../../../styles/tokens.json";
 import { PageContainer } from "../../../atoms/layouts/PageContainer";
 import CartLeft from "./CartLeft";
 import CartRight from "./CartRight";
+import { useEffect } from "react";
+import axios from "axios";
+import { setCarts } from "../../../redux/createSlice/CartsSlice";
 
 // const globalTokens = tokens.global;
 
@@ -41,6 +44,20 @@ export const CartContent = styled.div`
 
 const CartPage = () => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
+  const token = useSelector((state) => state.loginInfo.accessToken);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    axios
+      .get(`https://api.itprometheus.net/members/carts`, {
+        headers: { Authorization: token.authorization, refresh: token.refresh },
+      })
+      .then((res) => {
+        console.log(res.data);
+        // dispatch(setCarts(res.data));
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
   return (
     <PageContainer isDark={isDark}>

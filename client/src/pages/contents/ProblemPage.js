@@ -1,6 +1,7 @@
 import { styled } from "styled-components";
 import { useState } from "react";
 import { PageContainer } from "../../atoms/layouts/PageContainer";
+import { Link } from "react-router-dom";
 
 export const ProblemContainer = styled.section`
   width: 100%;
@@ -101,7 +102,6 @@ export const BtnBox = styled.div`
 `;
 
 export const RegularBtn = styled.button`
-  /* width: 80px; */
   padding: 0px 20px;
   height: 40px;
   border: 1px solid rgb(220, 220, 220);
@@ -153,7 +153,9 @@ const ProblemPage = () => {
     <PageContainer>
       <ProblemContainer>
         <HeaderBox>
-          <LectureBtn>← 강의로 돌아가기</LectureBtn>
+          <Link to="/videos/1">
+            <LectureBtn>← 강의로 돌아가기</LectureBtn>
+          </Link>
           <ProblemHeader>문제</ProblemHeader>
         </HeaderBox>
         <BodyBox>

@@ -5,6 +5,33 @@ import {
   CategoryLists,
 } from "../../pages/contents/DetailPage/DetailContent";
 
+const CartItem = ({ el }) => {
+
+  return (
+    <CartList>
+      <CheckedBtn type="checkbox" />
+      <VideoImage src={el.thumbnailUrl} />
+      <Content>
+        <ItemTitle>{el.videoName}</ItemTitle>
+        <ItemName>{el.channel.channelName}</ItemName>
+        <Category>
+          {[{ categoryId: 1234, categoryName: "데이터 불러와야함." }].map(
+            (el) => (
+              <CategoryLists key={el.categoryId}>
+                #{el.categoryName}
+              </CategoryLists>
+            )
+          )}
+        </Category>
+        <CancelBtn>&times;</CancelBtn>
+      </Content>
+      <ItemPrice>{el.price}원</ItemPrice>
+    </CartList>
+  );
+};
+
+export default CartItem;
+
 export const CartList = styled.li`
   display: flex;
   flex-direction: row;
@@ -16,11 +43,10 @@ export const CartList = styled.li`
   padding: 15px;
 `;
 
-export const VideoImage = styled.div`
+export const VideoImage = styled.img`
   width: 100%;
   max-width: 170px;
   aspect-ratio: 8 / 5;
-  background-color: rgb(200, 200, 200);
   margin: 0px 10px;
 `;
 
@@ -62,25 +88,3 @@ export const ItemPrice = styled.div`
   text-align: end;
   font-weight: bold;
 `;
-
-const CartItem = () => {
-  return (
-    <CartList>
-      <CheckedBtn type="checkbox"/>
-      <VideoImage />
-      <Content>
-        <ItemTitle>TypeScript 고급반 (TypeScript란?)</ItemTitle>
-        <ItemName>코딩사과</ItemName>
-        <Category>
-          <CategoryLists>#React</CategoryLists>
-          <CategoryLists>#TypeScript</CategoryLists>
-          <CategoryLists>#Web</CategoryLists>
-        </Category>
-        <CancelBtn>&times;</CancelBtn>
-      </Content>
-      <ItemPrice>15,000원</ItemPrice>
-    </CartList>
-  );
-};
-
-export default CartItem;
