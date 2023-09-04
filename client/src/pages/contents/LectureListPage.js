@@ -48,15 +48,15 @@ const HorizonItemContainer = styled.ul`
   margin-bottom: ${globalTokens.Spacing28.value}px;
 `;
 const VerticalItemContainer = styled.ul`
-  width: 100%;
-  min-height: 400px;
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  flex-wrap: wrap;
-  gap: ${globalTokens.Spacing28.value}px;
-  margin-bottom: ${globalTokens.Spacing28.value}px;
-`;
+    width: 100%;
+    min-height: 400px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: ${globalTokens.Spacing28.value}px;
+    margin-bottom: ${globalTokens.Spacing28.value}px;
+`
 
 const LectureListPage = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
