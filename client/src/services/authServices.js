@@ -100,11 +100,6 @@ export const oauthLoginService = async (provider,authorizationCode) => {
                 provider: provider,
                 code:authorizationCode
             },
-            {
-                headers: {
-                    'Content-Type': 'application/json;charset=UTF-8',
-                }
-            }
         );
         return {
             status: 'success',

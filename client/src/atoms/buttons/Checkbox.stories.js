@@ -1,20 +1,26 @@
-import { CheckboxContainer } from "./Checkbox"
-
-const Checkbox = ({isChecked, isDark}) => {
-    return (<CheckboxContainer isDark={isDark} isChecked={isChecked}/>);
-}
+import { useState } from "react";
+import { Checkbox } from "./Checkbox"
 
 export default {
     title: 'Atoms/Button',
     component: Checkbox,
     argTypes: {
-        isDark: { control: 'boolean' },
-        isChecked: { control: 'boolean' },
+        isDark: 'boolean',
+        label: 'text',
     }
 }
 
-export const CheckboxTemplate = (args) => <Checkbox {...args}/>
+export const CheckboxTemplate = (args) => {
+    const [ isChecked, setIsChecked ] = useState(false);
+
+    return (
+        <Checkbox 
+            isChecked={isChecked} 
+            setIsChecked={()=>{setIsChecked(!isChecked)}} 
+            {...args}/>
+    );
+}
 CheckboxTemplate.args = {
-    isChecked: false,
-    isDark: false,
+    label: '레이블',
+    isDark : false,
 }

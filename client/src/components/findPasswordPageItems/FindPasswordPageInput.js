@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { SignupEmailConfirmButton, SignupFormInputContainer, SignupWithButtonInputContainer } from './SignupForm.style';
+import { SignupFormInputContainer, SignupWithButtonInputContainer, SignupEmailConfirmButton } from '../SignupPageItems/SignupForm.style';
 import { RegularInput } from '../../atoms/inputs/Inputs';
 import { BodyTextTypo } from '../../atoms/typographys/Typographys';
 
-export const SignupInput = ({
+export const FindPasswordPageInput = ({
     label, name, type, placeholder, 
     register, required, maxLength, minLength, pattern, validateFunc,
     isButton, buttonTitle, handleButtonClick }) => {
@@ -49,4 +49,4 @@ export const SignupInput = ({
                 }
             </SignupFormInputContainer> )}
 
-export default SignupInput;
+export default FindPasswordPageInput;

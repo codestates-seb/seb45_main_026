@@ -5,6 +5,7 @@ import tokens from '../../styles/tokens.json';
 import { SmallTextTypo } from '../../atoms/typographys/Typographys';
 import lightLogo from '../../assets/images/logos/lightLogo.png'; 
 import logo from '../../assets/images/logos/logo.png'; 
+import { useMatch } from 'react-router-dom';
 
 const globalTokens = tokens.global;
 
@@ -30,13 +31,17 @@ export const FooterInfo = styled(SmallTextTypo)`
 
 const Footer = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
-
+    const match = useMatch('/');
     return (
-        <FooterContainer>
-            <FooterLogo src={isDark ? lightLogo : logo}/>
-            <FooterInfo>(주)오펜하이머    |   사업자번호 : 809-27-01650</FooterInfo>
-            <FooterInfo>@Oppenheimer All Right Reserve.</FooterInfo>
-        </FooterContainer>
+        <>
+        { match===null && 
+            <FooterContainer>
+                <FooterLogo src={isDark ? lightLogo : logo}/>
+                <FooterInfo>(주)오펜하이머    |   사업자번호 : 809-27-01650</FooterInfo>
+                <FooterInfo>@Oppenheimer All Right Reserve.</FooterInfo>
+            </FooterContainer>
+        }
+        </>
     );
 };
 
