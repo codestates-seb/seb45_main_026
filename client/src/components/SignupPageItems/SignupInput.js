@@ -23,13 +23,15 @@ export const SignupInput = ({
                             {...register(name, { 
                                 required: required,
                                 maxLength: maxLength,
-                                minLength: minLength,                                    pattern: pattern,
+                                minLength: minLength,
+                                pattern: pattern,
                                 validate: validateFunc })}/>
                         { isButton &&
                             <SignupEmailConfirmButton
-                            isDark={isDark}
-                            onClick={handleButtonClick}>
-                                {buttonTitle}
+                                type='button'
+                                isDark={isDark}
+                                onClick={handleButtonClick}>
+                                    {buttonTitle}
                             </SignupEmailConfirmButton> }
                     </SignupWithButtonInputContainer>
                  : 

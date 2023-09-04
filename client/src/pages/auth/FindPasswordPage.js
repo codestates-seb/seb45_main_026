@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { LoginContainer, LoginTitle } from '../../components/loginPageItems/Login';
 import LoginFormLogo from '../../components/loginPageItems/LoginLogo';
 import tokens from '../../styles/tokens.json';
+import FindPasswordPageForm from '../../components/findPasswordPageItems/FindPasswordPageForm';
 
 const globalTokens = tokens.global;
 
@@ -33,6 +34,7 @@ const FindPasswordPage = () => {
             <FindPasswordContainer isDark={isDark}>
                 <FindPasswordLogo isDark={isDark}/>
                 <FindPasswordTitle isDark={isDark}>비밀번호 찾기</FindPasswordTitle>
+                <FindPasswordPageForm/>
             </FindPasswordContainer>
         </FindPasswordPageContainer>
     );

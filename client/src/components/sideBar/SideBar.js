@@ -25,7 +25,7 @@ export const SideBarContainer = styled.aside`
     position: fixed;
     top: 60px;
     bottom: 0;
-    right: ${(props)=>props.isSideBar? 0 : -250 }px;
+    right: ${(props)=>props.isSideBar? 0 : -251 }px;
     z-index: 999;
     width: 250px;
     background-color: ${(props)=>props.isDark?globalTokens.Black.value:globalTokens.Header.value};
@@ -75,6 +75,9 @@ export const SideBar = () => {
     const isSideBar = useSelector(state=>state.uiSetting.isSideBar);
     const navigate = useNavigate();
 
+    const handleMyProfileClick = () => {
+        navigate('/MyProfile');
+    }
     const handleLogoutClick = () => {
         dispatch(setToken({ authorization: '', refresh: '' }));
         dispatch(setLoginInfo({ email: '', nickname: '' }));
@@ -83,14 +86,29 @@ export const SideBar = () => {
         dispatch(setIsLogin(false));
         navigate('/');
     }
+    const handleHelpClick = () => {
+         window.location.href = 'mailto:helim01033@naver.com';
+    }
+    const handlePurchaseClick = () => {
+
+    }
+    const handleBasketClick = () => {
+        navigate('/carts');
+    }
+    const handleSubscribeClick = () => {
+
+    }
+    const handleWriteClick = () => {
+        navigate('/upload');
+    }
 
     return (
         <SideBarContainer isDark={isDark} isSideBar={isSideBar}>
-            <SideBarButtonContainer>
+            <SideBarButtonContainer onClick={handleMyProfileClick}>
                 <SideBarButtonIcon src={profileGray}/>
                 <SideBarButtonTitle isDark={isDark}>내 프로필</SideBarButtonTitle>
             </SideBarButtonContainer>
-            <SideBarButtonContainer>
+            <SideBarButtonContainer onClick={handleHelpClick}>
                 <SideBarButtonIcon src={isDark?helpWhite:help}/>
                 <SideBarButtonTitle isDark={isDark}>문의하기</SideBarButtonTitle>
             </SideBarButtonContainer>
@@ -99,20 +117,20 @@ export const SideBar = () => {
                 <SideBarButtonTitle isDark={isDark}>로그아웃</SideBarButtonTitle>
             </SideBarButtonContainer>
             <DivisionLine isDark={isDark}/>
-            <SideBarButtonContainer>
+            <SideBarButtonContainer onClick={handlePurchaseClick}>
                 <SideBarButtonIcon src={isDark?purchaseWhite:purchase}/>
                 <SideBarButtonTitle isDark={isDark}>구매한 강의</SideBarButtonTitle>
             </SideBarButtonContainer>
-            <SideBarButtonContainer>
+            <SideBarButtonContainer onClick={handleBasketClick}>
                 <SideBarButtonIcon src={isDark?basketWhite:basket}/>
                 <SideBarButtonTitle isDark={isDark}>장바구니</SideBarButtonTitle>
             </SideBarButtonContainer>
-            <SideBarButtonContainer>
+            <SideBarButtonContainer onClick={handleSubscribeClick}>
                 <SideBarButtonIcon src={isDark?subscribeWhite:subscribe}/>
                 <SideBarButtonTitle isDark={isDark}>구독</SideBarButtonTitle>
             </SideBarButtonContainer>
             <DivisionLine isDark={isDark}/>
-            <SideBarButtonContainer>
+            <SideBarButtonContainer onClick={handleWriteClick}>
                 <SideBarButtonIcon src={isDark?writeWhite:write}/>
                 <SideBarButtonTitle isDark={isDark}>강의 올리기</SideBarButtonTitle>
             </SideBarButtonContainer>
