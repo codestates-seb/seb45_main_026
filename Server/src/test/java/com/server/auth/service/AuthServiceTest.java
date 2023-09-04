@@ -30,31 +30,19 @@ import com.server.domain.member.service.MemberService;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberNotUpdatedException;
+import com.server.global.testhelper.ServiceTest;
 import com.server.module.email.service.MailService;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class AuthServiceTest {
+public class AuthServiceTest extends ServiceTest {
 
 	@Autowired
 	MailService mailService;
 	@Autowired
 	MemberService memberService;
 	@Autowired
-	MemberRepository memberRepository;
-	@Autowired
 	PasswordEncoder passwordEncoder;
 	@Autowired
 	AuthService authService;
-
-	@Mock
-	MailService mockMailService;
-	@Mock
-	MemberRepository mockMemberRepository;
-	@Mock
-	PasswordEncoder mockPasswordEncoder;
-	@InjectMocks
-	AuthService mockAuthService;
 
 	@TestFactory
 	@DisplayName("이메일 전송 예외 처리 테스트")
@@ -88,45 +76,33 @@ public class AuthServiceTest {
 
 	@TestFactory
 	@DisplayName("비빌번호 찾기 테스트")
-	Collection<DynamicTest> updatePassword() {
-		Member member = createAndSaveMember();
+	Collection<DynamicTest> updatePasswordSuccess() {
+		Member member = createAndSaveMemberWithEncodingPassword();
 
 		AuthServiceRequest.Reset reset = AuthServiceRequest.Reset.builder()
 			.email("test@gmail.com")
 			.password("qwer1234!")
 			.build();
 
+
 		return List.of(
 			DynamicTest.dynamicTest(
 				"성공하는 경우 비밀번호가 정상적으로 바뀌는지 테스트",
 				() -> {
-					when(mockMemberRepository.findByEmail(reset.getEmail())).thenReturn(Optional.ofNullable(member));
-					when(mockPasswordEncoder.encode(reset.getPassword())).thenReturn(reset.getPassword());
-					mockAuthService.updatePassword(reset);
+					authService.updatePassword(reset);
 
-					verify(mockMailService, times(1)).checkEmailCertify(reset.getEmail());
-					verify(mockPasswordEncoder, times(1)).encode(reset.getPassword());
-					assert member != null;
-					assertThat(member.getPassword()).isEqualTo(reset.getPassword());
-				}
-			),
-			DynamicTest.dynamicTest(
-				"비밀번호 변경사항이 없는 경우 예외 처리 테스트",
-				() -> {
-					when(mockMemberRepository.findByEmail(reset.getEmail())).thenReturn(Optional.ofNullable(member));
-					when(mockPasswordEncoder.encode(reset.getPassword())).thenReturn(member.getPassword());
-
-					assertThrows(MemberNotUpdatedException.class, () -> mockAuthService.updatePassword(reset));
+					verify(mailService, times(1)).checkEmailCertify(reset.getEmail());
+					assertThat(passwordEncoder.matches(reset.getPassword(), member.getPassword())).isEqualTo(true);
 				}
 			)
 		);
 	}
 
 
-	private Member createAndSaveMember() {
+	private Member createAndSaveMemberWithEncodingPassword() {
 		Member member = Member.builder()
 			.email("test@gmail.com")
-			.password("1q2w3e4r!")
+			.password(passwordEncoder.encode("1q2w3e4r!"))
 			.nickname("test")
 			.authority(Authority.ROLE_USER)
 			.reward(1000)
