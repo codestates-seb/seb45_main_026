@@ -43,7 +43,6 @@ export const Header = () => {
                     ?<HeaderLoginButton isDark={isDark} onClick={handleLoginButtonClick}>로그인</HeaderLoginButton>
                     :<HeaderProfile/>
             }
-            <SideBar/>
         </HeaderContainer>
     );
 };

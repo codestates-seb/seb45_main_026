@@ -5,7 +5,7 @@ const LoginInfoSlice = createSlice({
   initialState: {
     isLogin: false,
     loginInfo: { email: "", nickname: "" },
-    oAuthProvider: "", //GOOGLE, GITHUB, KAKAO
+    oAuthProvider: "", //google, github, kakao
     accessToken: {
       authorization: "",
       refresh: "",

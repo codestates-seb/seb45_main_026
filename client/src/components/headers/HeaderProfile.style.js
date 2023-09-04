@@ -3,7 +3,7 @@ import tokens from '../../styles/tokens.json'
 
 const globalTokens = tokens.global;
 
-export const HeaderProfileContainer = styled.div`
+export const HeaderProfileContainer = styled.button`
     padding: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing32.value}px;
     display: flex;
     flex-direction: row;

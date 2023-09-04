@@ -21,7 +21,7 @@ const UISettingSlice = createSlice({
         setLocation: (state, action) => {
             state.location = action.payload;
         },
-    }
+    },
 });
 
 export default UISettingSlice;

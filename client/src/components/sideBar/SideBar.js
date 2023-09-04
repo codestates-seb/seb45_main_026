@@ -23,10 +23,9 @@ export const SideBarContainer = styled.aside`
     position: fixed;
     top: 60px;
     bottom: 0;
-    right: ${(props)=>props.isSideBar? 0 : -100 }0px;
+    right: ${(props)=>props.isSideBar? 0 : -250 }px;
     z-index: 999;
-    min-width: 200px;
-    width: 15vw;
+    width: 250px;
     background-color: ${(props)=>props.isDark?globalTokens.Black.value:globalTokens.Header.value};
     box-shadow: 
         ${(props)=>props.isDark?-1:-4}px 
@@ -65,6 +64,7 @@ export const DivisionLine = styled.div`
     width: 100%;
     height: 1px;
     background-color: ${ (props)=>props.isDark?globalTokens.LightGray.value:globalTokens.DarkGray.value };
+    margin: ${globalTokens.Spacing8.value}px 0px;
 `
 
 export const SideBar = () => {
