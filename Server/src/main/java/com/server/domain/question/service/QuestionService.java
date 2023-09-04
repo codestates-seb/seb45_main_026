@@ -78,15 +78,12 @@ public class QuestionService {
         return requests.stream()
                 .map(request -> {
 
-                    List<String> reversedSelections = new ArrayList<>(request.getSelections());
-                    Collections.reverse(reversedSelections);
-
                     Question question = Question.createQuestion(
                             request.getPosition(),
                             request.getContent(),
                             request.getQuestionAnswer(),
                             request.getDescription(),
-                            reversedSelections,
+                            request.getSelections(),
                             video
                     );
                     return questionRepository.save(question).getQuestionId();
