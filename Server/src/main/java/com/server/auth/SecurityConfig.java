@@ -82,7 +82,6 @@ public class SecurityConfig {
 
 	private Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> getAuthorizeRequests() {
 		return (http) -> http
-			.antMatchers("/members/*").permitAll()
 			.antMatchers("/members/**").hasRole("USER")
 
 			.antMatchers(HttpMethod.GET, "/channels/**").permitAll()
@@ -101,7 +100,8 @@ public class SecurityConfig {
 			.antMatchers(HttpMethod.GET, "/announcements/*").permitAll()
 			.antMatchers("/announcements/**").hasRole("USER")
 
-			.antMatchers("/auth/**").permitAll();
+			.antMatchers("/auth/**").permitAll()
+			.anyRequest().permitAll();
 	}
 
 	public class CustomFilterConfigurer extends AbstractHttpConfigurer<CustomFilterConfigurer, HttpSecurity> {
