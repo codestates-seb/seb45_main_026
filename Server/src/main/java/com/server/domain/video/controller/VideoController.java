@@ -91,7 +91,7 @@ public class VideoController {
             @RequestParam(value = "sort", defaultValue = "created-date") VideoSort sort,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "subscribe", defaultValue = "false") boolean subscribe,
-            @RequestParam(value = "search", required = false) Boolean free,
+            @RequestParam(value = "free", required = false) Boolean free,
             @LoginId Long loginMemberId) {
 
         VideoGetServiceRequest request = VideoGetServiceRequest.builder()

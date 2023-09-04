@@ -14,25 +14,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class SubscribesResponse {
 	private Long memberId;
 	private String channelName;
 	private int subscribes;
 	private String imageUrl;
-
-	public static List<SubscribesResponse> convertSubscribesResponse(List<MemberSubscribesData> memberSubscribesData) {
-
-		return memberSubscribesData.stream()
-			.map(data -> {
-				SubscribesResponse response = new SubscribesResponse();
-				response.setMemberId(data.getMemberId());
-				response.setChannelName(data.getChannelName());
-				response.setSubscribes(data.getSubscribes());
-				response.setImageUrl(data.getImageUrl());
-				return response;
-			})
-			.collect(Collectors.toList());
-	}
 }

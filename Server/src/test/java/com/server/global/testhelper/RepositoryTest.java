@@ -2,6 +2,7 @@ package com.server.global.testhelper;
 
 import com.server.domain.answer.entity.Answer;
 import com.server.domain.answer.entity.AnswerStatus;
+import com.server.domain.cart.entity.Cart;
 import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Authority;
@@ -19,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Random;
 
 @DataJpaTest
 public abstract class RepositoryTest {
@@ -60,6 +62,24 @@ public abstract class RepositoryTest {
                 .price(1000)
                 .videoStatus(VideoStatus.CREATED)
                 .build();
+
+        em.persist(video);
+
+        return video;
+    }
+
+    protected Video createAndSaveVideoWithRandomStarAndName(Channel channel, String name) {
+        Video video = Video.builder()
+            .videoName(name)
+            .description("description")
+            .thumbnailFile("thumbnailFile")
+            .videoFile("videoFile")
+            .channel(channel)
+            .view(0)
+            .star(0.0F + new Random().nextFloat() * (10.0F - 0.0F))
+            .price(1000)
+            .videoStatus(VideoStatus.CREATED)
+            .build();
 
         em.persist(video);
 
@@ -213,5 +233,21 @@ public abstract class RepositoryTest {
         em.persist(answer);
 
         return answer;
+    }
+
+    protected Cart createAndSaveCartWithVideo(Member member, Video video) {
+        Cart cart = Cart.createCart(member, video, video.getPrice());
+
+        em.persist(cart);
+
+        return cart;
+    }
+
+    protected Channel createAndSaveChannelWithName(Member member, String channelName) {
+        Channel channel = Channel.createChannel(channelName);
+        channel.setMember(member);
+        em.persist(channel);
+
+        return channel;
     }
 }
