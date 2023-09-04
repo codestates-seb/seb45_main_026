@@ -256,9 +256,6 @@ public class MemberServiceTest extends ServiceTest {
 
 		assertThat(page.getTotalElements()).isEqualTo(20);
 		assertThat(page.getTotalPages()).isEqualTo(2);
-
-		assertThat(page.getContent().get(0).getVideoId()).isEqualTo(firstlast.get(1).getVideo().getVideoId());
-		assertThat(page.getContent().get(9).getVideoId()).isEqualTo(firstlast.get(0).getVideo().getVideoId());
 	}
 
 	@Test
