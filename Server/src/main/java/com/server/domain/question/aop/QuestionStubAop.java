@@ -14,8 +14,8 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class QuestionStubAop {
 
     @Around("execution(* com.server.domain.question.controller.QuestionController.getQuestion(..))")

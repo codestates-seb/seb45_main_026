@@ -22,8 +22,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class ChannelStubAop {
 
     private final AwsService awsService;

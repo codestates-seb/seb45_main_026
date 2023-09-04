@@ -30,8 +30,8 @@ import java.util.stream.IntStream;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class VideoStubAop {
 
     private final AwsService awsService;
