@@ -36,20 +36,20 @@ public class MemberStubAop {
 		this.awsService = awsService;
 	}
 
-//	@Around("execution(* com.server.domain.member.controller.MemberController.getMember(..))")
-//	public ResponseEntity<ApiSingleResponse<ProfileResponse>> getMember(ProceedingJoinPoint joinPoint) {
-//		ProfileResponse profileResponse = ProfileResponse.builder()
-//			.memberId(1L)
-//			.email("stub@email.com")
-//			.nickname("stubName")
-//			.imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
-//			.grade(Grade.PLATINUM)
-//			.reward(777)
-//			.createdDate(LocalDateTime.now())
-//			.build();
-//
-//		return ResponseEntity.ok(ApiSingleResponse.ok(profileResponse, "프로필 조회 성공"));
-//	}
+	@Around("execution(* com.server.domain.member.controller.MemberController.getMember(..))")
+	public ResponseEntity<ApiSingleResponse<ProfileResponse>> getMember(ProceedingJoinPoint joinPoint) {
+		ProfileResponse profileResponse = ProfileResponse.builder()
+			.memberId(1L)
+			.email("stub@email.com")
+			.nickname("stubName")
+			.imageUrl(awsService.getFileUrl(9999L, "test", FileType.PROFILE_IMAGE))
+			.grade(Grade.PLATINUM)
+			.reward(777)
+			.createdDate(LocalDateTime.now())
+			.build();
+
+		return ResponseEntity.ok(ApiSingleResponse.ok(profileResponse, "프로필 조회 성공"));
+	}
 
 	@Around("execution(* com.server.domain.member.controller.MemberController.getRewards(..))")
 	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(ProceedingJoinPoint joinPoint) {
