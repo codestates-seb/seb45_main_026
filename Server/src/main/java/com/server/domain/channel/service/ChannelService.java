@@ -138,7 +138,7 @@ public class ChannelService {
             channel.addSubscribers(1);
 
         } else {
-            throw new ChannelNotFoundException(); // 이 부분이 맞는지 ..?
+            throw new ChannelNotFoundException();
         }
 
         Subscribe subscribe = Subscribe.builder()

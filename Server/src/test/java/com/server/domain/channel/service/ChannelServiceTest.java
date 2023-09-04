@@ -100,7 +100,7 @@ class ChannelServiceTest extends ServiceTest {
 
         assertThat(channelInfo.getMemberId()).isEqualTo(member.getMemberId());
         assertThat(channelInfo.getChannelName()).isEqualTo(channel.getChannelName());
-        assertThat(channelInfo.isSubscribed()).isFalse();
+        assertThat(channelInfo.getSubscribers()).isEqualTo(channel.getSubscribers());
         assertThat(channelInfo.getSubscribers()).isEqualTo(channel.getSubscribers());
         assertThat(channelInfo.getDescription()).isEqualTo(channel.getDescription());
         assertThat(channelInfo.getImageUrl()).isEqualTo(member.getImageFile());

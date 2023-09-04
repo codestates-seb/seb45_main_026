@@ -15,12 +15,12 @@ public class ChannelInfo {
     private Long memberId;
     private String channelName;
     private int subscribers;
-    private boolean isSubscribed; //구독여부 값 채워넣기
+    private Boolean isSubscribed;
     private String description;
     private String imageUrl;
     private LocalDateTime createdDate;
 
-    public static ChannelInfo of(Channel channel, boolean isSubscribed) {
+    public static ChannelInfo of(Channel channel, Boolean isSubscribed) {
 
             String imageUrl = channel.getMember().getImageFile();
 
