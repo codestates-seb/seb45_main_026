@@ -36,6 +36,7 @@ public class Question extends BaseEntity implements Rewardable {
     private List<Answer> answers = new ArrayList<>();
 
     @ElementCollection
+    @OrderColumn(name = "selection_order")
     private List<String> selections = new ArrayList<>();
 
     @Lob
