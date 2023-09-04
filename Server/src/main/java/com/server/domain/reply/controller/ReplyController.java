@@ -6,6 +6,7 @@ import com.server.domain.reply.service.ReplyService;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiSingleResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -13,6 +14,7 @@ import javax.validation.constraints.Positive;
 
 @RestController
 @RequestMapping("/replies")
+@Validated
 public class ReplyController {
 
     private final ReplyService replyService;
@@ -25,7 +27,7 @@ public class ReplyController {
 
     @PatchMapping("/{reply-id}")
     public ResponseEntity<Void> updateReply(
-            @PathVariable("reply-id") @Positive(message = "{validation.positive") Long replyId,
+            @PathVariable("reply-id") @Positive(message = "{validation.positive}") Long replyId,
             @RequestBody @Valid ReplyUpdateControllerApi request,
             @LoginId Long loginMemberId) {
 
@@ -36,7 +38,7 @@ public class ReplyController {
 
     @GetMapping("/{reply-id}")
     public ResponseEntity<ApiSingleResponse<ReplyInfo>> getReply(
-            @PathVariable ("reply-id") @Positive(message = "{validation.positive") @Positive Long replyId,
+            @PathVariable("reply-id") @Positive(message = "{validation.positive}") Long replyId,
             @LoginId Long loginMemberId) {
 
         ReplyInfo reply = replyService.getReply(replyId, loginMemberId);
@@ -46,7 +48,7 @@ public class ReplyController {
 
     @DeleteMapping("/{reply-id}")
     public ResponseEntity<Void> deleteReply(
-            @PathVariable ("reply-id") @Positive(message = "{validation.positive") @Positive Long replyId,
+            @PathVariable("reply-id") @Positive(message = "{validation.positive}") Long replyId,
             @LoginId Long loginMemberId) {
 
         replyService.deleteReply(replyId, loginMemberId);
