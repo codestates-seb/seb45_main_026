@@ -1,6 +1,38 @@
 import { styled } from "styled-components";
 import CartItem from "../../../components/CartPage/CartItem";
 import CartEmpty from "../../../components/CartPage/CartEmpty";
+import { useSelector } from "react-redux";
+
+const CartLeft = () => {
+  const cartsData = useSelector((state) => state.cartSlice.data);
+
+  return (
+    <CartItems>
+      <CartHeader>
+        <WholeCheck>
+          <CheckedBtn type="checkbox" />
+          <Checklabel>전체선택 1/2</Checklabel>
+        </WholeCheck>
+        <RemoveBtn>&times; 선택 삭제</RemoveBtn>
+      </CartHeader>
+      <CartLists>
+        {cartsData.length ? (
+          cartsData.map((el) => <CartItem key={el.videoId} el={el} />)
+        ) : (
+          <CartEmpty />
+        )}
+      </CartLists>
+      <CartCautions>
+        장바구니 상품 안내
+        <CartCaution>
+          장바구니에 담은 상품은 최대 20개까지 보관됩니다.
+        </CartCaution>
+      </CartCautions>
+    </CartItems>
+  );
+};
+
+export default CartLeft;
 
 export const CartItems = styled.div`
   width: 100%;
@@ -56,6 +88,7 @@ export const CartLists = styled.ul`
   flex-direction: column;
   justify-content: start;
   align-items: center;
+  /* overflow-y: scroll; */
 `;
 
 export const CartCautions = styled.ul`
@@ -74,35 +107,3 @@ export const CartCaution = styled.li`
   color: gray;
   font-weight: normal;
 `;
-
-const CartLeft = () => {
-  // const CartDummyData = [];
-  const CartDummyData = [0, 1, 2];
-
-  return (
-    <CartItems>
-      <CartHeader>
-        <WholeCheck>
-          <CheckedBtn id="whole" type="checkbox" />
-          <Checklabel for="whole">전체선택 1/2</Checklabel>
-        </WholeCheck>
-        <RemoveBtn>&times; 선택 삭제</RemoveBtn>
-      </CartHeader>
-      <CartLists>
-        {CartDummyData.length ? (
-          CartDummyData.map((el, idx) => <CartItem key={idx} el={el} />)
-        ) : (
-          <CartEmpty />
-        )}
-      </CartLists>
-      <CartCautions>
-        장바구니 상품 안내
-        <CartCaution>
-          장바구니에 담은 상품은 최대 10개까지 보관됩니다.
-        </CartCaution>
-      </CartCautions>
-    </CartItems>
-  );
-};
-
-export default CartLeft;

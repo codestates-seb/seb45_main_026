@@ -4,7 +4,6 @@ import { ROOT_URL } from '.';
 //회원가입 API
 export const signupService = async ({data}) => {
     try {
-        console.log(data)
         const response = await axios.post(
             `${ROOT_URL}/auth/signup`,
             {
@@ -25,7 +24,7 @@ export const signupService = async ({data}) => {
     }
 }
 
-//email 인증코드 발송
+//회원가입 email 인증코드 발송
 export const emailValidationService = async (email) => {
     try {
         const response = await axios.post(
@@ -46,7 +45,7 @@ export const emailValidationService = async (email) => {
     }
 }
 
-//email 인증코드 확인
+//회원가입 email 인증코드 확인
 export const emailValidationConfirmService = async (email, emailCode) => {
     try {
         const response = await axios.post(
@@ -100,11 +99,6 @@ export const oauthLoginService = async (provider,authorizationCode) => {
                 provider: provider,
                 code:authorizationCode
             },
-            {
-                headers: {
-                    'Content-Type': 'application/json;charset=UTF-8',
-                }
-            }
         );
         return {
             status: 'success',
@@ -116,5 +110,70 @@ export const oauthLoginService = async (provider,authorizationCode) => {
             status: 'error',
             data: err.response.data.message
         };
+    }
+}
+
+//패스워드 찾기 email 인증번호 발송
+export const findPasswordEmailValidService = async (email) => {
+    try {
+        const response = await axios.post(
+            `${ROOT_URL}/auth/password/email`,
+            {
+                email: email
+            }
+        );
+        return {
+            status: 'success',
+            data: response.data,
+        }
+    } catch (err) {
+        return {
+            status: 'error',
+        }
+    }
+}
+
+//패스워드 찾기 email 인증번호 확인
+export const findPasswordEmailValidConfirmService = async (email, emailCode) => {
+    try {
+        const response = axios.post(
+            `${ROOT_URL}/auth/password/confirm`,
+            {
+                email: email,
+                code: emailCode
+            }
+        );
+        return {
+            status: 'success',
+            data: response.data,
+        };
+    } catch (err) {
+        return {
+            status: 'error',
+            data: err.response.data.message,
+        };
+    }
+}
+
+//비밀번호 초기화
+export const updatePasswordService = async (email, password) => {
+    try {
+        console.log(email)
+        console.log(password)
+        const response = await axios.patch(
+            `${ROOT_URL}/auth/password`,
+            {
+                email: email,
+                password: password
+            },
+        );
+        return {
+            status: 'success',
+            data: response.data
+        }
+    } catch(err) {
+        return {
+            status: 'error',
+        }
     }
 }

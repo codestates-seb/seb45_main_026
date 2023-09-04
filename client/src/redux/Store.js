@@ -1,12 +1,14 @@
 import storage from "redux-persist/lib/storage";
-import { persistReducer } from "redux-persist";
+// import storageSession from 'redux-persist/lib/storage/session' // 세션스토리지 사용하고 싶을 때.
 import { configureStore } from "@reduxjs/toolkit";
 import { combineReducers } from "@reduxjs/toolkit";
+import { persistReducer, FLUSH, PERSIST, PURGE } from "redux-persist";
 
 import LoginInfoSlice from "./createSlice/LoginInfoSlice";
 import UISettingSlice from "./createSlice/UISettingSlice";
 import FilterSlice from "./createSlice/FilterSlice";
 import VideoInfoSlice from "./createSlice/VideoInfoSlice";
+import CartsSlice from "./createSlice/CartsSlice";
 
 const reducers = combineReducers({
   // 각각의 slice에 저장되어 있는 여러 reducer들을 하나의 reducer로 통합.
@@ -14,6 +16,7 @@ const reducers = combineReducers({
   uiSetting: UISettingSlice.reducer,
   filterSlice: FilterSlice.reducer,
   videoInfo: VideoInfoSlice.reducer,
+  cartSlice: CartsSlice.reducer,
 });
 
 const persistConfig = {
@@ -26,6 +29,12 @@ const persistedReducer = persistReducer(persistConfig, reducers); // 기존 redu
 
 const store = configureStore({
   reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, PERSIST, PURGE],
+      },
+    }),
 });
 
 export default store;

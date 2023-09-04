@@ -1,32 +1,26 @@
 import { styled } from 'styled-components';
-import { ErrorTextTypo, LoginButton, LoginFormContainer } from '../loginPageItems/LoginForm.style';
+import { LoginButton } from '../loginPageItems/LoginForm.style';
 import tokens from '../../styles/tokens.json'
-import { RegularButton } from '../../atoms/buttons/Buttons';
+import { BodyTextTypo } from '../../atoms/typographys/Typographys';
 
 const globalTokens = tokens.global;
-
-export const SignupFormContainer = styled(LoginFormContainer)`
-`
-export const SignupFormInputContainer = styled.div`
-    margin-top: ${globalTokens.Spacing8.value}px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: start;
+export const SignupFormContainer = styled.form`
 `
 export const SignupButton = styled(LoginButton)`
     margin-top: ${globalTokens.Spacing12.value}px;
     width: 300px;
 `
-export const SignupErrorTypo = styled(ErrorTextTypo)`
+export const SignupAgreeContainer = styled.section`
     width: 95%;
-    text-align: end;
+    margin: ${globalTokens.Spacing8.value}px;
 `
-export const SignupWithButtonInputContainer = styled.div`
+export const SignupAgreeCheckContainer = styled.div`
+    margin-top: ${globalTokens.Spacing8.value}px;
     display: flex;
     flex-direction: row;
+    justify-content: start;
+    align-items: center;
 `
-export const SignupEmailConfirmButton = styled(RegularButton)`
+export const SignupAgreeCheckLabel = styled(BodyTextTypo)`
     margin-left: ${globalTokens.Spacing4.value}px;
-    padding: ${globalTokens.Spacing4.value}px;
 `

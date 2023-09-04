@@ -1,24 +1,15 @@
-import { RegularInput } from "./Inputs"
-
-const Inputs = ({isDark, width}) => {
-    return (
-        <div style={{display: "flex", flexDirection:"column", }}>
-            <RegularInput isDark={isDark} width={width} type='text' placeholder='placeholder'/>
-        </div>
-    )
-}
+import { Input } from "./Inputs"
 
 export default {
     title: 'Atoms/Inputs',
-    component: Inputs,
+    component: Input,
     argTypes: {
         isDark: { control: 'boolean' },
         width: {  control: 'text' },
     }
 }
 
-export const InputsTemplate = (args) => <Inputs {...args}/>
+export const InputsTemplate = (args) => <Input {...args}/>
 InputsTemplate.args = {
-    isDark: false,
     width: '300px'
 }
