@@ -374,6 +374,79 @@ class VideoRepositoryTest extends RepositoryTest {
         );
     }
 
+    @TestFactory
+    @DisplayName("video 전체를 찾을 때 page, size 가 주어지면 page 에 해당하는 video 목록을 size 만큼 조회한다.")
+    Collection<DynamicTest> findAllByCategoryPaging() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Member member = createAndSaveMember();
+
+        Category category1 = createAndSaveCategory("java");
+        Category category2 = createAndSaveCategory("spring");
+
+        for(int i = 1; i <= 100; i++) {
+            Video video = createAndSaveVideo(channel);
+            createAndSaveVideoCategory(video, category1, category2);
+        }
+
+        em.flush();
+        em.clear();
+
+        //when
+        return List.of(
+                dynamicTest("page 0, size 10 으로 조회한다.", () -> {
+                    //given
+                    PageRequest pageRequest = PageRequest.of(0, 10);
+
+                    VideoGetDataRequest request = new VideoGetDataRequest(
+                            member.getMemberId(),
+                            pageRequest,
+                            null,
+                            null,
+                            false,
+                            null);
+
+                    //when
+                    Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+
+                    //then
+                    assertThat(videos.getContent().size()).isEqualTo(10);
+                    assertThat(videos.getTotalElements()).isEqualTo(100);
+                    assertThat(videos.getTotalPages()).isEqualTo(10);
+                    assertThat(videos.getNumber()).isEqualTo(0);
+                    assertThat(videos.getSize()).isEqualTo(10);
+                    assertThat(videos.hasNext()).isTrue();
+                    assertThat(videos.hasPrevious()).isFalse();
+                }),
+                dynamicTest("page 1, size 12 으로 조회한다.", () -> {
+                    //given
+                    PageRequest pageRequest = PageRequest.of(1, 12);
+
+                    VideoGetDataRequest request = new VideoGetDataRequest(
+                            member.getMemberId(),
+                            pageRequest,
+                            null,
+                            null,
+                            false,
+                            null);
+
+                    //when
+                    Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+
+                    //then
+                    assertThat(videos.getContent().size()).isEqualTo(12);
+                    assertThat(videos.getTotalElements()).isEqualTo(100);
+                    assertThat(videos.getTotalPages()).isEqualTo(9);
+                    assertThat(videos.getNumber()).isEqualTo(1);
+                    assertThat(videos.getSize()).isEqualTo(12);
+                    assertThat(videos.hasNext()).isTrue();
+                    assertThat(videos.hasPrevious()).isTrue();
+                })
+        );
+    }
+
     @Test
     @DisplayName("videoId 로 video 정보를 조회한다.")
     void findVideoDetail() {

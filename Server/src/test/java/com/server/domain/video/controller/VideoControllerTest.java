@@ -2,6 +2,11 @@ package com.server.domain.video.controller;
 
 import com.server.domain.answer.entity.AnswerStatus;
 import com.server.domain.question.service.dto.response.QuestionResponse;
+import com.server.domain.reply.controller.convert.ReplySort;
+import com.server.domain.reply.dto.MemberInfo;
+import com.server.domain.reply.dto.ReplyCreateControllerApi;
+import com.server.domain.reply.dto.ReplyCreateServiceApi;
+import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
@@ -577,6 +582,111 @@ class VideoControllerTest extends ControllerTest {
                         )
                 )
         );
+    }
+
+    @Test
+    @DisplayName("비디오의 댓글 조회 API")
+    void getReplies() throws Exception {
+        //given
+        int page = 1;
+        int size = 5;
+
+        List<ReplyInfo> replyInfos = createReplyInfos(5);
+        Page<ReplyInfo> replyInfoPage =  createPage(replyInfos, page - 1, 5, 20);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(replyInfoPage, "댓글 조회 성공"));
+
+        given(videoService.getReplies(anyLong(), anyInt(), anyInt(), anyString())).willReturn(replyInfoPage);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                get(BASE_URL + "/{videoId}/replies", 1L)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .param("sort", "created-date")
+                        .param("star", "4")
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse)
+        );
+
+        //restdocs
+        actions
+                .andDo(documentHandler.document(
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("액세스 토큰").optional()
+                        ),
+                        pathParameters(
+                                parameterWithName("videoId").description("댓글을 조회할 비디오 ID")
+                        ),
+                        requestParameters(
+                                parameterWithName("page").description("페이지 번호").optional(),
+                                parameterWithName("size").description("페이지 크기").optional(),
+                                parameterWithName("sort").description(generateLinkCode(ReplySort.class)).optional(),
+                                parameterWithName("star").description("별점").optional()
+                        ),
+                        pageResponseFields(
+                                fieldWithPath("data").description("댓글 정보"),
+                                fieldWithPath("data[].replyId").description("댓글 ID"),
+                                fieldWithPath("data[].content").description("댓글 내용"),
+                                fieldWithPath("data[].star").description("별점"),
+                                fieldWithPath("data[].member").description("댓글"),
+                                fieldWithPath("data[].member.memberId").description("댓글 단 member 의 ID"),
+                                fieldWithPath("data[].member.nickname").description("member 의 닉네임"),
+                                fieldWithPath("data[].member.imageUrl").description("member 의 프로필 url"),
+                                fieldWithPath("data[].createdDate").description("댓글 생성일")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("비디오 댓글 생성 API")
+    void createReply() throws Exception {
+        //given
+        Long createdReplyId = 1L;
+
+        ReplyCreateControllerApi request = ReplyCreateControllerApi.builder()
+                        .content("댓글 내용")
+                        .star(4)
+                        .build();
+
+        given(videoService.createReply(anyLong(), anyLong(), any(ReplyCreateServiceApi.class))).willReturn(createdReplyId);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                post(BASE_URL + "/{videoId}/replies", 1L)
+                        .contentType(APPLICATION_JSON)
+                        .header(AUTHORIZATION, TOKEN)
+                        .content(objectMapper.writeValueAsString(request))
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "/replies/" + createdReplyId));
+
+        //restDocs
+        setConstraintClass(ReplyCreateControllerApi.class);
+
+        actions.andDo(documentHandler.document(
+                requestHeaders(
+                        headerWithName(AUTHORIZATION).description("액세스 토큰")
+                ),
+                pathParameters(
+                        parameterWithName("videoId").description("댓글을 생성할 비디오 ID")
+                ),
+                requestFields(
+                        fieldWithPath("content").description("댓글 내용").attributes(getConstraint("content")),
+                        fieldWithPath("star").description("별점").attributes(getConstraint("star"))
+                ),
+                responseHeaders(
+                        headerWithName("Location").description("생성된 댓글의 ID")
+                )
+        ));
     }
 
     @Test
@@ -1488,5 +1598,28 @@ class VideoControllerTest extends ControllerTest {
                 .channel(createVideoChannelResponse())
                 .createdDate(LocalDateTime.now())
                 .build();
+    }
+
+    private List<ReplyInfo> createReplyInfos(int count) {
+        List<ReplyInfo> replyInfos = new ArrayList<>();
+
+        MemberInfo member = MemberInfo.builder()
+                .memberId(1L)
+                .nickname("nickname")
+                .imageUrl("imageUrl")
+                .build();
+
+        for(int i = 1; i <= count; i++) {
+            ReplyInfo replyInfo = ReplyInfo.builder()
+                    .replyId((long) i)
+                    .content("content" + i)
+                    .star(4)
+                    .member(member)
+                    .createdDate(LocalDateTime.now())
+                    .build();
+
+            replyInfos.add(replyInfo);
+        }
+        return replyInfos;
     }
 }
