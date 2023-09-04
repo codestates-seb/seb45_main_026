@@ -66,7 +66,7 @@ const LectureListPage = () => {
                     <CategoryFilter />
                     <StructureButton isHorizon={isHorizon} onClick={()=>setIsHorizon(!isHorizon)} />
                 </FilterContainer>
-                {isHorizon?<HorizonItemContainer>{a.map(el=><HorizonItem/>)}</HorizonItemContainer>:<VerticalItemContainer>{a.map(el=><VerticalItem/>)}</VerticalItemContainer>}
+                {isHorizon?<HorizonItemContainer>{a.map((el,idx)=><HorizonItem key={idx}/>)}</HorizonItemContainer>:<VerticalItemContainer>{a.map((el,idx)=><VerticalItem key={idx}/>)}</VerticalItemContainer>}
             </LectureMainContainer>
         </PageContainer>
     );
