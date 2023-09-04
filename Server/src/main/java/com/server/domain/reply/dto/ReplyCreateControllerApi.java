@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
 @Builder
 @Getter
@@ -13,7 +15,8 @@ import javax.validation.constraints.NotBlank;
 public class ReplyCreateControllerApi {
     @NotBlank(message = "{validation.reply.content}")
     private String content;
-    @NotBlank(message = "{validation.reply.star}")
+    @NotNull(message = "{validation.reply.star}")
+    @Positive(message = "{validation.positive}")
     private Integer star;
 
     public static ReplyUpdateServiceApi of(Reply reply) {

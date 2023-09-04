@@ -9,7 +9,7 @@ public class StringToReplySortConverter implements Converter<String, ReplySort> 
 
     @Override
     public ReplySort convert(String source) {
-        return ReplySort.CREATED_DATE;
+        return ReplySort.fromUrl(source);
     }
 }
 
