@@ -56,8 +56,7 @@ public class SecurityConfig {
 			.accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN))
 			.authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "인증되지 않은 사용자입니다."))
 			.and()
-			.authorizeRequests()
-			.anyRequest().permitAll();
+			.authorizeRequests(getAuthorizeRequests());
 
 		return http.build();
 	}
