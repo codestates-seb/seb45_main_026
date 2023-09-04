@@ -1,6 +1,7 @@
 package com.server.domain.reply.entity;
 
 import com.server.domain.member.entity.Member;
+import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
 import lombok.*;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access= AccessLevel.PRIVATE)
 @NoArgsConstructor
 @Builder
-public class Reply extends BaseEntity {
+public class Reply extends BaseEntity implements Rewardable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long replyId;

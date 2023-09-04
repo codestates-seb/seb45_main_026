@@ -2,6 +2,7 @@ package com.server.domain.reward.service;
 
 import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
+import com.server.domain.reply.entity.Reply;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +42,11 @@ public class RewardService {
 		);
 
 		rewardRepository.save(reward);
+	}
+
+	public void createReplyRewardIfNotPresent(Video video, Member member) {
+
+		//todo: newReward 로 옮길 때 구현 예정
 	}
 
 	public void createQuestionRewardIfNotPresent(Question question, Member member) {
