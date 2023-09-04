@@ -27,6 +27,7 @@ import {
 import useConfirm from "./hooks/useConfirm";
 import FindPasswordPage from "./pages/auth/FindPasswordPage";
 import PurchasedListPage from "./pages/contents/PurchasedListPage";
+import UpdatePasswordPage from "./pages/auth/UpdatePasswordPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -72,6 +73,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/findPassword" element={<FindPasswordPage />} />
+        <Route path="/findPassword/updatePassword" element={<UpdatePasswordPage/>}/>
         <Route path="/MyProfile" element={<MyProfilePage />} />
         <Route path="/lecture" element={<LectureListPage />} />
         <Route path="/videos/1" element={<DetailPage />} />

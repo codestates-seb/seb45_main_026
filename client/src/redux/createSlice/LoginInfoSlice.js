@@ -11,6 +11,7 @@ const LoginInfoSlice = createSlice({
       refresh: "",
     },
     myid: "",
+    findPasswordEmail: '',
   }, // 초기값 설정, 데이터 값의 형태를 설정 해놓으면 좋음.
   reducers: {
     // reducer들을 method 형태로 보관.
@@ -31,6 +32,10 @@ const LoginInfoSlice = createSlice({
       // 나의 memberId 를 저장
       state.myid = action.payload;
     },
+    setFindPasswordEmail: (state, action) => {
+      //비밀번호 변경 시 인증한 이메일을 저장
+      state.findPasswordEmail = action.payload;
+    }
   },
 });
 
@@ -41,4 +46,5 @@ export const {
   setToken,
   setProvider,
   setMyid,
+  setFindPasswordEmail
 } = LoginInfoSlice.actions;

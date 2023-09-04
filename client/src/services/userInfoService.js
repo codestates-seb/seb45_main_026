@@ -21,5 +21,5 @@ export const getUserInfoService = async (authorization) => {
             status: 'error',
             ...err,
         }
-    } 
+    }
 }

@@ -25,11 +25,11 @@ export const FindPasswordContainer = styled(LoginContainer)`
 export const FindPasswordLogo = styled(LoginFormLogo)`
 `
 export const FindPasswordTitle = styled(LoginTitle)`
-    margin: ${globalTokens.Spacing8.value}px;
+    margin: ${globalTokens.Spacing8.value}px ${globalTokens.Spacing4.value}px;
 `
 export const FindPasswordSubTitle = styled(BodyTextTypo)`
     margin-bottom: ${globalTokens.Spacing8.value}px;
-    color: ${globalTokens.Negative.value};
+    color: ${(props)=>props.isDark ? globalTokens.LightNavy.value : globalTokens.Negative.value};
 `
 
 const FindPasswordPage = () => {
