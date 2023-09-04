@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.server.domain.channel.entity.QChannel.channel;
 import static com.server.domain.member.entity.QMember.*;
 import static com.server.domain.order.entity.QOrder.*;
 import static com.server.domain.order.entity.QOrderVideo.*;
@@ -57,9 +58,9 @@ public class NewRewardRepositoryImpl implements NewRewardRepositoryCustom{
         //leftjoin 으로 한번에 다 가져오는 방법
         List<NewReward> rewards = queryFactory.selectFrom(newReward)
                 .join(newReward.member, member).fetchJoin()
+                .join(member.channel, channel).fetchJoin()
                 .leftJoin(replyReward).on(newReward.rewardId.eq(replyReward.rewardId))
-                .leftJoin(replyReward.reply, reply)
-                .leftJoin(reply.video, rv)
+                .leftJoin(replyReward.video, rv)
                 .leftJoin(rv.orderVideos, rov)
                 .leftJoin(rov.order, ro)
                 .leftJoin(questionReward).on(newReward.rewardId.eq(questionReward.rewardId))
@@ -76,10 +77,9 @@ public class NewRewardRepositoryImpl implements NewRewardRepositoryCustom{
 
         //방법 2
         //각각 하나하나 join 해서 총 쿼리 3번 보내는 방법
-        List<ReplyReward> replyRewards = queryFactory.selectFrom(replyReward)
+        /*List<ReplyReward> replyRewards = queryFactory.selectFrom(replyReward)
                 .join(replyReward.member, member).fetchJoin()
-                .join(replyReward.reply, reply)
-                .join(reply.video, rv)
+                .join(replyReward.video, rv)
                 .join(rv.orderVideos, rov)
                 .join(rov.order, ro)
                 .where(ro.orderId.eq(orderId))
@@ -105,9 +105,9 @@ public class NewRewardRepositoryImpl implements NewRewardRepositoryCustom{
         List<NewReward> rewards2 = new ArrayList<>();
         rewards2.addAll(replyRewards);
         rewards2.addAll(questionRewards);
-        rewards2.addAll(videoRewards);
+        rewards2.addAll(videoRewards);*/
 
-        return rewards2;
+        return rewards;
     }
 
     @Override
@@ -140,8 +140,7 @@ public class NewRewardRepositoryImpl implements NewRewardRepositoryCustom{
     public Optional<ReplyReward> findReplyRewardByVideoAndMember(Video video, Member member) {
 
         ReplyReward reward = queryFactory.selectFrom(replyReward)
-                .join(replyReward.reply, reply)
-                .join(reply.video, QVideo.video)
+                .join(replyReward.video, QVideo.video)
                 .where(QVideo.video.eq(video)
                         .and(QMember.member.eq(member))
                         .and(questionReward.isCanceled.eq(false)))

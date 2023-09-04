@@ -97,7 +97,7 @@ public class OrderService {
     private void addReward(Member member, Order order) {
 
         for (Video video : order.getVideos()) {
-            rewardService.createVideoReward(video, member);
+            rewardService.createRewardIfNotPresent(video, member);
         }
     }
 

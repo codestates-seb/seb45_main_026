@@ -28,11 +28,6 @@ public class VideoReward extends NewReward {
         return RewardType.VIDEO;
     }
 
-    @Override
-    public Long getEntityId() {
-        return video.getVideoId();
-    }
-
     public Video getVideo() {
     	return video;
     }

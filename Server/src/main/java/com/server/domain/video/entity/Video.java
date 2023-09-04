@@ -143,4 +143,8 @@ public class Video extends BaseEntity implements Rewardable {
         this.thumbnailFile = this.videoId + "/" + this.videoName;
         this.videoFile = this.videoId + "/" + this.videoName;
     }
+
+    public int getRewardPoint(){
+        return (int) (price * 0.01);
+    }
 }

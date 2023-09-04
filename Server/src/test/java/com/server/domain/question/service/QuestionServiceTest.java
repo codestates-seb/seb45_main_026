@@ -542,7 +542,7 @@ class QuestionServiceTest extends ServiceTest {
                     questionService.solveQuestion(member.getMemberId(), request);
 
                     //then
-                    assertThat(member.getReward()).isEqualTo(currentReward + rewardService.getQuestionRewardPolicy());
+                    assertThat(member.getReward()).isEqualTo(currentReward + question.getRewardPoint());
                 }),
                 dynamicTest("문제를 다시 틀려도 reward 를 반환하지 않는다.", () -> {
                     //given
@@ -555,7 +555,7 @@ class QuestionServiceTest extends ServiceTest {
                     questionService.solveQuestion(member.getMemberId(), request);
 
                     //then
-                    assertThat(member.getReward()).isEqualTo(currentReward + rewardService.getQuestionRewardPolicy());
+                    assertThat(member.getReward()).isEqualTo(currentReward + question.getRewardPoint());
                 }),
                 dynamicTest("문제를 다시 맞춰도 이미 한번 적립되었으면 reward 를 추가로 적립받지 않는다.", () -> {
                     //given
@@ -568,7 +568,7 @@ class QuestionServiceTest extends ServiceTest {
                     questionService.solveQuestion(member.getMemberId(), request);
 
                     //then
-                    assertThat(member.getReward()).isEqualTo(currentReward + rewardService.getQuestionRewardPolicy());
+                    assertThat(member.getReward()).isEqualTo(currentReward + question.getRewardPoint());
 
                 }),
                 dynamicTest("맞춘 문제를 또 맞춰도 이미 한번 적립되었으면 reward 를 추가로 적립받지 않는다.", () -> {
@@ -582,7 +582,7 @@ class QuestionServiceTest extends ServiceTest {
                     questionService.solveQuestion(member.getMemberId(), request);
 
                     //then
-                    assertThat(member.getReward()).isEqualTo(currentReward + rewardService.getQuestionRewardPolicy());
+                    assertThat(member.getReward()).isEqualTo(currentReward + question.getRewardPoint());
                 })
         );
 
@@ -740,7 +740,7 @@ class QuestionServiceTest extends ServiceTest {
                     questionService.solveQuestions(member.getMemberId(), video.getVideoId(), myAnswer);
 
                     //then
-                    assertThat(member.getReward()).isEqualTo(currentReward + rewardService.getQuestionRewardPolicy());
+                    assertThat(member.getReward()).isEqualTo(currentReward + questions.get(0).getRewardPoint());
                 }),
                 DynamicTest.dynamicTest("두 번째 문제만 맞추고 reward 를 적립받는다.", () -> {
                     //given
@@ -755,7 +755,7 @@ class QuestionServiceTest extends ServiceTest {
                     questionService.solveQuestions(member.getMemberId(), video.getVideoId(), myAnswer);
 
                     //then
-                    assertThat(member.getReward()).isEqualTo(currentReward + rewardService.getQuestionRewardPolicy());
+                    assertThat(member.getReward()).isEqualTo(currentReward + questions.get(0).getRewardPoint());
                 }),
                 DynamicTest.dynamicTest("첫 번째 문제만 다시 맞춰도 reward 를 적립받지 못한다.", () -> {
                     //given
@@ -800,7 +800,7 @@ class QuestionServiceTest extends ServiceTest {
                     questionService.solveQuestions(member.getMemberId(), video.getVideoId(), myAnswer);
 
                     //then
-                    assertThat(member.getReward()).isEqualTo(currentReward + rewardService.getQuestionRewardPolicy() * 3);
+                    assertThat(member.getReward()).isEqualTo(currentReward + questions.get(0).getRewardPoint() * 3);
                 })
         );
     }
