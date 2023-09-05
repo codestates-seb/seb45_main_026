@@ -1,12 +1,48 @@
 import { styled } from "styled-components";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 // import tokens from "../../../styles/tokens.json";
 import { PageContainer } from "../../../atoms/layouts/PageContainer";
+import { setCarts } from "../../../redux/createSlice/CartsSlice";
 import CartLeft from "./CartLeft";
 import CartRight from "./CartRight";
-import { useEffect } from "react";
-import axios from "axios";
-import { setCarts } from "../../../redux/createSlice/CartsSlice";
+
+const CartPage = () => {
+  const dispatch = useDispatch();
+  const isDark = useSelector((state) => state.uiSetting.isDark);
+  const cartsData = useSelector((state) => state.cartSlice.data);
+  const token = useSelector((state) => state.loginInfo.accessToken);
+  const headers = {
+    Authorization: token.authorization,
+    refresh: token.refresh,
+  };
+
+  useEffect(() => {
+    axios
+      .get(`https://api.itprometheus.net/members/carts`, {
+        headers,
+      })
+      .then((res) => {
+        dispatch(setCarts(res.data.data));
+      })
+      .catch((err) => console.log(err));
+  }, ["cartsData"]);
+
+  return (
+    <PageContainer isDark={isDark}>
+      <CartContainer>
+        <CartTitle>수강 바구니</CartTitle>
+        <CartContent>
+          <CartLeft />
+          <CartRight />
+        </CartContent>
+      </CartContainer>
+    </PageContainer>
+  );
+};
+
+export default CartPage;
 
 // const globalTokens = tokens.global;
 
@@ -16,7 +52,6 @@ export const CartContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: start;
-  /* background-color: white; */
 `;
 
 export const CartTitle = styled.h2`
@@ -41,35 +76,3 @@ export const CartContent = styled.div`
     grid-column-gap: 30px;
   }
 `;
-
-const CartPage = () => {
-  const isDark = useSelector((state) => state.uiSetting.isDark);
-  const token = useSelector((state) => state.loginInfo.accessToken);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    axios
-      .get(`https://api.itprometheus.net/members/carts`, {
-        headers: { Authorization: token.authorization, refresh: token.refresh },
-      })
-      .then((res) => {
-        console.log(res.data);
-        // dispatch(setCarts(res.data));
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  return (
-    <PageContainer isDark={isDark}>
-      <CartContainer>
-        <CartTitle>수강 바구니</CartTitle>
-        <CartContent>
-          <CartLeft />
-          <CartRight />
-        </CartContent>
-      </CartContainer>
-    </PageContainer>
-  );
-};
-
-export default CartPage;

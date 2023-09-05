@@ -9,6 +9,7 @@ import UISettingSlice from "./createSlice/UISettingSlice";
 import FilterSlice from "./createSlice/FilterSlice";
 import VideoInfoSlice from "./createSlice/VideoInfoSlice";
 import CartsSlice from "./createSlice/CartsSlice";
+import ProblemSlice from "./createSlice/ProblemSlice";
 
 const reducers = combineReducers({
   // 각각의 slice에 저장되어 있는 여러 reducer들을 하나의 reducer로 통합.
@@ -17,6 +18,7 @@ const reducers = combineReducers({
   filterSlice: FilterSlice.reducer,
   videoInfo: VideoInfoSlice.reducer,
   cartSlice: CartsSlice.reducer,
+  problemSlice: ProblemSlice.reducer,
 });
 
 const persistConfig = {

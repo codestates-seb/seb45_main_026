@@ -1,5 +1,77 @@
 import { styled } from "styled-components";
-import { SubmitBtn } from "./CartMyInfo/CartEditMode";
+import { useSelector } from "react-redux";
+import { useState } from "react";
+
+const CartPayInfo = () => {
+  const cartsData = useSelector((state) => state.cartSlice.data);
+  const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
+  const myCartInfo = useSelector((state) => state.cartSlice.myCartInfo);
+
+  const getTotal = () => {
+    const cartsArr = cartsData.map((el) => el.videoId);
+    let total = 0;
+    for (let i = 0; i < cartsArr.length; i++) {
+      if (checkedItems.includes(cartsArr[i])) {
+        total = total + cartsData[i].price;
+      }
+    }
+    return total;
+  };
+  const totalPrice = getTotal();
+
+  const [isDiscount, setDiscount] = useState(0);
+
+  const handleChangeDiscount = (reward) => {
+    setDiscount(reward);
+  };
+
+  const handleBlurDiscount = (reward) => {
+    if (reward > parseInt(myCartInfo.reward)) {
+      alert(`잔여 포인트는 ${myCartInfo.reward}포인트 입니다.`);
+      setDiscount(parseInt(myCartInfo.reward));
+    }
+    if (isDiscount < 1000) {
+      alert("1,000포인트 이상 사용 가능합니다.");
+      setDiscount(0);
+    }
+  };
+
+  return (
+    <PayForm>
+      <PointBox>
+        <PointLabel>포인트</PointLabel>
+        <Point>보유 : {myCartInfo.reward}</Point>
+      </PointBox>
+      <PointBox>
+        <PointInput
+          type="number"
+          placeholder="1,000원 이상 사용가능"
+          value={isDiscount}
+          onChange={(e) => handleChangeDiscount(e.target.value)}
+          onBlur={(e) => handleBlurDiscount(e.target.value)}
+        />
+        <SubmitBtn>전액 사용</SubmitBtn>
+      </PointBox>
+      <Payment>
+        <PriceInfo>
+          <Selected>선택 상품 금액</Selected>
+          <Selected>{totalPrice}원</Selected>
+        </PriceInfo>
+        <PriceInfo>
+          <Discount>할인 금액</Discount>
+          <Discount>{isDiscount}원</Discount>
+        </PriceInfo>
+        <PriceInfo>
+          <Amount>총 결제금액</Amount>
+          <Amount>{totalPrice}원</Amount>
+        </PriceInfo>
+      </Payment>
+      <PayBtn onClick={(e) => e.preventDefault()}>결제하기</PayBtn>
+    </PayForm>
+  );
+};
+
+export default CartPayInfo;
 
 export const PayForm = styled.form`
   width: 100%;
@@ -18,12 +90,18 @@ export const PointBox = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
 `;
 
 export const PointLabel = styled.label`
   margin-bottom: 5px;
   font-weight: 600;
+`;
+
+export const Point = styled.span`
+  font-size: small;
+  color: gray;
+  margin-right: 10px;
 `;
 
 export const PointInput = styled.input`
@@ -36,7 +114,9 @@ export const PointInput = styled.input`
   text-align: end;
 `;
 
-export const Payment = styled.div``;
+export const Payment = styled.div`
+  margin-top: 10px;
+`;
 
 export const PriceInfo = styled.div`
   display: flex;
@@ -75,31 +155,11 @@ export const PayBtn = styled.button`
   font-size: 16px;
 `;
 
-const CartPayInfo = () => {
-  return (
-    <PayForm>
-      <PointLabel>포인트</PointLabel>
-      <PointBox>
-        <PointInput type="text" placeholder="1,000원 이상 사용가능" />
-        <SubmitBtn>전액 사용</SubmitBtn>
-      </PointBox>
-      <Payment>
-        <PriceInfo>
-          <Selected>선택 상품 금액</Selected>
-          <Selected>19,000원</Selected>
-        </PriceInfo>
-        <PriceInfo>
-          <Discount>할인 금액</Discount>
-          <Discount>1,900원</Discount>
-        </PriceInfo>
-        <PriceInfo>
-          <Amount>총 결제금액</Amount>
-          <Amount>17,100원</Amount>
-        </PriceInfo>
-      </Payment>
-      <PayBtn onClick={(e) => e.preventDefault()}>결제하기</PayBtn>
-    </PayForm>
-  );
-};
-
-export default CartPayInfo;
+export const SubmitBtn = styled.button`
+  width: 100%;
+  max-width: 80px;
+  border-radius: 8px;
+  background-color: rgb(255, 200, 200);
+  font-weight: 600;
+  font-size: 14px;
+`;

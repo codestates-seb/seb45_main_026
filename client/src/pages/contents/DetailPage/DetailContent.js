@@ -94,9 +94,8 @@ export const Category = styled.ul`
 
 export const CategoryLists = styled.li`
   margin-right: 10px;
-  font-size: small;
   color: gray;
-  font-size: 16px;
+  font-size: 14px;
 `;
 
 export const ContentBtn = styled.button`

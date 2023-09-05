@@ -10,14 +10,17 @@ import DetailContent from "./DetailContent";
 import { setVideoInfo } from "../../../redux/createSlice/VideoInfoSlice";
 
 const DetailPage = () => {
-  const isDark = useSelector((state) => state.uiSetting.isDark); // 나중에 리펙토링으로 삭제
   const dispatch = useDispatch();
+  const isDark = useSelector((state) => state.uiSetting.isDark); // 나중에 리펙토링으로 삭제
+  const token = useSelector((state) => state.loginInfo.accessToken);
   // const { videoId } = useParams(); // 강의 번호를 알아야함.
   // console.log(videoId)
 
   useEffect(() => {
     axios
-      .get(`https://api.itprometheus.net/videos/1`)
+      .get(`https://api.itprometheus.net/videos/2`, {
+        headers: { Authorization: token.authorization },
+      })
       .then((res) => {
         dispatch(setVideoInfo(res.data.data));
       })
