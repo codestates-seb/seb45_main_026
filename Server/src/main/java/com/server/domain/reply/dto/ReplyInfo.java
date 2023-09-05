@@ -8,12 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
-
 import java.time.LocalDateTime;
 
-@Builder
 @Getter
 @AllArgsConstructor
+@Builder
 public class ReplyInfo {
     private Long replyId;
     private String content;
@@ -45,6 +44,26 @@ public class ReplyInfo {
     }
 
     public static Page<ReplyInfo> of(Page<Reply> replies) {
-        return replies.map(ReplyInfo::of);
+        return replies.map(reply -> {
+            Member member2 = reply.getMember();
+            String imageUrl = member2.getImageFile();
+
+            MemberInfo member = MemberInfo.builder()
+                    .memberId(member2.getMemberId())
+                    .nickname(member2.getNickname())
+                    .imageUrl(imageUrl)
+                    .build();
+
+            return new ReplyInfo(
+                    reply.getReplyId(),
+                    reply.getContent(),
+                    reply.getStar(),
+                    member,
+                    reply.getCreatedDate()
+            );
+        });
     }
+
+
+
 }

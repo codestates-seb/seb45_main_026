@@ -32,9 +32,9 @@ public class ReplyService {
 
             Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
-            if (!reply.getMember().getMemberId().equals(loginMemberId)) {
-                throw new MemberAccessDeniedException();
-            }
+//            if (!reply.getMember().getMemberId().equals(loginMemberId)) {
+//                throw new MemberAccessDeniedException();
+//            }
 
             reply.updateReply(response.getContent(), response.getStar());
     }
@@ -50,17 +50,23 @@ public class ReplyService {
 
     public void deleteReply(Long replyId, Long loginMemberId) {
 
-        memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
+           // memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
+
+            Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+
+            if (!reply.getMember().getMemberId().equals(loginMemberId)) {
+                throw new MemberAccessDeniedException();
+            }
 
         replyRepository.deleteById(replyId);
     }
 
 
-    public void existReply(Long replyId) {
-
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
-
-        ReplyInfo.of(reply);
+//    public void existReply(Long replyId) {
+//
+//        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+//
+//        ReplyInfo.of(reply);
 
     }
-}
+
