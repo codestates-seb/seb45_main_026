@@ -140,7 +140,7 @@ export default function PurchasedItem() {
             </TopContainer>
             <ContentContainer >
                 <HorizonItemContainer isOpen={isOpen}>
-                    <HorizonItem lecture={a}/><HorizonItem lecture={a}/><HorizonItem lecture={a}/></HorizonItemContainer>
+                    <HorizonItem lecture={a} /><HorizonItem lecture={a} channel={a.channel} /><HorizonItem lecture={a} channel={a.channel} /></HorizonItemContainer>
             </ContentContainer>
         </ItemBody>
     )

@@ -38,22 +38,50 @@ export default function ChannelHome() {
     axios.get('https://api.itprometheus.net/videos?page=1&sort=view')
     .then(res=>console.log(res.data.data))
     .catch(err=>console.log(err))
-  },[])
+    }, [])
+    const a = {
+            "videoId": 1,
+            "videoName": "촛불로 공부하기",
+            "thumbnailUrl": "https://d2ouhv9pc4idoe.cloudfront.net/4/videos/1/video1.png",
+            "views": 1266,
+            "price": 0,
+            "star": 0.0,
+            "isPurchased": false,
+            "description": "test 영상입니다.",
+            "categories": [
+                {
+                    "categoryId": 1,
+                    "categoryName": "React"
+                },
+                {
+                    "categoryId": 2,
+                    "categoryName": "Redux"
+                }
+            ],
+            "channel": {
+                "memberId": 4,
+                "channelName": "andygugu",
+                "subscribes": 3,
+                "isSubscribed": false,
+                "imageUrl": "https://d2ouhv9pc4idoe.cloudfront.net/4/profile/test22.png"
+            },
+            "createdDate": "2023-09-04T00:00:00"
+        }
     return (
         <HomeBody>
             <HomeTitle>무료강의</HomeTitle>
             <ItemContainer>
-                <VerticalItem/>
-                <VerticalItem/>
-                <VerticalItem/>
-                <VerticalItem/>
+                <VerticalItem lecture={a} channel={a.channel}/>
+                <VerticalItem lecture={a} channel={a.channel}/>
+                <VerticalItem lecture={a} channel={a.channel}/>
+                <VerticalItem lecture={a} channel={a.channel}/>
             </ItemContainer>
             <HomeTitle>채널 내 인기 강의</HomeTitle>
             <ItemContainer>
-                <VerticalItem/>
-                <VerticalItem/>
-                <VerticalItem/>
-                <VerticalItem/>
+                <VerticalItem lecture={a} channel={a.channel}/>
+                <VerticalItem lecture={a} channel={a.channel}/>
+                <VerticalItem lecture={a} channel={a.channel}/>
+                <VerticalItem lecture={a} channel={a.channel}/>
             </ItemContainer>
         </HomeBody>
     )
