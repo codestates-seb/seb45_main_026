@@ -558,6 +558,43 @@ class VideoControllerTest extends ControllerTest {
     }
 
     @Test
+    @DisplayName("videoId 를 통한 장바구니 전체 취소 API")
+    void deleteCarts() throws Exception {
+        //given
+        VideoCartDeleteApiRequest request = VideoCartDeleteApiRequest.builder()
+                .videoIds(List.of(1L, 2L, 3L))
+                .build();
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                delete(BASE_URL + "/carts")
+                        .contentType(APPLICATION_JSON)
+                        .header(AUTHORIZATION, TOKEN)
+                        .content(objectMapper.writeValueAsString(request))
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isNoContent());
+
+        //restDocs
+        setConstraintClass(VideoCartDeleteApiRequest.class);
+
+        actions
+                .andDo(
+                        documentHandler.document(
+                                requestHeaders(
+                                        headerWithName(AUTHORIZATION).description("Access Token")
+                                ),
+                                requestFields(
+                                        fieldWithPath("videoIds").description("장바구니에서 삭제할 비디오 ID 목록")
+                                                .attributes(getConstraint("videoIds"))
+                                )
+                        )
+                );
+    }
+
+    @Test
     @DisplayName("비디오 삭제 API")
     void deleteVideo() throws Exception {
         //given
@@ -1476,6 +1513,83 @@ class VideoControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.data[0].field").value("videoId"))
                 .andExpect(jsonPath("$.data[0].value").value(wrongVideoId))
                 .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+    }
+
+    @TestFactory
+    @DisplayName("장바구니 삭제 시 validation 테스트")
+    Collection<DynamicTest> deleteCartsValidation() {
+        //given
+
+
+        return List.of(
+                dynamicTest("videoIds 가 Null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    VideoCartDeleteApiRequest request = VideoCartDeleteApiRequest.builder()
+                            .videoIds(null)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            delete(BASE_URL + "/carts")
+                                    .contentType(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoIds"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("비디오 id 값은 필수입니다."));
+                }),
+                dynamicTest("videoIds 가 있지만 빈 배열이면 검증에 실패한다.", ()-> {
+                    //given
+                    VideoCartDeleteApiRequest request = VideoCartDeleteApiRequest.builder()
+                            .videoIds(new ArrayList<>())
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            delete(BASE_URL + "/carts")
+                                    .contentType(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoIds"))
+                            .andExpect(jsonPath("$.data[0].value").value("[]"))
+                            .andExpect(jsonPath("$.data[0].reason").value("비디오 id 값은 필수입니다."));
+                }),
+                dynamicTest("videoIds 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    VideoCartDeleteApiRequest request = VideoCartDeleteApiRequest.builder()
+                            .videoIds(List.of(0L, 1L))
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            delete(BASE_URL + "/carts")
+                                    .contentType(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoIds"))
+                            .andExpect(jsonPath("$.data[0].value").value("[0, 1]"))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                })
+
+
+
+
+        );
     }
 
     @Test
