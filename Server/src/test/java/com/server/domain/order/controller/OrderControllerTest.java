@@ -2,9 +2,11 @@ package com.server.domain.order.controller;
 
 import com.server.domain.order.controller.dto.request.OrderCreateApiRequest;
 import com.server.domain.order.controller.dto.response.PaymentApiResponse;
+import com.server.domain.order.controller.dto.response.VideoCancelApiResponse;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
+import com.server.domain.order.service.dto.response.VideoCancelServiceResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.global.testhelper.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
@@ -165,6 +167,55 @@ class OrderControllerTest extends ControllerTest {
                         parameterWithName("order-id").description("주문 ID")
                 )
         ));
+    }
+
+    @Test
+    @DisplayName("개별 비디오 취소 API")
+    void cancelVideo() throws Exception {
+        //given
+        String orderId = "fafnalf123-fadsnfl24-45bbaslfdasdf";
+        Long videoId = 1L;
+
+        VideoCancelServiceResponse serviceResponse = VideoCancelServiceResponse.builder()
+                .requestAmount(5000)
+                .totalCancelAmount(4500)
+                .usedReward(500)
+                .build();
+
+        VideoCancelApiResponse apiResponse = VideoCancelApiResponse.of(serviceResponse);
+
+        given(orderService.cancelVideo(anyLong(), anyString(), anyLong())).willReturn(serviceResponse);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                delete(BASE_URL + "/{order-id}/videos/{video-id}", orderId, videoId)
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        actions
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(
+                        objectMapper.writeValueAsString(ApiSingleResponse.ok(apiResponse, "비디오 취소 결과"))));
+
+        //restDocs
+        actions.andDo(documentHandler.document(
+                requestHeaders(
+                        headerWithName(AUTHORIZATION).description("액세스 토큰")
+                ),
+                pathParameters(
+                        parameterWithName("order-id").description("주문 ID"),
+                        parameterWithName("video-id").description("비디오 ID")
+                ),
+                singleResponseFields(
+                        fieldWithPath("data").description("비디오 취소 결과"),
+                        fieldWithPath("data.requestAmount").description("취소 요청 금액"),
+                        fieldWithPath("data.totalCancelAmount").description("총 취소 금액"),
+                        fieldWithPath("data.usedReward").description("사용된 리워드(리워드에 사용되어 취소못한 금액)")
+                )
+        ));
+
     }
 
     private PaymentServiceResponse createPaymentServiceResponse() {

@@ -73,7 +73,7 @@ public class ChannelService {
 
             boolean isSubscribed = isSubscribed(loginMemberId, memberId);
 
-            return ChannelInfo.of(channel, isSubscribed);
+            return ChannelInfo.of(channel, isSubscribed, awsService, channel.getMember());
         }
     }
 
@@ -128,8 +128,8 @@ public class ChannelService {
     // 구독.
     private void subscribe(Long memberId, Long loginMemberId) {
 
-          Member loginMember = memberRepository.findById(loginMemberId)
-                  .orElseThrow(() -> new MemberNotFoundException()); //(이 부분을 빼면  .member(loginMember) 여기가 에러남)
+        Member loginMember = memberRepository.findById(loginMemberId)
+                .orElseThrow(() -> new MemberNotFoundException()); //(이 부분을 빼면  .member(loginMember) 여기가 에러남)
 //
         Channel channel = existChannel(memberId);
 

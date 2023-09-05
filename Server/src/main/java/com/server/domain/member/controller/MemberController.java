@@ -1,32 +1,21 @@
 package com.server.domain.member.controller;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 
-import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.server.domain.member.controller.dto.MemberApiRequest;
 import com.server.domain.member.controller.dto.PlaylistsSort;
-import com.server.domain.member.entity.Grade;
-import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.MemberService;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
@@ -39,6 +28,7 @@ import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
 
 @RestController
 @RequestMapping("/members")

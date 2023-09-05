@@ -188,13 +188,13 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("Channel이 구독중이면 구독해지한다.")
     void updateSubscribeCancel(){
-        Member loginMember = createAndSaveMember();
-        Channel channel = createAndSaveChannel(loginMember);
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
 
-        boolean subscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
+        boolean subscribe = channelService.updateSubscribe(channel.getChannelId(), member.getMemberId());
         assertThat(subscribe).isTrue();
 
-        boolean unsubscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
+        boolean unsubscribe = channelService.updateSubscribe(channel.getChannelId(), member.getMemberId());
         assertThat(unsubscribe).isFalse();
     }
 }

@@ -147,4 +147,8 @@ public class Video extends BaseEntity implements Rewardable {
     public int getRewardPoint(){
         return (int) (price * 0.01);
     }
+
+    public void close() {
+        this.videoStatus = VideoStatus.CLOSED;
+    }
 }

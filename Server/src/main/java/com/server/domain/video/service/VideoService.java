@@ -12,6 +12,7 @@ import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
@@ -27,10 +28,8 @@ import com.server.global.exception.businessexception.memberexception.MemberAcces
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
 import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
-import com.server.global.exception.businessexception.videoexception.VideoFileNameNotMatchException;
+import com.server.global.exception.businessexception.videoexception.VideoClosedException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
-import com.server.global.exception.businessexception.videoexception.VideoUploadNotRequestException;
-import com.server.module.redis.service.RedisService;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
@@ -58,20 +57,17 @@ public class VideoService {
     private final CategoryRepository categoryRepository;
     private final CartRepository cartRepository;
     private final AwsService awsService;
-    private final RedisService redisService;
     private final ReplyRepository replyRepository;
 
     public VideoService(VideoRepository videoRepository, MemberRepository memberRepository,
                         WatchRepository watchRepository, CategoryRepository categoryRepository,
-                        CartRepository cartRepository, AwsService awsService, RedisService redisService,
-                        ReplyRepository replyRepository) {
+                        CartRepository cartRepository, AwsService awsService, ReplyRepository replyRepository) {
         this.videoRepository = videoRepository;
         this.memberRepository = memberRepository;
         this.watchRepository = watchRepository;
         this.categoryRepository = categoryRepository;
         this.cartRepository = cartRepository;
         this.awsService = awsService;
-        this.redisService = redisService;
         this.replyRepository = replyRepository;
     }
 
@@ -95,13 +91,15 @@ public class VideoService {
 
         Member member = verifiedMemberOrNull(loginMemberId);
 
-        watch(member, video);
+        Map<String, Boolean> isPurchaseAndIsReplied = getIsPurchaseAndIsReplied(member, videoId);
+
+        checkIfVideoClosed(isPurchaseAndIsReplied.get("isPurchased"), video);
 
         Boolean subscribed = isSubscribed(member, video);
 
-        Map<String, Boolean> isPurchaseAndIsReplied = getIsPurchaseAndIsReplied(member, videoId);
-
         Map<String, String> urls = getVideoUrls(video);
+
+        watch(member, video);
 
         return VideoDetailResponse.of(video, subscribed, urls, isPurchaseAndIsReplied);
     }
@@ -163,6 +161,14 @@ public class VideoService {
         Member member = verifiedMember(loginMemberId);
 
         return createOrDeleteCart(member, video);
+    }
+
+    @Transactional
+    public void deleteCarts(Long loginMemberId, List<Long> videoIds) {
+
+        Member member = verifiedMember(loginMemberId);
+
+        cartRepository.deleteByMemberAndVideoIds(member, videoIds);
     }
 
     @Transactional
@@ -296,6 +302,12 @@ public class VideoService {
         watch.setLastWatchedTime(LocalDateTime.now());
     }
 
+    private void checkIfVideoClosed(boolean isPurchased, Video video) {
+        if(!isPurchased && video.getVideoStatus().equals(VideoStatus.CLOSED)) {
+            throw new VideoClosedException(video.getVideoName());
+        }
+    }
+
     private Map<String, Boolean> getIsPurchaseAndIsReplied(Member member, Long videoId) {
 
         if(member == null) {
@@ -322,21 +334,6 @@ public class VideoService {
                 List.of(video.getChannel().getMember().getMemberId())).get(0);
     }
 
-    private void checkFileName(Long memberId, String requestFileName) {
-
-        String savedFileName = redisService.getData(String.valueOf(memberId));
-
-        if(savedFileName == null) {
-            throw new VideoUploadNotRequestException();
-        }
-
-        if(!savedFileName.equals(requestFileName)) {
-            throw new VideoFileNameNotMatchException();
-        }
-
-        redisService.deleteData(String.valueOf(memberId));
-    }
-
     private List<Category> verifiedCategories(List<String> categoryNames) {
         List<Category> categories = categoryRepository.findByCategoryNameIn(categoryNames);
 
@@ -360,6 +357,11 @@ public class VideoService {
     }
 
     private boolean createCart(Member member, Video video) {
+
+        if(video.getVideoStatus().equals(VideoStatus.CLOSED)) {
+            throw new VideoClosedException(video.getVideoName());
+        }
+
         cartRepository.save(Cart.createCart(member, video, video.getPrice()));
         return true;
     }
@@ -368,7 +370,7 @@ public class VideoService {
 
         Sort sort = Sort.by(Sort.Direction.DESC, replySort.getSort());
 
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequest.of(page - 1, size, sort);
 
         return replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
     }

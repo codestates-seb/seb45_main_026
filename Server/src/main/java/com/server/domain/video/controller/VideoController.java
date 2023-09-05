@@ -163,6 +163,16 @@ public class VideoController {
         return ResponseEntity.ok(ApiSingleResponse.ok(isInCart, message));
     }
 
+    @DeleteMapping("/carts")
+    public ResponseEntity<Void> deleteCarts(
+            @RequestBody @Valid VideoCartDeleteApiRequest request,
+            @LoginId Long loginMemberId) {
+
+        videoService.deleteCarts(loginMemberId, request.getVideoIds());
+
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{video-id}")
     public ResponseEntity<Void> deleteVideo(@PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
                                             @LoginId Long loginMemberId) {
@@ -180,7 +190,7 @@ public class VideoController {
             @RequestParam(defaultValue = "created-date") ReplySort sort,
             @RequestParam(required = false) @Positive(message = "{validation.positive}") Integer star) {
 
-        Page<ReplyInfo> replies = videoService.getReplies(videoId, page, size, sort);
+        Page<ReplyInfo> replies = videoService.getReplies(videoId, page - 1, size, sort);
 
         return ResponseEntity.ok(ApiPageResponse.ok(replies, "댓글 조회 성공"));
     }

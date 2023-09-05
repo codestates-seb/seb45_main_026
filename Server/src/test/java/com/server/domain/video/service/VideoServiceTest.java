@@ -1,5 +1,6 @@
 package com.server.domain.video.service;
 
+import com.server.domain.cart.entity.Cart;
 import com.server.domain.cart.repository.CartRepository;
 import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
@@ -14,10 +15,7 @@ import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
 import com.server.domain.video.service.dto.response.VideoDetailResponse;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
-import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
-import com.server.global.exception.businessexception.videoexception.VideoFileNameNotMatchException;
-import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
-import com.server.global.exception.businessexception.videoexception.VideoUploadNotRequestException;
+import com.server.global.exception.businessexception.videoexception.*;
 import com.server.global.testhelper.ServiceTest;
 import com.server.module.s3.service.dto.ImageType;
 import org.junit.jupiter.api.DisplayName;
@@ -261,6 +259,61 @@ class VideoServiceTest extends ServiceTest {
                     assertThat(response.getIsReplied()).isTrue();
                 })
         );
+    }
+
+    @Test
+    @DisplayName("구매하지 않은 사용자가 closed 된 비디오를 조회하면 VideoClosedException 이 발생한다.")
+    void getVideoVideoClosedException() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Member loginMember = createAndSaveMember(); // 로그인한 회원
+        Channel loginMemberChannel = createAndSaveChannel(loginMember);
+
+        Video video = createAndSaveVideo(channel);
+        video.close();
+
+        Category category1 = createAndSaveCategory("java");
+        Category category2 = createAndSaveCategory("spring");
+
+        createAndSaveVideoCategory(video, category1, category2); // video1 은 java, spring 카테고리
+
+        em.flush();
+        em.clear();
+
+        //when
+        assertThatThrownBy(() -> videoService.getVideo(loginMember.getMemberId(), video.getVideoId()))
+                .isInstanceOf(VideoClosedException.class)
+                .hasMessage("강의가 폐쇄되었습니다. 강의명 : " + video.getVideoName());
+    }
+
+    @Test
+    @DisplayName("video 를 구매한 사용자는 closed 된 비디오를 조회할 수 있다.")
+    void getClosedVideoWhenPurchased() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Member loginMember = createAndSaveMember(); // 로그인한 회원
+        Channel loginMemberChannel = createAndSaveChannel(loginMember);
+
+        Video video = createAndSaveVideo(channel);
+        video.close();
+
+        createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video), 0); // video 를 구매한 사용자
+
+        Category category1 = createAndSaveCategory("java");
+        Category category2 = createAndSaveCategory("spring");
+
+        createAndSaveVideoCategory(video, category1, category2); // video1 은 java, spring 카테고리
+
+        em.flush();
+        em.clear();
+
+        //when & then
+        assertThatNoException()
+                .isThrownBy(() -> videoService.getVideo(loginMember.getMemberId(), video.getVideoId()));
     }
 
     @TestFactory
@@ -513,6 +566,24 @@ class VideoServiceTest extends ServiceTest {
     }
 
     @Test
+    @DisplayName("장바구니 추가 시 closed 된 video 면 VideoClosedException 이 발생한다.")
+    void changeCartVideoClosedException() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+        video.close();
+
+        Member loginMember = createAndSaveMember();
+
+        //when & then (없는 videoId 로 요청)
+        assertThatThrownBy(() -> videoService.changeCart(loginMember.getMemberId(), video.getVideoId()))
+                .isInstanceOf(VideoClosedException.class)
+                .hasMessageContaining("강의가 폐쇄되었습니다. 강의명 : " + video.getVideoName());
+    }
+
+    @Test
     @DisplayName("장바구니 추가 시 없는 video 로 요청하면 VideoNotFoundException 이 발생한다.")
     void changeCartVideoNotFoundException() {
         //given
@@ -542,6 +613,71 @@ class VideoServiceTest extends ServiceTest {
         //when & then (없는 memberId 로 요청)
         assertThatThrownBy(() -> videoService.changeCart(loginMember.getMemberId() + 999L, video.getVideoId()))
                 .isInstanceOf(MemberNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("장바구니에 추가된 video 를 videoIds 리스트를 통해 삭제할 수 있다.")
+    void deleteCarts() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+        Video video3 = createAndSaveVideo(channel);
+
+        Member loginMember = createAndSaveMember();
+        Channel loginMemberChannel = createAndSaveChannel(loginMember);
+
+        Cart cart1 = createAndSaveCart(loginMember, video1);
+        Cart cart2 = createAndSaveCart(loginMember, video2);
+        Cart cart3 = createAndSaveCart(loginMember, video3);
+
+        //(1, 2번 비디오 삭제)
+        List<Long> videoIds = List.of(video1.getVideoId(), video2.getVideoId());
+
+        //when
+        videoService.deleteCarts(loginMember.getMemberId(), videoIds);
+
+        //then
+        assertThat(cartRepository.findAll()).hasSize(1)
+                .extracting("cartId").containsExactly(cart3.getCartId());
+    }
+
+    @Test
+    @DisplayName("장바구니에 추가된 video 를 videoIds 리스트를 통해 삭제할 수 있다. (videoIds 에 없는 videoId 는 무시한다.)")
+    void deleteCartsNotInCart() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+        Video video3 = createAndSaveVideo(channel);
+        Video video4 = createAndSaveVideo(channel);
+
+        Member loginMember = createAndSaveMember();
+        Channel loginMemberChannel = createAndSaveChannel(loginMember);
+
+        Cart cart1 = createAndSaveCart(loginMember, video1);
+        Cart cart2 = createAndSaveCart(loginMember, video2);
+        Cart cart3 = createAndSaveCart(loginMember, video3);
+
+        //(1, 2, 4번 비디오 삭제, 4번 비디오는 cart 에 없음)
+        List<Long> videoIds = List.of(video1.getVideoId(), video2.getVideoId(), video4.getVideoId());
+
+        //when
+        videoService.deleteCarts(loginMember.getMemberId(), videoIds);
+
+        //then
+        assertThat(cartRepository.findAll()).hasSize(1)
+                .extracting("cartId").containsExactly(cart3.getCartId());
+    }
+
+    private Cart createAndSaveCart(Member member, Video video) {
+        Cart cart = Cart.createCart(member, video, video.getPrice());
+        cartRepository.save(cart);
+        return cart;
     }
 
     @Test

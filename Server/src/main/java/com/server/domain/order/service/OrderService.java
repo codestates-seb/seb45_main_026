@@ -9,12 +9,15 @@ import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
+import com.server.domain.order.service.dto.response.VideoCancelServiceResponse;
 import com.server.domain.reward.service.RewardService;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.orderexception.*;
+import com.server.global.exception.businessexception.videoexception.VideoClosedException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +33,7 @@ import java.net.URI;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -53,6 +57,33 @@ public class OrderService {
         this.orderRepository = orderRepository;
         this.rewardService = rewardService;
         this.restTemplate = restTemplate;
+    }
+
+    public OrderResponse createOrder(Long memberId, OrderCreateServiceRequest request) {
+
+        Member member = verifiedMember(memberId);
+
+        List<Video> videos = checkValidVideos(request);
+
+        checkDuplicateOrder(member, videos);
+
+        checkIfVideoClosed(videos);
+
+        Order order = Order.createOrder(member, videos, request.getReward());
+
+        return OrderResponse.of(orderRepository.save(order));
+    }
+
+    private void checkIfVideoClosed(List<Video> videos) {
+
+        List<String> closedVideoNames = videos.stream()
+                .filter(video -> video.getVideoStatus().equals(VideoStatus.CLOSED))
+                .map(Video::getVideoName)
+                .collect(Collectors.toList());
+
+        if(!closedVideoNames.isEmpty()) {
+            throw new VideoClosedException(String.join(", ", closedVideoNames));
+        }
     }
 
     public PaymentServiceResponse requestFinalPayment(Long memberId, String paymentKey, String orderId, int amount) {
@@ -119,17 +150,28 @@ public class OrderService {
         return param;
     }
 
-    public void deleteOrder(Long memberId, String orderId) {
+    public void cancelOrder(Long memberId, String orderId) {
 
         Member member = verifiedMember(memberId);
 
         Order order = verifiedOrder(member, orderId);
+
+        checkIfWatch(order);
 
         if(isAlreadyCanceled(order)) throw new OrderAlreadyCanceledException();
 
         if(isCompleted(order)) orderCancelProcess(order);
 
         order.deleteOrder();
+    }
+
+    public VideoCancelServiceResponse cancelVideo(Long loginMemberId, String orderId, Long videoId) {
+        return null;
+    }
+
+    private void checkIfWatch(Order order) {
+        if(!orderRepository.findWatchVideosById(order.getOrderId()).isEmpty())
+            throw new VideoAlreadyWatchedException();
     }
 
     private boolean isCompleted(Order order) {
@@ -159,23 +201,6 @@ public class OrderService {
 
         if(responseEntity.getStatusCode().value() != 200)
             throw new CancelFailException();
-
-
-    }
-
-    public OrderResponse createOrder(Long memberId, OrderCreateServiceRequest request) {
-
-        Member member = verifiedMember(memberId);
-
-        List<Video> videos = checkValidVideos(request);
-
-        checkDuplicateOrder(member, videos);
-
-        Order order = Order.createOrder(member, videos, request.getReward());
-
-        orderRepository.save(order);
-
-        return OrderResponse.of(order);
     }
 
     private void checkDuplicateOrder(Member member, List<Video> toBuyVideos) {

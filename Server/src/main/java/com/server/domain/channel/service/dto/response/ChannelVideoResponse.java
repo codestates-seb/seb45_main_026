@@ -21,6 +21,7 @@ public class ChannelVideoResponse {
     private int views;
     private int price;
     private Boolean isPurchased;
+    private String description;
     private List<VideoCategoryResponse> categories;
     private LocalDateTime createdDate;
 
@@ -35,6 +36,7 @@ public class ChannelVideoResponse {
                 .views(video.getView())
                 .price(video.getPrice())
                 .isPurchased(isPurchaseInOrder.get(videos.getContent().indexOf(video)))
+                .description(video.getDescription())
                 .categories(VideoCategoryResponse.of(video.getVideoCategories()))
                 .createdDate(video.getCreatedDate())
                 .build());

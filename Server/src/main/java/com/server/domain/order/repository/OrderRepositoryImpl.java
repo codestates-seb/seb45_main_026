@@ -1,12 +1,12 @@
 package com.server.domain.order.repository;
 
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.server.domain.member.entity.QMember;
 import com.server.domain.order.entity.Order;
-import com.server.domain.order.entity.QOrder;
+import com.server.domain.video.entity.QVideo;
+import com.server.domain.video.entity.Video;
 
 import javax.persistence.EntityManager;
-import javax.swing.text.html.Option;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,8 +15,8 @@ import static com.server.domain.cart.entity.QCart.cart;
 import static com.server.domain.member.entity.QMember.*;
 import static com.server.domain.order.entity.QOrder.*;
 import static com.server.domain.order.entity.QOrderVideo.orderVideo;
-import static com.server.domain.reward.entity.QReward.reward;
 import static com.server.domain.video.entity.QVideo.video;
+import static com.server.domain.watch.entity.QWatch.watch;
 
 public class OrderRepositoryImpl implements OrderRepositoryCustom{
 
@@ -60,5 +60,26 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                         .join(orderVideo.video, video).fetchJoin()
                         .where(order.orderId.eq(orderId)).fetchOne()
         );
+    }
+
+    public List<Video> findWatchVideosById(String orderId) {
+
+        JPAQuery<Video> orderVideos = queryFactory.select(video)
+                .from(order)
+                .join(order.orderVideos, orderVideo)
+                .join(orderVideo.video, video)
+                .where(order.orderId.eq(orderId));
+
+        List<Video> watchVideos = queryFactory.select(video)
+                .from(order)
+                .join(order.member, member)
+                .join(member.watches, watch)
+                .join(watch.video, video)
+                .where(order.orderId.eq(orderId)
+                        .and(watch.video.in(orderVideos))
+                        .and(watch.modifiedDate.after(order.modifiedDate))
+                ).fetch();
+
+        return watchVideos;
     }
 }
