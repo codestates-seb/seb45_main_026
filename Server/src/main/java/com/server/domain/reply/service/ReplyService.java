@@ -30,33 +30,33 @@ public class ReplyService {
 
     public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi response) {
 
-            Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
 //            if (!reply.getMember().getMemberId().equals(loginMemberId)) {
 //                throw new MemberAccessDeniedException();
 //            }
 
-            reply.updateReply(response.getContent(), response.getStar());
+        reply.updateReply(response.getContent(), response.getStar());
     }
 
     public ReplyInfo getReply(Long replyId, Long loginMemberId) {
 
-            memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
+        memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
 
-            Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
-            return ReplyInfo.of(reply);
+        return ReplyInfo.of(reply);
     }
 
     public void deleteReply(Long replyId, Long loginMemberId) {
 
-           // memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
+        // memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
 
-            Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
-            if (!reply.getMember().getMemberId().equals(loginMemberId)) {
-                throw new MemberAccessDeniedException();
-            }
+        if (!reply.getMember().getMemberId().equals(loginMemberId)) {
+            throw new MemberAccessDeniedException();
+        }
 
         replyRepository.deleteById(replyId);
     }
@@ -68,5 +68,5 @@ public class ReplyService {
 //
 //        ReplyInfo.of(reply);
 
-    }
+}
 

@@ -11,6 +11,8 @@ import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.testhelper.ServiceTest;
+import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,10 +25,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 
 class ChannelServiceTest extends ServiceTest {
 
     @Autowired ChannelService channelService;
+    @Autowired AwsService awsService;
 
     @Test
     @DisplayName("채널의 비디오를 페이징하여 조회한다.")
@@ -103,7 +107,11 @@ class ChannelServiceTest extends ServiceTest {
         assertThat(channelInfo.getIsSubscribed()).isFalse();
         assertThat(channelInfo.getSubscribers()).isEqualTo(channel.getSubscribers());
         assertThat(channelInfo.getDescription()).isEqualTo(channel.getDescription());
-        assertThat(channelInfo.getImageUrl()).isEqualTo(member.getImageFile());
+        assertThat(channelInfo.getImageUrl()).isEqualTo(awsService.getFileUrl(
+                channel.getMember().getMemberId(),
+                member.getImageFile(),
+                FileType.PROFILE_IMAGE
+        ));
         assertThat(channelInfo.getCreatedDate()).isEqualTo(channel.getCreatedDate());
     }
 
@@ -188,13 +196,13 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("Channel이 구독중이면 구독해지한다.")
     void updateSubscribeCancel(){
-        Member member = createAndSaveMember();
-        Channel channel = createAndSaveChannel(member);
+        Member loginMember = createAndSaveMember();
+        Channel channel = createAndSaveChannel(loginMember);
 
-        boolean subscribe = channelService.updateSubscribe(channel.getChannelId(), member.getMemberId());
+        boolean subscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
         assertThat(subscribe).isTrue();
 
-        boolean unsubscribe = channelService.updateSubscribe(channel.getChannelId(), member.getMemberId());
+        boolean unsubscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
         assertThat(unsubscribe).isFalse();
     }
 }

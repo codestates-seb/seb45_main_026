@@ -151,13 +151,13 @@ public class ChannelService {
 //            throw new ChannelNotFoundException();
 //        }
 
-        Channel findChannel = channelRepository.findById(memberId).orElseThrow(() -> new ChannelNotFoundException());
+//        Channel findChannel = channelRepository.findById(memberId).orElseThrow(() -> new ChannelNotFoundException());
 
 //        if (findChannel == null) {
 //            throw new ChannelNotFoundException();
 //        }
 
-        Channel channel = findChannel.getMember().getChannel();
+        Channel channel = existChannel(memberId);
 
         Member loginMember = memberRepository.findById(loginMemberId)
                 .orElseThrow(() -> new MemberNotFoundException());

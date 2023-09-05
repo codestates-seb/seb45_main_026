@@ -370,7 +370,7 @@ public class VideoService {
 
         Sort sort = Sort.by(Sort.Direction.DESC, replySort.getSort());
 
-        PageRequest pageRequest = PageRequest.of(page - 1, size, sort);
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         return replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
     }

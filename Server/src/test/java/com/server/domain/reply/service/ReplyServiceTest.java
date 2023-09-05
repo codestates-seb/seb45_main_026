@@ -89,8 +89,6 @@ class ReplyServiceTest extends ServiceTest {
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
 
-//        createAndSaveReply(member, video);
-
         for(int i = 0; i < 10; i++){
             Reply reply = Reply.builder()
                     .content("content" + i)
@@ -139,8 +137,6 @@ class ReplyServiceTest extends ServiceTest {
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
 
-//        createAndSaveReply(member, video);
-
         for(int i = 0; i < 10; i++){
             Reply reply = Reply.builder()
                     .content("content" + i)
@@ -167,8 +163,6 @@ class ReplyServiceTest extends ServiceTest {
 
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
-
-//        createAndSaveReply(member, video);
 
         for(int i = 0; i < 10; i++){
             Reply reply = Reply.builder()
