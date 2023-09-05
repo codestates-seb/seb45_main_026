@@ -1,17 +1,11 @@
 package com.server.domain.member.repository;
 
+import com.querydsl.core.Tuple;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
-import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.repository.dto.MemberVideoData;
-import com.server.domain.member.service.dto.response.CartsResponse;
-import com.server.domain.member.service.dto.response.OrdersResponse;
-import com.server.domain.member.service.dto.response.PlaylistsResponse;
-import com.server.domain.member.service.dto.response.RewardsResponse;
-import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.Order;
-import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
@@ -46,5 +40,5 @@ public interface MemberRepositoryCustom {
 
     Page<Reward> findRewardsByMemberId(Long memberId, Pageable pageable);
 
-    
+    Page<Tuple> findPlaylistGroupByChannelName(Long memberId, Pageable pageable);
 }

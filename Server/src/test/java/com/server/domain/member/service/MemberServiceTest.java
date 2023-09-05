@@ -23,6 +23,7 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
@@ -128,7 +129,7 @@ public class MemberServiceTest extends ServiceTest {
 
 	@Test
 	@DisplayName("로그인한 회원의 장바구니 목록을 조회한다.")
-	void getCarts() {
+	void getCarts() throws InterruptedException {
 		Member user = createAndSaveMember();
 
 		List<Cart> carts = new ArrayList<>();
@@ -141,6 +142,7 @@ public class MemberServiceTest extends ServiceTest {
 
 			videos.add(video);
 			carts.add(createAndSaveCartWithVideo(user, video));
+			Thread.sleep(50);
 		}
 
 		Page<CartsResponse> page = memberService.getCarts(user.getMemberId(), 1, 10);
@@ -174,6 +176,51 @@ public class MemberServiceTest extends ServiceTest {
 
 		assertThat(page.getContent().get(0).getOrderId()).isEqualTo(firstlast.get(1).getOrderId());
 		assertThat(page.getContent().get(9).getOrderId()).isEqualTo(firstlast.get(0).getOrderId());
+	}
+
+	@Test
+	@DisplayName("보관함 목록을 채널별로 그룹화해서 조회한다")
+	void getGroupPlaylists() {
+		Member user = createAndSaveMember();
+		Member member1 = createAndSaveMember();
+		Member member2 = createAndSaveMember();
+		Channel channel1 = createAndSaveChannelWithName(member1, "1aaaaaaaaa");
+		Channel channel2 = createAndSaveChannelWithName(member2, "0aaaaaaaa");
+		createAndSaveVideo(channel1);
+		createAndSaveVideo(channel1);
+		createAndSaveVideo(channel1);
+		createAndSaveVideo(channel1);
+		createAndSaveSubscribe(user, channel1);
+
+		for (int x = 1; x < 21; x++) {
+			List<Video> videos = new ArrayList<>();
+
+			Channel channel;
+			Video video;
+
+			Member member = createAndSaveMember();
+			if (x < 5) {
+				video = createAndSaveVideo(channel1);
+			} else if (x > 4 && x < 10) {
+				video = createAndSaveVideo(channel2);
+			} else {
+				channel = createAndSaveChannelWithName(member, generateRandomString());
+				video = createAndSaveVideo(channel);
+			}
+
+			videos.add(video);
+
+			createAndSaveOrderWithPurchaseComplete(user, videos, 0);
+		}
+
+		Page<PlaylistChannelResponse> responses =
+			memberService.getChannelForPlaylist(user.getMemberId(), 1, 10);
+
+		List<PlaylistChannelResponse> playlistChannelResponses = responses.getContent();
+
+		assertThat(playlistChannelResponses).isSortedAccordingTo(
+			Comparator.comparing(PlaylistChannelResponse::getChannelName)
+		);
 	}
 
 	@Test

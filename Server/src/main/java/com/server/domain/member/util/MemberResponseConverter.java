@@ -1,5 +1,8 @@
 package com.server.domain.member.util;
 
+import static com.server.domain.channel.entity.QChannel.*;
+import static com.server.domain.member.entity.QMember.*;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -7,12 +10,14 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
+import com.querydsl.core.Tuple;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
@@ -125,6 +130,48 @@ public class MemberResponseConverter {
 				.channel(channelInfo)
 				.build();
 		});
+	}
+
+	public Page<PlaylistChannelResponse> convertChannelToPlaylistChannelResponse(Page<Tuple> result) {
+
+		return result.map(tuple -> {
+				Long memberId = tuple.get(0, Long.class);
+				String channelName = tuple.get(1, String.class);
+				String imageFile = tuple.get(2, String.class);
+				Long videoCount = tuple.get(3, Long.class);
+				Boolean isSubscribed = tuple.get(4, Boolean.class);
+				Integer subscribers = tuple.get(5, Integer.class);
+
+				return PlaylistChannelResponse.builder()
+					.memberId(memberId)
+					.channelName(channelName)
+					.imageFile(getProfileUrl(memberId, imageFile))
+					.videoCount(videoCount)
+					.subscribers(subscribers)
+					.isSubscribed(isSubscribed)
+
+					.build();
+			});
+		// return result.stream().map(tuple -> {
+		//
+		// 	Long memberId = tuple.get(channel.member.memberId);
+		// 	String channelName = tuple.get(channel.channelName);
+		// 	String imageFile = tuple.get(member.imageFile);
+		//
+		// 	Long videoCount = tuple.get(3, Long.class);
+		//
+		// 	if (videoCount == null) {
+		// 		videoCount = 0L;
+		// 	}
+		//
+		// 	return PlaylistChannelResponse.builder()
+		// 		.memberId(memberId)
+		// 		.channelName(channelName)
+		// 		.imageFile(getProfileUrl(memberId, imageFile))
+		// 		.videoCount(videoCount)
+		// 		.build();
+		//
+		// }).collect(Collectors.toList());
 	}
 
 	private String getThumbnailUrl(Long memberId, String thumbnailFile) {
