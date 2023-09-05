@@ -73,10 +73,11 @@ export const SideBar = () => {
     const dispatch = useDispatch();
     const isDark = useSelector(state=>state.uiSetting.isDark);
     const isSideBar = useSelector(state=>state.uiSetting.isSideBar);
+    const userId = useSelector(state=>state.loginInfo.myid);
     const navigate = useNavigate();
 
-    const handleMyProfileClick = () => {
-        navigate('/MyProfile');
+    const handleMyChannelClick = () => {
+        navigate(`/channels/${userId}`);
     }
     const handleLogoutClick = () => {
         dispatch(setToken({ authorization: '', refresh: '' }));
@@ -104,9 +105,9 @@ export const SideBar = () => {
 
     return (
         <SideBarContainer isDark={isDark} isSideBar={isSideBar}>
-            <SideBarButtonContainer onClick={handleMyProfileClick}>
+            <SideBarButtonContainer onClick={handleMyChannelClick}>
                 <SideBarButtonIcon src={profileGray}/>
-                <SideBarButtonTitle isDark={isDark}>내 프로필</SideBarButtonTitle>
+                <SideBarButtonTitle isDark={isDark}>내 채널</SideBarButtonTitle>
             </SideBarButtonContainer>
             <SideBarButtonContainer onClick={handleHelpClick}>
                 <SideBarButtonIcon src={isDark?helpWhite:help}/>

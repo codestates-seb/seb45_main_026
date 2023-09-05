@@ -1,6 +1,7 @@
 import React from "react";
 import { styled } from "styled-components";
 import tokens from "../../styles/tokens.json";
+import { useSelector } from "react-redux";
 
 const globalTokens = tokens.global;
 
@@ -38,11 +39,20 @@ const NavyItem2 = styled.div`
   }
 `;
 
-export default function ChannelNav({ navigate,setNavigate }) {
+export default function ChannelNav({ navigate, setNavigate }) {
+  const userId = useSelector(state=>state.loginInfo.myid);
+  const url = new URL(window.location.href);
+  const pathnameArr = url.pathname.split('/');
+  const channelMemberId = Number(pathnameArr[2]);
+  
   const navs = ["홈", "동영상", "커뮤니티"];
+  if( channelMemberId === userId ) navs.push('설정');
+
   return (
     <NavyContainer>
-          {navs.map((el, idx) => (navigate === idx ? <NavyItem key={idx} onClick={()=>setNavigate(idx)}>{el}</NavyItem> : <NavyItem2 key={idx} onClick={()=>setNavigate(idx)}>{el}</NavyItem2>))}
+          { navs.map((el, idx) => (
+              navigate === idx ? <NavyItem key={idx} onClick={()=>setNavigate(idx)}>{el}</NavyItem>
+                 : <NavyItem2 key={idx} onClick={()=>setNavigate(idx)}>{el}</NavyItem2>)) }
     </NavyContainer>
   );
 }
