@@ -15,6 +15,7 @@ import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.orderexception.*;
+import com.server.global.exception.businessexception.videoexception.VideoClosedException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import com.server.global.testhelper.ServiceTest;
 import org.junit.jupiter.api.DisplayName;
@@ -62,6 +63,30 @@ class OrderServiceTest extends ServiceTest {
         assertThat(response.getOrderId()).isNotNull();
         assertThat(response.getTotalAmount()).isEqualTo(video1.getPrice() + video2.getPrice() - request.getReward());
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.ORDERED);
+    }
+
+    @Test
+    @DisplayName("주문 시 closed 된 video 가 있으면 VideoClosedException 이 발생한다.")
+    void createOrderVideoClosedException() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+        video2.close(); // video2 를 closed 상태로 만든다.
+        Video video3 = createAndSaveVideo(channel);
+        video3.close(); // video3 를 closed 상태로 만든다.
+
+        OrderCreateServiceRequest request = OrderCreateServiceRequest.builder()
+                .videoIds(List.of(video1.getVideoId(), video2.getVideoId(), video3.getVideoId()))
+                .reward(0)
+                .build();
+
+        //when & then
+        assertThatThrownBy(() -> orderService.createOrder(member.getMemberId(), request))
+                .isInstanceOf(VideoClosedException.class)
+                .hasMessage(VideoClosedException.MESSAGE + video2.getVideoName() + ", " + video3.getVideoName());
     }
 
     @Test

@@ -368,6 +368,7 @@ class ChannelControllerTest extends ControllerTest {
                                 fieldWithPath("data[].views").description("비디오 조회수"),
                                 fieldWithPath("data[].price").description("비디오 가격"),
                                 fieldWithPath("data[].isPurchased").description("비디오 구매 여부"),
+                                fieldWithPath("data[].description").description("비디오 설명"),
                                 fieldWithPath("data[].categories").description("비디오 카테고리"),
                                 fieldWithPath("data[].categories[].categoryId").description("카테고리 ID"),
                                 fieldWithPath("data[].categories[].categoryName").description("카테고리 이름"),
