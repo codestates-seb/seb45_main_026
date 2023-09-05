@@ -80,6 +80,7 @@ class QuestionControllerTest extends ControllerTest {
                                         fieldWithPath("data.answerStatus").description(generateLinkCode(AnswerStatus.class)),
                                         fieldWithPath("data.description").description("질문에 대한 답변 설명"),
                                         fieldWithPath("data.selections").description("질문에 대한 선택지"),
+                                        fieldWithPath("data.choice").description("객관식 여부"),
                                         fieldWithPath("data.solvedDate").description("질문 풀이 날짜")
                                 )
                         )

@@ -15,11 +15,13 @@ import com.server.domain.order.entity.Order;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
+import com.server.global.exception.businessexception.mailexception.MailCertificationException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
 import com.server.module.email.service.MailService;
+import com.server.module.redis.service.RedisService;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
@@ -35,26 +37,26 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
 	private final MemberRepository memberRepository;
-	private final MailService mailService;
 	private final ChannelService channelService;
 	private final AwsService awsService;
 	private final PasswordEncoder passwordEncoder;
 	private final MemberResponseConverter converter;
+	private final RedisService redisService;
 
-	public MemberService(MemberRepository memberRepository, MailService mailService, ChannelService channelService,
-		AwsService awsService, PasswordEncoder passwordEncoder, MemberResponseConverter converter) {
+	public MemberService(MemberRepository memberRepository, ChannelService channelService, AwsService awsService,
+		PasswordEncoder passwordEncoder, MemberResponseConverter converter, RedisService redisService) {
 		this.memberRepository = memberRepository;
-		this.mailService = mailService;
 		this.channelService = channelService;
 		this.awsService = awsService;
 		this.passwordEncoder = passwordEncoder;
 		this.converter = converter;
+		this.redisService = redisService;
 	}
 
 	@Transactional
 	public void signUp(MemberServiceRequest.Create create) {
 		checkDuplicationEmail(create.getEmail());
-		mailService.checkEmailCertify(create.getEmail());
+		checkEmailCertify(create.getEmail());
 
 		Member member = Member.createMember(create.getEmail(), passwordEncoder.encode(create.getPassword()),
 				create.getNickname());
@@ -204,4 +206,10 @@ public class MemberService {
 			FileType.PROFILE_IMAGE);
 	}
 
+	private void checkEmailCertify(String email) {
+		if (!"true".equals(redisService.getData(email))) {
+			throw new MailCertificationException();
+		}
+		redisService.deleteData(email);
+	}
 }

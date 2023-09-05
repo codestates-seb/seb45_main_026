@@ -32,7 +32,10 @@ import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.videoCategory.entity.VideoCategoryRepository;
 import com.server.domain.watch.repository.WatchRepository;
+import com.server.module.email.service.MailService;
 import com.server.module.redis.service.RedisService;
+
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -70,6 +73,7 @@ public abstract class ServiceTest {
 
     @MockBean protected RedisService redisService;
     @MockBean protected RestTemplate restTemplate;
+    @MockBean protected MailService mailService;
 
     protected Member createAndSaveMember() {
         Member member = Member.builder()

@@ -6,14 +6,19 @@ import com.server.domain.reply.dto.ReplyUpdateControllerApi;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.global.testhelper.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.springframework.cglib.core.Local;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 import static com.server.global.testhelper.RestDocsUtil.singleResponseFields;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -25,8 +30,8 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.requestF
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 class ReplyControllerTest extends ControllerTest {
 
@@ -157,5 +162,160 @@ class ReplyControllerTest extends ControllerTest {
                                 parameterWithName("reply-id").description("삭제할 댓글 ID")
                         )
                 ));
+    }
+
+    @TestFactory
+    @DisplayName("댓글 수정 시 validation 테스트")
+    Collection<DynamicTest> updateReplyValidation() {
+        //given
+        Long replyId = 1L;
+
+        return List.of(
+                dynamicTest("모든 값이 null 이라도 응답받을 수 있다.", ()-> {
+                    //given
+                    ReplyUpdateControllerApi request = ReplyUpdateControllerApi.builder()
+                            .content(null)
+                            .star(null)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(patch(BASE_URL + "/{reply-id}", replyId)
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+                            .header(AUTHORIZATION, TOKEN));
+
+                    //then
+                    actions
+                            .andDo(print())
+                            .andExpect(status().isNoContent());
+                }),
+                dynamicTest("replyId 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Long wrongReplyId = 0L;
+
+                    ReplyUpdateControllerApi request = ReplyUpdateControllerApi.builder()
+                            .content("update content")
+                            .star(5)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(patch(BASE_URL + "/{reply-id}", wrongReplyId)
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+                            .header(AUTHORIZATION, TOKEN));
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("replyId"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongReplyId))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("content 가 공백이면 검증에 실패한다.", ()-> {
+                    //given
+                    String wrongContent = " ";
+
+                    ReplyUpdateControllerApi request = ReplyUpdateControllerApi.builder()
+                            .content(wrongContent)
+                            .star(5)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(patch(BASE_URL + "/{reply-id}", replyId)
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+                            .header(AUTHORIZATION, TOKEN));
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("content"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongContent))
+                            .andExpect(jsonPath("$.data[0].reason").value("수강평은 공백을 허용하지 않습니다."));
+
+                }),
+                dynamicTest("content 의 글자 수가 100글자를 넘으면 검증에 실패한다.", ()-> {
+                    //given
+                    String wrongContent = "11111111111111111111111111111111111111111111111111" +
+                            "11111111111111111111111111111111111111111111111111" + "1";
+
+                    ReplyUpdateControllerApi request = ReplyUpdateControllerApi.builder()
+                            .content(wrongContent)
+                            .star(5)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(patch(BASE_URL + "/{reply-id}", replyId)
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+                            .header(AUTHORIZATION, TOKEN));
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("content"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongContent))
+                            .andExpect(jsonPath("$.data[0].reason").value("허용된 글자 수는 1자에서 100자 입니다."));
+                }),
+                dynamicTest("star 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Integer wrongStar = 0;
+
+                    ReplyUpdateControllerApi request = ReplyUpdateControllerApi.builder()
+                            .content("content")
+                            .star(wrongStar)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(patch(BASE_URL + "/{reply-id}", replyId)
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request))
+                            .header(AUTHORIZATION, TOKEN));
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("star"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongStar))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                })
+        );
+    }
+
+    @Test
+    @DisplayName("댓글 단건 조회 시 validation 테스트 - replyId 가 양수가 아니면 검증에 실패한다.")
+    void getReplyValidation() throws Exception {
+        //given
+        Long wrongReplyId = 0L;
+
+        //when
+        ResultActions actions = mockMvc.perform(get(BASE_URL + "/{reply-id}", wrongReplyId)
+                .accept(APPLICATION_JSON));
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.data[0].field").value("replyId"))
+                .andExpect(jsonPath("$.data[0].value").value(wrongReplyId))
+                .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 시 validation 테스트 - replyId 가 양수가 아니면 검증에 실패한다.")
+    void deleteReplyValidation() throws Exception {
+        //given
+        Long wrongReplyId = 0L;
+
+        //when
+        ResultActions actions = mockMvc.perform(delete(BASE_URL + "/{reply-id}", wrongReplyId)
+                .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.data[0].field").value("replyId"))
+                .andExpect(jsonPath("$.data[0].value").value(wrongReplyId))
+                .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
     }
 }
