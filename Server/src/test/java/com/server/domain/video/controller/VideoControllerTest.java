@@ -262,6 +262,7 @@ class VideoControllerTest extends ControllerTest {
                         fieldWithPath("data[].price").description("가격"),
                         fieldWithPath("data[].star").description("별점"),
                         fieldWithPath("data[].isPurchased").description("구매 여부"),
+                        fieldWithPath("data[].description").description("비디오 설명"),
                         fieldWithPath("data[].categories").description("카테고리 목록"),
                         fieldWithPath("data[].categories[].categoryId").description("카테고리 ID"),
                         fieldWithPath("data[].categories[].categoryName").description("카테고리 이름"),

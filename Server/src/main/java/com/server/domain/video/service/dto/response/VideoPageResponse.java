@@ -21,6 +21,7 @@ public class VideoPageResponse {
     private Integer price;
     private Float star;
     private Boolean isPurchased;
+    private String description;
     private List<VideoCategoryResponse> categories;
     private VideoChannelResponse channel;
     private LocalDateTime createdDate;
@@ -43,6 +44,7 @@ public class VideoPageResponse {
                 .price(video.getPrice())
                 .star(video.getStar())
                 .isPurchased(isPurchased)
+                .description(video.getDescription())
                 .categories(VideoCategoryResponse.of(video.getVideoCategories()))
                 .channel(VideoChannelResponse.of(video.getChannel(), isSubscribed, urls[1]))
                 .createdDate(video.getCreatedDate())
