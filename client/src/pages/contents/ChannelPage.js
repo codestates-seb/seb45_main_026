@@ -8,6 +8,7 @@ import ChannelHome from "../../components/contentListItems/ChannelHome";
 import ChannelList from "../../components/contentListItems/ChannelList";
 import ChannelNotice from "../../components/contentListItems/ChannelNotice";
 import axios from "axios";
+import Setting from "../../components/contentListItems/Setting";
 
 const globalTokens = tokens.global;
 
@@ -19,18 +20,16 @@ const ProfileContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: row;
-  gap: ${globalTokens.Spacing20.value}px;
+  flex-wrap: nowrap;
+  /* gap: ${globalTokens.Spacing20.value}px; */
   margin: ${globalTokens.Spacing36.value}px 0;
 `;
 const ProfileImg = styled.img`
-    max-height: 130px;
-    height: auto;
-    width: auto;
+    width: 130px;
 `
 const ImgContainer = styled.div`
     width: 130px;
     height: 130px;
-    min-width: 130px;
     border-radius: ${globalTokens.ProfileRadius.value}px;
     background-color: ${globalTokens.White.value};
     display: flex;
@@ -59,10 +58,9 @@ const ChannelDescription = styled.div`
   border-radius: ${globalTokens.RegularRadius.value}px;
 `
 
-
-
 export default function ChannelPage() {
   const isDark = useSelector((state) => state.uiSetting.isDark);
+
   const [navigate, setNavigate] = useState(0)
   
     return (
@@ -70,7 +68,7 @@ export default function ChannelPage() {
         <ChannelMainContainer>
           <ProfileContainer>
             <ImgContainer>
-              <ProfileImg src="https://avatars.githubusercontent.com/u/50258232?v=4" />
+              <ProfileImg src="https://avatars.githubusercontent.com/u/50258232?v=4"/>
             </ImgContainer>
             <InforContainer>
               <ChannelTitle>HyerimKimm</ChannelTitle>
@@ -78,7 +76,10 @@ export default function ChannelPage() {
             </InforContainer>
           </ProfileContainer>
           <ChannelNav navigate={navigate} setNavigate={setNavigate} />
-          {navigate===0?<ChannelHome/>:navigate===1?<ChannelList/>:<ChannelNotice/>}
+          { navigate===0? <ChannelHome/>
+            : navigate===1? <ChannelList/>
+            : navigate===2?  <ChannelNotice/>
+            : <Setting/> }
         </ChannelMainContainer>
       </PageContainer>
     );

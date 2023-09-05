@@ -45,7 +45,6 @@ export const CheckboxInput = styled.input`
 export const CheckboxLabel = styled(BodyTextTypo)`
     margin-left: ${globalTokens.Spacing8.value}px;
 `
-
 export const Checkbox = ({isDark, isChecked, setIsChecked}) => (
     <CheckboxContainer onClick={setIsChecked}>
 		<CheckboxInput type='checkbox' isChecked={isChecked} isDark={isDark}/>

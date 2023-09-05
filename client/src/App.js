@@ -22,6 +22,7 @@ import { getUserInfoService } from "./services/userInfoService";
 import {
   setIsLogin,
   setLoginInfo,
+  setMyid,
   setToken,
 } from "./redux/createSlice/LoginInfoSlice";
 import useConfirm from "./hooks/useConfirm";
@@ -49,17 +50,31 @@ function App() {
   useEffect(() => {
     if (!(tokens.authorization === "")) {
       getUserInfoService(tokens.authorization).then((res) => {
-        if (res.status === "success") {
+        if (res.status === 'success') {
+          console.log('success')
           //토큰이 유효하면 회원 정보를 dispatch 후, isLogin을 true로 설정한다.
+          dispatch(setMyid(res.data.memberId));
           dispatch(
-            setLoginInfo({ email: res.data.email, nickname: res.data.nickname })
-          );
+            setLoginInfo({ 
+              email: res.data.email, 
+              nickname: res.data.nickname,
+              grade: res.data.grade,
+              imgUrl: res.data.imgUrl,
+              reward: res.data.reward
+            }));
           dispatch(setIsLogin(true));
         } else {
           //토큰이 유효하지 않으면 저장된 토큰, 로그인 정보를 삭제하고 isLogin을 false로 설정한다.
           tokenFinishConfirm();
           dispatch(setToken({ authorization: "", refresh: "" }));
-          dispatch(setLoginInfo({ email: "", nickname: "" }));
+          dispatch(setMyid(0))
+          dispatch(setLoginInfo({ 
+            email: "", 
+            nickname: "",
+            grade: "",
+            imgUrl: "",
+            reward: 0
+          }));
           dispatch(setIsLogin(false));
         }
       });
@@ -74,14 +89,10 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/findPassword" element={<FindPasswordPage />} />
-        <Route
-          path="/findPassword/updatePassword"
-          element={<UpdatePasswordPage />}
-        />
-        <Route path="/MyProfile" element={<MyProfilePage />} />
+        <Route path="/findPassword/updatePassword" element={<UpdatePasswordPage/>}/>
         <Route path="/lecture" element={<LectureListPage />} />
         <Route path="/videos/1" element={<DetailPage />} />
-        <Route path="/channels/1" element={<ChannelPage />} />
+        <Route path="/channels/:userId" element={<ChannelPage/>} />
         <Route path="/carts" element={<CartPage />} />
         <Route path="/upload" element={<UploadPage />} />
         <Route path="/videos/1/problems" element={<ProblemPage />} />
