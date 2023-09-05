@@ -12,7 +12,6 @@ export const getUserInfoService = async (authorization) => {
                 }
             }
         );
-        console.log(response.data);
         return {
             status: 'success',
             data: response.data.data

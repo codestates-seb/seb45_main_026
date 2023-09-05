@@ -30,10 +30,13 @@ import FindPasswordPage from "./pages/auth/FindPasswordPage";
 import PurchasedListPage from "./pages/contents/PurchasedListPage";
 import UpdatePasswordPage from "./pages/auth/UpdatePasswordPage";
 import ChannelListPage from "./pages/contents/ChannelListPage";
+import { Modal } from './atoms/modal/Modal';
 
 function App() {
   const dispatch = useDispatch();
+  const isDark = useSelector(state=>state.uiSetting.isDark);
   const tokens = useSelector((state) => state.loginInfo.accessToken);
+  const modal = useSelector(state => state.uiSetting.modal);
   const tokenFinishConfirm = useConfirm(
     "토큰이 만료되었거나, 서버 오류로 로그아웃 되었습니다."
   );
@@ -51,7 +54,6 @@ function App() {
     if (!(tokens.authorization === "")) {
       getUserInfoService(tokens.authorization).then((res) => {
         if (res.status === 'success') {
-          console.log('success')
           //토큰이 유효하면 회원 정보를 dispatch 후, isLogin을 true로 설정한다.
           dispatch(setMyid(res.data.memberId));
           dispatch(
@@ -83,6 +85,13 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Modal 
+        isDark={isDark}
+        isModalOpen={modal.isModalOpen}
+        isBackdropClose={modal.isBackdropClose}
+        content={modal.content}
+        negativeButtonTitle={modal.negativeButtonTitle}
+        positiveButtonTitle={modal.positiveButtonTitle}/>
       <Header />
       <Routes>
         <Route path="/" element={<MainPage />} />
