@@ -2,6 +2,7 @@ package com.server.domain.member.repository;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -302,5 +303,31 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         long totalCount = query.fetchCount();
 
         return new PageImpl<>(results, pageable, totalCount);
+    }
+
+    public void findPlaylistGroupByChannelName(Long memberId) {
+        Expression<String> groupByExpression = video.channel.channelName;
+
+        JPAQuery<Tuple> query = queryFactory
+            .select(
+                video.videoId,
+                video.videoName,
+                video.thumbnailFile,
+                video.star,
+                video.modifiedDate,
+                channel.channelName,
+                member.memberId
+            )
+            .from(video)
+            .join(video.orderVideos, orderVideo)
+            .join(orderVideo.order, order)
+            .join(video.channel, channel).fetchJoin()
+            .join(channel.member, member).fetchJoin()
+            .where(
+                order.member.memberId.eq(memberId),
+                order.orderStatus.eq(OrderStatus.COMPLETED)
+            )
+            .groupBy(groupByExpression)
+            .orderBy(groupByExpression.asc());
     }
 }
