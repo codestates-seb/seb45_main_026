@@ -73,6 +73,7 @@ const LectureListPage = () => {
       .then((res) => setLectures(res.data.data))
       .catch((err) => console.log(err));
   }, [filterState])
+  
   return (
     <PageContainer isDark={isDark}>
       <LectureMainContainer>
