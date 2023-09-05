@@ -79,7 +79,7 @@ const Setting = () => {
     }
     //회원 탈퇴 버튼 누르면 동작함
     const handleDeleteUserClick = async () => {
-
+        
     }
     
     return (
