@@ -8,6 +8,7 @@ import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.reward.entity.RewardType;
 import com.server.domain.video.entity.Video;
+import com.server.domain.watch.entity.Watch;
 import com.server.global.testhelper.RepositoryTest;
 import org.hibernate.Hibernate;
 import org.junit.jupiter.api.DisplayName;
@@ -128,6 +129,39 @@ class OrderRepositoryTest extends RepositoryTest {
         for (OrderVideo orderVideo : findOrder.getOrderVideos()) {
             assertThat(Hibernate.isInitialized(orderVideo.getVideo())).isTrue();
         }
+    }
+
+    @Test
+    @DisplayName("orderId 로 주문한 비디오 중 시청한 비디오를 찾는다.")
+    void findWatchVideosById() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Member member = createAndSaveMember();
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+        Video video3 = createAndSaveVideo(channel);
+        Video video4 = createAndSaveVideo(channel);
+
+        Order order = createAndSaveOrderComplete(member, List.of(video1, video2, video3));// 결제한 주문
+
+        Watch watch1 = Watch.createWatch(member, video1); //video1 시청
+        Watch watch2 = Watch.createWatch(member, video2); //video2 시청
+        em.persist(watch1);
+        em.persist(watch2);
+
+        em.flush();
+        em.clear();
+
+        //when
+        List<Video> watchVideos = orderRepository.findWatchVideosById(order.getOrderId());
+
+        //then
+        assertThat(watchVideos).hasSize(2)
+                        .extracting("videoId")
+                        .containsExactly(video1.getVideoId(), video2.getVideoId());
     }
 
     private Cart createAndSaveCart(Member member, Video video) {

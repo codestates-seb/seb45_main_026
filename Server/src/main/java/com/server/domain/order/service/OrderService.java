@@ -9,6 +9,7 @@ import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
+import com.server.domain.order.service.dto.response.VideoCancelServiceResponse;
 import com.server.domain.reward.service.RewardService;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
@@ -149,17 +150,28 @@ public class OrderService {
         return param;
     }
 
-    public void deleteOrder(Long memberId, String orderId) {
+    public void cancelOrder(Long memberId, String orderId) {
 
         Member member = verifiedMember(memberId);
 
         Order order = verifiedOrder(member, orderId);
+
+        checkIfWatch(order);
 
         if(isAlreadyCanceled(order)) throw new OrderAlreadyCanceledException();
 
         if(isCompleted(order)) orderCancelProcess(order);
 
         order.deleteOrder();
+    }
+
+    public VideoCancelServiceResponse cancelVideo(Long loginMemberId, String orderId, Long videoId) {
+        return null;
+    }
+
+    private void checkIfWatch(Order order) {
+        if(!orderRepository.findWatchVideosById(order.getOrderId()).isEmpty())
+            throw new VideoAlreadyWatchedException();
     }
 
     private boolean isCompleted(Order order) {
@@ -189,8 +201,6 @@ public class OrderService {
 
         if(responseEntity.getStatusCode().value() != 200)
             throw new CancelFailException();
-
-
     }
 
     private void checkDuplicateOrder(Member member, List<Video> toBuyVideos) {
