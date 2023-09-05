@@ -17,7 +17,7 @@ include::overview.adoc[]
 
 === Member API
 * link:snippets/member/getmember.html[회원 정보 조회 API, onclick="window.location.href='snippets/member/getmember.html'"]
-* link:snippets/member/getmember.html[회원 정보 관리 API, onclick="window.location.href='snippets/member/member.html'"]
+* link:snippets/member/member.html[회원 정보 관리 API, onclick="window.location.href='snippets/member/member.html'"]
 
 === Channel API
 * link:snippets/channel/getchannel.html[채널 정보/채널 비디오 목록 조회 API, onclick="window.location.href='snippets/channel/getchannel.html'"]
