@@ -29,6 +29,7 @@ import useConfirm from "./hooks/useConfirm";
 import FindPasswordPage from "./pages/auth/FindPasswordPage";
 import PurchasedListPage from "./pages/contents/PurchasedListPage";
 import UpdatePasswordPage from "./pages/auth/UpdatePasswordPage";
+import ChannelListPage from "./pages/contents/ChannelListPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -96,6 +97,7 @@ function App() {
         <Route path="/upload" element={<UploadPage />} />
         <Route path="/videos/1/problems" element={<ProblemPage />} />
         <Route path="/purchased" element={<PurchasedListPage />} />
+        <Route path="/channellist" element={<ChannelListPage />} />
       </Routes>
       <Footer />
     </BrowserRouter>

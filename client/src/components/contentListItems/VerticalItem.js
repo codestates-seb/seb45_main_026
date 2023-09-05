@@ -113,33 +113,34 @@ const ScoreText = styled.span`
   font-size: ${globalTokens.SmallText.value}px;
 `
 
-export default function VerticalItem() { 
+export default function VerticalItem({ lecture ,channel}) { 
+  const {videoName,thumbnailUrl,createdDate,isPurchased,price,star}=lecture
     return (
       <ComponentBody>
         <ThumbnailContainer>
-          <Thumbnail src="https://cdn.inflearn.com/public/courses/329922/cover/364e7406-3569-437b-b719-7f146cad3d60/thumbnail-js.png" />
+          <Thumbnail src={thumbnailUrl} />
         </ThumbnailContainer>
-        <ItemTitle>대충 영상 제목대충 영상 제목</ItemTitle>
+        <ItemTitle>{videoName}</ItemTitle>
         <ItemInfors>
           <InforContainerLeft>
             <AuthorInfor>
               <ImgContainer>
-                <ProfileImg src="https://avatars.githubusercontent.com/u/50258232?v=4" />
+                <ProfileImg src={channel.imageUrl} />
               </ImgContainer>
-              <AuthorName>HyerimKimm</AuthorName>
+              <AuthorName>{channel.channelName}</AuthorName>
             </AuthorInfor>
             <DateInfor>8월 29일 업로드됨</DateInfor>
           </InforContainerLeft>
           <InforContainerRight>
             <ScoreContainer>
-              <ScoreText>4.6</ScoreText>
+              <ScoreText>{star}</ScoreText>
               <StarImage src={yellowStar} />
               <StarImage src={yellowStar} />
               <StarImage src={yellowStar} />
               <StarImage src={yellowStar} />
               <StarImage src={yellowStar} />
             </ScoreContainer>
-            <PriceInfor>32,450원</PriceInfor>
+            {isPurchased ? <PriceInfor>구매됨</PriceInfor> : <PriceInfor>{price}원</PriceInfor>}
           </InforContainerRight>
         </ItemInfors>
       </ComponentBody>

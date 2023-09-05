@@ -10,7 +10,7 @@ const globalTokens = tokens.global;
 const ItemBody = styled.div`
     width: 100%;
     padding: ${globalTokens.Spacing28.value}px;
-    gap: ${globalTokens.Spacing28.value}px;
+    gap: ${globalTokens.Spacing8.value}px;
     border: 1px lightgray solid;
     border-radius: ${globalTokens.RegularRadius.value}px;
     display: flex;
@@ -73,11 +73,13 @@ const CountNum = styled.div`
     font-weight: ${globalTokens.Bold.value};
 `
 const AccordionButton = styled.button`
-    width: 30px;
+    width: 40px;
     height: 20px;
-    background-image: url(${arrowDown});
-    background-repeat: no-repeat;
-    background-size: contain;
+`
+const AccordionArrow = styled.img`
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 `
 const HorizonItemContainer = styled.ul`
     width: 100%;
@@ -85,28 +87,60 @@ const HorizonItemContainer = styled.ul`
     flex-direction: column;
     gap: ${globalTokens.Spacing16.value}px;
     margin-bottom: ${globalTokens.Spacing28.value}px;
+    max-height: ${(props)=>props.isOpen?'10000px':'0px'};
+    overflow: hidden;
+    transition: 500ms;
 `
 
 
 export default function PurchasedItem() {
-    const [isOpen,setIsOpen]=useState(false)
+    const [isOpen, setIsOpen] = useState(false)
+    const a = {
+            "videoId": 1,
+            "videoName": "촛불로 공부하기",
+            "thumbnailUrl": "https://d2ouhv9pc4idoe.cloudfront.net/4/videos/1/video1.png",
+            "views": 1266,
+            "price": 0,
+            "star": 0.0,
+            "isPurchased": false,
+            "description": "test 영상입니다.",
+            "categories": [
+                {
+                    "categoryId": 1,
+                    "categoryName": "React"
+                },
+                {
+                    "categoryId": 2,
+                    "categoryName": "Redux"
+                }
+            ],
+            "channel": {
+                "memberId": 4,
+                "channelName": "andygugu",
+                "subscribes": 3,
+                "isSubscribed": false,
+                "imageUrl": "https://d2ouhv9pc4idoe.cloudfront.net/4/profile/test22.png"
+            },
+            "createdDate": "2023-09-04T00:00:00"
+        }
     return (
         <ItemBody>
             <ProfileContainer>
             <ImgContainer>
-                <ProfileImg src="https://avatars.githubusercontent.com/u/50258232?v=4" />
+                <ProfileImg src="https://d2ouhv9pc4idoe.cloudfront.net/4/profile/test22.png" />
             </ImgContainer>
             <TextInfor>
-                <AuthorName>HyerimKimm</AuthorName>
-                <Subscribers>구독자 5명</Subscribers>
+                <AuthorName>andygugu</AuthorName>
+                <Subscribers>구독자 3명</Subscribers>
             </TextInfor>
             </ProfileContainer>
             <TopContainer> 
-                <LectureCount><CountNum>5</CountNum>개의 강의</LectureCount>
-                <AccordionButton onClick={()=>setIsOpen(!isOpen)}/>
+                <LectureCount><CountNum>3</CountNum>개의 강의</LectureCount>
+                <AccordionButton onClick={() => setIsOpen(!isOpen)} ><AccordionArrow src={isOpen?arrowUp:arrowDown} /></AccordionButton>
             </TopContainer>
-            <ContentContainer>
-                {isOpen?<HorizonItemContainer><HorizonItem/><HorizonItem/><HorizonItem/></HorizonItemContainer>:<></>}
+            <ContentContainer >
+                <HorizonItemContainer isOpen={isOpen}>
+                    <HorizonItem lecture={a}/><HorizonItem lecture={a}/><HorizonItem lecture={a}/></HorizonItemContainer>
             </ContentContainer>
         </ItemBody>
     )

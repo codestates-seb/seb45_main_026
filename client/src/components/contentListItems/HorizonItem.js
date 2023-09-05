@@ -27,6 +27,7 @@ const Thumbnail = styled.img`
     object-fit: cover;
     height: 100%;
     width: 100%;
+    background-color: lightgray;
 `
 const ItemInfors = styled.div`
     flex-grow: 1;
@@ -133,37 +134,36 @@ const PriceText = styled.div`
     height: 30px;
 `
 
-export default function HorizonItem() {
+export default function HorizonItem({lecture}) {
+  const {videoName,thumbnailUrl,channel,createdDate,isPurchased,price,star,description}=lecture
     return (
       <ComponentBody>
         <ThumbnailContainer>
-          <Thumbnail src="https://cdn.inflearn.com/public/courses/329922/cover/364e7406-3569-437b-b719-7f146cad3d60/thumbnail-js.png" />
+          <Thumbnail src={thumbnailUrl} alt="thumbnail" />
         </ThumbnailContainer>
         <ItemInfors>
-          <Title>
-            대충 영상 제목
-          </Title>
-          <Description>이 영상은 아무런 내용도 없습니다</Description>
+          <Title>{videoName}</Title>
+          <Description>{description}</Description>
           <InforContainer>
             <InforContainerLeft>
               <AuthorContainer>
                 <ImgContainer>
-                  <ProfileImg src="https://avatars.githubusercontent.com/u/50258232?v=4" />
+                  <ProfileImg src={channel.imageUrl} alt="profile" />
                 </ImgContainer>
-                <AuthorName>HyerimKimm</AuthorName>
+                <AuthorName>{channel.channelName}</AuthorName>
                 <CreatedAt>8월 30일 업로드 됨</CreatedAt>
               </AuthorContainer>
             </InforContainerLeft>
             <InforContainerRight>
               <ScoreContainer>
-                <ScoreText>4.7</ScoreText>
+                <ScoreText>{star}</ScoreText>
                 <StarImage src={yellowStar} />
                 <StarImage src={yellowStar} />
                 <StarImage src={yellowStar} />
                 <StarImage src={yellowStar} />
                 <StarImage src={yellowStar} />
               </ScoreContainer>
-              <PriceText>32,450원</PriceText>
+              {isPurchased?<PriceText>구매됨</PriceText>:<PriceText>{price}원</PriceText>}
             </InforContainerRight>
           </InforContainer>
         </ItemInfors>

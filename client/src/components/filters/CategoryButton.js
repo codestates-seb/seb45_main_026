@@ -30,7 +30,7 @@ export default function CategoryButton({filter}) {
   const obj = {}
   obj[`${filter.name}Ref`] = useRef(null);
   const dispatch = useDispatch()
-  const filterState = useSelector((state) => state.filterSlice[filter.name]);
+  const filterState = useSelector((state) => state.filterSlice.filter[filter.name]);
   const openDropdown = useSelector((state) => state.filterSlice.dropdown);
    useEffect(() => {
      const dropdownHandler = (e) => {
