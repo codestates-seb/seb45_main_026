@@ -91,7 +91,7 @@ export const SideBar = () => {
          window.location.href = 'mailto:helim01033@naver.com';
     }
     const handlePurchaseClick = () => {
-
+        navigate('/purchased');
     }
     const handleBasketClick = () => {
         navigate('/carts');
