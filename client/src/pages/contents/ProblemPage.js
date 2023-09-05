@@ -11,9 +11,8 @@ import { useDispatch, useSelector } from "react-redux";
 const ProblemPage = () => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.loginInfo.accessToken);
-  const problemsData = useSelector((state) => state.problemSlice.data);
-  console.log(problemsData)
   const setting = useSelector((state) => state.problemSlice.setting);
+  const problemsData = useSelector((state) => state.problemSlice.data);
   const filtered = problemsData.filter((el, idx) => idx + 1 === setting.isPage);
 
   useEffect(() => {

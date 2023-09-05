@@ -4,12 +4,43 @@ import {
   Category,
   CategoryLists,
 } from "../../pages/contents/DetailPage/DetailContent";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { setChecked } from "../../redux/createSlice/CartsSlice";
 
 const CartItem = ({ el }) => {
+  const dispatch = useDispatch();
+  const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
+  const token = useSelector((state) => state.loginInfo.accessToken);
+  const headers = {
+    Authorization: token.authorization,
+    refresh: token.refresh,
+  };
+
+  const handlePatchItemList = (videoId) => {
+    return axios
+      .patch(`https://api.itprometheus.net/videos/${videoId}/carts`, null, {
+        headers,
+      })
+      .then((res) => console.log(res.data))
+      .catch((err) => console.log(err));
+  };
+
+  const handleCheckChange = (checked, id) => {
+    if (checked) {
+      dispatch(setChecked([...checkedItems, id]));
+    } else {
+      dispatch(setChecked(checkedItems.filter((el) => el !== id)));
+    }
+  };
 
   return (
     <CartList>
-      <CheckedBtn type="checkbox" />
+      <CheckedBtn
+        type="checkbox"
+        checked={checkedItems.includes(el.videoId)}
+        onChange={(e) => handleCheckChange(e.target.checked, el.videoId)}
+      />
       <VideoImage src={el.thumbnailUrl} />
       <Content>
         <ItemTitle>{el.videoName}</ItemTitle>
@@ -23,7 +54,9 @@ const CartItem = ({ el }) => {
             )
           )}
         </Category>
-        <CancelBtn>&times;</CancelBtn>
+        <CancelBtn onClick={() => handlePatchItemList(el.videoId)}>
+          &times;
+        </CancelBtn>
       </Content>
       <ItemPrice>{el.price}원</ItemPrice>
     </CartList>
@@ -39,15 +72,16 @@ export const CartList = styled.li`
   align-items: start;
   border-bottom: 1px solid rgb(236, 236, 236);
   width: 100%;
-  margin: 10px 0px;
-  padding: 15px;
+  margin: 5px 0px;
+  padding: 20px 15px;
 `;
 
 export const VideoImage = styled.img`
   width: 100%;
-  max-width: 170px;
+  max-width: 180px;
   aspect-ratio: 8 / 5;
-  margin: 0px 10px;
+  margin: 0px 15px;
+  border-radius: 8px;
 `;
 
 export const Content = styled.div`
@@ -60,8 +94,10 @@ export const Content = styled.div`
 
   border-right: 1px solid rgb(236, 236, 236);
   width: 100%;
-  max-width: 400px;
   height: 100px;
+  max-width: 400px;
+
+  padding-left: 10px;
 `;
 
 export const ItemTitle = styled.span`
@@ -69,9 +105,12 @@ export const ItemTitle = styled.span`
   margin: 5px 0px;
   font-weight: bold;
 `;
+
 export const ItemName = styled.span`
   width: 100%;
   margin: 5px 0px;
+  font-weight: 600;
+  color: gray;
 `;
 
 export const CancelBtn = styled.button`

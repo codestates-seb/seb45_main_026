@@ -1,17 +1,32 @@
 import { styled } from "styled-components";
 import CartItem from "../../../components/CartPage/CartItem";
 import CartEmpty from "../../../components/CartPage/CartEmpty";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setChecked } from "../../../redux/createSlice/CartsSlice";
 
 const CartLeft = () => {
+  const dispatch = useDispatch();
   const cartsData = useSelector((state) => state.cartSlice.data);
+  const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
+
+  const handleAllCheck = (checked) => {
+    if (checked) {
+      dispatch(setChecked(cartsData.map((el) => el.videoId)));
+    } else {
+      dispatch(setChecked([]));
+    }
+  };
 
   return (
     <CartItems>
       <CartHeader>
         <WholeCheck>
-          <CheckedBtn type="checkbox" />
-          <Checklabel>전체선택 1/2</Checklabel>
+          <CheckedBtn
+            type="checkbox"
+            checked={checkedItems.length === cartsData.length}
+            onChange={(e) => handleAllCheck(e.target.checked)}
+          />
+          <Checklabel>전체선택 {checkedItems.length}/{cartsData.length}</Checklabel>
         </WholeCheck>
         <RemoveBtn>&times; 선택 삭제</RemoveBtn>
       </CartHeader>
@@ -63,13 +78,13 @@ export const WholeCheck = styled.div`
 `;
 
 export const CheckedBtn = styled.input`
-  width: 20px;
-  height: 20px;
+  min-width: 15px;
+  height: 15px;
   accent-color: rgb(255, 90, 90);
 `;
 
 export const Checklabel = styled.label`
-  width: 100px;
+  width: 300px;
   height: 30px;
   margin-left: 10px;
   padding-top: 2px;
@@ -88,7 +103,8 @@ export const CartLists = styled.ul`
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  /* overflow-y: scroll; */
+  overflow-y: scroll;
+  max-height: 580px;
 `;
 
 export const CartCautions = styled.ul`

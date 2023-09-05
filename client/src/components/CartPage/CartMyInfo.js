@@ -1,7 +1,31 @@
-import { useState } from "react";
 import { styled } from "styled-components";
-import CartEditMode from "./CartMyInfo/CartEditMode";
-import CartInfoMode from "./CartMyInfo/CartInfoMode";
+import { useSelector } from "react-redux";
+
+const CartMyInfo = () => {
+  const myCartInfo = useSelector((state) => state.cartSlice.myCartInfo);
+
+  return (
+    <CartInfo>
+      <InfoTitle>
+        <Info>구매자 정보</Info>
+      </InfoTitle>
+      <InfoBox>
+        <InfoSubtitle>이름</InfoSubtitle>
+        <InfoContnent>{myCartInfo.nickname}</InfoContnent>
+      </InfoBox>
+      <InfoBox>
+        <InfoSubtitle>이메일</InfoSubtitle>
+        <InfoContnent>{myCartInfo.email}</InfoContnent>
+      </InfoBox>
+      <InfoBox>
+        <InfoSubtitle>등급</InfoSubtitle>
+        <InfoContnent>{myCartInfo.grade}</InfoContnent>
+      </InfoBox>
+    </CartInfo>
+  );
+};
+
+export default CartMyInfo;
 
 export const CartInfo = styled.form`
   width: 100%;
@@ -32,25 +56,17 @@ export const InfoSave = styled.button`
   text-decoration: underline;
 `;
 
-const CartMyInfo = () => {
-  const [isEdit, setEdit] = useState(false);
+export const InfoBox = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
 
-  return (
-    <CartInfo>
-      <InfoTitle>
-        <Info>구매자 정보</Info>
-        <InfoSave
-          onClick={(e) => {
-            e.preventDefault();
-            setEdit(!isEdit);
-          }}
-        >
-          {isEdit ? "저장" : "수정"}
-        </InfoSave>
-      </InfoTitle>
-      {isEdit ? <CartEditMode /> : <CartInfoMode />}
-    </CartInfo>
-  );
-};
+  margin-top: 10px;
+  color: gray;
+`;
 
-export default CartMyInfo;
+export const InfoSubtitle = styled.span`
+  width: 80px;
+`;
+export const InfoContnent = styled.span``;

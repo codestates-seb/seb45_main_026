@@ -8,6 +8,42 @@ import { setCarts } from "../../../redux/createSlice/CartsSlice";
 import CartLeft from "./CartLeft";
 import CartRight from "./CartRight";
 
+const CartPage = () => {
+  const dispatch = useDispatch();
+  const isDark = useSelector((state) => state.uiSetting.isDark);
+  const cartsData = useSelector((state) => state.cartSlice.data);
+  const token = useSelector((state) => state.loginInfo.accessToken);
+  const headers = {
+    Authorization: token.authorization,
+    refresh: token.refresh,
+  };
+
+  useEffect(() => {
+    axios
+      .get(`https://api.itprometheus.net/members/carts`, {
+        headers,
+      })
+      .then((res) => {
+        dispatch(setCarts(res.data.data));
+      })
+      .catch((err) => console.log(err));
+  }, ["cartsData"]);
+
+  return (
+    <PageContainer isDark={isDark}>
+      <CartContainer>
+        <CartTitle>수강 바구니</CartTitle>
+        <CartContent>
+          <CartLeft />
+          <CartRight />
+        </CartContent>
+      </CartContainer>
+    </PageContainer>
+  );
+};
+
+export default CartPage;
+
 // const globalTokens = tokens.global;
 
 export const CartContainer = styled.div`
@@ -40,35 +76,3 @@ export const CartContent = styled.div`
     grid-column-gap: 30px;
   }
 `;
-
-const CartPage = () => {
-  const isDark = useSelector((state) => state.uiSetting.isDark);
-  const token = useSelector((state) => state.loginInfo.accessToken);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    axios
-      .get(`https://api.itprometheus.net/members/carts`, {
-        headers: { Authorization: token.authorization, refresh: token.refresh },
-      })
-      .then((res) => {
-        console.log(res.data);
-        // dispatch(setCarts(res.data));
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  return (
-    <PageContainer isDark={isDark}>
-      <CartContainer>
-        <CartTitle>수강 바구니</CartTitle>
-        <CartContent>
-          <CartLeft />
-          <CartRight />
-        </CartContent>
-      </CartContainer>
-    </PageContainer>
-  );
-};
-
-export default CartPage;

@@ -2,7 +2,6 @@ import { styled } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setAnswer,
-  setConfirm,
   setDetail,
   setPage,
 } from "../../../redux/createSlice/ProblemSlice";
@@ -38,37 +37,60 @@ const ProblemBox = ({ el }) => {
       </ProblemTitle>
 
       <ProblemLists>
-        {el.selections.map((li, idx) => (
-          <ProblemList
-            key={idx}
-            isTrue={
-              setting.answers.answer === idx + 1 ||
-              parseInt(el.myAnswer) === idx + 1
-            }
-            isFalse={
-              parseInt(el.myAnswer) === idx + 1 &&
-              parseInt(el.myAnswer) !== parseInt(el.questionAnswer)
-            }
-          >
-            <ContentNum
-              type="checkbox"
-              checked={
-                idx + 1 === setting.answers.answer ||
-                idx + 1 === parseInt(el.myAnswer)
+        {el.choice ? (
+          el.selections.map((li, idx) => (
+            <ProblemList
+              key={idx}
+              isTrue={
+                parseInt(el.questionAnswer) === idx + 1 &&
+                parseInt(el.myAnswer) !== ""
               }
-              onClick={() => {
+              isFalse={
+                parseInt(el.myAnswer) === idx + 1 &&
+                parseInt(el.myAnswer) !== parseInt(el.questionAnswer) &&
+                parseInt(el.myAnswer) !== ""
+              }
+            >
+              <ContentNum
+                type="checkbox"
+                checked={
+                  idx + 1 === setting.answers.answer ||
+                  idx + 1 === parseInt(el.myAnswer)
+                }
+                onChange={() => {
+                  if (el.myAnswer === "") {
+                    dispatch(
+                      setAnswer({ questionId: el.questionId, answer: idx + 1 })
+                    );
+                  }
+                }}
+              />
+              <ListContent>
+                {idx + 1}. {li}
+              </ListContent>
+            </ProblemList>
+          ))
+        ) : (
+          <ProblemInputBox>
+            정답{" "}
+            <ProblemInput
+              isTrue={el.myAnswer === el.questionAnswer && el.myAnswer !== ""}
+              isFalse={el.myAnswer !== el.questionAnswer && el.myAnswer !== ""}
+              value={setting.answers.answer || el.myAnswer}
+              onChange={(e) => {
                 if (el.myAnswer === "") {
                   dispatch(
-                    setAnswer({ questionId: el.questionId, answer: idx + 1 })
+                    setAnswer({
+                      questionId: el.questionId,
+                      answer: e.target.value,
+                    })
                   );
                 }
               }}
+              placeholder="단답형으로 입력해주세요."
             />
-            <ListContent>
-              {idx + 1}. {li}
-            </ListContent>
-          </ProblemList>
-        ))}
+          </ProblemInputBox>
+        )}
       </ProblemLists>
 
       <BtnBox>
@@ -83,7 +105,7 @@ const ProblemBox = ({ el }) => {
         )}
 
         <ConfirmBtn
-          opened={el.myAnswer !== "" || setting.isDetail}
+          isOpened={el.myAnswer !== "" || setting.isDetail}
           onClick={() => {
             if (el.myAnswer === "") {
               handleSubmit(el.questionId);
@@ -183,8 +205,8 @@ export const PrevBtn = styled(RegularBtn)`
 `;
 export const ConfirmBtn = styled(RegularBtn)`
   background-color: ${(props) =>
-    props.opened ? "rgb(255, 100, 100)" : "white"};
-  color: ${(props) => (props.opened ? "white" : "black")};
+    props.isOpened ? "rgb(255, 100, 100)" : "white"};
+  color: ${(props) => (props.isOpened ? "white" : "black")};
 `;
 
 export const NextBtn = styled(RegularBtn)`
@@ -219,4 +241,30 @@ export const DiscContent = styled.div`
   margin-top: 10px;
   padding: 20px;
   flex-wrap: wrap;
+`;
+
+export const ProblemInputBox = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  font-weight: 600;
+`;
+
+export const ProblemInput = styled.input`
+  width: 90%;
+  height: 50px;
+  background-color: ${(props) =>
+    props.isTrue
+      ? "rgb(255, 100, 100)"
+      : props.isFalse
+      ? "rgb(100, 100, 255)"
+      : "white"};
+  color: ${(props) =>
+    props.isTrue ? "white" : props.isFalse ? "white" : "black"};
+  font-size: 16px;
+  border: 2px solid rgb(236, 236, 236);
+  border-radius: 8px;
+  margin-left: 30px;
+  padding: 20px;
 `;
