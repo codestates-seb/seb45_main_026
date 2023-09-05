@@ -88,7 +88,7 @@ const LectureListPage = () => {
         {isHorizon ? (
           <HorizonItemContainer>
             {lectures.map((el) => (
-              <HorizonItem key={el.videoId} lecture={el} />
+              <HorizonItem key={el.videoId} lecture={el} channel={el.channel} />
             ))}
           </HorizonItemContainer>
         ) : (
