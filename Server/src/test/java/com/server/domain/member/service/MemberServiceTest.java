@@ -2,21 +2,25 @@ package com.server.domain.member.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
 
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
+import com.server.domain.member.entity.Authority;
+import com.server.domain.member.entity.Member;
+import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
@@ -25,25 +29,9 @@ import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
-import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.RewardType;
-import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
-import com.server.module.s3.service.dto.FileType;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import com.server.domain.member.entity.Authority;
-import com.server.domain.member.entity.Member;
-import com.server.domain.member.repository.MemberRepository;
-import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
@@ -51,6 +39,7 @@ import com.server.global.exception.businessexception.memberexception.MemberNotUp
 import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
 import com.server.global.testhelper.ServiceTest;
 import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
 
 public class MemberServiceTest extends ServiceTest {
 
@@ -58,20 +47,10 @@ public class MemberServiceTest extends ServiceTest {
 	@Autowired MemberService memberService;
 	@Autowired AwsService awsService;
 
-	@Mock
-	private MemberRepository mockMemberRepository;
-
-	@Mock
-	private AwsService mockAwsService;
-
-	@InjectMocks
-	private MemberService mockMemberService;
-
 	@Test
 	@DisplayName("로그인한 회원의 프로필 조회가 성공적으로 되는지 검증한다.")
 	void getMember() {
 		Member member = Member.builder()
-			.memberId(1L)
 			.email("test@gmail.com")
 			.password(passwordEncoder.encode("1q2w3e4r!"))
 			.nickname("test")
@@ -80,16 +59,14 @@ public class MemberServiceTest extends ServiceTest {
 			.imageFile("imageName")
 			.build();
 
-		Optional<Member> optional = Optional.ofNullable(member);
+		em.persist(member);
+		em.flush();
+
 		Long id = member.getMemberId();
 
-		String fileUrl = "www.test.com";
+		String fileUrl = awsService.getFileUrl(id, member.getImageFile(), FileType.PROFILE_IMAGE);
 
-		given(mockMemberRepository.findById(Mockito.anyLong())).willReturn(optional);
-		given(mockAwsService.getFileUrl(Mockito.anyLong(), Mockito.anyString(), Mockito.any(FileType.class)))
-			.willReturn(fileUrl);
-
-		assertThat(mockMemberService.getMember(id).getImageUrl()).isEqualTo(fileUrl);
+		assertThat(memberService.getMember(id).getImageUrl()).isEqualTo(fileUrl);
 	}
 
 	@Test
@@ -174,7 +151,7 @@ public class MemberServiceTest extends ServiceTest {
 		List<CartsResponse> cartList = page.getContent();
 
 		assertThat(cartList.get(0).getVideoId()).isEqualTo(videos.get(videos.size() - 1).getVideoId());
-		assertThat(cartList.get(cartList.size() - 1).getVideoId()).isEqualTo(videos.get(10).getVideoId());
+		assertThat(cartList.get(cartList.size() - 1).getVideoId()).isEqualTo(videos.get(10).getVideoId()); //여기
 	}
 
 	@Test
@@ -367,12 +344,8 @@ public class MemberServiceTest extends ServiceTest {
 		Member member = createMember();
 		Long loginId = member.getMemberId();
 
-		given(mockMemberRepository.findById(Mockito.anyLong())).willReturn(Optional.of(member));
-		doNothing().when(mockAwsService).deleteFile(anyLong(), anyString(), any(FileType.class));
+		memberService.deleteImage(loginId);
 
-		mockMemberService.deleteImage(loginId);
-
-		verify(mockAwsService).deleteFile(loginId, "imageName", FileType.PROFILE_IMAGE);
 		assertNull(member.getImageFile());
 	}
 
