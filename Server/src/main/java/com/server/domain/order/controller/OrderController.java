@@ -10,12 +10,15 @@ import com.server.domain.order.service.dto.response.VideoCancelServiceResponse;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiSingleResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 
 @RestController
 @RequestMapping("/orders")
+@Validated
 public class OrderController {
 
     private final OrderService orderService;
@@ -60,7 +63,7 @@ public class OrderController {
     @DeleteMapping("/{order-id}/videos/{video-id}")
     public ResponseEntity<ApiSingleResponse<VideoCancelApiResponse>> cancelVideo(
             @PathVariable("order-id") String orderId,
-            @PathVariable("video-id") Long videoId,
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
             @LoginId Long loginMemberId) {
 
         VideoCancelServiceResponse serviceResponse

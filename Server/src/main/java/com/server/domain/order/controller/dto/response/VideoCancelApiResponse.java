@@ -10,11 +10,13 @@ import lombok.Getter;
 @Builder
 public class VideoCancelApiResponse {
 
+    private int requestAmount;
     private int totalCancelAmount;
     private int usedReward;
 
     public static VideoCancelApiResponse of(VideoCancelServiceResponse response){
         return VideoCancelApiResponse.builder()
+                .requestAmount(response.getRequestAmount())
                 .totalCancelAmount(response.getTotalCancelAmount())
                 .usedReward(response.getUsedReward())
                 .build();

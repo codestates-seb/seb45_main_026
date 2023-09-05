@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 public class VideoCancelServiceResponse {
 
+    private int requestAmount;
     private int totalCancelAmount;
     private int usedReward;
 }
