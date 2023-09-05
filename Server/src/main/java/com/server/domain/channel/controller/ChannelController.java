@@ -63,9 +63,9 @@ public class ChannelController {
     @PatchMapping("/{member-id}/subscribe")
     public ResponseEntity<ApiSingleResponse<Boolean>> updateSubscribe(
             @PathVariable("member-id") @Positive(message = "{validation.positive}") Long memberId,
-            @LoginId Long loginMemberId){
+            @LoginId Long loginMemberId) {
 
-        boolean isSubscribed = channelService.updateSubscribe(loginMemberId, memberId);
+        boolean isSubscribed = channelService.updateSubscribe(memberId, loginMemberId);
 
         return ResponseEntity.ok(ApiSingleResponse.ok(isSubscribed, "구독상태가 업데이트되었습니다."));
     }
