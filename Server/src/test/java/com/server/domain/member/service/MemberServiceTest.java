@@ -148,10 +148,8 @@ public class MemberServiceTest extends ServiceTest {
 		assertThat(page.getTotalElements()).isEqualTo(20);
 		assertThat(page.getTotalPages()).isEqualTo(2);
 
-		List<CartsResponse> cartList = page.getContent();
-
-		assertThat(cartList.get(0).getVideoId()).isEqualTo(videos.get(videos.size() - 1).getVideoId());
-		assertThat(cartList.get(cartList.size() - 1).getVideoId()).isEqualTo(videos.get(10).getVideoId()); //여기
+		assertThat(page.getContent())
+			.isSortedAccordingTo(Comparator.comparing(CartsResponse::getCreatedDate).reversed());
 	}
 
 	@Test
@@ -164,6 +162,9 @@ public class MemberServiceTest extends ServiceTest {
 		int size = 10;
 
 		createOrders(user, firstlast);
+
+		em.flush();
+		em.clear();
 
 		Page<OrdersResponse> page = memberService.getOrders(user.getMemberId(), pages, size, 6);
 
@@ -214,8 +215,6 @@ public class MemberServiceTest extends ServiceTest {
 	void getWatchs() {
 		Member user = createAndSaveMember();
 
-		List<Watch> firstlast = new ArrayList<>();
-
 		for (int i = 0; i < 20; i++) {
 			String name = generateRandomString();
 
@@ -223,12 +222,11 @@ public class MemberServiceTest extends ServiceTest {
 			Channel channel = createAndSaveChannelWithName(member, name);
 			Video video = createAndSaveVideo(channel);
 
-			Watch watch = createAndSaveWatch(user, video);
-
-			if(i == 10 || i == 19) {
-				firstlast.add(watch);
-			}
+			createAndSaveWatch(user, video);
 		}
+
+		em.flush();
+		em.clear();
 
 		Page<WatchsResponse> page = memberService.getWatchs(user.getMemberId(), 1, 10, 7);
 
