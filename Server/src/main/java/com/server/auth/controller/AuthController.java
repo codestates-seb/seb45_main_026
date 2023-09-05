@@ -57,7 +57,7 @@ public class AuthController {
 
 	@PostMapping(value = { "/signup/confirm", "/password/confirm" })
 	public ResponseEntity<Void> confirmEmail(@RequestBody @Valid AuthApiRequest.Confirm request) {
-		mailService.verifyEmail(request.toServiceRequest());
+		authService.verifyEmail(request.toServiceRequest());
 		return ResponseEntity.noContent().build();
 	}
 
