@@ -32,6 +32,8 @@ public class QuestionResponse {
 
     private List<String> selections;
 
+    private boolean choice;
+
     private LocalDateTime solvedDate;
 
     public static QuestionResponse of(QuestionData questionData) {
@@ -44,6 +46,7 @@ public class QuestionResponse {
                 .answerStatus(questionData.getAnswerStatus())
                 .description(questionData.getDescription())
                 .selections(questionData.getSelections())
+                .choice(!questionData.getSelections().isEmpty())
                 .solvedDate(questionData.getSolvedDate())
                 .build();
     }
