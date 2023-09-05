@@ -10,7 +10,6 @@ import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
 import com.server.domain.reward.entity.NewReward;
-import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
@@ -198,7 +197,7 @@ class OrderServiceTest extends ServiceTest {
         setCancelResponseEntitySuccess();
 
         //when
-        orderService.deleteOrder(member.getMemberId(), order.getOrderId());
+        orderService.cancelOrder(member.getMemberId(), order.getOrderId());
 
         //then
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELED);
@@ -228,7 +227,7 @@ class OrderServiceTest extends ServiceTest {
         em.clear();
 
         //when & then
-        assertThatThrownBy(() -> orderService.deleteOrder(member.getMemberId(), order.getOrderId()))
+        assertThatThrownBy(() -> orderService.cancelOrder(member.getMemberId(), order.getOrderId()))
                 .isInstanceOf(VideoAlreadyWatchedException.class);
     }
 
@@ -249,7 +248,7 @@ class OrderServiceTest extends ServiceTest {
         setCancelResponseEntitySuccess();
 
         //when & then
-        assertThatThrownBy(() -> orderService.deleteOrder(member.getMemberId(), wrongOrderId))
+        assertThatThrownBy(() -> orderService.cancelOrder(member.getMemberId(), wrongOrderId))
                 .isInstanceOf(OrderNotFoundException.class);
     }
 
@@ -270,7 +269,7 @@ class OrderServiceTest extends ServiceTest {
         setCancelResponseEntitySuccess();
 
         //when & then
-        assertThatThrownBy(() -> orderService.deleteOrder(wrongMemberId, order.getOrderId()))
+        assertThatThrownBy(() -> orderService.cancelOrder(wrongMemberId, order.getOrderId()))
                 .isInstanceOf(MemberNotFoundException.class);
 
     }
@@ -292,7 +291,7 @@ class OrderServiceTest extends ServiceTest {
         setCancelResponseEntitySuccess();
 
         //when & then // otherMember 의 id
-        assertThatThrownBy(() -> orderService.deleteOrder(otherMember.getMemberId(), order.getOrderId()))
+        assertThatThrownBy(() -> orderService.cancelOrder(otherMember.getMemberId(), order.getOrderId()))
                 .isInstanceOf(MemberAccessDeniedException.class);
     }
 
@@ -312,7 +311,7 @@ class OrderServiceTest extends ServiceTest {
         setCancelResponseEntitySuccess();
 
         //when & then
-        assertThatThrownBy(() -> orderService.deleteOrder(member.getMemberId(), order.getOrderId()))
+        assertThatThrownBy(() -> orderService.cancelOrder(member.getMemberId(), order.getOrderId()))
                 .isInstanceOf(OrderAlreadyCanceledException.class);
     }
 
@@ -332,7 +331,7 @@ class OrderServiceTest extends ServiceTest {
         setCancelResponseEntityFail();
 
         //when & then
-        assertThatThrownBy(() -> orderService.deleteOrder(member.getMemberId(), order.getOrderId()))
+        assertThatThrownBy(() -> orderService.cancelOrder(member.getMemberId(), order.getOrderId()))
                 .isInstanceOf(CancelFailException.class);
     }
 
@@ -356,7 +355,7 @@ class OrderServiceTest extends ServiceTest {
         setCancelResponseEntitySuccess();
 
         //when & then
-        assertThatThrownBy(() -> orderService.deleteOrder(member.getMemberId(), order.getOrderId()))
+        assertThatThrownBy(() -> orderService.cancelOrder(member.getMemberId(), order.getOrderId()))
                 .isInstanceOf(RewardNotEnoughException.class);
     }
 
@@ -380,7 +379,7 @@ class OrderServiceTest extends ServiceTest {
         setCancelResponseEntitySuccess();
 
         //when
-        orderService.deleteOrder(member.getMemberId(), order.getOrderId());
+        orderService.cancelOrder(member.getMemberId(), order.getOrderId());
 
         //then
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELED);
@@ -653,6 +652,32 @@ class OrderServiceTest extends ServiceTest {
         //when & then
         assertThatThrownBy(() -> orderService.requestFinalPayment(member.getMemberId(), "paymentKey", order.getOrderId(), order.getPrice()))
                 .isInstanceOf(OrderNotValidException.class);
+    }
+
+    @Test
+    @DisplayName("비디오 단건 취소를 하면 orderVideo 의 상태가 CANCELED 로 변경된다.")
+    void cancelVideo() {
+        //given
+
+
+        //when
+
+
+        //then
+
+    }
+
+    @Test
+    @DisplayName("비디오 단건 취소를 하면 얻은 리워드를 환불해야 한다.")
+    void cancelVideoReward() {
+        //given
+
+
+        //when
+
+
+        //then
+
     }
 
     private void setPayResponseEntitySuccess(int price) {
