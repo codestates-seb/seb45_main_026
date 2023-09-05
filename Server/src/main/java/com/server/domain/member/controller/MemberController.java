@@ -19,6 +19,8 @@ import com.server.domain.member.controller.dto.PlaylistsSort;
 import com.server.domain.member.service.MemberService;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
@@ -98,6 +100,25 @@ public class MemberController {
 													@RequestParam(value = "sort", defaultValue = "created-date") PlaylistsSort sort) {
 
 		Page<PlaylistsResponse> responses = memberService.getPlaylists(loginId, page, size, sort.getSort());
+
+		return ResponseEntity.ok(ApiPageResponse.ok(responses));
+	}
+
+	@GetMapping("/playlists/channels")
+	public ResponseEntity<ApiPageResponse<PlaylistChannelResponse>> getPlaylistChannels(@LoginId Long loginId,
+													@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+													@RequestParam(value = "size", defaultValue = "16") @Positive(message = "{validation.positive}") int size) {
+
+		Page<PlaylistChannelResponse> responses = memberService.getChannelForPlaylist(loginId, page, size);
+
+		return ResponseEntity.ok(ApiPageResponse.ok(responses));
+	}
+
+	@GetMapping("/playlists/channels/details")
+	public ResponseEntity<ApiPageResponse<PlaylistChannelDetailsResponse>> getPlaylistChannelDetails(@LoginId Long loginId,
+													@RequestParam(value = "member-id") @Positive(message = "{validation.positive}") Long memberId) {
+
+		Page<PlaylistChannelDetailsResponse> responses = memberService.getChannelDetailsForPlaylist(loginId, memberId);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}

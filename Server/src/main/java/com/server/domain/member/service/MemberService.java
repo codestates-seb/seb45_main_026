@@ -139,10 +139,15 @@ public class MemberService {
 		Page<Tuple> channels =
 			memberRepository.findPlaylistGroupByChannelName(loginId, PageRequest.of(page - 1, size));
 
-		Page<PlaylistChannelResponse> playlistChannelRespons =
-			converter.convertChannelToPlaylistChannelResponse(channels);
+		return converter.convertChannelToPlaylistChannelResponse(channels);
+	}
 
-		return playlistChannelRespons;
+	public Page<PlaylistChannelDetailsResponse> getChannelDetailsForPlaylist(Long loginId, Long memberId) {
+
+		Page<Video> videos =
+			memberRepository.findPlaylistChannelDetails(loginId, memberId);
+
+		return converter.convertVideoToPlaylistChannelDetailsResponse(videos, memberId);
 	}
 
 	@Transactional

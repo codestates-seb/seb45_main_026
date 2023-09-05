@@ -478,4 +478,24 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
         return new PageImpl<>(tuples, pageable, totalCount);
     }
+
+    public Page<Video> findPlaylistChannelDetails(Long loginId, Long memberId) {
+
+        JPAQuery<Video> query = queryFactory
+            .selectFrom(video)
+            .join(video.orderVideos, orderVideo)
+            .join(orderVideo.order, order)
+            .join(video.channel, channel)
+            .where(
+                order.member.memberId.eq(loginId)
+                .and(order.orderStatus.eq(OrderStatus.COMPLETED))
+                .and(video.channel.member.memberId.eq(memberId))
+            )
+            .orderBy(video.videoName.asc());
+
+        List<Video> tuples = query
+            .fetch();
+
+        return new PageImpl<>(tuples);
+    }
 }

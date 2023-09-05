@@ -1,8 +1,5 @@
 package com.server.domain.member.util;
 
-import static com.server.domain.channel.entity.QChannel.*;
-import static com.server.domain.member.entity.QMember.*;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,9 +11,9 @@ import com.querydsl.core.Tuple;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
-import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
@@ -145,33 +142,25 @@ public class MemberResponseConverter {
 				return PlaylistChannelResponse.builder()
 					.memberId(memberId)
 					.channelName(channelName)
-					.imageFile(getProfileUrl(memberId, imageFile))
+					.profileImageUrl(getProfileUrl(memberId, imageFile))
 					.videoCount(videoCount)
 					.subscribers(subscribers)
 					.isSubscribed(isSubscribed)
-
 					.build();
 			});
-		// return result.stream().map(tuple -> {
-		//
-		// 	Long memberId = tuple.get(channel.member.memberId);
-		// 	String channelName = tuple.get(channel.channelName);
-		// 	String imageFile = tuple.get(member.imageFile);
-		//
-		// 	Long videoCount = tuple.get(3, Long.class);
-		//
-		// 	if (videoCount == null) {
-		// 		videoCount = 0L;
-		// 	}
-		//
-		// 	return PlaylistChannelResponse.builder()
-		// 		.memberId(memberId)
-		// 		.channelName(channelName)
-		// 		.imageFile(getProfileUrl(memberId, imageFile))
-		// 		.videoCount(videoCount)
-		// 		.build();
-		//
-		// }).collect(Collectors.toList());
+	}
+
+	public Page<PlaylistChannelDetailsResponse> convertVideoToPlaylistChannelDetailsResponse(Page<Video> videos, Long memberId) {
+		return videos.map(
+			video -> PlaylistChannelDetailsResponse.builder()
+				.videoId(video.getVideoId())
+				.videoName(video.getVideoName())
+				.description(video.getDescription())
+				.thumbnailImageUrl(getThumbnailUrl(memberId, video.getThumbnailFile()))
+				.view(video.getView())
+				.star(video.getStar())
+				.build()
+		);
 	}
 
 	private String getThumbnailUrl(Long memberId, String thumbnailFile) {
