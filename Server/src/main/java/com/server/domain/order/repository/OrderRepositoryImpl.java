@@ -3,6 +3,7 @@ package com.server.domain.order.repository;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.video.entity.QVideo;
 import com.server.domain.video.entity.Video;
 
@@ -81,5 +82,17 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                 ).fetch();
 
         return watchVideos;
+    }
+
+    public Optional<OrderVideo> findOrderVideoByVideoId(String orderId, Long videoId) {
+        return Optional.ofNullable(
+                queryFactory.selectFrom(orderVideo)
+                        .join(orderVideo.order, order).fetchJoin()
+                        .join(order.member, member).fetchJoin()
+                        .join(orderVideo.video, video).fetchJoin()
+                        .where(order.orderId.eq(orderId)
+                                .and(video.videoId.eq(videoId))
+                        ).fetchOne()
+        );
     }
 }

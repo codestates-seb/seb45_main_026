@@ -5,6 +5,7 @@ import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
 import com.server.global.exception.businessexception.orderexception.OrderNotValidException;
 import com.server.global.exception.businessexception.orderexception.PriceNotMatchException;
+import com.server.global.exception.businessexception.orderexception.RewardNotEnoughException;
 import lombok.*;
 
 import javax.persistence.*;
@@ -31,6 +32,8 @@ public class Order extends BaseEntity {
 
     private String paymentKey;
 
+    private Integer totalPayAmount;
+
     private Integer reward;
 
     @Enumerated(EnumType.STRING)
@@ -49,18 +52,21 @@ public class Order extends BaseEntity {
         orderVideo.addOrder(this);
     }
 
-    private Order(Member member, Integer reward) {
+    private Order(Member member, Integer totalPayAmount, Integer reward) {
 
         this.member = member;
+        this.totalPayAmount = totalPayAmount;
         this.reward = reward;
         this.orderStatus = OrderStatus.ORDERED;
     }
 
     public static Order createOrder(Member member, List<Video> videos, Integer reward) {
 
+        Integer totalPayAmount = videos.stream().mapToInt(Video::getPrice).sum() - reward;
+
         member.checkReward(reward);
 
-        Order order = new Order(member, reward);
+        Order order = new Order(member, totalPayAmount, reward);
 
         videos.forEach(video -> {
             OrderVideo orderVideo = OrderVideo.createOrderVideo(order, video, video.getPrice());
@@ -99,14 +105,23 @@ public class Order extends BaseEntity {
 
     public void completeOrder() {
         this.orderStatus = OrderStatus.COMPLETED;
+        this.orderVideos.forEach(OrderVideo::complete);
     }
 
-    public void deleteOrder() {
+    public void cancelOrder() {
         this.orderStatus = OrderStatus.CANCELED;
     }
 
     public void refund(){
         this.member.addReward(this.reward);
+    }
+
+    public void refund(int reward){
+        if(this.reward < reward){
+            throw new RewardNotEnoughException();
+        }
+        this.reward -= reward;
+        this.member.addReward(reward);
     }
 
     public void setPaymentKey(String paymentKey) {

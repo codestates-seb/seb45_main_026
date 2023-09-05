@@ -32,6 +32,7 @@ class OrderTest {
 
         //then
         assertThat(order.getPrice()).isEqualTo(video1.getPrice() + video2.getPrice() - usingReward);
+        assertThat(order.getTotalPayAmount()).isEqualTo(video1.getPrice() + video2.getPrice() - usingReward);
         assertThat(order.getMember()).isEqualTo(member);
         assertThat(order.getOrderVideos()).hasSize(2)
                 .extracting("video").containsExactly(video1, video2);

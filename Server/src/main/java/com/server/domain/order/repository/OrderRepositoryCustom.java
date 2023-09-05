@@ -1,6 +1,7 @@
 package com.server.domain.order.repository;
 
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.video.entity.Video;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public interface OrderRepositoryCustom {
     Optional<Order> findByIdWithVideos(String orderId);
 
     List<Video> findWatchVideosById(String orderId);
+
+    Optional<OrderVideo> findOrderVideoByVideoId(String orderId, Long videoId);
 }

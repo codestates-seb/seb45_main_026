@@ -55,8 +55,8 @@ public class NewRewardRepositoryImpl implements NewRewardRepositoryCustom{
 
 
         //방법 1
-        //leftjoin 으로 한번에 다 가져오는 방법
-        List<NewReward> rewards = queryFactory.selectFrom(newReward)
+        //leftjoin 으로 한번에 다 가져오는 방법 -> 미친 방법
+        /*List<NewReward> rewards = queryFactory.selectFrom(newReward)
                 .join(newReward.member, member).fetchJoin()
                 .join(member.channel, channel).fetchJoin()
                 .leftJoin(replyReward).on(newReward.rewardId.eq(replyReward.rewardId))
@@ -73,39 +73,60 @@ public class NewRewardRepositoryImpl implements NewRewardRepositoryCustom{
                 .leftJoin(vv.orderVideos, vov)
                 .leftJoin(vov.order, vo)
                 .where(ro.orderId.eq(orderId).or(qo.orderId.eq(orderId)).or(vo.orderId.eq(orderId)))
-                .fetch();
+                .fetch();*/
 
         //방법 2
-        //각각 하나하나 join 해서 총 쿼리 3번 보내는 방법
-        /*List<ReplyReward> replyRewards = queryFactory.selectFrom(replyReward)
-                .join(replyReward.member, member).fetchJoin()
-                .join(replyReward.video, rv)
-                .join(rv.orderVideos, rov)
-                .join(rov.order, ro)
-                .where(ro.orderId.eq(orderId))
+        //각각 하나하나 join 해서 총 쿼리 3번 보내는 방법 -> 최선인가..?
+        List<ReplyReward> replyRewards = queryFactory.selectFrom(replyReward)
+                .join(replyReward.video, video)
+                .join(video.orderVideos, orderVideo)
+                .join(orderVideo.order, order)
+                .where(order.orderId.eq(orderId))
                 .fetch();
 
         List<QuestionReward> questionRewards = queryFactory.selectFrom(questionReward)
-                .join(questionReward.member, member).fetchJoin()
                 .join(questionReward.question, question)
-                .join(question.video, qv)
-                .join(qv.orderVideos, qov)
-                .join(qov.order, qo)
+                .join(question.video, video)
+                .join(video.orderVideos, orderVideo)
+                .join(orderVideo.order, order)
                 .where(qo.orderId.eq(orderId))
                 .fetch();
 
         List<VideoReward> videoRewards = queryFactory.selectFrom(videoReward)
-                .join(videoReward.member, member).fetchJoin()
-                .join(videoReward.video, vv)
-                .join(vv.orderVideos, vov)
-                .join(vov.order, vo)
-                .where(vo.orderId.eq(orderId))
+                .join(videoReward.video, video)
+                .join(video.orderVideos, orderVideo)
+                .join(orderVideo.order, order)
+                .where(qo.orderId.eq(orderId))
                 .fetch();
 
-        List<NewReward> rewards2 = new ArrayList<>();
-        rewards2.addAll(replyRewards);
-        rewards2.addAll(questionRewards);
-        rewards2.addAll(videoRewards);*/
+        List<NewReward> rewards = new ArrayList<>();
+        rewards.addAll(replyRewards);
+        rewards.addAll(questionRewards);
+        rewards.addAll(videoRewards);
+
+        return rewards;
+    }
+
+    @Override
+    public List<NewReward> findByMemberAndVideoId(Long memberId, Long videoId) {
+
+        QVideo rv = new QVideo("rv");
+        QVideo qv = new QVideo("qv");
+        QVideo vv = new QVideo("vv");
+
+        List<NewReward> rewards = queryFactory.selectFrom(newReward)
+                .join(newReward.member, member).fetchJoin()
+                .join(member.channel, channel).fetchJoin()
+                .leftJoin(replyReward).on(newReward.rewardId.eq(replyReward.rewardId))
+                .leftJoin(replyReward.video, rv)
+                .leftJoin(questionReward).on(newReward.rewardId.eq(questionReward.rewardId))
+                .leftJoin(questionReward.question, question)
+                .leftJoin(question.video, qv)
+                .leftJoin(videoReward).on(newReward.rewardId.eq(videoReward.rewardId))
+                .leftJoin(videoReward.video, vv)
+                .where(rv.videoId.eq(videoId).or(qv.videoId.eq(videoId)).or(vv.videoId.eq(videoId)))
+                .where(member.memberId.eq(memberId))
+                .fetch();
 
         return rewards;
     }

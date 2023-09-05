@@ -2,6 +2,7 @@ package com.server.domain.reward.service;
 
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.*;
@@ -74,6 +75,28 @@ public class NewRewardService implements RewardService {
 
 		newRewardRepository.findByOrderId(order.getOrderId())
 				.forEach(NewReward::cancelReward);
+	}
+
+	@Override
+	public void cancelVideoReward(OrderVideo orderVideo) {
+
+		Order order = orderVideo.getOrder();
+		Member member = order.getMember();
+		Video video = orderVideo.getVideo();
+
+		List<NewReward> rewards = newRewardRepository.findByMemberAndVideoId(
+				member.getMemberId(),
+				video.getVideoId());
+
+		int refundRewardPoint = rewards.stream()
+				.mapToInt(NewReward::getRewardPoint)
+				.sum();
+
+		if(refundRewardPoint > member.getReward()) {
+			order.refund(refundRewardPoint - member.getReward());
+		}
+
+		rewards.forEach(NewReward::cancelReward);
 	}
 
 	private ReplyReward createReplyReward(Reply reply, Member member) {

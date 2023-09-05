@@ -5,6 +5,7 @@ import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.repository.dto.MemberVideoData;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
 import com.server.domain.order.service.dto.response.OrderResponse;
@@ -162,10 +163,34 @@ public class OrderService {
 
         if(isCompleted(order)) orderCancelProcess(order);
 
-        order.deleteOrder();
+        order.cancelOrder();
     }
 
     public VideoCancelServiceResponse cancelVideo(Long loginMemberId, String orderId, Long videoId) {
+
+        Member member = verifiedMember(loginMemberId);
+
+        Order order = verifiedOrder(member, orderId);
+
+        OrderVideo orderVideo = order.getOrderVideos().stream()
+                .filter(ov -> ov.getVideo().getVideoId().equals(videoId))
+                .findFirst()
+                .orElseThrow(VideoNotFoundException::new);
+
+        if(!orderVideo.getOrder().getOrderStatus().equals(OrderStatus.COMPLETED))
+            throw new OrderNotValidException();
+
+        orderVideo.cancel();
+
+        rewardService.cancelVideoReward(orderVideo);
+
+        //order 의 모든 orderVideo.getOrderStatus 가 CANCELED 라면
+        //order 의 orderStatus 를 CANCELED 로 변경
+        if(order.getOrderVideos().stream().allMatch(ov -> ov.getOrderStatus().equals(OrderStatus.CANCELED))) {
+            order.cancelOrder();
+            order.refund();
+        }
+
         return null;
     }
 

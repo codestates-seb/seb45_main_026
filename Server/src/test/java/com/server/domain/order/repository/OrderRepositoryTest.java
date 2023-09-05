@@ -164,6 +164,36 @@ class OrderRepositoryTest extends RepositoryTest {
                         .containsExactly(video1.getVideoId(), video2.getVideoId());
     }
 
+    @Test
+    @DisplayName("orderId, videoId 를 통해 orderVideo 를 찾는다. order, member, video 는 초기화되어있다.")
+    void findOrderVideoByVideoId() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Member member = createAndSaveMember();
+        createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Order order = createAndSaveOrderComplete(member, List.of(video1, video2));// 결제한 주문
+
+        em.flush();
+        em.clear();
+
+        //when
+        OrderVideo orderVideo = orderRepository.findOrderVideoByVideoId(order.getOrderId(), video1.getVideoId()).orElseThrow();
+
+        //then
+        assertThat(Hibernate.isInitialized(orderVideo.getOrder())).isTrue();
+        assertThat(Hibernate.isInitialized(orderVideo.getVideo())).isTrue();
+        assertThat(Hibernate.isInitialized(orderVideo.getOrder().getMember())).isTrue();
+
+        assertThat(orderVideo.getOrder().getOrderId()).isEqualTo(order.getOrderId());
+        assertThat(orderVideo.getVideo().getVideoId()).isEqualTo(video1.getVideoId());
+    }
+
     private Cart createAndSaveCart(Member member, Video video) {
 
         Cart cart = Cart.createCart(member, video, video.getPrice());

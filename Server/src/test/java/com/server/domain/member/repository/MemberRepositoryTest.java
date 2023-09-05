@@ -6,14 +6,11 @@ import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.dto.MemberVideoData;
-import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.Order;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.testhelper.RepositoryTest;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -22,11 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -39,8 +34,6 @@ import static com.server.domain.watch.entity.QWatch.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.DynamicTest.*;
-
-import javax.persistence.PersistenceContext;
 
 class MemberRepositoryTest extends RepositoryTest {
 
@@ -95,7 +88,7 @@ class MemberRepositoryTest extends RepositoryTest {
         Video video = createAndSaveVideo(channel);
         Order order = createAndSaveOrder(member, List.of(video));
 
-        order.deleteOrder();
+        order.cancelOrder();
 
         em.flush();
         em.clear();
