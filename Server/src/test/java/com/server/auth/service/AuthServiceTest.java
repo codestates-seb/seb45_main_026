@@ -34,7 +34,7 @@ public class AuthServiceTest extends ServiceTest {
 		Member member = createAndSaveMember();
 
 		AuthServiceRequest.Send sendPassword = AuthServiceRequest.Send.builder()
-				.email("test@email.com")
+				.email("test34235345@email.com")
 				.build();
 
 		AuthServiceRequest.Send sendSign = AuthServiceRequest.Send.builder()
