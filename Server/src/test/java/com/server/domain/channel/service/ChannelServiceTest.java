@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 
 class ChannelServiceTest extends ServiceTest {
@@ -205,4 +207,26 @@ class ChannelServiceTest extends ServiceTest {
         boolean unsubscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
         assertThat(unsubscribe).isFalse();
     }
+
+    @Test
+    @DisplayName("비로그인 사용자가 채널을 조회하면 구독여부는 나오지 않는다")
+    void getChannelNotLogin(){
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        ChannelInfo channelInfo = channelService.getChannel(member.getMemberId(), null);
+
+        assertThat(channelInfo.getMemberId()).isEqualTo(-1L);
+        assertThat(channelInfo.getChannelName()).isEqualTo(channel.getChannelName());
+        assertThat(channelInfo.getIsSubscribed()).isNull();
+        assertThat(channelInfo.getDescription()).isEqualTo(channel.getDescription());
+        assertThat(channelInfo.getSubscribers()).isEqualTo(channel.getSubscribers());
+        assertThat(channelInfo.getImageUrl()).isEqualTo(awsService.getFileUrl(
+                channel.getMember().getMemberId(),
+                member.getImageFile(),
+                FileType.PROFILE_IMAGE
+        ));
+        assertThat(channelInfo.getCreatedDate()).isEqualTo(channel.getCreatedDate());
+    }
+
 }
