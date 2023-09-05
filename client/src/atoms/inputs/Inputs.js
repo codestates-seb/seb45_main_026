@@ -51,14 +51,15 @@ export const InputPositiveTypo = styled(SmallTextTypo)`
 `
 export const Input = ({
     marginTop, marginBottom, marginLeft, marginRight,
-    label, name, type, placeholder, width,
+    label, labelDirection, name, type, placeholder, width,
     register, required, maxLength, minLength, pattern, validateFunc,
-    isButton, buttonTitle, handleButtonClick, onChange
+    isButton, buttonTitle, handleButtonClick, onChange, disabled
 }) => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
 
     return (
         <InputContainer 
+            labelDirection={labelDirection}
             marginTop={marginTop}
             marginBottom={marginBottom}
             marginLeft={marginLeft}
@@ -82,7 +83,8 @@ export const Input = ({
                         minLength: minLength,
                         pattern: pattern,
                         validate: validateFunc })}
-                    onChange={onChange}/>
+                    onChange={onChange}
+                    disabled={disabled?disabled:false}/>
                     { isButton&&
                         <InputButton
                             type='button'

@@ -42,8 +42,6 @@ export const SNSLogin = () => {
         const authorizationCode = url.searchParams.get('code');
                 
         if(authorizationCode) {
-            console.log(`provider: ${provider}`);
-            console.log(`authorizationCode: ${authorizationCode}`);
             oauthLoginService(provider,authorizationCode).then((response)=>{
                 if(response.status==='success') {
                     const authorization = response.authorization;

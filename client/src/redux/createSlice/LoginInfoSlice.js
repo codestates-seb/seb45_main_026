@@ -4,7 +4,13 @@ const LoginInfoSlice = createSlice({
   name: "LoginInfo", // 단순히 이름 지정
   initialState: {
     isLogin: false,
-    loginInfo: { email: "", nickname: "" },
+    loginInfo: { 
+      email: "", 
+      nickname: "", 
+      grade: "", 
+      imgUrl: "", 
+      reward: "" 
+    },
     oAuthProvider: "", //google, github, kakao
     accessToken: {
       authorization: "",
