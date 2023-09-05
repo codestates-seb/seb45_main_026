@@ -14,10 +14,7 @@ import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
 import com.server.domain.video.service.dto.response.VideoDetailResponse;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
-import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
-import com.server.global.exception.businessexception.videoexception.VideoFileNameNotMatchException;
-import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
-import com.server.global.exception.businessexception.videoexception.VideoUploadNotRequestException;
+import com.server.global.exception.businessexception.videoexception.*;
 import com.server.global.testhelper.ServiceTest;
 import com.server.module.s3.service.dto.ImageType;
 import org.junit.jupiter.api.DisplayName;
@@ -261,6 +258,61 @@ class VideoServiceTest extends ServiceTest {
                     assertThat(response.getIsReplied()).isTrue();
                 })
         );
+    }
+
+    @Test
+    @DisplayName("구매하지 않은 사용자가 closed 된 비디오를 조회하면 VideoClosedException 이 발생한다.")
+    void getVideoVideoClosedException() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Member loginMember = createAndSaveMember(); // 로그인한 회원
+        Channel loginMemberChannel = createAndSaveChannel(loginMember);
+
+        Video video = createAndSaveVideo(channel);
+        video.close();
+
+        Category category1 = createAndSaveCategory("java");
+        Category category2 = createAndSaveCategory("spring");
+
+        createAndSaveVideoCategory(video, category1, category2); // video1 은 java, spring 카테고리
+
+        em.flush();
+        em.clear();
+
+        //when
+        assertThatThrownBy(() -> videoService.getVideo(loginMember.getMemberId(), video.getVideoId()))
+                .isInstanceOf(VideoClosedException.class)
+                .hasMessage("강의가 폐쇄되었습니다. 강의명 : " + video.getVideoName());
+    }
+
+    @Test
+    @DisplayName("video 를 구매한 사용자는 closed 된 비디오를 조회할 수 있다.")
+    void getClosedVideoWhenPurchased() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Member loginMember = createAndSaveMember(); // 로그인한 회원
+        Channel loginMemberChannel = createAndSaveChannel(loginMember);
+
+        Video video = createAndSaveVideo(channel);
+        video.close();
+
+        createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video), 0); // video 를 구매한 사용자
+
+        Category category1 = createAndSaveCategory("java");
+        Category category2 = createAndSaveCategory("spring");
+
+        createAndSaveVideoCategory(video, category1, category2); // video1 은 java, spring 카테고리
+
+        em.flush();
+        em.clear();
+
+        //when & then
+        assertThatNoException()
+                .isThrownBy(() -> videoService.getVideo(loginMember.getMemberId(), video.getVideoId()));
     }
 
     @TestFactory
@@ -510,6 +562,24 @@ class VideoServiceTest extends ServiceTest {
                     assertThat(cartRepository.findByMemberAndVideo(loginMember, video).isEmpty()).isTrue();
                 })
         );
+    }
+
+    @Test
+    @DisplayName("장바구니 추가 시 closed 된 video 면 VideoClosedException 이 발생한다.")
+    void changeCartVideoClosedException() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+        video.close();
+
+        Member loginMember = createAndSaveMember();
+
+        //when & then (없는 videoId 로 요청)
+        assertThatThrownBy(() -> videoService.changeCart(loginMember.getMemberId(), video.getVideoId()))
+                .isInstanceOf(VideoClosedException.class)
+                .hasMessageContaining("강의가 폐쇄되었습니다. 강의명 : " + video.getVideoName());
     }
 
     @Test

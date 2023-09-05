@@ -92,6 +92,8 @@ class VideoRepositoryTest extends RepositoryTest {
         Video video4 = createAndSaveFreeVideo(channel); // 무료 비디오
         Video video5 = createAndSaveVideo(otherChannel);
         Video video6 = createAndSaveVideo(otherChannel);
+        Video video7 = createAndSaveVideo(otherChannel);
+        video7.close(); //조회되지 않는 비디오
 
         Category category1 = createAndSaveCategory("java");
         Category category2 = createAndSaveCategory("spring");
@@ -390,6 +392,9 @@ class VideoRepositoryTest extends RepositoryTest {
             Video video = createAndSaveVideo(channel);
             createAndSaveVideoCategory(video, category1, category2);
         }
+
+        Video closedVideo = createAndSaveVideo(channel);
+        closedVideo.close(); // 조회되지 않는 비디오
 
         em.flush();
         em.clear();

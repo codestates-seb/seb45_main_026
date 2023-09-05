@@ -81,8 +81,19 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(request.getFree())));
 
 
+        JPAQuery<Video> countQuery = queryFactory.selectFrom(video)
+                .distinct()
+                .join(video.channel, channel)
+                .join(channel.member, member)
+                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(request.getFree())));
+
         if (hasCategory(request)) {
             query
+                    .join(video.videoCategories, videoCategory)
+                    .join(videoCategory.category, category)
+                    .where(category.categoryName.eq(request.getCategoryName()));
+
+            countQuery
                     .join(video.videoCategories, videoCategory)
                     .join(videoCategory.category, category)
                     .where(category.categoryName.eq(request.getCategoryName()));
@@ -93,22 +104,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                     .join(channel.subscribes, subscribe1)
                     .join(subscribe1.member, subscribedMember) // subscribe1과 구독한 member를 join
                     .where(subscribedMember.memberId.eq(request.getLoginMemberId()));
-        }
 
-        JPAQuery<Video> countQuery = queryFactory.selectFrom(video)
-                .distinct()
-                .join(video.channel, channel)
-                .join(channel.member, member)
-                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(request.getFree())));
-
-        if (hasCategory(request)) {
-            countQuery
-                    .join(video.videoCategories, videoCategory)
-                    .join(videoCategory.category, category)
-                    .where(category.categoryName.eq(request.getCategoryName()));
-        }
-
-        if(request.isSubscribe()){
             countQuery
                     .join(channel.subscribes, subscribe1)
                     .join(subscribe1.member, subscribedMember) // subscribe1과 구독한 member를 join
