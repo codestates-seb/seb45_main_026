@@ -162,6 +162,14 @@ public class VideoService {
     }
 
     @Transactional
+    public void deleteCarts(Long loginMemberId, List<Long> videoIds) {
+
+        Member member = verifiedMember(loginMemberId);
+
+        cartRepository.deleteByMemberAndVideoIds(member, videoIds);
+    }
+
+    @Transactional
     public void deleteVideo(Long loginMemberId, Long videoId) {
 
         Video video = verifedVideo(loginMemberId, videoId);
