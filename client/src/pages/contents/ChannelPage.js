@@ -7,6 +7,7 @@ import ChannelNav from "../../components/contentListItems/ChannelNav";
 import ChannelHome from "../../components/contentListItems/ChannelHome";
 import ChannelList from "../../components/contentListItems/ChannelList";
 import ChannelNotice from "../../components/contentListItems/ChannelNotice";
+import axios from "axios";
 
 const globalTokens = tokens.global;
 
@@ -62,7 +63,8 @@ const ChannelDescription = styled.div`
 
 export default function ChannelPage() {
   const isDark = useSelector((state) => state.uiSetting.isDark);
-  const [navigate,setNavigate]=useState(0)
+  const [navigate, setNavigate] = useState(0)
+  
     return (
       <PageContainer isDark={isDark}>
         <ChannelMainContainer>

@@ -20,11 +20,11 @@ export default function CategoryFilter() {
         actionName: "setCategory",
         options: [
           { text: "카테고리", value: "" },
-          { text: "React", value: "React" },
-          { text: "Redux", value: "Redux" },
+          { text: "React", value: "react" },
+          { text: "Redux", value: "redux" },
           { text: "phython", value: "phython" },
-          { text: "JS", value: "JS" },
-          { text: "AWS", value: "AWS" },
+          { text: "JS", value: "js" },
+          { text: "AWS", value: "aws" },
         ],
       },
       {
@@ -32,8 +32,7 @@ export default function CategoryFilter() {
         initialText: "구매여부",
         actionName: "setIsPurchased",
         options: [
-          { text: "구매여부", value: "" },
-          { text: "구매됨", value: "true" },
+          { text: "구매여부", value: "true" },
           { text: "구매전", value: "false" },
         ],
       },
@@ -45,6 +44,7 @@ export default function CategoryFilter() {
           { text: "최신순", value: "created-date" },
           { text: "조회순", value: "view" },
           { text: "별점순", value: "star" },
+          { text: "가나다순", value: "name" },
         ],
       },
     ];

@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { styled } from "styled-components";
-import {
-  PageContainer,
-  MainContainer,
-} from "../../atoms/layouts/PageContainer";
+import {PageContainer,MainContainer} from "../../atoms/layouts/PageContainer";
 import { useDispatch, useSelector } from "react-redux";
 import tokens from "../../styles/tokens.json";
 import CategoryFilter from "../../components/filters/CategoryFilter";
 import HorizonItem from "../../components/contentListItems/HorizonItem";
 import VerticalItem from "../../components/contentListItems/VerticalItem";
 import { setLocation } from "../../redux/createSlice/UISettingSlice";
+import axios from "axios";
 
 const globalTokens = tokens.global;
 
@@ -59,21 +57,49 @@ const VerticalItemContainer = styled.ul`
 `
 
 const LectureListPage = () => {
-    const isDark = useSelector(state=>state.uiSetting.isDark);
-    const [isHorizon, setIsHorizon] = useState(true);
-    const a = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-    return (
-        <PageContainer isDark={isDark}>
-            <LectureMainContainer>
-                <ListTitle>강의 목록</ListTitle>
-                <FilterContainer>
-                    <CategoryFilter />
-                    <StructureButton isHorizon={isHorizon} onClick={()=>setIsHorizon(!isHorizon)} />
-                </FilterContainer>
-                {isHorizon?<HorizonItemContainer>{a.map((el,idx)=><HorizonItem key={idx}/>)}</HorizonItemContainer>:<VerticalItemContainer>{a.map((el,idx)=><VerticalItem key={idx}/>)}</VerticalItemContainer>}
-            </LectureMainContainer>
-        </PageContainer>
-    );
+  const isDark = useSelector(state=>state.uiSetting.isDark);
+  const [isHorizon, setIsHorizon] = useState(true);
+  const [lectures, setLectures] = useState([]);
+  const filterState = useSelector((state) => state.filterSlice.filter);
+  useEffect(()=>{
+    axios
+      .get(
+        `https://api.itprometheus.net/videos?sort=${filterState.sortBy.value}&is-purchased=${filterState.isPurchased.value}${
+          filterState.category.value
+            ? `&category=${filterState.category.value}`
+            : ""
+        }`
+      )
+      .then((res) => setLectures(res.data.data))
+      .catch((err) => console.log(err));
+  }, [filterState])
+  return (
+    <PageContainer isDark={isDark}>
+      <LectureMainContainer>
+        <ListTitle>강의 목록</ListTitle>
+        <FilterContainer>
+          <CategoryFilter />
+          <StructureButton
+            isHorizon={isHorizon}
+            onClick={() => setIsHorizon(!isHorizon)}
+          />
+        </FilterContainer>
+        {isHorizon ? (
+          <HorizonItemContainer>
+            {lectures.map((el) => (
+              <HorizonItem key={el.videoId} lecture={el} />
+            ))}
+          </HorizonItemContainer>
+        ) : (
+          <VerticalItemContainer>
+            {lectures.map((el) => (
+              <VerticalItem key={el.videoId} lecture={el} channel={el.channel} />
+            ))}
+          </VerticalItemContainer>
+        )}
+      </LectureMainContainer>
+    </PageContainer>
+  );
 };
 
 export default LectureListPage;

@@ -28,6 +28,7 @@ import useConfirm from "./hooks/useConfirm";
 import FindPasswordPage from "./pages/auth/FindPasswordPage";
 import PurchasedListPage from "./pages/contents/PurchasedListPage";
 import UpdatePasswordPage from "./pages/auth/UpdatePasswordPage";
+import ChannelListPage from "./pages/contents/ChannelListPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -73,7 +74,10 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/findPassword" element={<FindPasswordPage />} />
-        <Route path="/findPassword/updatePassword" element={<UpdatePasswordPage/>}/>
+        <Route
+          path="/findPassword/updatePassword"
+          element={<UpdatePasswordPage />}
+        />
         <Route path="/MyProfile" element={<MyProfilePage />} />
         <Route path="/lecture" element={<LectureListPage />} />
         <Route path="/videos/1" element={<DetailPage />} />
@@ -82,6 +86,7 @@ function App() {
         <Route path="/upload" element={<UploadPage />} />
         <Route path="/videos/1/problems" element={<ProblemPage />} />
         <Route path="/purchased" element={<PurchasedListPage />} />
+        <Route path="/channellist" element={<ChannelListPage />} />
       </Routes>
       <Footer />
     </BrowserRouter>

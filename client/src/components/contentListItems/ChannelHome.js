@@ -1,7 +1,8 @@
-import React from "react";
+import React,{useEffect,useState} from "react";
 import { styled } from "styled-components";
 import tokens from "../../styles/tokens.json";
 import VerticalItem from "./VerticalItem";
+import axios from "axios";
 
 const globalTokens = tokens.global;
 
@@ -32,6 +33,12 @@ const ItemContainer = styled.ul`
 `
 
 export default function ChannelHome() {
+    const [lectures, setLectures] = useState([]);
+    useEffect(()=>{
+    axios.get('https://api.itprometheus.net/videos?page=1&sort=view')
+    .then(res=>console.log(res.data.data))
+    .catch(err=>console.log(err))
+  },[])
     return (
         <HomeBody>
             <HomeTitle>무료강의</HomeTitle>
