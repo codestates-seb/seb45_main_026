@@ -162,6 +162,16 @@ public class VideoController {
         return ResponseEntity.ok(ApiSingleResponse.ok(isInCart, message));
     }
 
+    @DeleteMapping("/carts")
+    public ResponseEntity<Void> deleteCarts(
+            @RequestBody @Valid VideoCartDeleteApiRequest request,
+            @LoginId Long loginMemberId) {
+
+        videoService.deleteCarts(loginMemberId, request.getVideoIds());
+
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{video-id}")
     public ResponseEntity<Void> deleteVideo(@PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
                                             @LoginId Long loginMemberId) {
