@@ -12,6 +12,7 @@ import com.server.domain.order.service.dto.response.PaymentServiceResponse;
 import com.server.domain.reward.entity.NewReward;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
+import com.server.domain.watch.entity.Watch;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.orderexception.*;
@@ -204,6 +205,31 @@ class OrderServiceTest extends ServiceTest {
 
         Member findMember = memberRepository.findById(member.getMemberId()).orElseThrow();
         assertThat(findMember.getReward()).isEqualTo(currentReward + order.getReward());
+    }
+
+    @Test
+    @DisplayName("주문을 취소할 때 Video 시청 기록이 있으면 VideoAlreadyWatchedException 이 발생한다.")
+    void deleteOrderOrderCannotBeCanceledException() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
+
+        Watch watch = Watch.createWatch(member, video1);
+        watchRepository.save(watch); // video1 을 시청한 기록이 있다.
+
+        setCancelResponseEntitySuccess();
+
+        em.flush();
+        em.clear();
+
+        //when & then
+        assertThatThrownBy(() -> orderService.deleteOrder(member.getMemberId(), order.getOrderId()))
+                .isInstanceOf(VideoAlreadyWatchedException.class);
     }
 
     @Test

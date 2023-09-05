@@ -155,11 +155,18 @@ public class OrderService {
 
         Order order = verifiedOrder(member, orderId);
 
+        checkIfWatch(order);
+
         if(isAlreadyCanceled(order)) throw new OrderAlreadyCanceledException();
 
         if(isCompleted(order)) orderCancelProcess(order);
 
         order.deleteOrder();
+    }
+
+    private void checkIfWatch(Order order) {
+        if(!orderRepository.findWatchVideosById(order.getOrderId()).isEmpty())
+            throw new VideoAlreadyWatchedException();
     }
 
     private boolean isCompleted(Order order) {
@@ -189,8 +196,6 @@ public class OrderService {
 
         if(responseEntity.getStatusCode().value() != 200)
             throw new CancelFailException();
-
-
     }
 
     private void checkDuplicateOrder(Member member, List<Video> toBuyVideos) {
