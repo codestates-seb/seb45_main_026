@@ -11,6 +11,8 @@ import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.testhelper.ServiceTest;
+import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,10 +25,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.BDDMockito.given;
 
 class ChannelServiceTest extends ServiceTest {
 
     @Autowired ChannelService channelService;
+    @Autowired AwsService awsService;
 
     @Test
     @DisplayName("채널의 비디오를 페이징하여 조회한다.")
@@ -100,10 +106,14 @@ class ChannelServiceTest extends ServiceTest {
 
         assertThat(channelInfo.getMemberId()).isEqualTo(member.getMemberId());
         assertThat(channelInfo.getChannelName()).isEqualTo(channel.getChannelName());
-        assertThat(channelInfo.getSubscribers()).isEqualTo(channel.getSubscribers());
+        assertThat(channelInfo.getIsSubscribed()).isFalse();
         assertThat(channelInfo.getSubscribers()).isEqualTo(channel.getSubscribers());
         assertThat(channelInfo.getDescription()).isEqualTo(channel.getDescription());
-        assertThat(channelInfo.getImageUrl()).isEqualTo(member.getImageFile());
+        assertThat(channelInfo.getImageUrl()).isEqualTo(awsService.getFileUrl(
+                channel.getMember().getMemberId(),
+                member.getImageFile(),
+                FileType.PROFILE_IMAGE
+        ));
         assertThat(channelInfo.getCreatedDate()).isEqualTo(channel.getCreatedDate());
     }
 
@@ -117,7 +127,7 @@ class ChannelServiceTest extends ServiceTest {
                 .isInstanceOf(ChannelNotFoundException.class);
     }
 
-//    @Test
+    @Test
     @DisplayName("ChannelName과 ChannelDescription을 받아서 Channel정보를 수정한다.")
     void updateChannel(){
         Member member = createAndSaveMember();
@@ -125,6 +135,8 @@ class ChannelServiceTest extends ServiceTest {
 
         String updateChannelName = "updateChannelName";
         String updateDescription = "updateDescription";
+
+        channelRepository.save(channel);
 
         ChannelUpdate channelUpdate = ChannelUpdate.builder()
                 .channelName(updateChannelName)
@@ -183,16 +195,38 @@ class ChannelServiceTest extends ServiceTest {
         assertThat(subscribe).isTrue();
     }
 
-//    @Test
+    @Test
     @DisplayName("Channel이 구독중이면 구독해지한다.")
     void updateSubscribeCancel(){
+        Member loginMember = createAndSaveMember();
+        Channel channel = createAndSaveChannel(loginMember);
+
+        boolean subscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
+        assertThat(subscribe).isTrue();
+
+        boolean unsubscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
+        assertThat(unsubscribe).isFalse();
+    }
+
+    @Test
+    @DisplayName("비로그인 사용자가 채널을 조회하면 구독여부는 나오지 않는다")
+    void getChannelNotLogin(){
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
 
-        boolean subscribe = channelService.updateSubscribe(channel.getChannelId(), member.getMemberId());
-        assertThat(subscribe).isTrue();
+        ChannelInfo channelInfo = channelService.getChannel(member.getMemberId(), null);
 
-        boolean unsubscribe = channelService.updateSubscribe(channel.getChannelId(), member.getMemberId());
-        assertThat(unsubscribe).isFalse();
+        assertThat(channelInfo.getMemberId()).isEqualTo(-1L);
+        assertThat(channelInfo.getChannelName()).isEqualTo(channel.getChannelName());
+        assertThat(channelInfo.getIsSubscribed()).isNull();
+        assertThat(channelInfo.getDescription()).isEqualTo(channel.getDescription());
+        assertThat(channelInfo.getSubscribers()).isEqualTo(channel.getSubscribers());
+        assertThat(channelInfo.getImageUrl()).isEqualTo(awsService.getFileUrl(
+                channel.getMember().getMemberId(),
+                member.getImageFile(),
+                FileType.PROFILE_IMAGE
+        ));
+        assertThat(channelInfo.getCreatedDate()).isEqualTo(channel.getCreatedDate());
     }
+
 }

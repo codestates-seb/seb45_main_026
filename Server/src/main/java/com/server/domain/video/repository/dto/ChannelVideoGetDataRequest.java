@@ -5,17 +5,15 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Pageable;
 
-
 @AllArgsConstructor
 @Getter
 @Builder
-public class VideoGetDataRequest {
+public class ChannelVideoGetDataRequest {
 
-    private Long loginMemberId;
-    private Pageable pageable;
+    private Long memberId;
     private String categoryName;
+    private Pageable pageable;
     private String sort;
-    private boolean subscribe;
     private Boolean free;
     private boolean isPurchased;
 }

@@ -1,5 +1,6 @@
 package com.server.domain.member.repository;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.cart.entity.Cart;
@@ -27,6 +28,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import static com.server.domain.channel.entity.QChannel.*;
 import static com.server.domain.video.entity.QVideo.*;
@@ -315,21 +317,21 @@ class MemberRepositoryTest extends RepositoryTest {
                     }
                 }
             ),
-            dynamicTest("sort를 channel로 하면 비디오들을 채널별로 묶어서 채널의 이름순으로 조회된다.",
-                () ->
-                {
-                    Page<Video> result = memberRepository.findPlaylistsOrderBySort(user.getMemberId(), pageable, "channel");
-
-                    List<Video> content = result.getContent();
-                    for (int i = 1; i < content.size(); i++) {
-                        Video current = content.get(i);
-                        Video previous = content.get(i - 1);
-                        assertTrue(
-                            current.getChannel().getChannelName()
-                                .compareTo(previous.getChannel().getChannelName()) >= 0);
-                    }
-                }
-            ),
+            // dynamicTest("sort를 channel로 하면 비디오들을 채널별로 묶어서 채널의 이름순으로 조회된다.",
+            //     () ->
+            //     {
+            //         Page<Video> result = memberRepository.findPlaylistsOrderBySort(user.getMemberId(), pageable, "channel");
+            //
+            //         List<Video> content = result.getContent();
+            //         for (int i = 1; i < content.size(); i++) {
+            //             Video current = content.get(i);
+            //             Video previous = content.get(i - 1);
+            //             assertTrue(
+            //                 current.getChannel().getChannelName()
+            //                     .compareTo(previous.getChannel().getChannelName()) >= 0);
+            //         }
+            //     }
+            // ),
             dynamicTest("sort를 star로 하면 비디오들이 별점이 높은순으로 조회된다.",
                 () ->
                 {
@@ -417,21 +419,148 @@ class MemberRepositoryTest extends RepositoryTest {
         );
     }
 
-    // @TestFactory
-    // @DisplayName("테스트 할 내용 요약")
-    // Collection<DynamicTest> template() {
-    //     //given
-    //
-    //     //when
-    //     return List.of(
-    //         dynamicTest(
-    //             "",
-    //             () -> {
-    //                 //then
-    //             }
-    //         )
-    //     );
-    // }
+    @TestFactory
+    @DisplayName("플레이리스트 채널별 그룹화 테스트")
+    Collection<DynamicTest> findPlaylistGroupByChannelName() {
+        //given
+        Member user = createAndSaveMember();
+        Member member1 = createAndSaveMember();
+        Member member2 = createAndSaveMember();
+        Channel channel1 = createAndSaveChannelWithName(member1, "1aaaaaaaaa");
+        Channel channel2 = createAndSaveChannelWithName(member2, "0aaaaaaaa");
+        createAndSaveVideo(channel1);
+        createAndSaveVideo(channel1);
+        createAndSaveVideo(channel1);
+        createAndSaveVideo(channel1);
+        createAndSaveSubscribe(user, channel1);
+
+        for (int x = 1; x < 21; x++) {
+            List<Video> videos = new ArrayList<>();
+
+            Channel channel;
+            Video video;
+
+            Member member = createAndSaveMember();
+            if (x < 5) {
+                video = createAndSaveVideo(channel1);
+            } else if (x > 4 && x < 10) {
+                video = createAndSaveVideo(channel2);
+            } else {
+                channel = createAndSaveChannelWithName(member, generateRandomString());
+                video = createAndSaveVideo(channel);
+            }
+
+            videos.add(video);
+
+            createAndSaveOrderComplete(user, videos);
+        }
+
+        em.flush();
+        em.clear();
+
+        //when
+        return List.of(
+            dynamicTest(
+                "채널명 순으로 정렬 되는지 테스트",
+                () -> {
+                    Page<Tuple> channels =
+                        memberRepository.findPlaylistGroupByChannelName(
+                            user.getMemberId(), PageRequest.of(0, 10)
+                        );
+
+                    Comparator<Tuple> comparator = Comparator.comparing(tuple -> tuple.get(1, String.class));
+                    List<Tuple> sortedTuples = channels.get().sorted(comparator).collect(Collectors.toList());
+
+                    assertThat(sortedTuples).isEqualTo(channels.getContent());
+                }
+            ),
+            dynamicTest(
+                "한 채널의 비디오를 여러개 구매한 경우 그룹화 되서 조회되는지 테스트",
+                () -> {
+                    Page<Tuple> channels =
+                        memberRepository.findPlaylistGroupByChannelName(
+                            user.getMemberId(), PageRequest.of(0, 20)
+                        );
+
+                    // 중복된 채널만큼 총 비디오의 개수 20개에서 마이너스 되서 13이 조회되야 함
+
+                    assertThat(channels.getTotalElements()).isEqualTo(13);
+                }
+            )
+        );
+    }
+
+    @TestFactory
+    @DisplayName("특정 채널의 비디오 중에서 회원이 구매한 비디오만 조회")
+    Collection<DynamicTest> findPlaylistChannelDetails() {
+        //given
+        Member user = createAndSaveMember();
+        Member member1 = createAndSaveMember();
+        Member member2 = createAndSaveMember();
+        Channel channel1 = createAndSaveChannelWithName(member1, "1aaaaaaaaa");
+        Channel channel2 = createAndSaveChannelWithName(member2, "0aaaaaaaa");
+        createAndSaveVideoWithName(channel1, generateRandomString());
+        createAndSaveVideoWithName(channel1, generateRandomString());
+        createAndSaveVideoWithName(channel1, generateRandomString());
+        createAndSaveVideoWithName(channel1, generateRandomString());
+        createAndSaveSubscribe(user, channel1);
+
+        for (int x = 1; x < 21; x++) {
+            List<Video> videos = new ArrayList<>();
+
+            Channel channel;
+            Video video;
+
+            Member member = createAndSaveMember();
+            if (x < 5) {
+                video = createAndSaveVideoWithName(channel1, generateRandomString());
+            } else if (x > 4 && x < 10) {
+                video = createAndSaveVideoWithName(channel2, generateRandomString());
+            } else {
+                channel = createAndSaveChannelWithName(member, generateRandomString());
+                video = createAndSaveVideoWithName(channel, generateRandomString());
+            }
+
+            videos.add(video);
+
+            createAndSaveOrderComplete(user, videos);
+        }
+
+        em.flush();
+        em.clear();
+
+        //when
+        return List.of(
+            dynamicTest(
+                "특정 채널의 구매한 비디오만 조회 되는지 검증하는 테스트",
+                () -> {
+                    Page<Video> channels =
+                        memberRepository.findPlaylistChannelDetails(
+                            user.getMemberId(), member1.getMemberId()
+                        );
+
+                    assertThat(channels.getContent().get(0).getChannel().getMember().getMemberId())
+                        .isEqualTo(channel1.getMember().getMemberId());
+
+                    assertThat(channels.getContent().get(0).getChannel().getMember().getMemberId())
+                        .isNotEqualTo(channel2.getMember().getMemberId());
+                }
+            ),
+            dynamicTest(
+                "조회한 비디오가 비디오의 이름순으로 정렬되었는지 검증하는 테스트",
+                () -> {
+                    Page<Video> channels =
+                        memberRepository.findPlaylistChannelDetails(
+                            user.getMemberId(), member1.getMemberId()
+                        );
+
+                    assertThat(channels.getContent()).isSortedAccordingTo(
+                        Comparator.comparing(Video::getVideoName)
+                    );
+                }
+            )
+        );
+    }
 
     private String generateRandomString() {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

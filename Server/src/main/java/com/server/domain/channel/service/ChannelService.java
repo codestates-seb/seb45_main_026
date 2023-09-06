@@ -55,46 +55,45 @@ public class ChannelService {
     @Transactional(readOnly = true)
     public ChannelInfo getChannel(Long memberId, Long loginMemberId) {
 
-        if (loginMemberId == null) {
+        Channel channel = existChannel(memberId);
 
-            Channel channel = existChannel(memberId); //조회하고자 하는 채널이 존재하는지 확인
+
+        if (loginMemberId == null || loginMemberId.equals(-1L)) {
+
 
             return ChannelInfo.builder()
-                    .memberId(channel.getMember().getMemberId())
+                    .memberId(-1L)
                     .channelName(channel.getChannelName())
                     .description(channel.getDescription())
                     .subscribers(channel.getSubscribers())
-                    .isSubscribed(false)
+                    .imageUrl(awsService.getFileUrl(channel.getMember().getMemberId(), channel.getMember().getImageFile(), FileType.PROFILE_IMAGE))
+                    .createdDate(channel.getCreatedDate())
                     .build();
         }
-       else {
-
-            Channel channel = existChannel(memberId); //조회하고자 하는 채널이 존재하는지 확인
+        else {
 
             boolean isSubscribed = isSubscribed(loginMemberId, memberId);
 
-            return ChannelInfo.of(channel, isSubscribed);
+            return ChannelInfo.of(channel, isSubscribed, awsService, channel.getMember());
         }
     }
 
 
     //채널정보 수정
     @Transactional
-    public void updateChannelInfo(long ownerId, long loginMemberId, ChannelUpdate updateInfo) { //...?????
+    public void updateChannelInfo(long ownerId, long loginMemberId, ChannelUpdate updateInfo) {
 
 
-        //Member member = memberRepository.findById(loginMemberId).get().getChannel().getMember(); //로그인한 사용자의 채널을 조회
+        //Member member = memberRepository.findById(loginMemberId).get().getChannel().getMember();
 
 
 
         if (loginMemberId != ownerId) {
-            throw new MemberAccessDeniedException(); //로그인한 사용자의 채널과 수정하고자 하는 채널이 다르면 MemberAccessDeniedException 발생
+            throw new MemberAccessDeniedException();
         }
 
 
-        Channel channel = existChannel(channelRepository.findByMember(loginMemberId)
-                .map(Channel::getChannelId)
-                .orElseThrow(ChannelNotFoundException::new));
+        Channel channel = existChannel(ownerId);
 
         //Channel channel = existChannel(channelRepository.findByMember(loginMemberId).get().getChannelId());
 
@@ -105,16 +104,16 @@ public class ChannelService {
 
 
     // 구독 여부 업데이트
-        public boolean updateSubscribe(Long memberId, Long loginMemberId){ // ..?? channelId, memberId ??
+    public boolean updateSubscribe(Long memberId, Long loginMemberId){
 
-        if(memberId == null){
-            throw new ChannelNotFoundException();
+        if(loginMemberId == null || loginMemberId.equals(-1L)){
+            throw new MemberAccessDeniedException();
         }
 
 
-        if (isSubscribed(memberId, loginMemberId)) { //구독중이면
+        if (isSubscribed(memberId, loginMemberId)) {
 
-            unsubscribe(memberId, loginMemberId); //구독 취소
+            unsubscribe(memberId, loginMemberId);
 
             return false;
 
@@ -130,16 +129,13 @@ public class ChannelService {
     // 구독.
     private void subscribe(Long memberId, Long loginMemberId) {
 
-        Member loginMember = memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberAccessDeniedException());
-
+        Member loginMember = memberRepository.findById(loginMemberId)
+                .orElseThrow(() -> new MemberNotFoundException()); //(이 부분을 빼면  .member(loginMember) 여기가 에러남)
+//
         Channel channel = existChannel(memberId);
 
-        if (channel != null) {
-            channel.addSubscribers(1);
 
-        } else {
-            throw new ChannelNotFoundException();
-        }
+        channel.addSubscribers(1);
 
         Subscribe subscribe = Subscribe.builder()
                 .member(loginMember)
@@ -150,45 +146,36 @@ public class ChannelService {
     }
 
     // 구독 취소
-    private void unsubscribe(Long memberId, Long loginMemberId) {
+    private void unsubscribe(Long memberId, Long loginMemberId) { //이 부분 코드를 더 간결하게 못하겟음 수정할거 다 빼면 테스트코드 에러남
 
 //        if (memberId == null) {
 //            throw new ChannelNotFoundException();
 //        }
 
-        Channel findChannel = channelRepository.findById(memberId).orElseThrow(() -> new ChannelNotFoundException());
+//        Channel findChannel = channelRepository.findById(memberId).orElseThrow(() -> new ChannelNotFoundException());
 
 //        if (findChannel == null) {
 //            throw new ChannelNotFoundException();
 //        }
 
-        Channel channel = findChannel.getMember().getChannel();
+        Channel channel = existChannel(memberId);
 
         Member loginMember = memberRepository.findById(loginMemberId)
                 .orElseThrow(() -> new MemberNotFoundException());
 
 //        if (isSubscribed(loginMemberId, memberId)) {
-            channel.decreaseSubscribers(1);
+        channel.decreaseSubscribers(1);
 
-            Optional<Subscribe> subscription = subscribeRepository.findByMemberAndChannel(loginMember, channel);
+        Optional<Subscribe> subscription = subscribeRepository.findByMemberAndChannel(loginMember, channel);
 
-            subscription.ifPresent(subscribeRepository::delete);
-        }
-
+        subscription.ifPresent(subscribeRepository::delete);
+    }
 
 
     @Transactional(readOnly = true)
     public Page<ChannelVideoResponse> getChannelVideos(Long loginMemberId, ChannelVideoGetServiceRequest request) {
 
-        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
-
-        Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(
-                request.getMemberId(),
-                request.getCategoryName(),
-                pageRequest,
-                request.getSort(),
-                request.getFree()
-        );
+        Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request.toDataRequest());
 
         List<Boolean> isPurchaseInOrder = isPurchaseInOrder(loginMemberId, videos.getContent());
 
@@ -237,7 +224,7 @@ public class ChannelService {
 
     private Channel existChannel(Long loginMemberId) {
 
-       //Member member = memberRepository.findById(loginMemberId).orElseThrow(MemberAccessDeniedException::new);
+        //Member member = memberRepository.findById(loginMemberId).orElseThrow(MemberAccessDeniedException::new);
 
         return channelRepository.findByMember(loginMemberId).orElseThrow(ChannelNotFoundException::new);
     }

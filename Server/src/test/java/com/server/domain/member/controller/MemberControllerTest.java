@@ -14,6 +14,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
 import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -582,6 +584,256 @@ public class MemberControllerTest extends ControllerTest {
 							RestDocsUtil.getPageResponseFields(responseFields)
 						)
 					)
+			);
+	}
+
+	@Test
+	@DisplayName("플레이리스트 채널별 필터링의 채널별 구매한 영상 조회 성공 테스트")
+	void getPlaylistChannelDetails() throws Exception {
+		//given
+		List<PlaylistChannelDetailsResponse> responses = List.of(
+			PlaylistChannelDetailsResponse.builder()
+				.videoId(837L)
+				.videoName("자바스크립트 강의")
+				.description("착한 사람 눈에만 보이는 영상 설명")
+				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.view(109)
+				.star(8.3F)
+				.build(),
+			PlaylistChannelDetailsResponse.builder()
+				.videoId(109L)
+				.videoName("깃허브 강의")
+				.description("착한 사람 눈에만 보이는 영상 설명")
+				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.view(2048)
+				.star(9.1F)
+				.build(),
+			PlaylistChannelDetailsResponse.builder()
+				.videoId(390L)
+				.videoName("알고리즘 강의")
+				.description("착한 사람 눈에만 보이는 영상 설명")
+				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.view(93)
+				.star(3.9F)
+				.build(),
+			PlaylistChannelDetailsResponse.builder()
+				.videoId(683L)
+				.videoName("자바 강의")
+				.description("착한 사람 눈에만 보이는 영상 설명")
+				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.view(386)
+				.star(6.8F)
+				.build(),
+			PlaylistChannelDetailsResponse.builder()
+				.videoId(731L)
+				.videoName("스프링 강의")
+				.description("착한 사람 눈에만 보이는 영상 설명")
+				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.view(137)
+				.star(7.3F)
+				.build(),
+			PlaylistChannelDetailsResponse.builder()
+				.videoId(591L)
+				.videoName("리액트 강의")
+				.description("착한 사람 눈에만 보이는 영상 설명")
+				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.view(159)
+				.star(5.9F)
+				.build(),
+			PlaylistChannelDetailsResponse.builder()
+				.videoId(668L)
+				.videoName("테스트 하는 법")
+				.description("착한 사람 눈에만 보이는 영상 설명")
+				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.view(866)
+				.star(6.6F)
+				.build(),
+			PlaylistChannelDetailsResponse.builder()
+				.videoId(749L)
+				.videoName("파이썬 강의")
+				.description("착한 사람 눈에만 보이는 영상 설명")
+				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.view(947)
+				.star(7.4F)
+				.build(),
+			PlaylistChannelDetailsResponse.builder()
+				.videoId(333L)
+				.videoName("C++ 강의")
+				.description("착한 사람 눈에만 보이는 영상 설명")
+				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.view(333)
+				.star(3.3F)
+				.build(),
+			PlaylistChannelDetailsResponse.builder()
+				.videoId(777L)
+				.videoName("네트워크 기본 강의")
+				.description("착한 사람 눈에만 보이는 영상 설명")
+				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.view(777)
+				.star(7.7F)
+				.build()
+		);
+
+		PageImpl<PlaylistChannelDetailsResponse> page = new PageImpl<>(responses);
+
+		given(memberService.getChannelDetailsForPlaylist(Mockito.anyLong(), Mockito.anyLong())).willReturn(page);
+
+		//when
+		ResultActions actions = mockMvc.perform(
+			get("/members/playlists/channels/details")
+				.header(AUTHORIZATION, TOKEN)
+				.param("member-id","1")
+				.accept(APPLICATION_JSON)
+		);
+
+		//then
+		RestDocsUtil.assertPageResponse(actions, responses.size());
+
+		actions
+			.andDo(
+				documentHandler.document(
+					requestHeaders(
+						headerWithName(AUTHORIZATION).description("액세스 토큰")
+					),
+					requestParameters(
+						parameterWithName("member-id").description("조회할 채널 소유자의 회원 ID")
+					),
+					pageResponseFields(
+						fieldWithPath("data[]").description("특정 채널에서 구매한 강의 목록"),
+						fieldWithPath("data[].videoId").description("강의 ID"),
+						fieldWithPath("data[].videoName").description("강의명"),
+						fieldWithPath("data[].description").description("강의에 대한 설명"),
+						fieldWithPath("data[].thumbnailImageUrl").description("강의의 썸네일 이미지 주소"),
+						fieldWithPath("data[].view").description("강의의 조회 수"),
+						fieldWithPath("data[].star").description("강의의 평점")
+					)
+				)
+			);
+	}
+
+	@Test
+	@DisplayName("플레이리스트 채널별 필터링의 채널 목록 조회 성공 테스트")
+	void getPlaylistChannels() throws Exception {
+		//given
+		List<PlaylistChannelResponse> responses = List.of(
+			PlaylistChannelResponse.builder()
+				.memberId(1L)
+				.channelName("채널명1")
+				.profileImageUrl("www.profileImageUrl.com")
+				.videoCount(4L)
+				.subscribers(10)
+				.isSubscribed(true)
+				.build(),
+			PlaylistChannelResponse.builder()
+				.memberId(2L)
+				.channelName("채널명2")
+				.profileImageUrl("www.profileImageUrl.com")
+				.videoCount(7L)
+				.subscribers(89)
+				.isSubscribed(false)
+				.build(),
+			PlaylistChannelResponse.builder()
+				.memberId(3L)
+				.channelName("채널명3")
+				.profileImageUrl("www.profileImageUrl.com")
+				.videoCount(4L)
+				.subscribers(107)
+				.isSubscribed(false)
+				.build(),
+			PlaylistChannelResponse.builder()
+				.memberId(4L)
+				.channelName("채널명4")
+				.profileImageUrl("www.profileImageUrl.com")
+				.videoCount(11L)
+				.subscribers(88)
+				.isSubscribed(true)
+				.build(),
+			PlaylistChannelResponse.builder()
+				.memberId(5L)
+				.channelName("채널명5")
+				.profileImageUrl("www.profileImageUrl.com")
+				.videoCount(3L)
+				.subscribers(27)
+				.isSubscribed(false)
+				.build(),
+			PlaylistChannelResponse.builder()
+				.memberId(6L)
+				.channelName("채널명6")
+				.profileImageUrl("www.profileImageUrl.com")
+				.videoCount(7L)
+				.subscribers(339)
+				.isSubscribed(true)
+				.build(),
+			PlaylistChannelResponse.builder()
+				.memberId(7L)
+				.channelName("채널명7")
+				.profileImageUrl("www.profileImageUrl.com")
+				.videoCount(9L)
+				.subscribers(201)
+				.isSubscribed(true)
+				.build(),
+			PlaylistChannelResponse.builder()
+				.memberId(8L)
+				.channelName("채널명8")
+				.profileImageUrl("www.profileImageUrl.com")
+				.videoCount(7L)
+				.subscribers(10415)
+				.isSubscribed(true)
+				.build(),
+			PlaylistChannelResponse.builder()
+				.memberId(9L)
+				.channelName("채널명9")
+				.profileImageUrl("www.profileImageUrl.com")
+				.videoCount(8L)
+				.subscribers(19)
+				.isSubscribed(false)
+				.build(),
+			PlaylistChannelResponse.builder()
+				.memberId(10L)
+				.channelName("채널명10")
+				.profileImageUrl("www.profileImageUrl.com")
+				.videoCount(5L)
+				.subscribers(8910)
+				.isSubscribed(true)
+				.build()
+		);
+
+		PageImpl<PlaylistChannelResponse> page = new PageImpl<>(responses);
+
+		given(memberService.getChannelForPlaylist(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
+
+		//when
+		ResultActions actions = mockMvc.perform(
+			get("/members/playlists/channels")
+				.header(AUTHORIZATION, TOKEN)
+				.param("page","1")
+				.param("size","16")
+				.accept(APPLICATION_JSON)
+		);
+
+		//then
+		RestDocsUtil.assertPageResponse(actions, responses.size());
+
+		actions
+			.andDo(
+				documentHandler.document(
+					requestHeaders(
+						headerWithName(AUTHORIZATION).description("액세스 토큰")
+					),
+					requestParameters(
+						parameterWithName("page").description("조회할 강의를 구매한 채널 목록 페이지").optional(),
+						parameterWithName("size").description("페이지의 데이터 수").optional()
+					),
+					pageResponseFields(
+						fieldWithPath("data[]").description("강의를 구매한 채널 목록"),
+						fieldWithPath("data[].memberId").description("해당 채널의 회원 ID"),
+						fieldWithPath("data[].channelName").description("채널명"),
+						fieldWithPath("data[].profileImageUrl").description("해당 채널의 회원 프로필 이미지"),
+						fieldWithPath("data[].videoCount").description("해당 채널에서 구매한 영상의 수"),
+						fieldWithPath("data[].isSubscribed").description("해당 채널의 구독 여부"),
+						fieldWithPath("data[].subscribers").description("해당 채널의 구독자 수")
+					)
+				)
 			);
 	}
 

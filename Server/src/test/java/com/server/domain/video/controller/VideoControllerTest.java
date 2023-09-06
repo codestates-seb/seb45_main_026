@@ -231,6 +231,7 @@ class VideoControllerTest extends ControllerTest {
                         .param("category", "spring")
                         .param("subscribe", "true")
                         .param("free", "false")
+                        .param("is-purchased", "true")
                         .accept(APPLICATION_JSON)
                         .header(AUTHORIZATION, TOKEN)
         );
@@ -251,7 +252,8 @@ class VideoControllerTest extends ControllerTest {
                         parameterWithName("sort").description(generateLinkCode(VideoSort.class)).optional(),
                         parameterWithName("category").description("카테고리").optional(),
                         parameterWithName("subscribe").description("구독 여부").optional(),
-                        parameterWithName("free").description("무료/유료 여부").optional()
+                        parameterWithName("free").description("무료/유료 여부").optional(),
+                        parameterWithName("is-purchased").description("구매한 비디오도 표시하는지 여부").optional()
                 ),
                 pageResponseFields(
                         fieldWithPath("data").description("비디오 목록"),
@@ -636,7 +638,7 @@ class VideoControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(replyInfoPage, "댓글 조회 성공"));
 
-        given(videoService.getReplies(anyLong(), anyInt(), anyInt(), anyString())).willReturn(replyInfoPage);
+        given(videoService.getReplies(anyLong(), anyInt(), anyInt(), any(ReplySort.class))).willReturn(replyInfoPage);
 
         //when
         ResultActions actions = mockMvc.perform(
@@ -1624,7 +1626,7 @@ class VideoControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(replyInfoPage, "댓글 조회 성공"));
 
-        given(videoService.getReplies(anyLong(), anyInt(), anyInt(), anyString())).willReturn(replyInfoPage);
+        given(videoService.getReplies(anyLong(), anyInt(), anyInt(), any(ReplySort.class))).willReturn(replyInfoPage);
 
         return List.of(
                 dynamicTest("쿼리 파라미터값으로 아무것도 주지 않아도 응답받을 수 있다.", ()-> {

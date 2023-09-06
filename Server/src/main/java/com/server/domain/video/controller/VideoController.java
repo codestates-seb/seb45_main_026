@@ -92,6 +92,7 @@ public class VideoController {
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "subscribe", defaultValue = "false") boolean subscribe,
             @RequestParam(value = "free", required = false) Boolean free,
+            @RequestParam(value = "is-purchased", defaultValue = "true") boolean isPurchased,
             @LoginId Long loginMemberId) {
 
         VideoGetServiceRequest request = VideoGetServiceRequest.builder()
@@ -102,6 +103,7 @@ public class VideoController {
                 .sort(sort.getSort())
                 .subscribe(subscribe)
                 .free(free)
+                .isPurchased(isPurchased)
                 .build();
 
         Page<VideoPageResponse> videos = videoService.getVideos(loginMemberId, request);
@@ -189,7 +191,7 @@ public class VideoController {
             @RequestParam(defaultValue = "created-date") ReplySort sort,
             @RequestParam(required = false) @Positive(message = "{validation.positive}") Integer star) {
 
-        Page<ReplyInfo> replies = videoService.getReplies(videoId, page -1, size, sort.getSort());
+        Page<ReplyInfo> replies = videoService.getReplies(videoId, page, size, sort);
 
         return ResponseEntity.ok(ApiPageResponse.ok(replies, "댓글 조회 성공"));
     }
