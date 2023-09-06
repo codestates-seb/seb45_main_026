@@ -38,4 +38,8 @@ public class Announcement extends BaseEntity {
     public void updateAnnouncement(String content) {
         this.content = content == null ? this.content : content;
     }
+
+    public Long getMemberId() {
+        return this.channel.getMember().getMemberId();
+    }
 }

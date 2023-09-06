@@ -3,9 +3,7 @@ package com.server.domain.announcement.repository;
 import com.server.domain.announcement.entity.Announcement;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
-import com.server.domain.video.entity.Video;
 import com.server.global.testhelper.RepositoryTest;
-import org.assertj.core.api.Assertions;
 import org.hibernate.Hibernate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +13,6 @@ import org.springframework.data.domain.PageRequest;
 
 import java.util.Comparator;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -33,14 +30,7 @@ class AnnouncementRepositoryTest extends RepositoryTest {
         Member member2 = createAndSaveMember();
         Channel channel2 = createAndSaveChannel(member2);
 
-        for (int i = 0; i < 100; i++) { //member 1 의 announcement 50개, member 2 의 announcement 50개
-
-            Channel channel;
-
-            channel = i % 2 == 0 ? channel1 : channel2;
-
-            createAndSaveAnnouncement(channel);
-        }
+        setAnnouncements(channel1, channel2, 100);
 
         PageRequest pageRequest = PageRequest.of(0, 10);
 
@@ -48,7 +38,8 @@ class AnnouncementRepositoryTest extends RepositoryTest {
         em.clear();
 
         //when
-        Page<Announcement> announcements = announcementRepository.findAnnouncementPageByMemberId(member1.getMemberId(), pageRequest);
+        Page<Announcement> announcements = announcementRepository
+                .findAnnouncementPageByMemberId(member1.getMemberId(), pageRequest);
 
         //then
         assertThat(announcements.getTotalElements()).isEqualTo(50);
@@ -88,6 +79,17 @@ class AnnouncementRepositoryTest extends RepositoryTest {
         assertThat(findAnnouncement.getAnnouncementId()).isEqualTo(announcement.getAnnouncementId());
         assertThat(findAnnouncement.getChannel().getChannelId()).isEqualTo(channel.getChannelId());
         assertThat(findAnnouncement.getChannel().getMember().getMemberId()).isEqualTo(member.getMemberId());
+    }
+
+    private void setAnnouncements(Channel channel1, Channel channel2, int count) {
+        for (int i = 0; i < count; i++) { //member 1 의 announcement 50개, member 2 의 announcement 50개
+
+            Channel channel;
+
+            channel = i % 2 == 0 ? channel1 : channel2;
+
+            createAndSaveAnnouncement(channel);
+        }
     }
 
     private Announcement createAndSaveAnnouncement(Channel channel) {
