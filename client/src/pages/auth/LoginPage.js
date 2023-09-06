@@ -30,7 +30,6 @@ const LoginPage = () => {
 
   return (
     <LoginPageContainer isDark={isDark}>
-      <Loading isLoading={true}/>
       <Login />
     </LoginPageContainer>
   );
