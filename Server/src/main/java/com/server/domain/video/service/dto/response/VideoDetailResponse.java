@@ -25,6 +25,7 @@ public class VideoDetailResponse {
     private Integer reward;
     private Boolean isReplied;
     private Boolean isPurchased;
+    private Boolean isInCart;
     private List<VideoCategoryResponse> categories;
     private VideoChannelResponse channel;
     private LocalDateTime createdDate;
@@ -32,7 +33,8 @@ public class VideoDetailResponse {
     public static VideoDetailResponse of(Video video,
                                          Boolean subscribed,
                                          Map<String, String> urlMap,
-                                         Map<String, Boolean> isPurchasedAndIsReplied) {
+                                         Map<String, Boolean> isPurchasedAndIsReplied,
+                                         Boolean isInCart) {
         return VideoDetailResponse.builder()
                 .videoId(video.getVideoId())
                 .videoName(video.getVideoName())
@@ -42,9 +44,10 @@ public class VideoDetailResponse {
                 .views(video.getView())
                 .star(video.getStar())
                 .price(video.getPrice())
-                .reward(video.getPrice() / 100)
+                .reward(video.getRewardPoint())
                 .isReplied(isPurchasedAndIsReplied.get("isReplied"))
                 .isPurchased(isPurchasedAndIsReplied.get("isPurchased"))
+                .isInCart(isInCart)
                 .categories(VideoCategoryResponse.of(video.getVideoCategories()))
                 .channel(VideoChannelResponse.of(video.getChannel(), subscribed, urlMap.get("imageUrl")))
                 .createdDate(video.getCreatedDate())
