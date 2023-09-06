@@ -79,6 +79,8 @@ export const FindPasswordPageForm = () => {
     }
     
     return (
+        <>
+        
         <FindPasswordFormContainer onSubmit={handleSubmit(onSubmit)}>
             <Input 
                 type='text'
@@ -114,6 +116,7 @@ export const FindPasswordPageForm = () => {
                     && <InputPositiveTypo isDark={isDark}>이메일이 인증되었습니다. </InputPositiveTypo> }
             <SignupButton isDark={isDark} type='submit'>비밀번호 변경하기</SignupButton>
         </FindPasswordFormContainer>
+        </>
     );
 };
 

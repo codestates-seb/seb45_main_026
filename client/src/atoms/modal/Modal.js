@@ -4,8 +4,6 @@ import tokens from '../../styles/tokens.json';
 import { useDispatch, useSelector } from 'react-redux';
 import { BodyTextTypo } from '../typographys/Typographys'
 import { NegativeTextButton, PositiveTextButton } from '../buttons/Buttons';
-import { setModal } from '../../redux/createSlice/UISettingSlice';
-import { useModalClose } from '../../hooks/useModal';
 
 const globalTokens = tokens.global;
 
@@ -58,49 +56,37 @@ export const ModalNegativeButton = styled(NegativeTextButton)`
     background-color: white;
     padding: 0 ${globalTokens.Spacing24.value}px;
 `
-
-export const Modal = ({
-    isModalOpen, 
-    isBackdropClose,
+//예, 아니오를 선택하는 모달
+export const ConfirmModal = ({
+    isModalOpen,
+    setIsModalOpen,
+    isBackdropClickClose,
     content,
     negativeButtonTitle,
     positiveButtonTitle,
+    handleNegativeButtonClick, 
+    handlePositiveButtonClick,
 }) => {
-    const dispatch = useDispatch();
     const isDark = useSelector(state=>state.uiSetting.isDark);
-    
-    //모달을 닫는 메소드
-    const closeModal = () => {
-        dispatch(setModal({
-            isModalOpen: false,
-            isBackdropClose: false,
-            content: '',
-            negativeButtonTitle: '',
-            positiveButtonTitle: '',
-        }));
-    }
-    
-    //backdrop을 클릭했을 때 실행되는 메소드
-    const handleBackdropClick = () => {
-        if(isBackdropClose) {
-            closeModal();
-        }
-    }
 
     return (
         <ModalBackdrop 
             isModalOpen={isModalOpen} 
-            onClick={ handleBackdropClick }
-            isDark={isDark}>
-                <ModalContainer isDark={isDark}>
+            isDark={isDark}
+            onClick={()=>{ isBackdropClickClose && setIsModalOpen(false) }}>
+                <ModalContainer isDark={isDark} onClick={(e)=>{e.stopPropagation();}}>
                     <ModalContent>{content}</ModalContent>
                     <ModalButtonContainer>
                         <ModalNegativeButton 
-                            onClick={()=>{}}>
+                            onClick={(e)=>{
+                                handleNegativeButtonClick();
+                            }}>
                                 {negativeButtonTitle}
                         </ModalNegativeButton>
                         <ModalPositiveButton 
-                            onClick={()=>{}}>
+                            onClick={(e)=>{
+                                handlePositiveButtonClick();
+                            }}>
                                 {positiveButtonTitle}
                         </ModalPositiveButton>
                     </ModalButtonContainer>
@@ -108,5 +94,32 @@ export const Modal = ({
         </ModalBackdrop>
     );
 };
+//확인 버튼만 있는 모달
+export const AlertModal = ({
+    isModalOpen,
+    setIsModalOpen,
+    isBackdropClickClose,
+    content,
+    buttonTitle,
+    handleButtonClick,
 
-export default Modal;
+}) => {
+    const isDark = useSelector(state=>state.uiSetting.isDark);
+
+    return (
+        <ModalBackdrop 
+            isModalOpen={isModalOpen} 
+            isDark={isDark}
+            onClick={()=>{ isBackdropClickClose && setIsModalOpen(false) }}>
+                <ModalContainer isDark={isDark} onClick={(e)=>{e.stopPropagation();}}>
+                    <ModalContent>{content}</ModalContent>
+                    <ModalButtonContainer>
+                        <ModalPositiveButton 
+                            onClick={handleButtonClick}>
+                                {buttonTitle}
+                        </ModalPositiveButton>
+                    </ModalButtonContainer>
+                </ModalContainer>
+        </ModalBackdrop>
+    );
+}

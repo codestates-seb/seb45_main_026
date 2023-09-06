@@ -1,29 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import tokens from '../../styles/tokens.json';
 import { Input, InputErrorTypo } from '../../atoms/inputs/Inputs';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteUserInfoService, updateNicknameService, updatePasswordService } from '../../services/userInfoService';
-import useConfirm from '../../hooks/useConfirm'
-import { setLoginInfo } from '../../redux/createSlice/LoginInfoSlice';
+import { setIsLogin, setLoginInfo, setMyid, setProvider, setToken } from '../../redux/createSlice/LoginInfoSlice';
 import { NegativeTextButton, PositiveTextButton, } from '../../atoms/buttons/Buttons';
 import { SettingContainer, SettingTitle, UserInfoContainer, ExtraButtonContainer  } from './Setting.style';
-import { setModal } from '../../redux/createSlice/UISettingSlice';
+import { AlertModal, ConfirmModal } from '../../atoms/modal/Modal';
+import { useNavigate } from 'react-router-dom';
+import ImageInput from '../../atoms/inputs/ImageInput';
 
 const globalTokens = tokens.global;
 
 const Setting = () => {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const loginUserInfo = useSelector(state=>state.loginInfo.loginInfo);
     const accessToken = useSelector(state=>state.loginInfo.accessToken);
     const isDark= useSelector(state=>state.uiSetting.isDark);
-    const nicknameUpdateSuccessConfirm = useConfirm('닉네임이 변경되었습니다.');
-    const nicknameUpdateFailConfirm = useConfirm('닉네임 변경 실패했습니다.');
-    const passwordUpdateSuccessConfirm = useConfirm('비밀번가 변경되었습니다!');
-    const passwordUpdateFailConfirm = useConfirm('비밀번호 변경 실패했습니다. 비밀번호를 다시 확인해주세요.');
-    //내 이메일
-    //닉네임, 비밀번호 변경
-    //회원 탈퇴
+    const [ isDeleteUserConfirmModalOpen, setIsDeleteUserConfirmModalOpen ] = useState(false);
+    const [ isDeleteUserAlertModalOpen, setIsDeleteUserAlertModalOpen ] = useState(false);
+    const [ is닉네임변경성공팝업, setIs닉네임변경성공팝업 ] = useState(false);
+    const [ is닉네임변경실패팝업, setIs닉네임변경실패팝업 ] = useState(false);
+    const [ is비밀번호변경성공팝업, setIs비밀번호변경성공팝업 ] = useState(false);
+    const [ is비밀번호변경실패팝업, setIs비밀번호변경실패팝업 ] = useState(false);
+
     const {
         register,
         watch, 
@@ -35,7 +37,7 @@ const Setting = () => {
                 nickname: loginUserInfo.nickname,
               }
         });
-
+    
     //닉네임 변경 버튼 누르면 동작함
     const handleNicknameUpdateClick = async () => {
         const isValid = await trigger('nickname');
@@ -49,9 +51,9 @@ const Setting = () => {
                     ...loginUserInfo,
                     nickname: newNickname,
                 }))
-                nicknameUpdateSuccessConfirm();
+                setIs닉네임변경성공팝업(true);
             } else {
-                nicknameUpdateFailConfirm();
+                setIs닉네임변경실패팝업(true);
                 return;
             }
         }
@@ -71,46 +73,116 @@ const Setting = () => {
             if(response.status==='success') {
                 setValue('password','');
                 setValue('newPassword','');
-                passwordUpdateSuccessConfirm();
+                setIs비밀번호변경성공팝업(true);
             } else {
-                passwordUpdateFailConfirm();
+                setIs비밀번호변경실패팝업(true);
             }
         }
     }
-    //모달의 '예' 눌렀을 때 실행하는 메소드
-    const handlePositiveButtonClick = () => {
-        //회원탈퇴 API를 실행한다. 
-        console.log('예 누름')
+    //회원 탈퇴 버튼 누르면 동작함
+    const handleDeleteUserClick = () => {
+        //Confirm 모달을 연다.
+        setIsDeleteUserConfirmModalOpen(true);
     }
-    //모달의 '아니오' 눌렀을 때 실행하는 메소드
+    //Confirm 모달의 '예' 눌렀을 때 실행하는 메소드
+    const handlePositiveButtonClick = async () => {
+        setIsDeleteUserConfirmModalOpen(false);
+        //회원탈퇴 API를 실행한다. 
+        const response = await deleteUserInfoService(accessToken.authorization);
+        if(response.status==='success') {
+            dispatch(setLoginInfo({
+                email: "", 
+                nickname: "", 
+                grade: "", 
+                imgUrl: "", 
+                reward: "" 
+            }));
+            dispatch(setToken({
+                authorization: "",
+                refresh: "",
+            }));
+            dispatch(setProvider(''));
+            dispatch(setMyid(''));
+            dispatch(setIsLogin(false));
+            setIsDeleteUserConfirmModalOpen(true);
+        }
+    }
+    //Confirm 모달의 '아니오' 눌렀을 때 실행되는 메소드
     const handleNegativeButtonClick = () => {
         //모달을 닫는다.
-        console.log('모달을 닫는다')
+        setIsDeleteUserConfirmModalOpen(false);
     }
-    //회원 탈퇴 버튼 누르면 동작함
-    const handleDeleteUserClick = async () => {
-        //모달을 연다.
-        dispatch(setModal({
-            isModalOpen: true,
-            isBackdropClose: true,
-            content: '정말로 탈퇴하시겠습니까?',
-            negativeButtonTitle: '아니오',
-            positiveButtonTitle: '예',
-        }));
+    //Alert 모달의 '홈으로 가기'를 눌렀을 때 실행되는 메소드
+    const handleAlertButtonClick = () => {
+        setIsDeleteUserAlertModalOpen(false);
+        navigate('/');
     }
 
-    
     return (
+        <>
+            {/* 탈퇴 여부 재확인 팝업 */}
+            <ConfirmModal 
+                isModalOpen={isDeleteUserConfirmModalOpen}
+                setIsModalOpen={setIsDeleteUserConfirmModalOpen}
+                isBackdropClickClose={true}
+                content='정말로 탈퇴 하시겠습니까?'
+                negativeButtonTitle='아니오'
+                positiveButtonTitle='예'
+                handleNegativeButtonClick={handleNegativeButtonClick}
+                handlePositiveButtonClick={handlePositiveButtonClick}/>
+            {/* 탈퇴 성공 팝업 */}
+            <AlertModal 
+                isModalOpen={isDeleteUserAlertModalOpen}
+                setIsModalOpen={setIsDeleteUserAlertModalOpen}
+                isBackdropClickClose={false}
+                content='탈퇴되었습니다!'
+                buttonTitle='홈으로 가기'
+                handleButtonClick={handleAlertButtonClick}/>
+            {/* 닉네임 변경 성공 팝업 */}
+            <AlertModal 
+                isModalOpen={is닉네임변경성공팝업}
+                setIsModalOpen={setIs닉네임변경성공팝업}
+                isBackdropClickClose={true}
+                content='닉네임이 변경되었습니다!'
+                buttonTitle='확인'
+                handleButtonClick={()=>{ setIs닉네임변경성공팝업(false) }}/>
+            {/* 닉네임 변경 실패 팝업 */}
+            <AlertModal 
+                isModalOpen={is닉네임변경실패팝업}
+                setIsModalOpen={setIs닉네임변경실패팝업}
+                isBackdropClickClose={true}
+                content='기존에 사용하던 닉네임이거나, 사용할 수 없는 닉네임입니다.'
+                buttonTitle='확인'
+                handleButtonClick={()=>{ setIs닉네임변경실패팝업(false) }}/>
+            {/* 비밀번호 변경 성공 팝업 */}
+            <AlertModal 
+                isModalOpen={is비밀번호변경성공팝업}
+                setIsModalOpen={setIs비밀번호변경성공팝업}
+                isBackdropClickClose={true}
+                content='비밀번호가 변경되었습니다!'
+                buttonTitle='확인'
+                handleButtonClick={()=>{ setIs비밀번호변경성공팝업(false) }}/>
+            { /* 비밀번호 변경 실패 팝업 */ }
+            <AlertModal 
+                isModalOpen={is비밀번호변경실패팝업}
+                setIsModalOpen={setIs비밀번호변경실패팝업}
+                isBackdropClickClose={true}
+                content='비밀번호 변경 실패했습니다.'
+                buttonTitle='확인'
+                handleButtonClick={()=>{ setIs비밀번호변경실패팝업(false) }}/>
             <SettingContainer isDark={isDark}>
                 <UserInfoContainer>
                     <SettingTitle isDark={isDark}>내 정보</SettingTitle>
+                    <ImageInput
+                        marginTop={globalTokens.Spacing8.value} 
+                        label='프로필 이미지'/>
                     <Input 
-                        marginTop={globalTokens.Spacing8.value}
-                        label='이메일'
-                        width='50vw'
-                        name='email'
+                        marginTop={globalTokens.Spacing8.value} 
+                        label='이메일' 
+                        width='50vw' 
+                        name='email' 
                         type='text' 
-                        disabled
+                        disabled 
                         register={register}/>
                     <Input
                         marginTop={globalTokens.Spacing8.value}
@@ -192,6 +264,7 @@ const Setting = () => {
                 </ExtraButtonContainer>
                 </UserInfoContainer>
             </SettingContainer>
+        </>
     );
 };
 

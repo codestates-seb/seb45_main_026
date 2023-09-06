@@ -34,6 +34,14 @@ export const RegularInput = styled.input`
     &:focus {
         outline: ${globalTokens.RegularHeight.value}px solid ${(props)=>props.isDark ? globalTokens.White.value : globalTokens.Positive.value};
     }
+    :-webkit-autofill,
+    :-webkit-autofill:hover,
+    :-webkit-autofill:focus,
+    :-webkit-autofill:active {
+        transition: background-color 5000s ease-in-out 0s;
+        -webkit-transition: background-color 9999s ease-out;
+        -webkit-text-fill-color: rgba(255,255,255,0.25) !important;
+    }
 `
 export const InputButton = styled(RegularButton)`
     margin-left: ${globalTokens.Spacing4.value}px;
@@ -71,6 +79,7 @@ export const Input = ({
             <InputWithButtonContainer>
                 <RegularInput
                     isDark={isDark}
+                    autoComplete={type==='password'?'new-password':'off'}
                     width={ 
                         width? `${width}`
                         : isButton? '200px'
