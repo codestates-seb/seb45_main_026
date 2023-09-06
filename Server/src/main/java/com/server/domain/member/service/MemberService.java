@@ -1,13 +1,14 @@
 package com.server.domain.member.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.querydsl.core.Tuple;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
-import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.*;
 import com.server.domain.member.util.MemberResponseConverter;
@@ -20,12 +21,10 @@ import com.server.global.exception.businessexception.memberexception.MemberAcces
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
-import com.server.module.email.service.MailService;
 import com.server.module.redis.service.RedisService;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -134,6 +133,21 @@ public class MemberService {
 		Page<Watch> watches = memberRepository.findWatchesForMember(member.getMemberId(), pageable, day);
 
 		return converter.convertWatchToWatchResponses(watches);
+	}
+
+	public Page<PlaylistChannelResponse> getChannelForPlaylist(Long loginId, int page, int size) {
+		Page<Tuple> channels =
+			memberRepository.findPlaylistGroupByChannelName(loginId, PageRequest.of(page - 1, size));
+
+		return converter.convertChannelToPlaylistChannelResponse(channels);
+	}
+
+	public Page<PlaylistChannelDetailsResponse> getChannelDetailsForPlaylist(Long loginId, Long memberId) {
+
+		Page<Video> videos =
+			memberRepository.findPlaylistChannelDetails(loginId, memberId);
+
+		return converter.convertVideoToPlaylistChannelDetailsResponse(videos, memberId);
 	}
 
 	@Transactional
