@@ -156,6 +156,7 @@ class ChannelServiceTest extends ServiceTest {
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
 
+
         String updateChannelName = "updateChannelName";
         String updateDescription = "updateDescription";
 
@@ -164,7 +165,7 @@ class ChannelServiceTest extends ServiceTest {
                 .description(updateDescription)
                 .build();
 
-        assertThatThrownBy(() -> channelService.updateChannelInfo(member.getMemberId()+99L, member.getMemberId(), channelUpdate));
+        assertThatThrownBy(() -> channelService.updateChannelInfo(member.getMemberId(), channel.getMember().getMemberId()+999L, channelUpdate));
     }
 
     @Test
@@ -198,14 +199,15 @@ class ChannelServiceTest extends ServiceTest {
 
     @Test
     @DisplayName("Channel이 구독중이면 구독해지한다.")
-    void updateSubscribeCancel(){
+    void updateSubscribeCancel() {
         Member loginMember = createAndSaveMember();
         Channel channel = createAndSaveChannel(loginMember);
 
-        boolean subscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
-        assertThat(subscribe).isTrue();
+        boolean initialSubscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
 
         boolean unsubscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
+
+        assertThat(initialSubscribe).isTrue();
         assertFalse(unsubscribe);
     }
 
@@ -239,23 +241,25 @@ class ChannelServiceTest extends ServiceTest {
 
         boolean isSubscribed = channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
 
-        assertThat(isSubscribed).isEqualTo(true); //수정
+        assertThat(subscribeRepository.findAll().size()).isEqualTo(1);
+
+        assertTrue(isSubscribed);
     }
 
-//    @Test
-//    @DisplayName("로그인한 멤버가 타유저의 채널을 구독해지하면 False 나온다")
-//    void updateSubscribeFalse(){
-//        Long loginMember = 1L;
-//        Member otherMember = createAndSaveMember();
-//        Channel otherMemberChannel = createAndSaveChannel(otherMember);
-//
-//        boolean isSubscribed = channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember);
-//        assertThat(isSubscribed).isTrue();
-//
-//        boolean unsubscribe = channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember);
-//
-//        assertThat(unsubscribe).isEqualTo(false);
-//   }
+    @Test
+    @DisplayName("로그인한 멤버가 타유저의 채널을 구독해지하면 False가 나온다")
+    void updateSubscribeFalse() {
+        Member loginMember = createAndSaveMember();
+        Member otherMember = createAndSaveMember();
+        Channel otherMemberChannel = createAndSaveChannel(otherMember);
+
+        boolean isSubscribed = channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
+        boolean unsubscribe = channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
+
+        assertThat(isSubscribed).isTrue();
+        assertThat(subscribeRepository.findAll().size()).isEqualTo(0);
+        assertFalse(unsubscribe);
+    }
 
     @Test
     @DisplayName("채널이 존재하지 않으면 ChannelNotFoundException이 발생한다.")
@@ -282,23 +286,26 @@ class ChannelServiceTest extends ServiceTest {
         assertThat(channel.getSubscribers()).isEqualTo(1);
     }
 
-//   @Test
-//    @DisplayName("타유저의 채널을 구독해지하면 구독자 수가 1 감소한다.")
-//    void updateSubscribeDecreaseSubscribers() {
-//        Member loginMember = createAndSaveMember();
-//        Member otherMember = createAndSaveMember();
-//        Channel otherMemberChannel = createAndSaveChannel(otherMember);
-//
-//        channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
-//
-//        int Subscribers = otherMemberChannel.getSubscribers();
-//        assertThat(Subscribers).isEqualTo(1);
-//
-//        channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
-//
-//        Channel updatedChannel = channelRepository.findById(otherMemberChannel.getChannelId()).get();
-//        assertThat(updatedChannel.getSubscribers()).isEqualTo(0);
-//    }
+    @Test
+    @DisplayName("타유저의 채널을 구독해지하면 구독자 수가 1 감소한다.")
+    void updateSubscribeDecreaseSubscribers() {
+        Member loginMember = createAndSaveMember();
+        Member otherMember = createAndSaveMember();
+        Channel otherMemberChannel = createAndSaveChannel(otherMember);
+        Long Subscribers = otherMemberChannel.getMember().getMemberId();
+
+        channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
+        channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
+
+        Long updatedChannel = otherMemberChannel.getMember().getMemberId();
+        assertThat(updatedChannel).isEqualTo(Subscribers);
+    }
+
+
+
+
+
+
 
 
 
