@@ -27,12 +27,12 @@ const CartPage = () => {
         dispatch(setCarts(res.data.data));
       })
       .catch((err) => console.log(err));
-  }, ["cartsData"]);
+  }, [cartsData]);
 
   return (
     <PageContainer isDark={isDark}>
       <CartContainer>
-        <CartTitle>수강 바구니</CartTitle>
+        <CartTitle isDark={isDark}>수강 바구니</CartTitle>
         <CartContent>
           <CartLeft />
           <CartRight />
@@ -58,6 +58,7 @@ export const CartTitle = styled.h2`
   width: 100%;
   text-align: start;
   padding: 50px 4%;
+  color: ${(props) => (props.isDark ? "white" : "black")};
 `;
 
 export const CartContent = styled.div`
