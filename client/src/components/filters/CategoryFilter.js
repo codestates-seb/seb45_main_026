@@ -37,6 +37,16 @@ export default function CategoryFilter() {
         ],
       },
       {
+        name: "isFree",
+        initialText: "유료/무료",
+        actionName: "setIsFree",
+        options: [
+          { text: "유료/무료", value: "" },
+          { text: "유료", value: "false" },
+          { text: "무료", value: "true" },
+        ],
+      },
+      {
         name: "sortBy",
         initialText: "정렬",
         actionName: "setSort",

@@ -115,6 +115,10 @@ const ScoreText = styled.span`
 
 export default function VerticalItem({ lecture ,channel}) { 
   const {videoName,thumbnailUrl,createdDate,isPurchased,price,star}=lecture
+  const date = new Date(createdDate);
+  date.setHours(date.getHours() + 9);
+  const month = (date.getMonth() + 1).toString().padStart(2, "0"); // 월은 0부터 시작하므로 +1
+  const day = date.getDate().toString().padStart(2, "0");
     return (
       <ComponentBody>
         <ThumbnailContainer>
@@ -129,7 +133,7 @@ export default function VerticalItem({ lecture ,channel}) {
               </ImgContainer>
               <AuthorName>{channel.channelName}</AuthorName>
             </AuthorInfor>
-            <DateInfor>8월 29일 업로드됨</DateInfor>
+            <DateInfor>{month}월{day}일 업로드됨</DateInfor>
           </InforContainerLeft>
           <InforContainerRight>
             <ScoreContainer>
@@ -140,7 +144,11 @@ export default function VerticalItem({ lecture ,channel}) {
               <StarImage src={yellowStar} />
               <StarImage src={yellowStar} />
             </ScoreContainer>
-            {isPurchased ? <PriceInfor>구매됨</PriceInfor> : <PriceInfor>{price}원</PriceInfor>}
+            {isPurchased ? (
+              <PriceInfor>구매됨</PriceInfor>
+            ) : (
+              <PriceInfor>{price}원</PriceInfor>
+            )}
           </InforContainerRight>
         </ItemInfors>
       </ComponentBody>

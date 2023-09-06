@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import tokens from "../../styles/tokens.json";
 import { useDispatch } from "react-redux";
-import { setSort, setIsPurchased, setCategory } from "../../redux/createSlice/FilterSlice";
+import { setSort, setIsPurchased, setCategory, setIsFree } from "../../redux/createSlice/FilterSlice";
 
 const globalTokens = tokens.global;
 
@@ -33,7 +33,8 @@ export default function FilterDropdown({ options, actionName }) {
     const actionMap = {
         setSort,
         setIsPurchased,
-        setCategory
+        setCategory,
+        setIsFree
     };
     return (
         <DropdownContainer>

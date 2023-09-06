@@ -110,7 +110,7 @@ const AuthorName = styled.span`
     margin-right: ${globalTokens.Spacing8.value}px;
 `
 const CreatedAt = styled.span`
-    height: 24px;
+    height: 20px;
     font-size: ${globalTokens.SmallText.value}px;
 `
 const StarImage = styled.img`
@@ -134,8 +134,12 @@ const PriceText = styled.div`
     height: 30px;
 `
 
-export default function HorizonItem({lecture}) {
-  const {videoName,thumbnailUrl,channel,createdDate,isPurchased,price,star,description}=lecture
+export default function HorizonItem({lecture, channel}) {
+  const {videoName,thumbnailUrl,createdDate,isPurchased,price,star,description}=lecture
+  const date = new Date(createdDate);
+  date.setHours(date.getHours() + 9);
+  const month = (date.getMonth() + 1).toString().padStart(2, "0"); // 월은 0부터 시작하므로 +1
+  const day = date.getDate().toString().padStart(2, "0");
     return (
       <ComponentBody>
         <ThumbnailContainer>
@@ -151,7 +155,7 @@ export default function HorizonItem({lecture}) {
                   <ProfileImg src={channel.imageUrl} alt="profile" />
                 </ImgContainer>
                 <AuthorName>{channel.channelName}</AuthorName>
-                <CreatedAt>8월 30일 업로드 됨</CreatedAt>
+                <CreatedAt>{month}월{day}일 업로드됨</CreatedAt>
               </AuthorContainer>
             </InforContainerLeft>
             <InforContainerRight>

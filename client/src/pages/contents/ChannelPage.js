@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React,{useEffect, useState} from "react";
 import { styled } from "styled-components";
 import { useSelector } from "react-redux";
 import { PageContainer,MainContainer } from "../../atoms/layouts/PageContainer";
@@ -8,7 +8,7 @@ import ChannelHome from "../../components/contentListItems/ChannelHome";
 import ChannelList from "../../components/contentListItems/ChannelList";
 import ChannelNotice from "../../components/contentListItems/ChannelNotice";
 import axios from "axios";
-import Setting from "../../components/contentListItems/Setting";
+import frofileGray from "../../assets/images/icons/profile/profileGray.svg"
 
 const globalTokens = tokens.global;
 
@@ -20,16 +20,18 @@ const ProfileContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
-  /* gap: ${globalTokens.Spacing20.value}px; */
+  gap: ${globalTokens.Spacing20.value}px;
   margin: ${globalTokens.Spacing36.value}px 0;
 `;
 const ProfileImg = styled.img`
-    width: 130px;
+    max-height: 130px;
+    height: auto;
+    width: auto;
 `
 const ImgContainer = styled.div`
     width: 130px;
     height: 130px;
+    min-width: 130px;
     border-radius: ${globalTokens.ProfileRadius.value}px;
     background-color: ${globalTokens.White.value};
     display: flex;
@@ -38,7 +40,7 @@ const ImgContainer = styled.div`
     overflow: hidden;
 `
 const InforContainer = styled.div`
-    height: 130px;
+    min-height: 130px;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
@@ -50,36 +52,44 @@ const ChannelTitle = styled.h1`
   font-size: ${globalTokens.Heading4.value}px;
   font-weight: ${globalTokens.Bold.value};
 `;
+const ChannelSubscribers = styled.div`
+  height: 20px;
+  font-size: ${globalTokens.BodyText.value}px;
+  font-weight: ${globalTokens.Bold.value};
+`
 const ChannelDescription = styled.div`
-  height: 80px;
   flex-grow: 1;
-  padding: ${globalTokens.Spacing4.value}px;
+  padding: ${globalTokens.Spacing8.value}px;
   background-color: lightgray;
   border-radius: ${globalTokens.RegularRadius.value}px;
 `
 
+
+
 export default function ChannelPage() {
   const isDark = useSelector((state) => state.uiSetting.isDark);
-
   const [navigate, setNavigate] = useState(0)
-  
+  const [channelInfor,setChannelInfor]=useState({})
+  useEffect(() => {
+    axios.get("https://api.itprometheus.net/channels/4")
+      .then(res => setChannelInfor(res.data.data))
+      .catch(err=>console.log(err))
+  },[])
     return (
       <PageContainer isDark={isDark}>
         <ChannelMainContainer>
           <ProfileContainer>
             <ImgContainer>
-              <ProfileImg src="https://avatars.githubusercontent.com/u/50258232?v=4"/>
+              <ProfileImg src={channelInfor.imageUrl?channelInfor.imageUrl:frofileGray} />
             </ImgContainer>
             <InforContainer>
-              <ChannelTitle>HyerimKimm</ChannelTitle>
-              <ChannelDescription>안녕하세요</ChannelDescription>
+              <ChannelTitle>{channelInfor.channelName}</ChannelTitle>
+              <ChannelSubscribers>구독자 {channelInfor.subscribers}명</ChannelSubscribers>
+              <ChannelDescription>{channelInfor.description?channelInfor.description:"아직 채널 소개가 없습니다"}</ChannelDescription>
             </InforContainer>
           </ProfileContainer>
           <ChannelNav navigate={navigate} setNavigate={setNavigate} />
-          { navigate===0? <ChannelHome/>
-            : navigate===1? <ChannelList/>
-            : navigate===2?  <ChannelNotice/>
-            : <Setting/> }
+          {navigate === 0 ? <ChannelHome channelInfor={channelInfor} />:navigate===1?<ChannelList channelInfor={channelInfor}/>:<ChannelNotice/>}
         </ChannelMainContainer>
       </PageContainer>
     );
