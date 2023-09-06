@@ -12,7 +12,6 @@ export const getUserInfoService = async (authorization) => {
                 }
             }
         );
-        console.log(response.data);
         return {
             status: 'success',
             data: response.data.data
@@ -20,7 +19,37 @@ export const getUserInfoService = async (authorization) => {
     } catch (err) {
         return {
             status: 'error',
-            ...err,
+            data: err
+        }
+    }
+}
+//프로필 변경 step1 : 프로필 등록 URL 받기
+export const getUploadProfileImgUrlService = async (
+    authorization, 
+    email, 
+    imageType
+) => {
+    try {
+        const response = await axios.patch(
+            `${ROOT_URL}/members/image`,
+            {
+                imageName: email,
+                imageType: imageType
+            },
+            {
+                headers: {
+                    Authorization: authorization
+                }
+            }
+        )
+        return {
+            status : 'success',
+            data: response.data,
+        }
+    } catch(err) {
+        return {
+            status: 'error',
+            data: err
         }
     }
 }
@@ -82,7 +111,12 @@ export const updatePasswordService = async (authorization, prevPassword, newPass
 export const deleteUserInfoService = async (authorization) => {
     try {
         const response = await axios.delete(
-            `${ROOT_URL}/members`
+            `${ROOT_URL}/members`,
+            {
+                headers: {
+                    Authorization: authorization
+                }
+            }
         )
         return {
             status: 'success',

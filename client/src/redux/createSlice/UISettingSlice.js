@@ -6,7 +6,6 @@ const UISettingSlice = createSlice({
     browserWidth: window.innerWidth,
     isDark: false,
     isSideBar: false,
-    location: "/",
   },
   reducers: {
     setIsDark: (state, action) => {
@@ -18,12 +17,9 @@ const UISettingSlice = createSlice({
     setIsSideBar: (state, action) => {
       state.isSideBar = action.payload;
     },
-    setLocation: (state, action) => {
-      state.location = action.payload;
-    },
   },
 });
 
 export default UISettingSlice;
-export const { setIsDark, setBrowserWidth, setIsSideBar, setLocation } =
+export const { setIsDark, setBrowserWidth, setIsSideBar } =
   UISettingSlice.actions;

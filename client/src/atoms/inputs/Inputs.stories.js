@@ -1,12 +1,18 @@
 import { Input } from "./Inputs"
 import { FormProvider, useForm } from 'react-hook-form';
+import { action } from '@storybook/addon-actions';
 
 const StorybookFormProvider = ({ children }) => {
-    const methods = useForm();
+    const methods = useForm({
+      defaultValues : {
+        email:'',
+        password:'',
+      }
+    });
     return (
       <FormProvider {...methods}>
         <form
-          onSubmit={()=>{}}>
+          onSubmit={methods.handleSubmit(action('[React Hooks Form] Submit'))}>
           {children}
         </form>
       </FormProvider>

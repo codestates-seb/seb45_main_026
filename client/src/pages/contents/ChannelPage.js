@@ -21,13 +21,13 @@ const ProfileContainer = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  /* gap: ${globalTokens.Spacing20.value}px; */
+  gap: ${globalTokens.Spacing20.value}px;
   margin: ${globalTokens.Spacing36.value}px 0;
 `;
-const ProfileImg = styled.img`
+export const ProfileImg = styled.img`
     width: 130px;
 `
-const ImgContainer = styled.div`
+export const ImgContainer = styled.div`
     width: 130px;
     height: 130px;
     border-radius: ${globalTokens.ProfileRadius.value}px;
