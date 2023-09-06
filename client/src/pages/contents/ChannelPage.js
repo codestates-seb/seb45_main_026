@@ -9,6 +9,7 @@ import ChannelList from "../../components/contentListItems/ChannelList";
 import ChannelNotice from "../../components/contentListItems/ChannelNotice";
 import axios from "axios";
 import frofileGray from "../../assets/images/icons/profile/profileGray.svg"
+import Setting from '../../components/contentListItems/Setting';
 
 const globalTokens = tokens.global;
 
@@ -89,7 +90,13 @@ export default function ChannelPage() {
             </InforContainer>
           </ProfileContainer>
           <ChannelNav navigate={navigate} setNavigate={setNavigate} />
-          {navigate === 0 ? <ChannelHome channelInfor={channelInfor} />:navigate===1?<ChannelList channelInfor={channelInfor}/>:<ChannelNotice/>}
+          {
+            navigate === 0 ? 
+            <ChannelHome channelInfor={channelInfor} />
+            : navigate===1?<ChannelList channelInfor={channelInfor}/>
+            : navigate===2?<ChannelNotice/>
+            : <Setting/>
+          }
         </ChannelMainContainer>
       </PageContainer>
     );
