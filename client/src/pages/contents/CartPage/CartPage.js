@@ -13,15 +13,11 @@ const CartPage = () => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const cartsData = useSelector((state) => state.cartSlice.data);
   const token = useSelector((state) => state.loginInfo.accessToken);
-  const headers = {
-    Authorization: token.authorization,
-    refresh: token.refresh,
-  };
 
   useEffect(() => {
     axios
       .get(`https://api.itprometheus.net/members/carts`, {
-        headers,
+        headers: { Authorization: token.authorization },
       })
       .then((res) => {
         dispatch(setCarts(res.data.data));

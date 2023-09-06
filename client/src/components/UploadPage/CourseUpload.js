@@ -7,10 +7,14 @@ import {
   ColBox,
 } from "../../pages/contents/UploadPage";
 import { useRef, useState } from "react";
+import axios from "axios";
+import { useSelector } from "react-redux";
 
 const CourseUpload = () => {
   const imgRef = useRef();
+  const videoRef = useRef();
   const [imgFile, setImgFile] = useState("");
+  const [videoFile, setVideoFile] = useState("");
   const [uploadVideo, setUploadVideo] = useState({
     imageType: "",
     fileName: "",
@@ -26,20 +30,30 @@ const CourseUpload = () => {
     videoUrl: "",
   });
 
-  // console.log(uploadDetail);
-  // console.log(uploadVideo);
+  const token = useSelector((state) => state.loginInfo.accessToken);
 
-  const saveImgFile = () => {
-    const file = imgRef.current.files[0];
+  console.log("uploadDetail", uploadDetail);
+  console.log("uploadVideo", uploadVideo);
+
+  const handleSaveFile = (e) => {
+    const file = e.target.files[0];
     if (file) {
+      console.log("file", file);
+
+      const type = file.type;
+      const [fileName, fileType] = file.name.split(".");
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
-        setImgFile(reader.result);
+        if (type.includes("image")) {
+          setImgFile(reader.result);
+          setUploadVideo({ ...uploadVideo, imageType: fileType });
+        } else if (type.includes("video")) {
+          setVideoFile(reader.result);
+          setUploadVideo({ ...uploadVideo, fileName });
+          setUploadDetail({ ...uploadDetail, videoName: fileName });
+        }
       };
-      const [fileName, imageType] = file.name.split(".");
-      setUploadVideo({ imageType, fileName });
-      setUploadDetail({ ...uploadDetail, videoName: fileName });
     }
   };
 
@@ -51,9 +65,48 @@ const CourseUpload = () => {
     }
   };
 
-  const handleImagePost = () => {};
-  const handleImageUpload = () => {};
-  const handleDetailPost = () => {};
+  const handleVideoPost = () => {
+    return axios
+      .post("https://api.itprometheus.net/videos/presigned-url", uploadVideo, {
+        headers: { Authorization: token.authorization },
+      })
+      .then((res) => {
+        console.log(res.data.data);
+        setPresignedUrl(res.data.data);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const handleDetailPost = () => {
+    return axios
+      .post("https://api.itprometheus.net/videos", uploadDetail, {
+        headers: { Authorization: token.authorization },
+      })
+      .then((res) => console.log(res.data.data))
+      .catch((err) => console.log(err));
+  };
+
+  const handleImgUpload = () => {
+    return axios
+      .put(`${presignedUrl.thumbnailUrl}`, imgRef.current.files[0], {
+        headers: {
+          "Content-type": "image/*",
+        },
+      })
+      .then((res) => console.log(res.data))
+      .catch((err) => console.log(err));
+  };
+
+  const handleVideoUpload = () => {
+    return axios
+      .put(`${presignedUrl.videoUrl}`, videoRef.current.files[0], {
+        headers: {
+          "Content-type": "video/mp4",
+        },
+      })
+      .then((res) => console.log(res.data))
+      .catch((err) => console.log(err));
+  };
 
   return (
     <CourseBox>
@@ -64,7 +117,7 @@ const CourseUpload = () => {
           <CourseName>강의명</CourseName>
           <ChooseName
             type="text"
-            placeholder="강의명은 강의 영상 파일의 제목으로 업로드 됩니다."
+            placeholder="강의명은 영상 파일의 제목으로 업로드 됩니다."
             value={uploadDetail.videoName}
             disabled
           />
@@ -113,8 +166,8 @@ const CourseUpload = () => {
             <ChooseImageInupt
               id="imageUpload"
               type="file"
-              accept="image/png, image/jpg image/jpeg"
-              onChange={saveImgFile}
+              accept="image/png image/jpg image/jpeg"
+              onChange={handleSaveFile}
               ref={imgRef}
             />
             <ChooseImageBtn htmlFor="imageUpload">
@@ -125,7 +178,7 @@ const CourseUpload = () => {
               )}
             </ChooseImageBtn>
             <SubDescribe>
-              썸네일 이미지는 png, jpg만 등록이 가능합니다.
+              썸네일 이미지는 png, jpg, jpeg만 등록이 가능합니다.
             </SubDescribe>
             <SubDescribe>권장 이미지 크기 : 291px &times; 212px</SubDescribe>
           </ColBox>
@@ -134,12 +187,21 @@ const CourseUpload = () => {
         <RowBox>
           <CourseVideo>강의 영상</CourseVideo>
           <ColBox>
-            <ChooseVideo type="text" placeholder="강의 영상을 선택해 주세요." />
+            <ChooseVideo
+              type="file"
+              accept="video/mp4"
+              onChange={handleSaveFile}
+              ref={videoRef}
+            />
             <SubDescribe>강의 영상은 mp4만 등록이 가능합니다.</SubDescribe>
             <SubDescribe>권장 화면 비율 : 1920 &times; 1080</SubDescribe>
             <SubDescribe>최대 영상 크기 : 1GB</SubDescribe>
           </ColBox>
         </RowBox>
+        <button onClick={handleVideoPost}>프리사인드 링크 받기</button>
+        <button onClick={handleDetailPost}>강의 업로드 하기</button>
+        <button onClick={handleImgUpload}>S3에 이미지 배포하기</button>
+        <button onClick={handleVideoUpload}>S3에 동영상 배포하기</button>
       </ColBox>
     </CourseBox>
   );
@@ -243,5 +305,6 @@ export const ChooseVideo = styled(GrayInput)`
   width: 100%;
   max-width: 500px;
   margin-bottom: 10px;
+  padding-top: 10px;
   height: 50px;
 `;

@@ -4,6 +4,40 @@ import CourseUpload from "../../components/UploadPage/CourseUpload";
 import QuestionUpload from "../../components/UploadPage/QuestionUpload";
 import { useState } from "react";
 
+const UploadPage = () => {
+  const [isPage, setPage] = useState({ page: 1 });
+  const pages = [1, 2];
+
+  return (
+    <PageContainer>
+      <UploadContainer>
+        <UploadType>
+          {pages.map((el, idx) => (
+            <UploadTypeBtn
+              key={idx}
+              isFocus={isPage.page === el}
+              onClick={() => setPage({ ...isPage, page: el })}
+            >
+              {el}
+            </UploadTypeBtn>
+          ))}
+        </UploadType>
+        {isPage.page === 1 && <CourseUpload />}
+        {isPage.page === 2 && <QuestionUpload />}
+        {isPage.page !== pages.slice(-1)[0] && (
+          <NextBtn
+            onClick={() => setPage({ ...isPage, page: isPage.page + 1 })}
+          >
+            다음
+          </NextBtn>
+        )}
+      </UploadContainer>
+    </PageContainer>
+  );
+};
+
+export default UploadPage;
+
 export const UploadContainer = styled.section`
   width: 100%;
   max-width: 1000px;
@@ -80,37 +114,3 @@ export const NextBtn = styled.button`
     background-color: rgb(255, 150, 150);
   }
 `;
-
-const UploadPage = () => {
-  const [isPage, setPage] = useState({ page: 1 });
-  const pages = [1, 2];
-
-  return (
-    <PageContainer>
-      <UploadContainer>
-        <UploadType>
-          {pages.map((el, idx) => (
-            <UploadTypeBtn
-              key={idx}
-              isFocus={isPage.page === el}
-              onClick={() => setPage({ ...isPage, page: el })}
-            >
-              {el}
-            </UploadTypeBtn>
-          ))}
-        </UploadType>
-        {isPage.page === 1 && <CourseUpload />}
-        {isPage.page === 2 && <QuestionUpload />}
-        {isPage.page !== pages.slice(-1)[0] && (
-          <NextBtn
-            onClick={() => setPage({ ...isPage, page: isPage.page + 1 })}
-          >
-            다음
-          </NextBtn>
-        )}
-      </UploadContainer>
-    </PageContainer>
-  );
-};
-
-export default UploadPage;
