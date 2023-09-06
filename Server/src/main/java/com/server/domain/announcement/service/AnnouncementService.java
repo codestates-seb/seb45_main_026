@@ -29,6 +29,8 @@ public class AnnouncementService {
 
     public Page<AnnouncementResponse> getAnnouncements(Long memberId, int page, int size) {
 
+        verifiedChannel(memberId);
+
         PageRequest pageRequest = PageRequest.of(page, size);
 
         Page<Announcement> announcements = announcementRepository.findAnnouncementPageByMemberId(memberId, pageRequest);
@@ -38,8 +40,7 @@ public class AnnouncementService {
 
     public AnnouncementResponse getAnnouncement(Long announcementId) {
 
-        Announcement announcement = announcementRepository.findById(announcementId)
-                .orElseThrow(AnnouncementNotFoundException::new);
+        Announcement announcement = verifiedAnnouncement(announcementId);
 
         return AnnouncementResponse.of(announcement);
     }
@@ -59,7 +60,9 @@ public class AnnouncementService {
     @Transactional
     public void updateAnnouncement(Long loginMemberId, AnnouncementUpdateServiceRequest request) {
 
-        Announcement announcement = verifiedAnnouncement(loginMemberId, request.getAnnouncementId());
+        Announcement announcement = verifiedAnnouncement(request.getAnnouncementId());
+
+        checkAuthority(loginMemberId, announcement.getMemberId());
 
         announcement.updateAnnouncement(request.getContent());
     }
@@ -67,12 +70,9 @@ public class AnnouncementService {
     @Transactional
     public void deleteAnnouncement(Long loginMemberId, Long announcementId) {
 
-        //todo: 그냥 db 에 memberId 와 announcementId 로 delete 쿼리문만 날리고, 삭제 결과를 long 으로 받아서 처리해도 되지만,
-        //todo: 이렇게 하면 삭제된 row 가 없어도 정상적으로 처리된다. 그래서 announcementId 가 db 에 없는건지, memberId 가 권한이 없는건지 구분이 안된다.
-        //todo: 따라서 쿼리를 두번 날리더라도 그냥 announcement 를 찾아서 delete 하자. 예외처리 코드도 재사용 좀 하고.
-        //todo: 쿼리문 2번은... 괜찮지 않을까. 삭제를 자주하는 것도 아니니까
+        Announcement announcement = verifiedAnnouncement(announcementId);
 
-        Announcement announcement = verifiedAnnouncement(loginMemberId, announcementId);
+        checkAuthority(loginMemberId, announcement.getMemberId());
 
         announcementRepository.delete(announcement);
     }
@@ -86,13 +86,8 @@ public class AnnouncementService {
                 .orElseThrow(ChannelNotFoundException::new);
     }
 
-    private Announcement verifiedAnnouncement(Long loginMemberId, Long announcementId) {
-
-        Announcement announcement = announcementRepository.findById(announcementId)
+    private Announcement verifiedAnnouncement(Long announcementId) {
+        return announcementRepository.findAnnouncementWithMember(announcementId)
                 .orElseThrow(AnnouncementNotFoundException::new);
-
-        checkAuthority(loginMemberId, announcement.getChannel().getMember().getMemberId());
-
-        return announcement;
     }
 }
