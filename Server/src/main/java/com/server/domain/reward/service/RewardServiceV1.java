@@ -2,6 +2,7 @@ package com.server.domain.reward.service;
 
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.Reward;
@@ -9,7 +10,6 @@ import com.server.domain.reward.entity.RewardType;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.video.entity.Video;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -65,10 +65,13 @@ public class RewardServiceV1 implements RewardService {
 
 	public void cancelReward(Order order) {
 
-		order.refund();
-
 		rewardRepository.findByOrderId(order.getOrderId())
 				.forEach(Reward::cancelReward);
+	}
+
+	@Override
+	public void cancelVideoReward(OrderVideo orderVideo) {
+
 	}
 
 	private Reward createQuestionReward(Question question, Member member) {

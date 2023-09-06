@@ -170,10 +170,11 @@ public class MemberService {
 	}
 
 	@Transactional
-	public void updateImage(Long loginId) {
+	public String updateImage(Long loginId) {
 		Member member = validateMember(loginId);
 
 		member.updateImageFile(member.getEmail());
+		return member.getEmail();
 	}
 
 	@Transactional
