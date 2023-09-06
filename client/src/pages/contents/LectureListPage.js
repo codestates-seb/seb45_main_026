@@ -65,6 +65,10 @@ const LectureListPage = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(resetToInitialState());
+    axios
+      .get(`https://api.itprometheus.net/videos?sort=created-date`)
+      .then((res) => setLectures(res.data.data))
+      .catch((err) => console.log(err));
   }, []);
   useEffect(()=>{
     axios
