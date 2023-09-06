@@ -81,7 +81,7 @@ class VideoServiceTest extends ServiceTest {
         return List.of(
                 dynamicTest("조건 없이 video 를 검색한다. 최신순으로 검색되며 5, 1 은 구매했다고 정보가 나오며 4, 3, 2, 1 채널은 구독했다고 나온다.", () -> {
                     //given
-                    VideoGetServiceRequest request = new VideoGetServiceRequest(loginMember.getMemberId(), 0, 10, null, null, false, null);
+                    VideoGetServiceRequest request = new VideoGetServiceRequest(loginMember.getMemberId(), 0, 10, null, null, false, null, true);
 
                     //when
                     Page<VideoPageResponse> videos = videoService.getVideos(loginMember.getMemberId(), request);
