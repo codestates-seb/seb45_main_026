@@ -180,5 +180,23 @@ export const updatePasswordService = async (email, password) => {
 
 //refresh 토큰으로 다시 authorization 토큰 받기
 export const getNewAuthorizationService = async (refresh) => {
-    
+    try {
+        const response = await axios.post(
+            `${ROOT_URL}/auth/refresh`,{}, 
+            {
+                headers: {
+                    Refresh:refresh,
+                }
+            }
+        );
+        return {
+            status: 'success',
+            data: response.headers.authorization
+        }
+    } catch (err) {
+        return {
+            status: 'err',
+            data: err
+        }
+    }
 }

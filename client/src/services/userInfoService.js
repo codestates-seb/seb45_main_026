@@ -19,7 +19,7 @@ export const getUserInfoService = async (authorization) => {
     } catch (err) {
         return {
             status: 'error',
-            data: err
+            data: err.response.data.message
         }
     }
 }
@@ -59,14 +59,8 @@ export const updateNicknameService = async (authorization, nickname) => {
     try {
         const response = await axios.patch(
             `${ROOT_URL}/members`,
-            {
-                nickname: nickname,
-            },
-            {
-                headers: {
-                    Authorization: authorization,
-                }
-            }
+            { nickname: nickname, },
+            { headers: { Authorization: authorization, } }
         );
         return {
             status: 'success',
