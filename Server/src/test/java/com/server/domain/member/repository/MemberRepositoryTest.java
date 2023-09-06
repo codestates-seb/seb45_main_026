@@ -50,7 +50,7 @@ class MemberRepositoryTest extends RepositoryTest {
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
         Order order = createAndSaveOrder(member, List.of(video));
-        order.completeOrder();
+        order.completeOrder(LocalDateTime.now());
         em.persist(order);
 
         em.flush();
@@ -90,7 +90,7 @@ class MemberRepositoryTest extends RepositoryTest {
         Video video = createAndSaveVideo(channel);
         Order order = createAndSaveOrder(member, List.of(video));
 
-        order.deleteOrder();
+        order.cancelAllOrder();
 
         em.flush();
         em.clear();

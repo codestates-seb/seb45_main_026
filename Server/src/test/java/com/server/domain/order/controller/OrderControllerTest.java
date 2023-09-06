@@ -6,20 +6,16 @@ import com.server.domain.order.controller.dto.response.VideoCancelApiResponse;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
-import com.server.domain.order.service.dto.response.VideoCancelServiceResponse;
+import com.server.domain.order.service.dto.response.CancelServiceResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.global.testhelper.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.UUID;
 
 import static com.server.global.testhelper.RestDocsUtil.singleResponseFields;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.*;
@@ -176,7 +172,7 @@ class OrderControllerTest extends ControllerTest {
         String orderId = "fafnalf123-fadsnfl24-45bbaslfdasdf";
         Long videoId = 1L;
 
-        VideoCancelServiceResponse serviceResponse = VideoCancelServiceResponse.builder()
+        CancelServiceResponse serviceResponse = CancelServiceResponse.builder()
                 .requestAmount(5000)
                 .totalCancelAmount(4500)
                 .usedReward(500)
