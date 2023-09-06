@@ -8,6 +8,7 @@ import HorizonItem from "../../components/contentListItems/HorizonItem";
 import VerticalItem from "../../components/contentListItems/VerticalItem";
 import { setLocation } from "../../redux/createSlice/UISettingSlice";
 import axios from "axios";
+import { resetToInitialState,setIsHorizon } from "../../redux/createSlice/FilterSlice";
 
 const globalTokens = tokens.global;
 
@@ -58,9 +59,17 @@ const VerticalItemContainer = styled.ul`
 
 const LectureListPage = () => {
   const isDark = useSelector(state=>state.uiSetting.isDark);
-  const [isHorizon, setIsHorizon] = useState(true);
   const [lectures, setLectures] = useState([]);
   const filterState = useSelector((state) => state.filterSlice.filter);
+  const isHorizon = useSelector((state) => state.filterSlice.isHorizon);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(resetToInitialState());
+    axios
+      .get(`https://api.itprometheus.net/videos?sort=created-date`)
+      .then((res) => setLectures(res.data.data))
+      .catch((err) => console.log(err));
+  }, []);
   useEffect(()=>{
     axios
       .get(
@@ -68,7 +77,7 @@ const LectureListPage = () => {
           filterState.category.value
             ? `&category=${filterState.category.value}`
             : ""
-        }`
+        }${filterState.isFree.value?`&free=${filterState.isFree.value}`:""}`
       )
       .then((res) => setLectures(res.data.data))
       .catch((err) => console.log(err));
@@ -82,7 +91,7 @@ const LectureListPage = () => {
           <CategoryFilter />
           <StructureButton
             isHorizon={isHorizon}
-            onClick={() => setIsHorizon(!isHorizon)}
+            onClick={()=>dispatch(setIsHorizon(!isHorizon))}
           />
         </FilterContainer>
         {isHorizon ? (

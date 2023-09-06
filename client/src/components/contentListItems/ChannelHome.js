@@ -32,56 +32,29 @@ const ItemContainer = styled.ul`
     gap: ${globalTokens.Spacing28.value}px;
 `
 
-export default function ChannelHome() {
-    const [lectures, setLectures] = useState([]);
+export default function ChannelHome({ channelInfor }) {
+    const [lectures, setLectures] = useState({
+        free: [],
+        poular: [],
+    });
     useEffect(()=>{
-    axios.get('https://api.itprometheus.net/videos?page=1&sort=view')
-    .then(res=>console.log(res.data.data))
+    axios.get('https://api.itprometheus.net/channels/4/videos?page=1&free=true&size=4&sort=created-date')
+    .then(res=>setLectures((prev)=>({...prev,free:res.data.data})))
+    .catch(err=>console.log(err))
+    axios.get('https://api.itprometheus.net/channels/4/videos?page=1&size=4&sort=view')
+    .then(res=>setLectures((prev)=>({...prev,poular:res.data.data})))
     .catch(err=>console.log(err))
     }, [])
-    const a = {
-            "videoId": 1,
-            "videoName": "촛불로 공부하기",
-            "thumbnailUrl": "https://d2ouhv9pc4idoe.cloudfront.net/4/videos/1/video1.png",
-            "views": 1266,
-            "price": 0,
-            "star": 0.0,
-            "isPurchased": false,
-            "description": "test 영상입니다.",
-            "categories": [
-                {
-                    "categoryId": 1,
-                    "categoryName": "React"
-                },
-                {
-                    "categoryId": 2,
-                    "categoryName": "Redux"
-                }
-            ],
-            "channel": {
-                "memberId": 4,
-                "channelName": "andygugu",
-                "subscribes": 3,
-                "isSubscribed": false,
-                "imageUrl": "https://d2ouhv9pc4idoe.cloudfront.net/4/profile/test22.png"
-            },
-            "createdDate": "2023-09-04T00:00:00"
-        }
+    
     return (
         <HomeBody>
             <HomeTitle>무료강의</HomeTitle>
             <ItemContainer>
-                <VerticalItem lecture={a} channel={a.channel}/>
-                <VerticalItem lecture={a} channel={a.channel}/>
-                <VerticalItem lecture={a} channel={a.channel}/>
-                <VerticalItem lecture={a} channel={a.channel}/>
+                {lectures.free.map((el)=><VerticalItem key={el.videoId} lecture={el} channel={channelInfor}/>)}
             </ItemContainer>
             <HomeTitle>채널 내 인기 강의</HomeTitle>
             <ItemContainer>
-                <VerticalItem lecture={a} channel={a.channel}/>
-                <VerticalItem lecture={a} channel={a.channel}/>
-                <VerticalItem lecture={a} channel={a.channel}/>
-                <VerticalItem lecture={a} channel={a.channel}/>
+                {lectures.poular.map((el)=><VerticalItem key={el.videoId} lecture={el} channel={channelInfor}/>)}
             </ItemContainer>
         </HomeBody>
     )
