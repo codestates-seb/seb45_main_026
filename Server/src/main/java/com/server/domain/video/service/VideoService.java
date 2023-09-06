@@ -40,10 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -73,15 +70,17 @@ public class VideoService {
 
     public Page<VideoPageResponse> getVideos(Long loginMemberId, VideoGetServiceRequest request) {
 
+        Member member = verifiedMemberOrNull(loginMemberId);
+
         Page<Video> videos = videoRepository.findAllByCategoryPaging(request.toDataRequest());
 
-        List<Boolean> isPurchaseInOrder = isPurchaseInOrder(loginMemberId, videos.getContent());
+        List<Boolean> isPurchaseInOrder = isPurchaseInOrder(member, videos.getContent());
 
-        List<Boolean> isSubscribeInOrder = isSubscribeInOrder(loginMemberId, videos.getContent(), request.isSubscribe());
+        List<Boolean> isSubscribeInOrder = isSubscribeInOrder(member, videos.getContent(), request.isSubscribe());
 
         List<String[]> urlsInOrder = getThumbnailAndImageUrlsInOrder(videos.getContent());
 
-        List<Long> videoIdsInCart = getVideoIdsInCart(loginMemberId, videos.getContent());
+        List<Long> videoIdsInCart = getVideoIdsInCart(member, videos.getContent());
 
         return VideoPageResponse.of(videos,
                 isPurchaseInOrder,
@@ -103,7 +102,7 @@ public class VideoService {
 
         watch(member, video);
 
-        List<Long> videoIdsInCart = getVideoIdsInCart(loginMemberId, List.of(video));
+        List<Long> videoIdsInCart = getVideoIdsInCart(member, List.of(video));
 
         return VideoDetailResponse.of(video,
                 isSubscribed(member, video),
@@ -190,16 +189,28 @@ public class VideoService {
         videoRepository.delete(video);
     }
 
-    private List<Boolean> isPurchaseInOrder(Long loginMemberId, List<Video> content) {
+    private List<Boolean> isPurchaseInOrder(Member loginMember, List<Video> content) {
+
+        if(loginMember == null) {
+            return IntStream.range(0, content.size())
+                    .mapToObj(i -> false)
+                    .collect(Collectors.toList());
+        }
 
         List<Long> videoIds = content.stream()
                 .map(Video::getVideoId)
                 .collect(Collectors.toList());
 
-        return memberRepository.checkMemberPurchaseVideos(loginMemberId, videoIds);
+        return memberRepository.checkMemberPurchaseVideos(loginMember.getMemberId(), videoIds);
     }
 
-    private List<Boolean> isSubscribeInOrder(Long loginMemberId, List<Video> content, boolean subscribe) {
+    private List<Boolean> isSubscribeInOrder(Member loginMember, List<Video> content, boolean subscribe) {
+
+        if(loginMember == null) {
+            return IntStream.range(0, content.size())
+                    .mapToObj(i -> false)
+                    .collect(Collectors.toList());
+        }
 
         if (subscribe) {
             return IntStream.range(0, content.size())
@@ -211,7 +222,7 @@ public class VideoService {
                 .map(video -> video.getChannel().getMember().getMemberId())
                 .collect(Collectors.toList());
 
-        return memberRepository.checkMemberSubscribeChannel(loginMemberId, memberIds);
+        return memberRepository.checkMemberSubscribeChannel(loginMember.getMemberId(), memberIds);
     }
 
     private List<String[]> getThumbnailAndImageUrlsInOrder(List<Video> content) {
@@ -260,13 +271,17 @@ public class VideoService {
                 imageType);
     }
 
-    private List<Long> getVideoIdsInCart(Long loginMemberId, List<Video> videos) {
+    private List<Long> getVideoIdsInCart(Member member, List<Video> videos) {
+
+        if(member == null) {
+            return Collections.emptyList();
+        }
 
         List<Long> videoIds = videos.stream()
                 .map(Video::getVideoId)
                 .collect(Collectors.toList());
 
-        return videoRepository.findVideoIdInCart(loginMemberId, videoIds);
+        return videoRepository.findVideoIdInCart(member.getMemberId(), videoIds);
     }
 
     private Member verifiedMemberOrNull(Long loginMemberId) {
