@@ -3,6 +3,11 @@ package com.server.domain.member.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.OptimisticLockException;
+import javax.persistence.PersistenceException;
+import javax.persistence.TransactionRequiredException;
+
 import com.querydsl.core.Tuple;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
@@ -16,6 +21,13 @@ import com.server.domain.order.entity.Order;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
+import com.server.global.exception.businessexception.databaseexception.DataAccessFailedException;
+import com.server.global.exception.businessexception.databaseexception.DataConstraintViolationException;
+import com.server.global.exception.businessexception.databaseexception.IllegalDataArgException;
+import com.server.global.exception.businessexception.databaseexception.TxRequiredException;
+import com.server.global.exception.businessexception.databaseexception.TxSystemException;
+import com.server.global.exception.businessexception.databaseexception.UnknownDatabaseException;
+import com.server.global.exception.businessexception.databaseexception.VersionControllException;
 import com.server.global.exception.businessexception.mailexception.MailCertificationException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
@@ -24,11 +36,15 @@ import com.server.global.exception.businessexception.memberexception.MemberPassw
 import com.server.module.redis.service.RedisService;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
+
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -180,8 +196,25 @@ public class MemberService {
 	@Transactional
 	public void deleteMember(Long loginId) {
 		Member member = validateMember(loginId);
-
-		memberRepository.delete(member);
+		try {
+			memberRepository.delete(member);
+		} catch (EntityNotFoundException entityNotFoundException) {
+			throw new com.server.global.exception.businessexception.databaseexception.EntityNotFoundException();
+		} catch (DataAccessException dataAccessException) {
+			throw new DataAccessFailedException();
+		} catch (ConstraintViolationException constraintViolationException) {
+			throw new DataConstraintViolationException();
+		} catch (OptimisticLockException optimisticLockException) {
+			throw new VersionControllException();
+		} catch (TransactionSystemException transactionSystemException) {
+			throw new TxSystemException();
+		} catch (TransactionRequiredException transactionRequiredException) {
+			throw new TxRequiredException();
+		} catch (IllegalArgumentException illegalArgumentException) {
+			throw new IllegalDataArgException();
+		} catch (PersistenceException persistenceException) {
+			throw new UnknownDatabaseException();
+		}
 	}
 
 	@Transactional
