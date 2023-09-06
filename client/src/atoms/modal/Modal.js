@@ -48,12 +48,10 @@ export const ModalButtonContainer = styled.div`
 `
 export const ModalPositiveButton = styled(PositiveTextButton)`
     margin: ${globalTokens.Spacing4.value}px;
-    background-color: white;
     padding: 0 ${globalTokens.Spacing24.value}px;
 `
 export const ModalNegativeButton = styled(NegativeTextButton)`
     margin: ${globalTokens.Spacing4.value}px;
-    background-color: white;
     padding: 0 ${globalTokens.Spacing24.value}px;
 `
 //예, 아니오를 선택하는 모달
@@ -75,15 +73,15 @@ export const ConfirmModal = ({
             isDark={isDark}
             onClick={()=>{ isBackdropClickClose && setIsModalOpen(false) }}>
                 <ModalContainer isDark={isDark} onClick={(e)=>{e.stopPropagation();}}>
-                    <ModalContent>{content}</ModalContent>
+                    <ModalContent isDark={isDark}>{content}</ModalContent>
                     <ModalButtonContainer>
-                        <ModalNegativeButton 
+                        <ModalNegativeButton isDark={isDark}
                             onClick={(e)=>{
                                 handleNegativeButtonClick();
                             }}>
                                 {negativeButtonTitle}
                         </ModalNegativeButton>
-                        <ModalPositiveButton 
+                        <ModalPositiveButton isDark={isDark}
                             onClick={(e)=>{
                                 handlePositiveButtonClick();
                             }}>
