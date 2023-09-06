@@ -7,6 +7,7 @@ import {
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setChecked } from "../../redux/createSlice/CartsSlice";
+import { priceToString } from "./CartPayInfo";
 
 const CartItem = ({ el }) => {
   const dispatch = useDispatch();
@@ -58,7 +59,7 @@ const CartItem = ({ el }) => {
           &times;
         </CancelBtn>
       </Content>
-      <ItemPrice>{el.price}원</ItemPrice>
+      <ItemPrice>{priceToString(el.price)}원</ItemPrice>
     </CartList>
   );
 };

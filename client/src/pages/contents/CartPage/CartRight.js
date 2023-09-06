@@ -52,7 +52,7 @@ export const CartSection = styled.section`
 export const PayInfo = styled.div`
   width: 100%;
   padding: 10px 20px;
-  margin: 10px 0px;
+  margin: 10px 0px 25px 0px;
   border: 1px solid rgb(236, 236, 236);
   background-color: white;
   border-radius: 10px;

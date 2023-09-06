@@ -2,6 +2,10 @@ import { styled } from "styled-components";
 import { useSelector } from "react-redux";
 import { useState } from "react";
 
+export const priceToString = (price) => {
+  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 const CartPayInfo = () => {
   const cartsData = useSelector((state) => state.cartSlice.data);
   const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
@@ -26,13 +30,20 @@ const CartPayInfo = () => {
   };
 
   const handleBlurDiscount = (reward) => {
-    if (reward > parseInt(myCartInfo.reward)) {
-      alert(`잔여 포인트는 ${myCartInfo.reward}포인트 입니다.`);
-      setDiscount(parseInt(myCartInfo.reward));
-    }
-    if (isDiscount < 1000) {
-      alert("1,000포인트 이상 사용 가능합니다.");
+    const regExp = /[a-z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g;
+    if (regExp.test(reward)) {
       setDiscount(0);
+      return alert("숫자만 입력할 수 있습니다.");
+    }
+
+    if (totalPrice < parseInt(reward)) {
+      setDiscount(totalPrice);
+      return alert("선택하신 상품 금액을 넘어서 포인트를 사용할 수 없습니다.")
+    }
+
+    if (reward > myCartInfo.reward) {
+      alert(`현재 사용할 수 있는 포인트는 ${myCartInfo.reward}포인트 입니다.`);
+      setDiscount(myCartInfo.reward);
     }
   };
 
@@ -40,30 +51,37 @@ const CartPayInfo = () => {
     <PayForm>
       <PointBox>
         <PointLabel>포인트</PointLabel>
-        <Point>보유 : {myCartInfo.reward}</Point>
+        <Point>보유 : {priceToString(myCartInfo.reward)}</Point>
       </PointBox>
       <PointBox>
         <PointInput
-          type="number"
-          placeholder="1,000원 이상 사용가능"
+          type="text"
+          placeholder="사용하실 포인트를 입력해주세요."
           value={isDiscount}
           onChange={(e) => handleChangeDiscount(e.target.value)}
           onBlur={(e) => handleBlurDiscount(e.target.value)}
         />
-        <SubmitBtn>전액 사용</SubmitBtn>
+        <SubmitBtn
+          onClick={(e) => {
+            e.preventDefault();
+            handleChangeDiscount(myCartInfo.reward);
+          }}
+        >
+          전액 사용
+        </SubmitBtn>
       </PointBox>
       <Payment>
         <PriceInfo>
           <Selected>선택 상품 금액</Selected>
-          <Selected>{totalPrice}원</Selected>
+          <Selected>{priceToString(totalPrice)}원</Selected>
         </PriceInfo>
         <PriceInfo>
           <Discount>할인 금액</Discount>
-          <Discount>{isDiscount}원</Discount>
+          <Discount>{priceToString(isDiscount)}원</Discount>
         </PriceInfo>
         <PriceInfo>
           <Amount>총 결제금액</Amount>
-          <Amount>{totalPrice}원</Amount>
+          <Amount>{priceToString(totalPrice - isDiscount)}원</Amount>
         </PriceInfo>
       </Payment>
       <PayBtn onClick={(e) => e.preventDefault()}>결제하기</PayBtn>
