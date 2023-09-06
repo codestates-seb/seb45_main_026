@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:tc:mysql:8.0.23:///?createDatabaseIfNotExist=true
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    username:
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create

@@ -31,17 +31,6 @@ public class MySQLSearchEngine implements SearchEngine {
 	@Override
 	public List<Video> searchVideos(String keyword) {
 
-		return null;
-	}
-
-	@Override
-	public List<Channel> searchChannels(String keyword) {
-		return null;
-	}
-
-	@Override
-	public VideoChannelSearchResponse searchVideosAndChannels(String keyword) {
-
 		String sqlForVideo = "SELECT video.*, channel.*, member.* " +
 			"FROM video " +
 			"INNER JOIN channel ON video.channel_id = channel.channel_id " +
@@ -50,7 +39,7 @@ public class MySQLSearchEngine implements SearchEngine {
 			"AND video_status != 'CLOSED' " +
 			"LIMIT 10";
 
-		List<Video> videos = jdbcTemplate.query(
+		return jdbcTemplate.query(
 			sqlForVideo,
 			new Object[]{keyword},
 			(rs, rowNum) -> Video.builder()
@@ -60,13 +49,17 @@ public class MySQLSearchEngine implements SearchEngine {
 				.view(rs.getInt("view"))
 				.build()
 		);
+	}
+
+	@Override
+	public List<Channel> searchChannels(String keyword) {
 
 		String sqlForChannel = "SELECT channel.*, member.* FROM channel " +
 			"INNER JOIN member ON channel.member_id = member.member_id " +
 			"WHERE MATCH(channel_name) AGAINST (? IN BOOLEAN MODE) " +
 			"LIMIT 10";
 
-		List<Channel> channels = jdbcTemplate.query(
+		return jdbcTemplate.query(
 			sqlForChannel,
 			new Object[]{keyword},
 			(rs, rowNum) -> Channel.builder()
@@ -74,6 +67,13 @@ public class MySQLSearchEngine implements SearchEngine {
 				.channelName(rs.getString("channel_name"))
 				.build()
 		);
+	}
+
+	@Override
+	public VideoChannelSearchResponse searchVideosAndChannels(String keyword) {
+
+		List<Video> videos = searchVideos(keyword);
+		List<Channel> channels = searchChannels(keyword);
 
 		return VideoChannelSearchResponse.builder()
 			.videos(videos)
