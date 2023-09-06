@@ -496,6 +496,7 @@ public class MemberControllerTest extends ControllerTest {
 					PlaylistsResponse.Channel.builder()
 						.memberId(23L)
 						.channelName("알고리즘 채널")
+						.profileImageUrl("https://d2ouhv9pc4idoe.cloudfront.net/777/test")
 						.build()
 				)
 				.build(),
@@ -509,6 +510,7 @@ public class MemberControllerTest extends ControllerTest {
 					PlaylistsResponse.Channel.builder()
 						.memberId(23L)
 						.channelName("알고리즘 채널")
+						.profileImageUrl("https://d2ouhv9pc4idoe.cloudfront.net/777/test")
 						.build()
 				)
 				.build(),
@@ -522,6 +524,7 @@ public class MemberControllerTest extends ControllerTest {
 					PlaylistsResponse.Channel.builder()
 						.memberId(23L)
 						.channelName("알고리즘 채널")
+						.profileImageUrl("https://d2ouhv9pc4idoe.cloudfront.net/777/test")
 						.build()
 				)
 				.build(),
@@ -535,6 +538,7 @@ public class MemberControllerTest extends ControllerTest {
 					PlaylistsResponse.Channel.builder()
 						.memberId(23L)
 						.channelName("알고리즘 채널")
+						.profileImageUrl("https://d2ouhv9pc4idoe.cloudfront.net/777/test")
 						.build()
 				)
 				.build()
@@ -565,7 +569,8 @@ public class MemberControllerTest extends ControllerTest {
 			fieldWithPath("data[].modifiedDate").description("영상 업데이트 날짜"),
 			fieldWithPath("data[].channel").description("영상 업로더의 채널 정보"),
 			fieldWithPath("data[].channel.memberId").description("업로더의 아이디"),
-			fieldWithPath("data[].channel.channelName").description("업로더의 채널명")
+			fieldWithPath("data[].channel.channelName").description("업로더의 채널명"),
+			fieldWithPath("data[].channel.profileImageUrl").description("채널을 소유한 회원의 프로필 이미지 주소")
 		};
 
 		actions
@@ -850,6 +855,7 @@ public class MemberControllerTest extends ControllerTest {
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
 					.channelName("채널1")
+					.profileImageUrl("www.profileImageUrl.com")
 					.build())
 				.build(),
 			WatchsResponse.builder()
@@ -860,6 +866,7 @@ public class MemberControllerTest extends ControllerTest {
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
 					.channelName("채널2")
+					.profileImageUrl("www.profileImageUrl.com")
 					.build())
 				.build(),
 			WatchsResponse.builder()
@@ -870,6 +877,7 @@ public class MemberControllerTest extends ControllerTest {
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
 					.channelName("채널3")
+					.profileImageUrl("www.profileImageUrl.com")
 					.build())
 				.build(),
 			WatchsResponse.builder()
@@ -880,6 +888,7 @@ public class MemberControllerTest extends ControllerTest {
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
 					.channelName("채널3")
+					.profileImageUrl("www.profileImageUrl.com")
 					.build())
 				.build()
 		);
@@ -908,7 +917,8 @@ public class MemberControllerTest extends ControllerTest {
 			fieldWithPath("data[].modifiedDate").description("영상 시청일"),
 			fieldWithPath("data[].channel").description("영상 업로더의 채널 정보"),
 			fieldWithPath("data[].channel.memberId").description("업로더의 아이디"),
-			fieldWithPath("data[].channel.channelName").description("업로더의 채널명")
+			fieldWithPath("data[].channel.channelName").description("업로더의 채널명"),
+			fieldWithPath("data[].channel.profileImageUrl").description("업로더의 프로필 이미지 주소")
 		};
 
 		actions
