@@ -291,155 +291,6 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     }
 
     public Page<Tuple> findPlaylistGroupByChannelName(Long memberId, Pageable pageable) {
-        // Expression<String> groupByExpression = video.channel.channelName;
-        //
-        // JPAQuery<Tuple> query = queryFactory
-        //     .select(
-        //         video.videoId,
-        //         video.videoName,
-        //         video.thumbnailFile,
-        //         video.star,
-        //         video.modifiedDate,
-        //         channel.channelName,
-        //         member.memberId
-        //     )
-        //     .from(video)
-        //     .join(video.orderVideos, orderVideo)
-        //     .join(orderVideo.order, order)
-        //     .join(video.channel, channel).fetchJoin()
-        //     .join(channel.member, member).fetchJoin()
-        //     .where(
-        //         order.member.memberId.eq(memberId),
-        //         order.orderStatus.eq(OrderStatus.COMPLETED)
-        //     )
-        //     .groupBy(groupByExpression)
-        //     .orderBy(groupByExpression.asc());
-
-        // JPAQuery<Channel> query = queryFactory
-        //     .selectFrom(channel)
-        //     .join(channel.videos, video).fetchJoin()
-        //     .join(video.orderVideos, orderVideo)
-        //     .join(orderVideo.order, order)
-        //     .join(channel.member, member).fetchJoin()
-        //     .where(
-        //         order.member.memberId.eq(memberId)
-        //         .and(order.orderStatus.eq(OrderStatus.COMPLETED))
-        //     )
-        //     .groupBy(channel.channelName)
-        //     .orderBy(channel.channelName.asc());
-        //
-        // return query
-        //     .offset(pageable.getOffset())
-        //     .limit(pageable.getPageSize())
-        //     .fetch();
-
-        // List<PlaylistGroupResponse> result = queryFactory
-        //     .select(
-        //         Projections.fields(
-        //             PlaylistGroupResponse.class,
-        //             member.memberId.as("memberId"),
-        //             channel.channelName.as("channelName"),
-        //             member.imageFile.as("profileImageUrl"),
-        //             Projections.list(
-        //                 Projections.bean(
-        //                     PlaylistGroupResponse.VideoInChannel.class,
-        //                     video.videoId,
-        //                     video.videoName,
-        //                     video.thumbnailFile,
-        //                     video.view,
-        //                     video.star
-        //                 ).as("videoInChannelList")
-        //             )
-        //         )
-        //     )
-        //     .from(member)
-        //     .innerJoin(member.orders, order)
-        //     .innerJoin(order.orderVideos, orderVideo)
-        //     .innerJoin(orderVideo.video, video)
-        //     .innerJoin(video.channel, channel)
-        //     .where(
-        //         order.member.memberId.eq(memberId)
-        //         .and(order.orderStatus.eq(OrderStatus.COMPLETED))
-        //     )
-        //     .groupBy(video.channel.channelId)
-        //     .offset(pageable.getOffset())
-        //     .limit(pageable.getPageSize())
-        //     .fetch();
-
-        // List<PlaylistGroupResponse> result = queryFactory
-        //     .select(
-        //         Projections.constructor(
-        //             PlaylistGroupResponse.class,
-        //             member.memberId.as("memberId"),
-        //             channel.channelName.as("channelName"),
-        //             member.imageFile.as("imageFile"),
-        //             JPAExpressions
-        //                 .select(
-        //                     Projections.constructor(
-        //                         PlaylistGroupResponse.VideoInChannel.class,
-        //                         video.videoId.as("videoId"),
-        //                         video.videoName.as("videoName"),
-        //                         video.thumbnailFile.as("thumbnailFile"),
-        //                         video.view.as("view"),
-        //                         video.star.as("star")
-        //                     )
-        //                 )
-        //                 .from(orderVideo)
-        //                 .innerJoin(orderVideo.order, order)
-        //                 .where(
-        //                     order.member.memberId.eq(memberId)
-        //                         .and(order.orderStatus.eq(OrderStatus.COMPLETED))
-        //                 )
-        //         )
-        //     )
-        //     .from(member)
-        //     .innerJoin(member.orders, order)
-        //     .innerJoin(order.orderVideos, orderVideo)
-        //     .innerJoin(orderVideo.video, video)
-        //     .innerJoin(video.channel, channel)
-        //     .where(
-        //         order.member.memberId.eq(memberId)
-        //     )
-        //     .groupBy(member.memberId, channel.channelName, member.imageFile)
-        //     .offset(pageable.getOffset())
-        //     .limit(pageable.getPageSize())
-        //     .fetch();
-        //
-        // List<Channel> result = queryFactory
-        //     .select(
-        //         channel
-        //     )
-        //     .from(member)
-        //     .innerJoin(member.orders, order)
-        //     .innerJoin(order.orderVideos, orderVideo)
-        //     .innerJoin(orderVideo.video, video)
-        //     .innerJoin(video.channel, channel).fetchJoin()
-        //     .where(order.member.memberId.eq(memberId))
-        //     .groupBy(channel.channelId)
-        //     .offset(pageable.getOffset())
-        //     .limit(pageable.getPageSize())
-        //     .fetch();
-
-        // List<Tuple> result = queryFactory
-        //     .select(
-        //         channel.channelId,
-        //         channel.channelName,
-        //         channel.member.memberId,
-        //         channel.member.imageFile,
-        //         Expressions.stringTemplate("GROUP_CONCAT({0})", video.videoId).as("videoId"),
-        //         Expressions.stringTemplate("GROUP_CONCAT({0})", video.videoName).as("videoName"),
-        //         Expressions.stringTemplate("GROUP_CONCAT({0})", video.thumbnailFile).as("thumbnailFile"),
-        //         Expressions.stringTemplate("GROUP_CONCAT({0})", video.view).as("view"),
-        //         Expressions.stringTemplate("GROUP_CONCAT({0})", video.star).as("star")
-        //     )
-        //     .from(member)
-        //     .innerJoin(member.orders, order)
-        //     .innerJoin(order.orderVideos, orderVideo)
-        //     .innerJoin(orderVideo.video, video)
-        //     .innerJoin(video.channel, channel)
-        //     .where(member.memberId.eq(memberId))
-        //     .groupBy(channel.channelId, channel.channelName, channel.member.memberId, channel.member.imageFile)
-        //     .fetch();
 
         JPAQuery<Tuple> query = queryFactory
             .select(
@@ -457,11 +308,11 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                     .exists().as("isSubscribed"),
                 channel.subscribers
             )
-            .from(channel)
-            .innerJoin(video).on(channel.channelId.eq(video.channel.channelId))
-            .leftJoin(orderVideo).on(video.videoId.eq(orderVideo.video.videoId))
-            .leftJoin(order).on(orderVideo.order.orderId.eq(order.orderId))
-            .leftJoin(member).on(order.member.memberId.eq(member.memberId))
+            .from(member)
+            .join(member.orders, order)
+            .join(order.orderVideos, orderVideo)
+            .join(orderVideo.video, video)
+            .join(video.channel, channel)
             .where(
                 order.member.memberId.eq(memberId)
                 .and(order.orderStatus.eq(OrderStatus.COMPLETED))
