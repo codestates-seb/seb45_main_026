@@ -53,8 +53,8 @@ public class Channel extends BaseEntity {
     }
 
     public void updateChannel(String channelName, String description){
-        this.channelName = channelName;
-        this.description = description;
+        this.channelName = channelName == null ? this.channelName : channelName;
+        this.description = description == null ? this.description : description;
     }
 
 
