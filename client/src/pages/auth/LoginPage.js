@@ -5,6 +5,7 @@ import { styled } from "styled-components";
 import Login from "../../components/loginPageItems/Login";
 import tokens from "../../styles/tokens.json";
 import { setLocation } from "../../redux/createSlice/UISettingSlice";
+import Loading from "../../atoms/loading/Loading";
 
 const globalTokens = tokens.global;
 
@@ -29,6 +30,7 @@ const LoginPage = () => {
 
   return (
     <LoginPageContainer isDark={isDark}>
+      <Loading isLoading={true}/>
       <Login />
     </LoginPageContainer>
   );

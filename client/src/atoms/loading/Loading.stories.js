@@ -4,13 +4,11 @@ export default {
     title: 'Components/Loading',
     component: Loading,
     argTypes: {
-        width: { control : 'text' },
-        height: { control : 'text' }
+        isLoading: { control: 'boolean' }
     }
 }
 
 export const LoadingTemplate = (args) => <Loading {...args}/>
 LoadingTemplate.args = {
-    width: '100vw',
-    height: '100px'
+    isLoading: true
 }
