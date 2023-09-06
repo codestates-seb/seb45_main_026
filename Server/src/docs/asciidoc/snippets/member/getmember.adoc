@@ -69,17 +69,29 @@ include::{snippets}/member/getplaylists/http-response.adoc[]
 ==== Response Fields
 include::{snippets}/member/getplaylists/response-fields.adoc[]
 
-== 구매한 강의 목록 조회
+== 구매한 강의 목록 채널별 조회 (채널 목록)
 === HTTP Request
-include::{snippets}/member/getplaylists/http-request.adoc[]
+include::{snippets}/member/getplaylistchannels/http-request.adoc[]
 ==== Request Header
-include::{snippets}/member/getplaylists/request-headers.adoc[]
+include::{snippets}/member/getplaylistchannels/request-headers.adoc[]
 ==== Request Parameter
-include::{snippets}/member/getplaylists/request-parameters.adoc[]
+include::{snippets}/member/getplaylistchannels/request-parameters.adoc[]
 === HTTP Response
-include::{snippets}/member/getplaylists/http-response.adoc[]
+include::{snippets}/member/getplaylistchannels/http-response.adoc[]
 ==== Response Fields
-include::{snippets}/member/getplaylists/response-fields.adoc[]
+include::{snippets}/member/getplaylistchannels/response-fields.adoc[]
+
+== 구매한 강의 목록 채널별 조회 (채널별 구매 목록)
+=== HTTP Request
+include::{snippets}/member/getplaylistchanneldetails/http-request.adoc[]
+==== Request Header
+include::{snippets}/member/getplaylistchanneldetails/request-headers.adoc[]
+==== Request Parameter
+include::{snippets}/member/getplaylistchanneldetails/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/member/getplaylistchanneldetails/http-response.adoc[]
+==== Response Fields
+include::{snippets}/member/getplaylistchanneldetails/response-fields.adoc[]
 
 == 구독한 채널 목록 조회
 === HTTP Request

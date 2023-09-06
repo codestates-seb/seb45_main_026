@@ -7,12 +7,14 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
+import com.querydsl.core.Tuple;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
-import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
@@ -125,6 +127,40 @@ public class MemberResponseConverter {
 				.channel(channelInfo)
 				.build();
 		});
+	}
+
+	public Page<PlaylistChannelResponse> convertChannelToPlaylistChannelResponse(Page<Tuple> result) {
+
+		return result.map(tuple -> {
+				Long memberId = tuple.get(0, Long.class);
+				String channelName = tuple.get(1, String.class);
+				String imageFile = tuple.get(2, String.class);
+				Long videoCount = tuple.get(3, Long.class);
+				Boolean isSubscribed = tuple.get(4, Boolean.class);
+				Integer subscribers = tuple.get(5, Integer.class);
+
+				return PlaylistChannelResponse.builder()
+					.memberId(memberId)
+					.channelName(channelName)
+					.profileImageUrl(getProfileUrl(memberId, imageFile))
+					.videoCount(videoCount)
+					.subscribers(subscribers)
+					.isSubscribed(isSubscribed)
+					.build();
+			});
+	}
+
+	public Page<PlaylistChannelDetailsResponse> convertVideoToPlaylistChannelDetailsResponse(Page<Video> videos, Long memberId) {
+		return videos.map(
+			video -> PlaylistChannelDetailsResponse.builder()
+				.videoId(video.getVideoId())
+				.videoName(video.getVideoName())
+				.description(video.getDescription())
+				.thumbnailImageUrl(getThumbnailUrl(memberId, video.getThumbnailFile()))
+				.view(video.getView())
+				.star(video.getStar())
+				.build()
+		);
 	}
 
 	private String getThumbnailUrl(Long memberId, String thumbnailFile) {
