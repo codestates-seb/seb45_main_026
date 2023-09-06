@@ -333,9 +333,10 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     public Page<Video> findPlaylistChannelDetails(Long loginId, Long memberId) {
 
         JPAQuery<Video> query = queryFactory
-            .selectFrom(video)
-            .join(video.orderVideos, orderVideo)
-            .join(orderVideo.order, order)
+            .select(video)
+            .from(order)
+            .join(order.orderVideos, orderVideo)
+            .join(orderVideo.video, video)
             .join(video.channel, channel)
             .where(
                 order.member.memberId.eq(loginId)
@@ -344,9 +345,9 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
             )
             .orderBy(video.videoName.asc());
 
-        List<Video> tuples = query
+        List<Video> videos = query
             .fetch();
 
-        return new PageImpl<>(tuples);
+        return new PageImpl<>(videos);
     }
 }
