@@ -172,20 +172,10 @@ public class ChannelService {
     }
 
 
-
-
     @Transactional(readOnly = true)
     public Page<ChannelVideoResponse> getChannelVideos(Long loginMemberId, ChannelVideoGetServiceRequest request) {
 
-        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
-
-        Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(
-                request.getMemberId(),
-                request.getCategoryName(),
-                pageRequest,
-                request.getSort(),
-                request.getFree()
-        );
+        Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request.toDataRequest());
 
         List<Boolean> isPurchaseInOrder = isPurchaseInOrder(loginMemberId, videos.getContent());
 

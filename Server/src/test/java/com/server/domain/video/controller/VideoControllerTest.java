@@ -231,6 +231,7 @@ class VideoControllerTest extends ControllerTest {
                         .param("category", "spring")
                         .param("subscribe", "true")
                         .param("free", "false")
+                        .param("is-purchased", "true")
                         .accept(APPLICATION_JSON)
                         .header(AUTHORIZATION, TOKEN)
         );
@@ -251,7 +252,8 @@ class VideoControllerTest extends ControllerTest {
                         parameterWithName("sort").description(generateLinkCode(VideoSort.class)).optional(),
                         parameterWithName("category").description("카테고리").optional(),
                         parameterWithName("subscribe").description("구독 여부").optional(),
-                        parameterWithName("free").description("무료/유료 여부").optional()
+                        parameterWithName("free").description("무료/유료 여부").optional(),
+                        parameterWithName("is-purchased").description("구매한 비디오도 표시하는지 여부").optional()
                 ),
                 pageResponseFields(
                         fieldWithPath("data").description("비디오 목록"),

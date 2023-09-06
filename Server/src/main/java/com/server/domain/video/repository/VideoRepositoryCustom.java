@@ -1,6 +1,7 @@
 package com.server.domain.video.repository;
 
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.repository.dto.ChannelVideoGetDataRequest;
 import com.server.domain.video.repository.dto.VideoGetDataRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,8 @@ public interface VideoRepositoryCustom {
     List<Boolean> isPurchasedAndIsReplied(Long memberId, Long videoId);
 
     Page<Video> findChannelVideoByCategoryPaging(Long memberId, String category, Pageable pageable, String sort, Boolean free);
+
+    Page<Video> findChannelVideoByCategoryPaging(ChannelVideoGetDataRequest request);
 
     Optional<Video> findVideoByNameWithMember(Long memberId, String videoName);
 }

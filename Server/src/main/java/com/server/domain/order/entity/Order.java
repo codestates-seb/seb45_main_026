@@ -99,6 +99,7 @@ public class Order extends BaseEntity {
 
     public void completeOrder() {
         this.orderStatus = OrderStatus.COMPLETED;
+        this.getOrderVideos().forEach(OrderVideo::complete);
     }
 
     public void deleteOrder() {
