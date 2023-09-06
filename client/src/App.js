@@ -31,6 +31,7 @@ import UpdatePasswordPage from "./pages/auth/UpdatePasswordPage";
 import ChannelListPage from "./pages/contents/ChannelListPage";
 import { AlertModal } from './atoms/modal/Modal';
 import { getNewAuthorizationService } from "./services/authServices";
+import Loading from "./atoms/loading/Loading";
 
 function App() {
   const dispatch = useDispatch();
