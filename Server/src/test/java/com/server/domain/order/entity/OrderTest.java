@@ -2,7 +2,6 @@ package com.server.domain.order.entity;
 
 import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +31,7 @@ class OrderTest {
 
         //then
         assertThat(order.getPrice()).isEqualTo(video1.getPrice() + video2.getPrice() - usingReward);
+        assertThat(order.getTotalPayAmount()).isEqualTo(video1.getPrice() + video2.getPrice() - usingReward);
         assertThat(order.getMember()).isEqualTo(member);
         assertThat(order.getOrderVideos()).hasSize(2)
                 .extracting("video").containsExactly(video1, video2);
@@ -53,25 +53,6 @@ class OrderTest {
         //then
         assertThat(videos).hasSize(2)
                 .extracting("videoName").containsExactly("title1", "title2");
-    }
-
-    @Test
-    @DisplayName("order 를 환불하면 member 의 reward 가 다시 적립된다.")
-    void refund() {
-        //given
-        int reward = 1000;
-        int usingReward = 500;
-        Member member = createMember(reward);
-        Video video1 = createVideo("title1");
-        Video video2 = createVideo("title2");
-
-        Order order = createOrder(member, List.of(video1, video2), usingReward);
-
-        //when
-        order.refund();
-
-        //then
-        assertThat(member.getReward()).isEqualTo(reward + usingReward);
     }
 
     private Member createMember() {

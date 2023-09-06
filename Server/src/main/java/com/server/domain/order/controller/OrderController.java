@@ -6,7 +6,7 @@ import com.server.domain.order.controller.dto.response.VideoCancelApiResponse;
 import com.server.domain.order.service.OrderService;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
-import com.server.domain.order.service.dto.response.VideoCancelServiceResponse;
+import com.server.domain.order.service.dto.response.CancelServiceResponse;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiSingleResponse;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +66,7 @@ public class OrderController {
             @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
             @LoginId Long loginMemberId) {
 
-        VideoCancelServiceResponse serviceResponse
+        CancelServiceResponse serviceResponse
                 = orderService.cancelVideo(loginMemberId, orderId, videoId);
 
         return ResponseEntity.ok(

@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
@@ -172,7 +173,7 @@ public abstract class RepositoryTest {
     protected Order createAndSaveOrderComplete(Member member, List<Video> video) {
 
         Order order = Order.createOrder(member, video, 500);
-        order.completeOrder();
+        order.completeOrder(LocalDateTime.now());
         em.persist(order);
 
         return order;

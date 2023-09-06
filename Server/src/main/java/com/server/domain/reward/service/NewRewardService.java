@@ -2,11 +2,11 @@ package com.server.domain.reward.service;
 
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.*;
 import com.server.domain.reward.repository.NewRewardRepository;
-import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.video.entity.Video;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,10 +70,42 @@ public class NewRewardService implements RewardService {
 
 	public void cancelReward(Order order) {
 
-		order.refund();
+		Member member = order.getMember();
 
-		newRewardRepository.findByOrderId(order.getOrderId())
+		List<NewReward> rewards = newRewardRepository.findByOrderId(order.getOrderId());
+
+		int refundRewardPoint = rewards.stream()
+				.mapToInt(NewReward::getRewardPoint)
+				.sum();
+
+		if(refundRewardPoint > member.getReward()) {
+			order.convertAmountToReward(refundRewardPoint - member.getReward());
+		}
+
+		rewards
 				.forEach(NewReward::cancelReward);
+	}
+
+	@Override
+	public void cancelVideoReward(OrderVideo orderVideo) {
+
+		Order order = orderVideo.getOrder();
+		Member member = order.getMember();
+		Video video = orderVideo.getVideo();
+
+		List<NewReward> rewards = newRewardRepository.findByMemberAndVideoId(
+				member.getMemberId(),
+				video.getVideoId());
+
+		int refundRewardPoint = rewards.stream()
+				.mapToInt(NewReward::getRewardPoint)
+				.sum();
+
+		if(refundRewardPoint > member.getReward()) {
+			order.convertAmountToReward(refundRewardPoint - member.getReward());
+		}
+
+		rewards.forEach(NewReward::cancelReward);
 	}
 
 	private ReplyReward createReplyReward(Reply reply, Member member) {

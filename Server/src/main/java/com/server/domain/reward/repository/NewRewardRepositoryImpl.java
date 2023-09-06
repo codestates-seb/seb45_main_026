@@ -3,6 +3,7 @@ package com.server.domain.reward.repository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.entity.QMember;
+import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.order.entity.QOrder;
 import com.server.domain.order.entity.QOrderVideo;
 import com.server.domain.question.entity.QQuestion;
@@ -41,71 +42,65 @@ public class NewRewardRepositoryImpl implements NewRewardRepositoryCustom{
     @Override
     public List<NewReward> findByOrderId(String orderId) {
 
+        //방법 1
+        //leftjoin 으로 한번에 다 가져오는 방법 -> 미친 방법
+
+        //방법 2
+        //각각 하나하나 join 해서 총 쿼리 3번 보내는 방법 -> 최선인가..?
+        //todo : member FetchJoin 고민 -> 굳이 필요한가? 쿼리문을 복잡하게 하지말고 그냥 따로 쿼리를 날리는게 나을지도. 어차피 member 는 1개만 가져오면 되니까
+        List<ReplyReward> replyRewards = queryFactory.selectFrom(replyReward)
+                .join(replyReward.video, video)
+                .join(video.orderVideos, orderVideo)
+                .join(orderVideo.order, order)
+                .where(order.orderId.eq(orderId)
+                        .and(orderVideo.orderStatus.eq(OrderStatus.COMPLETED)))
+                .fetch();
+
+        List<QuestionReward> questionRewards = queryFactory.selectFrom(questionReward)
+                .join(questionReward.question, question)
+                .join(question.video, video)
+                .join(video.orderVideos, orderVideo)
+                .join(orderVideo.order, order)
+                .where(order.orderId.eq(orderId)
+                        .and(orderVideo.orderStatus.eq(OrderStatus.COMPLETED)))
+                .fetch();
+
+        List<VideoReward> videoRewards = queryFactory.selectFrom(videoReward)
+                .join(videoReward.video, video)
+                .join(video.orderVideos, orderVideo)
+                .join(orderVideo.order, order)
+                .where(order.orderId.eq(orderId)
+                        .and(orderVideo.orderStatus.eq(OrderStatus.COMPLETED)))
+                .fetch();
+
+        List<NewReward> rewards = new ArrayList<>();
+        rewards.addAll(replyRewards);
+        rewards.addAll(questionRewards);
+        rewards.addAll(videoRewards);
+
+        return rewards;
+    }
+
+    @Override
+    public List<NewReward> findByMemberAndVideoId(Long memberId, Long videoId) {
+
         QVideo rv = new QVideo("rv");
         QVideo qv = new QVideo("qv");
         QVideo vv = new QVideo("vv");
 
-        QOrderVideo rov = new QOrderVideo("rov");
-        QOrderVideo qov = new QOrderVideo("qov");
-        QOrderVideo vov = new QOrderVideo("vov");
-
-        QOrder ro = new QOrder("ro");
-        QOrder qo = new QOrder("qo");
-        QOrder vo = new QOrder("vo");
-
-
-        //방법 1
-        //leftjoin 으로 한번에 다 가져오는 방법
         List<NewReward> rewards = queryFactory.selectFrom(newReward)
                 .join(newReward.member, member).fetchJoin()
                 .join(member.channel, channel).fetchJoin()
                 .leftJoin(replyReward).on(newReward.rewardId.eq(replyReward.rewardId))
                 .leftJoin(replyReward.video, rv)
-                .leftJoin(rv.orderVideos, rov)
-                .leftJoin(rov.order, ro)
                 .leftJoin(questionReward).on(newReward.rewardId.eq(questionReward.rewardId))
                 .leftJoin(questionReward.question, question)
                 .leftJoin(question.video, qv)
-                .leftJoin(qv.orderVideos, qov)
-                .leftJoin(qov.order, qo)
                 .leftJoin(videoReward).on(newReward.rewardId.eq(videoReward.rewardId))
                 .leftJoin(videoReward.video, vv)
-                .leftJoin(vv.orderVideos, vov)
-                .leftJoin(vov.order, vo)
-                .where(ro.orderId.eq(orderId).or(qo.orderId.eq(orderId)).or(vo.orderId.eq(orderId)))
+                .where(rv.videoId.eq(videoId).or(qv.videoId.eq(videoId)).or(vv.videoId.eq(videoId)))
+                .where(member.memberId.eq(memberId))
                 .fetch();
-
-        //방법 2
-        //각각 하나하나 join 해서 총 쿼리 3번 보내는 방법
-        /*List<ReplyReward> replyRewards = queryFactory.selectFrom(replyReward)
-                .join(replyReward.member, member).fetchJoin()
-                .join(replyReward.video, rv)
-                .join(rv.orderVideos, rov)
-                .join(rov.order, ro)
-                .where(ro.orderId.eq(orderId))
-                .fetch();
-
-        List<QuestionReward> questionRewards = queryFactory.selectFrom(questionReward)
-                .join(questionReward.member, member).fetchJoin()
-                .join(questionReward.question, question)
-                .join(question.video, qv)
-                .join(qv.orderVideos, qov)
-                .join(qov.order, qo)
-                .where(qo.orderId.eq(orderId))
-                .fetch();
-
-        List<VideoReward> videoRewards = queryFactory.selectFrom(videoReward)
-                .join(videoReward.member, member).fetchJoin()
-                .join(videoReward.video, vv)
-                .join(vv.orderVideos, vov)
-                .join(vov.order, vo)
-                .where(vo.orderId.eq(orderId))
-                .fetch();
-
-        List<NewReward> rewards2 = new ArrayList<>();
-        rewards2.addAll(replyRewards);
-        rewards2.addAll(questionRewards);
-        rewards2.addAll(videoRewards);*/
 
         return rewards;
     }

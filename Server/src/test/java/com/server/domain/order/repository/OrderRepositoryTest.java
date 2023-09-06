@@ -6,7 +6,6 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderVideo;
-import com.server.domain.reward.entity.RewardType;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.testhelper.RepositoryTest;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -156,12 +154,104 @@ class OrderRepositoryTest extends RepositoryTest {
         em.clear();
 
         //when
-        List<Video> watchVideos = orderRepository.findWatchVideosById(order.getOrderId());
+        List<Video> watchVideos = orderRepository.findWatchVideosAfterPurchaseById(order.getOrderId());
 
         //then
         assertThat(watchVideos).hasSize(2)
                         .extracting("videoId")
                         .containsExactly(video1.getVideoId(), video2.getVideoId());
+    }
+
+    @Test
+    @DisplayName("orderId 로 주문한 비디오 중 시청한 비디오를 찾는다.")
+    void findWatchVideoAfterPurchaseByVideoId() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Member member = createAndSaveMember();
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+        Video video3 = createAndSaveVideo(channel);
+        Video video4 = createAndSaveVideo(channel);
+
+        Order order = createAndSaveOrderComplete(member, List.of(video1, video2, video3));// 결제한 주문
+
+        Watch watch1 = Watch.createWatch(member, video1); //video1 시청
+        Watch watch2 = Watch.createWatch(member, video2); //video2 시청
+        em.persist(watch1);
+        em.persist(watch2);
+
+        em.flush();
+        em.clear();
+
+        //when
+        Boolean isWatch = orderRepository.findWatchVideoAfterPurchaseByVideoId(order.getOrderId(), video1.getVideoId());
+
+        //then
+        assertThat(isWatch).isTrue();
+    }
+
+    @Test
+    @DisplayName("orderId 로 주문한 비디오 중 시청한 비디오를 찾는다.")
+    void findWatchVideoAfterPurchaseByVideoIdNotWath() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Member member = createAndSaveMember();
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+        Video video3 = createAndSaveVideo(channel);
+        Video video4 = createAndSaveVideo(channel);
+
+        Order order = createAndSaveOrderComplete(member, List.of(video1, video2, video3));// 결제한 주문
+
+        Watch watch1 = Watch.createWatch(member, video1); //video1 시청
+        Watch watch2 = Watch.createWatch(member, video2); //video2 시청
+        em.persist(watch1);
+        em.persist(watch2);
+
+        em.flush();
+        em.clear();
+
+        //when (3번은 시청하지 않음)
+        Boolean isWatch = orderRepository.findWatchVideoAfterPurchaseByVideoId(order.getOrderId(), video3.getVideoId());
+
+        //then
+        assertThat(isWatch).isFalse();
+    }
+
+    @Test
+    @DisplayName("orderId, videoId 를 통해 orderVideo 를 찾는다. order, member, video 는 초기화되어있다.")
+    void findOrderVideoByVideoId() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Member member = createAndSaveMember();
+        createAndSaveChannel(member);
+
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Order order = createAndSaveOrderComplete(member, List.of(video1, video2));// 결제한 주문
+
+        em.flush();
+        em.clear();
+
+        //when
+        OrderVideo orderVideo = orderRepository.findOrderVideoByVideoId(order.getOrderId(), video1.getVideoId()).orElseThrow();
+
+        //then
+        assertThat(Hibernate.isInitialized(orderVideo.getOrder())).isTrue();
+        assertThat(Hibernate.isInitialized(orderVideo.getVideo())).isTrue();
+        assertThat(Hibernate.isInitialized(orderVideo.getOrder().getMember())).isTrue();
+
+        assertThat(orderVideo.getOrder().getOrderId()).isEqualTo(order.getOrderId());
+        assertThat(orderVideo.getVideo().getVideoId()).isEqualTo(video1.getVideoId());
     }
 
     private Cart createAndSaveCart(Member member, Video video) {
