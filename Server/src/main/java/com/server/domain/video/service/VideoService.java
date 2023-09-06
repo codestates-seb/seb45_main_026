@@ -6,6 +6,7 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.category.repository.CategoryRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.reply.controller.convert.ReplySort;
 import com.server.domain.reply.dto.ReplyCreateServiceApi;
 import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.entity.Reply;
@@ -34,6 +35,7 @@ import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -364,11 +366,13 @@ public class VideoService {
         return true;
     }
 
-    public Page<ReplyInfo> getReplies(Long videoId, int page, int size, String sort) {
+    public Page<ReplyInfo> getReplies(Long videoId, int page, int size, ReplySort replySort) {
 
-        PageRequest pageRequest = PageRequest.of(page, size);
+        Sort sort = Sort.by(Sort.Direction.DESC, replySort.getSort());
 
-        return ReplyInfo.of(replyRepository.findAllByReplyId(pageRequest, sort, videoId));
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        return replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
     }
 
     public Long createReply(Long loginMemberId, Long videoId, ReplyCreateServiceApi response) {
