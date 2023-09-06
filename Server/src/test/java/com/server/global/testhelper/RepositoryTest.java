@@ -45,6 +45,23 @@ public abstract class RepositoryTest {
         return member;
     }
 
+    protected Member createMemberWithChannel() {
+        Member member = Member.builder()
+                .email("test@gmail.com")
+                .password("1q2w3e4r!")
+                .nickname("test")
+                .authority(Authority.ROLE_USER)
+                .reward(1000)
+                .imageFile("imageFile")
+                .build();
+
+        em.persist(member);
+
+        createAndSaveChannel(member);
+
+        return member;
+    }
+
     protected Channel createAndSaveChannel(Member member) {
         Channel channel = Channel.createChannel("channelName");
         channel.setMember(member);
