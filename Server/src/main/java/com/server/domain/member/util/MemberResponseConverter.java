@@ -70,36 +70,47 @@ public class MemberResponseConverter {
 	}
 
 	public Page<PlaylistsResponse> convertVideosToPlaylistsResponses(Page<Video> videos) {
-		return videos.map(video -> PlaylistsResponse.builder()
-			.videoId(video.getVideoId())
-			.videoName(video.getVideoName())
-			.thumbnailFile(
-				getThumbnailUrl(video.getChannel().getMember().getMemberId(),
-					video.getThumbnailFile())
-			)
-			.star(video.getStar())
-			.modifiedDate(video.getModifiedDate())
-			.channel(
-				PlaylistsResponse.Channel.builder()
-					.memberId(video.getChannel().getMember().getMemberId())
-					.channelName(video.getChannel().getChannelName())
-					.build()
-			)
-			.build()
+		return videos.map(video -> {
+			Member member = video.getChannel().getMember();
+			Long memberId = member.getMemberId();
+
+			return PlaylistsResponse.builder()
+				.videoId(video.getVideoId())
+				.videoName(video.getVideoName())
+				.thumbnailFile(
+					getThumbnailUrl(memberId, video.getThumbnailFile())
+				)
+				.star(video.getStar())
+				.modifiedDate(video.getModifiedDate())
+				.channel(
+					PlaylistsResponse.Channel.builder()
+						.memberId(video.getChannel().getMember().getMemberId())
+						.channelName(video.getChannel().getChannelName())
+						.profileImageUrl(getProfileUrl(memberId, member.getImageFile()))
+						.build()
+				)
+				.build();
+			}
 		);
 	}
 
 	public Page<WatchsResponse> convertWatchToWatchResponses(Page<Watch> watches) {
-		return watches.map(watch -> WatchsResponse.builder()
-			.videoId(watch.getVideo().getVideoId())
-			.videoName(watch.getVideo().getVideoName())
-			.thumbnailFile(getThumbnailUrl(watch.getVideo().getChannel().getMember().getMemberId(), watch.getVideo().getThumbnailFile()))
-			.modifiedDate(watch.getModifiedDate())
-			.channel(WatchsResponse.Channel.builder()
-				.memberId(watch.getVideo().getChannel().getMember().getMemberId())
-				.channelName(watch.getVideo().getChannel().getChannelName())
-				.build())
-			.build()
+		return watches.map(watch -> {
+			Member member = watch.getVideo().getChannel().getMember();
+			Long memberId = member.getMemberId();
+
+			return WatchsResponse.builder()
+				.videoId(watch.getVideo().getVideoId())
+				.videoName(watch.getVideo().getVideoName())
+				.thumbnailFile(getThumbnailUrl(memberId, watch.getVideo().getThumbnailFile()))
+				.modifiedDate(watch.getModifiedDate())
+				.channel(WatchsResponse.Channel.builder()
+					.memberId(memberId)
+					.channelName(watch.getVideo().getChannel().getChannelName())
+					.profileImageUrl(getProfileUrl(memberId, member.getImageFile()))
+					.build())
+				.build();
+			}
 		);
 	}
 
