@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 @Builder
-public class VideoCancelServiceResponse {
+public class CancelServiceResponse {
 
     private int requestAmount;
     private int totalCancelAmount;

@@ -10,7 +10,7 @@ import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
-import com.server.domain.order.service.dto.response.VideoCancelServiceResponse;
+import com.server.domain.order.service.dto.response.CancelServiceResponse;
 import com.server.domain.reward.service.RewardService;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -117,7 +118,7 @@ public class OrderService {
 
         order.checkValidOrder(amount);
 
-        order.completeOrder();
+        order.completeOrder(LocalDateTime.now());
 
         order.setPaymentKey(paymentKey);
 
@@ -151,51 +152,64 @@ public class OrderService {
         return param;
     }
 
-    public void cancelOrder(Long memberId, String orderId) {
+    public CancelServiceResponse cancelOrder(Long memberId, String orderId) {
 
         Member member = verifiedMember(memberId);
 
         Order order = verifiedOrder(member, orderId);
 
-        checkIfWatch(order);
-
         if(isAlreadyCanceled(order)) throw new OrderAlreadyCanceledException();
 
-        if(isCompleted(order)) orderCancelProcess(order);
+        Order.Refund totalRefund = orderCancelProcess(order);
 
-        order.cancelOrder();
+        return new CancelServiceResponse(
+                order.getTotalPayAmount(),
+                totalRefund.getRefundAmount(),
+                totalRefund.getRefundReward());
     }
 
-    public VideoCancelServiceResponse cancelVideo(Long loginMemberId, String orderId, Long videoId) {
+    public CancelServiceResponse cancelVideo(Long loginMemberId, String orderId, Long videoId) {
 
         Member member = verifiedMember(loginMemberId);
 
-        Order order = verifiedOrder(member, orderId);
+        Order order = verifiedOrderWithVideo(member, orderId);
 
-        OrderVideo orderVideo = order.getOrderVideos().stream()
-                .filter(ov -> ov.getVideo().getVideoId().equals(videoId))
-                .findFirst()
-                .orElseThrow(VideoNotFoundException::new);
+        if(!isCompleted(order)) throw new OrderNotValidException();
 
-        if(!orderVideo.getOrder().getOrderStatus().equals(OrderStatus.COMPLETED))
-            throw new OrderNotValidException();
+        OrderVideo orderVideo = getOrderVideo(order, videoId);
 
-        orderVideo.cancel();
+        if(isAlreadyCanceled(orderVideo)) throw new OrderAlreadyCanceledException();
+
+        checkIfWatchVideo(orderVideo);
 
         rewardService.cancelVideoReward(orderVideo);
 
-        //order 의 모든 orderVideo.getOrderStatus 가 CANCELED 라면
-        //order 의 orderStatus 를 CANCELED 로 변경
-        if(order.getOrderVideos().stream().allMatch(ov -> ov.getOrderStatus().equals(OrderStatus.CANCELED))) {
-            order.cancelOrder();
-            order.refund();
-        }
+        Order.Refund totalRefund = order.cancelVideoOrder(orderVideo);
 
-        return null;
+        orderCancelRequest(order, totalRefund.getRefundAmount());
+
+        return new CancelServiceResponse(
+                orderVideo.getPrice(),
+                totalRefund.getRefundAmount(),
+                totalRefund.getRefundReward());
     }
 
-    private void checkIfWatch(Order order) {
-        if(!orderRepository.findWatchVideosById(order.getOrderId()).isEmpty())
+    private OrderVideo getOrderVideo(Order order, Long videoId) {
+        return order.getOrderVideos().stream()
+                .filter(ov -> ov.getVideo().getVideoId().equals(videoId))
+                .findFirst()
+                .orElseThrow(VideoNotFoundException::new);
+    }
+
+    private void checkIfWatchAny(Order order) {
+        if(!orderRepository.findWatchVideosAfterPurchaseById(order.getOrderId()).isEmpty())
+            throw new VideoAlreadyWatchedException();
+    }
+
+    private void checkIfWatchVideo(OrderVideo orderVideo) {
+        if(orderRepository.findWatchVideoAfterPurchaseByVideoId(
+                orderVideo.getOrder().getOrderId(),
+                orderVideo.getVideo().getVideoId()))
             throw new VideoAlreadyWatchedException();
     }
 
@@ -207,25 +221,48 @@ public class OrderService {
         return order.getOrderStatus().equals(OrderStatus.CANCELED);
     }
 
-    private void orderCancelProcess(Order order) {
+    private boolean isAlreadyCanceled(OrderVideo orderVideo) {
+        return orderVideo.getOrderStatus().equals(OrderStatus.CANCELED);
+    }
 
-        URI uri = URI.create(TOSS_ORIGIN_URL + order.getPaymentKey() + "/cancel");
+    private Order.Refund orderCancelProcess(Order order) {
+
+        if(!isCompleted(order)) {
+            order.cancelOrdered();
+
+            return new Order.Refund(0, 0);
+        }
+
+        checkIfWatchAny(order);
 
         rewardService.cancelReward(order);
+
+        Order.Refund refund = order.cancelAllOrder();
+
+        orderCancelRequest(order, refund.getRefundAmount());
+
+        return refund;
+    }
+
+    private void orderCancelRequest(Order order, Integer cancelPrice) {
+
+        URI uri = URI.create(TOSS_ORIGIN_URL + order.getPaymentKey() + "/cancel");
 
         HttpHeaders headers = paymentRequestHeader();
 
         JSONObject param = new JSONObject();
         param.put("cancelReason", "사용자 취소");
+        param.put("cancelAmount", cancelPrice);
 
         ResponseEntity<String> responseEntity
                 = restTemplate.postForEntity(
-                        uri,
+                uri,
                 new HttpEntity<>(param, headers),
                 String.class);
 
         if(responseEntity.getStatusCode().value() != 200)
             throw new CancelFailException();
+
     }
 
     private void checkDuplicateOrder(Member member, List<Video> toBuyVideos) {

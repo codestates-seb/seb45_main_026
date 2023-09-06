@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -158,7 +159,7 @@ public abstract class ServiceTest {
                 .build();
 
         Order order = Order.createOrder(member, List.of(video), 0);
-        order.completeOrder();
+        order.completeOrder(LocalDateTime.now());
 
         videoRepository.save(video);
         orderRepository.save(order);
@@ -190,7 +191,7 @@ public abstract class ServiceTest {
 
     protected Order createAndSaveOrderWithPurchaseComplete(Member member, List<Video> video, int reward) {
         Order order = Order.createOrder(member, video, reward);
-        order.completeOrder();
+        order.completeOrder(LocalDateTime.now());
         orderRepository.save(order);
 
         return order;

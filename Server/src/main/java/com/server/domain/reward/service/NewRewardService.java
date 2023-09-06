@@ -7,7 +7,6 @@ import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.*;
 import com.server.domain.reward.repository.NewRewardRepository;
-import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.video.entity.Video;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,9 +70,19 @@ public class NewRewardService implements RewardService {
 
 	public void cancelReward(Order order) {
 
-		order.refund();
+		Member member = order.getMember();
 
-		newRewardRepository.findByOrderId(order.getOrderId())
+		List<NewReward> rewards = newRewardRepository.findByOrderId(order.getOrderId());
+
+		int refundRewardPoint = rewards.stream()
+				.mapToInt(NewReward::getRewardPoint)
+				.sum();
+
+		if(refundRewardPoint > member.getReward()) {
+			order.convertAmountToReward(refundRewardPoint - member.getReward());
+		}
+
+		rewards
 				.forEach(NewReward::cancelReward);
 	}
 
@@ -93,7 +102,7 @@ public class NewRewardService implements RewardService {
 				.sum();
 
 		if(refundRewardPoint > member.getReward()) {
-			order.refund(refundRewardPoint - member.getReward());
+			order.convertAmountToReward(refundRewardPoint - member.getReward());
 		}
 
 		rewards.forEach(NewReward::cancelReward);

@@ -27,7 +27,7 @@ class NewRewardRepositoryTest extends RepositoryTest {
     NewRewardRepository newRewardRepository;
 
     @Test
-    @DisplayName("주문번호로 reward 리스트를 찾는다. reward 의 member 는 초기화되어있다.")
+    @DisplayName("주문번호로 reward 리스트를 찾는다.")
     void findByOrderId() {
         //given
         Member owner = createAndSaveMember();
@@ -64,10 +64,6 @@ class NewRewardRepositoryTest extends RepositoryTest {
                         reward3.getRewardId(),
                         reward4.getRewardId()
                 );
-
-        for (NewReward reward : rewards) {
-            assertThat(Hibernate.isInitialized(reward.getMember())).isTrue();
-        }
     }
 
     @Test

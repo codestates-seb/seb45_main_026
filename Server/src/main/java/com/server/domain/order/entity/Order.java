@@ -9,6 +9,7 @@ import com.server.global.exception.businessexception.orderexception.RewardNotEno
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -34,7 +35,13 @@ public class Order extends BaseEntity {
 
     private Integer totalPayAmount;
 
+    private Integer remainRefundAmount;
+
     private Integer reward;
+
+    private Integer remainRefundReward;
+
+    private LocalDateTime completedDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -57,6 +64,8 @@ public class Order extends BaseEntity {
         this.member = member;
         this.totalPayAmount = totalPayAmount;
         this.reward = reward;
+        this.remainRefundAmount = totalPayAmount;
+        this.remainRefundReward = reward;
         this.orderStatus = OrderStatus.ORDERED;
     }
 
@@ -103,29 +112,92 @@ public class Order extends BaseEntity {
         }
     }
 
-    public void completeOrder() {
+    public void completeOrder(LocalDateTime completedDate) {
         this.orderStatus = OrderStatus.COMPLETED;
         this.orderVideos.forEach(OrderVideo::complete);
+        this.completedDate = completedDate;
     }
 
-    public void cancelOrder() {
+    public void cancelOrdered() {
         this.orderStatus = OrderStatus.CANCELED;
     }
 
-    public void refund(){
-        this.member.addReward(this.reward);
+    public Refund cancelAllOrder() {
+        this.orderStatus = OrderStatus.CANCELED;
+        this.orderVideos.forEach(OrderVideo::cancel);
+
+        this.member.addReward(this.remainRefundReward);
+
+        return new Refund(remainRefundAmount, remainRefundReward);
     }
 
-    public void refund(int reward){
-        if(this.reward < reward){
+    public Refund cancelVideoOrder(OrderVideo orderVideo) {
+
+        orderVideo.cancel();
+
+        if(this.getOrderVideos().stream().allMatch(ov -> ov.getOrderStatus().equals(OrderStatus.CANCELED))) {
+            return cancelAllOrder();
+        }
+
+        int refundAmount = calculateRefundAmount(orderVideo);
+        int refundReward = calculateRefundReward(orderVideo.getPrice() - refundAmount);
+
+        this.member.addReward(refundReward);
+
+        return new Refund(refundAmount, refundReward);
+    }
+
+    private int calculateRefundAmount(OrderVideo orderVideo) {
+
+        int refundAmount = orderVideo.getPrice();
+
+        if(this.remainRefundAmount < refundAmount) {
+            refundAmount = this.remainRefundAmount;
+            this.remainRefundAmount = 0;
+            return refundAmount;
+        }
+
+        this.remainRefundAmount -= refundAmount;
+        return refundAmount;
+    }
+
+    private int calculateRefundReward(int refundReward) {
+
+        int totalRefundReward = refundReward;
+
+        if(this.remainRefundReward < refundReward) {
+            totalRefundReward = this.remainRefundReward;
+            this.remainRefundReward = 0;
+            return totalRefundReward;
+        }
+        this.remainRefundReward -= refundReward;
+        return refundReward;
+    }
+
+    public void convertAmountToReward(int reward){
+        if(this.remainRefundReward + this.remainRefundAmount  < reward) {
             throw new RewardNotEnoughException();
         }
-        this.reward -= reward;
+        if(this.remainRefundReward < reward) {
+            int refundReward = reward - this.remainRefundReward;
+            this.remainRefundReward = 0;
+            this.remainRefundAmount -= refundReward;
+        }else {
+            this.remainRefundReward -= reward;
+        }
         this.member.addReward(reward);
     }
 
     public void setPaymentKey(String paymentKey) {
         this.paymentKey = paymentKey;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class Refund {
+
+        private int refundAmount;
+        private int refundReward;
     }
 
 }

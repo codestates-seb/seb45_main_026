@@ -15,7 +15,9 @@ public interface OrderRepositoryCustom {
 
     Optional<Order> findByIdWithVideos(String orderId);
 
-    List<Video> findWatchVideosById(String orderId);
+    List<Video> findWatchVideosAfterPurchaseById(String orderId);
+
+    Boolean findWatchVideoAfterPurchaseByVideoId(String orderId, Long videoId);
 
     Optional<OrderVideo> findOrderVideoByVideoId(String orderId, Long videoId);
 }
