@@ -24,4 +24,6 @@ public interface VideoRepositoryCustom {
     Page<Video> findChannelVideoByCategoryPaging(ChannelVideoGetDataRequest request);
 
     Optional<Video> findVideoByNameWithMember(Long memberId, String videoName);
+
+    List<Long> findVideoIdInCart(Long memberId, List<Long> videoIds);
 }

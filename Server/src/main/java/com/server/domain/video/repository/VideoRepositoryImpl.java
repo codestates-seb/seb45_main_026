@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.server.domain.cart.entity.QCart.cart;
 import static com.server.domain.category.entity.QCategory.category;
 import static com.server.domain.channel.entity.QChannel.channel;
 import static com.server.domain.member.entity.QMember.member;
@@ -298,6 +299,18 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                         .where(member.memberId.eq(memberId))
                         .fetchOne()
         );
+    }
+
+    @Override
+    public List<Long> findVideoIdInCart(Long memberId, List<Long> videoIds) {
+
+        return queryFactory.select(video.videoId)
+                .from(member)
+                .join(member.carts, cart)
+                .join(cart.video, video)
+                .where(member.memberId.eq(memberId)
+                        .and(video.videoId.in(videoIds))
+                ).fetch();
     }
 
     private OrderSpecifier<?> getOrderSpecifier(String sort) {
