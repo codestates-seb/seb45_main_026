@@ -51,11 +51,6 @@ export const InfoTitle = styled.div`
 
 export const Info = styled.span``;
 
-export const InfoSave = styled.button`
-  color: rgb(260, 100, 120);
-  text-decoration: underline;
-`;
-
 export const InfoBox = styled.div`
   display: flex;
   flex-direction: row;

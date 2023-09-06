@@ -22,13 +22,13 @@ const ProfileContainer = styled.div`
   flex-direction: row;
   gap: ${globalTokens.Spacing20.value}px;
   margin: ${globalTokens.Spacing36.value}px 0;
-`;
-const ProfileImg = styled.img`
+`
+export const ProfileImg = styled.img`
     max-height: 130px;
     height: auto;
     width: auto;
 `
-const ImgContainer = styled.div`
+export const ImgContainer = styled.div`
     width: 130px;
     height: 130px;
     min-width: 130px;

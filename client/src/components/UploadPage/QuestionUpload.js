@@ -61,7 +61,7 @@ export const SubmitQuestion = styled.button`
   }
 `;
 
-const QuestionSection = () => {
+const QuestionUpload = () => {
   const [isModal, setModal] = useState(false);
 
   return (
@@ -85,4 +85,4 @@ const QuestionSection = () => {
   );
 };
 
-export default QuestionSection;
+export default QuestionUpload;

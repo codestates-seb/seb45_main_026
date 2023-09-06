@@ -3,11 +3,16 @@ import CartItem from "../../../components/CartPage/CartItem";
 import CartEmpty from "../../../components/CartPage/CartEmpty";
 import { useDispatch, useSelector } from "react-redux";
 import { setChecked } from "../../../redux/createSlice/CartsSlice";
+import axios from "axios";
 
 const CartLeft = () => {
   const dispatch = useDispatch();
   const cartsData = useSelector((state) => state.cartSlice.data);
   const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
+  const token = useSelector((state) => state.loginInfo.accessToken);
+  const headers = {
+    Authorization: token.authorization,
+  };
 
   const handleAllCheck = (checked) => {
     if (checked) {
@@ -15,6 +20,16 @@ const CartLeft = () => {
     } else {
       dispatch(setChecked([]));
     }
+  };
+
+  const handlePatchItemList = () => {
+    return axios
+      .delete(`https://api.itprometheus.net/videos/carts`, {
+        headers,
+        data: { videoIds: checkedItems },
+      })
+      .then((res) => console.log(res.data))
+      .catch((err) => console.log(err));
   };
 
   return (
@@ -26,11 +41,13 @@ const CartLeft = () => {
             checked={checkedItems.length === cartsData.length}
             onChange={(e) => handleAllCheck(e.target.checked)}
           />
-          <Checklabel>전체선택 {checkedItems.length}/{cartsData.length}</Checklabel>
+          <Checklabel>
+            전체선택 {checkedItems.length}/{cartsData.length}
+          </Checklabel>
         </WholeCheck>
-        <RemoveBtn>&times; 선택 삭제</RemoveBtn>
+        <RemoveBtn onClick={handlePatchItemList}>&times; 선택 삭제</RemoveBtn>
       </CartHeader>
-      <CartLists>
+      <CartLists isScroll={cartsData.length}>
         {cartsData.length ? (
           cartsData.map((el) => <CartItem key={el.videoId} el={el} />)
         ) : (
@@ -103,8 +120,8 @@ export const CartLists = styled.ul`
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  overflow-y: scroll;
-  max-height: 580px;
+  overflow-y: ${(props) => (props.isScroll > 3 ? "scroll" : "none")};
+  height: 580px;
 `;
 
 export const CartCautions = styled.ul`

@@ -1,7 +1,7 @@
 import { styled } from "styled-components";
 import { PageContainer } from "../../atoms/layouts/PageContainer";
-import CourseSection from "../../components/UploadPage/Course";
-import QuestionSection from "../../components/UploadPage/Question";
+import CourseUpload from "../../components/UploadPage/CourseUpload";
+import QuestionUpload from "../../components/UploadPage/QuestionUpload";
 import { useState } from "react";
 
 export const UploadContainer = styled.section`
@@ -29,8 +29,8 @@ export const UploadTypeBtn = styled.button`
   border: 2px solid rgb(255, 100, 100);
   border-radius: 50%;
   background-color: ${(props) =>
-    props.active ? "rgb(255, 100, 100);" : "white"};
-  color: ${(props) => (props.active ? "white" : "rgb(255, 100, 100)")};
+    props.isFocus ? "rgb(255, 100, 100);" : "white"};
+  color: ${(props) => (props.isFocus ? "white" : "rgb(255, 100, 100)")};
   font-weight: bold;
   font-size: 16px;
 `;
@@ -83,27 +83,25 @@ export const NextBtn = styled.button`
 
 const UploadPage = () => {
   const [isPage, setPage] = useState({ page: 1 });
+  const pages = [1, 2];
 
   return (
     <PageContainer>
       <UploadContainer>
         <UploadType>
-          <UploadTypeBtn
-            active={isPage.page === 1}
-            onClick={() => setPage({ ...isPage, page: 1 })}
-          >
-            1
-          </UploadTypeBtn>
-          <UploadTypeBtn
-            active={isPage.page === 2}
-            onClick={() => setPage({ ...isPage, page: 2 })}
-          >
-            2
-          </UploadTypeBtn>
+          {pages.map((el, idx) => (
+            <UploadTypeBtn
+              key={idx}
+              isFocus={isPage.page === el}
+              onClick={() => setPage({ ...isPage, page: el })}
+            >
+              {el}
+            </UploadTypeBtn>
+          ))}
         </UploadType>
-        {isPage.page === 1 && <CourseSection />}
-        {isPage.page === 2 && <QuestionSection />}
-        {isPage.page !== 2 && (
+        {isPage.page === 1 && <CourseUpload />}
+        {isPage.page === 2 && <QuestionUpload />}
+        {isPage.page !== pages.slice(-1)[0] && (
           <NextBtn
             onClick={() => setPage({ ...isPage, page: isPage.page + 1 })}
           >

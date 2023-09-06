@@ -1,5 +1,5 @@
 import "./App.css";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -7,7 +7,6 @@ import {
 } from "./redux/createSlice/UISettingSlice";
 import MainPage from "./pages/contents/MainPage";
 import LoginPage from "./pages/auth/LoginPage";
-import MyProfilePage from "./pages/userInfo/MyProfilePage";
 import Header from "./components/headers/Header";
 import Footer from "./components/footers/Footer";
 import ChannelPage from "./pages/contents/ChannelPage";
@@ -23,6 +22,7 @@ import {
   setIsLogin,
   setLoginInfo,
   setMyid,
+  setProvider,
   setToken,
 } from "./redux/createSlice/LoginInfoSlice";
 import useConfirm from "./hooks/useConfirm";
@@ -30,13 +30,12 @@ import FindPasswordPage from "./pages/auth/FindPasswordPage";
 import PurchasedListPage from "./pages/contents/PurchasedListPage";
 import UpdatePasswordPage from "./pages/auth/UpdatePasswordPage";
 import ChannelListPage from "./pages/contents/ChannelListPage";
+import { AlertModal } from './atoms/modal/Modal';
 
 function App() {
   const dispatch = useDispatch();
   const tokens = useSelector((state) => state.loginInfo.accessToken);
-  const tokenFinishConfirm = useConfirm(
-    "토큰이 만료되었거나, 서버 오류로 로그아웃 되었습니다."
-  );
+  const [ is로그인실패모달, setIs로그인실패모달 ] = useState(false);
 
   const handleResize = () => {
     dispatch(setBrowserWidth(window.innerWidth));
@@ -47,11 +46,13 @@ function App() {
   }, []);
 
   //웹을 실행했을 때 저장된 토큰이 있으면 토큰을 가지고 프로필 조회를 한다.
+  //authorization이 만료되었으면 refresh 토큰을 통해서 authorization 토큰을 갱신한다.
+  //authorization 갱신에 성공하면 다시 프로필 조회를 한다.
+  //authorization 갱신에도 실패하면 강제 로그아웃 한다.
   useEffect(() => {
     if (!(tokens.authorization === "")) {
       getUserInfoService(tokens.authorization).then((res) => {
         if (res.status === 'success') {
-          console.log('success')
           //토큰이 유효하면 회원 정보를 dispatch 후, isLogin을 true로 설정한다.
           dispatch(setMyid(res.data.memberId));
           dispatch(
@@ -64,25 +65,31 @@ function App() {
             }));
           dispatch(setIsLogin(true));
         } else {
-          //토큰이 유효하지 않으면 저장된 토큰, 로그인 정보를 삭제하고 isLogin을 false로 설정한다.
-          tokenFinishConfirm();
-          dispatch(setToken({ authorization: "", refresh: "" }));
-          dispatch(setMyid(0))
-          dispatch(setLoginInfo({ 
-            email: "", 
+          //프로필정보 조회 API, 토큰 재발급 API를 모두 실패하면 로그아웃 처리한다. 
+          dispatch(setMyid(''));
+          dispatch(setLoginInfo({
+            email: "",
             nickname: "",
             grade: "",
             imgUrl: "",
-            reward: 0
+            reward: "" 
           }));
+          dispatch(setProvider(''));
           dispatch(setIsLogin(false));
         }
       });
     }
-  });
+  },[tokens]);
 
   return (
     <BrowserRouter>
+      <AlertModal
+        isModalOpen={is로그인실패모달}
+        setIsModalOpen={setIs로그인실패모달}
+        isBackdropClickClose={true}
+        content='로그인 정보가 만료되었습니다. 다시 로그인하세요.'
+        buttonTitle='확인'
+        handleButtonClick={()=>{ setIs로그인실패모달(false) }}/>
       <Header />
       <Routes>
         <Route path="/" element={<MainPage />} />
