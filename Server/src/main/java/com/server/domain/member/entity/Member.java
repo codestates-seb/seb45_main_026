@@ -101,12 +101,10 @@ public class Member extends BaseEntity {
 		this.nickname = nickname;
 	}
 
+
 	public void updateImageFile(String imageFile) {
-		if(this.imageFile == null && imageFile != null) {
+		if (this.imageFile == null) {
 			this.imageFile = imageFile;
-		}
-		else {
-			throw new MemberNotUpdatedException();
 		}
 	}
 
