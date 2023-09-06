@@ -37,6 +37,16 @@ include::{snippets}/auth/oauth/http-response.adoc[]
 === Response Header
 include::{snippets}/auth/oauth/response-headers.adoc[]
 
+== 리프래시 토큰으로 액세스 토큰 재발급
+=== HTTP Request
+include::{snippets}/auth/refresh/http-request.adoc[]
+==== Request Header
+include::{snippets}/auth/refresh/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/auth/refresh/http-response.adoc[]
+=== Response Header
+include::{snippets}/auth/refresh/response-headers.adoc[]
+
 == 회원가입 인증 이메일 전송
 === HTTP Request
 include::{snippets}/auth/signup/email/http-request.adoc[]
