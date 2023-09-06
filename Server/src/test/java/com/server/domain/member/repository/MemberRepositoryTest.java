@@ -10,6 +10,7 @@ import com.server.domain.member.repository.dto.MemberVideoData;
 import com.server.domain.order.entity.Order;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
+import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.testhelper.RepositoryTest;
 
 import org.junit.jupiter.api.DisplayName;
@@ -559,6 +560,55 @@ class MemberRepositoryTest extends RepositoryTest {
                     );
                 }
             )
+        );
+    }
+
+    @TestFactory
+    @DisplayName("채널 혹은 다른 것들과 연관된 멤버의 삭제 테스트")
+    Collection<DynamicTest> deleteMemberWithAll() {
+        //given
+        Member user = createAndSaveMember();
+        Channel channel = createAndSaveChannelWithName(user, "1aaaaaaaaa");
+        // Member member1 = createAndSaveMember();
+        // Member member2 = createAndSaveMember();
+        // Channel channel1 = createAndSaveChannelWithName(member1, "1aaaaaaaaa");
+        // Channel channel2 = createAndSaveChannelWithName(member2, "0aaaaaaaa");
+        // createAndSaveVideo(channel1);
+        // createAndSaveVideo(channel1);
+        // createAndSaveVideo(channel1);
+        // createAndSaveVideo(channel1);
+        // createAndSaveSubscribe(user, channel1);
+
+        em.flush();
+        em.clear();
+
+        //when
+        return List.of(
+            dynamicTest(
+                "회원이 채널만 가지고 있는 경우 회원과 채널 모두 같이 삭제되는지",
+                () -> {
+                    memberRepository.delete(user);
+
+                    assertThrows(MemberNotFoundException.class,
+                        () -> memberRepository.findById(user.getMemberId()).orElseThrow(MemberNotFoundException::new));
+
+                    assertThrows(MemberNotFoundException.class,
+                        () -> memberRepository.findById(user.getMemberId()).orElseThrow(MemberNotFoundException::new));
+                }
+            )
+            // dynamicTest(
+            //     "한 채널의 비디오를 여러개 구매한 경우 그룹화 되서 조회되는지 테스트",
+            //     () -> {
+            //         Page<Tuple> channels =
+            //             memberRepository.findPlaylistGroupByChannelName(
+            //                 user.getMemberId(), PageRequest.of(0, 20)
+            //             );
+            //
+            //         // 중복된 채널만큼 총 비디오의 개수 20개에서 마이너스 되서 13이 조회되야 함
+            //
+            //         assertThat(channels.getTotalElements()).isEqualTo(13);
+            //     }
+            // )
         );
     }
 
