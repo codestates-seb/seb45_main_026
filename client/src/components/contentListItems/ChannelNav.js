@@ -2,6 +2,7 @@ import React from "react";
 import { styled } from "styled-components";
 import tokens from "../../styles/tokens.json";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 const globalTokens = tokens.global;
 
@@ -40,13 +41,11 @@ const NavyItem2 = styled.div`
 `;
 
 export default function ChannelNav({ navigate, setNavigate }) {
-  const userId = useSelector(state=>state.loginInfo.myid);
-  const url = new URL(window.location.href);
-  const pathnameArr = url.pathname.split('/');
-  const channelMemberId = Number(pathnameArr[2]);
+  const myid = useSelector(state=>state.loginInfo.myid);
+  const { userId } = useParams();
   
   const navs = ["홈", "동영상", "커뮤니티"];
-  if( channelMemberId === userId ) navs.push('설정');
+  if( myid === Number(userId) ) navs.push('설정');
 
   return (
     <NavyContainer>
