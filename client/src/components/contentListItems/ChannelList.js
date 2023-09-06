@@ -72,6 +72,10 @@ export default function ChannelList({ channelInfor }) {
   }, [filterState])
   useEffect(() => {
     dispatch(resetToInitialState());
+    axios
+      .get(`https://api.itprometheus.net/channels/4/videos?sort=created-date`)
+      .then((res) => setLectures(res.data.data))
+      .catch((err) => console.log(err));
   },[])
     return (
         <ListBody>
