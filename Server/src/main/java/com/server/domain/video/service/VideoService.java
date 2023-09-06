@@ -73,15 +73,21 @@ public class VideoService {
 
     public Page<VideoPageResponse> getVideos(Long loginMemberId, VideoGetServiceRequest request) {
 
-        Page<Video> video = videoRepository.findAllByCategoryPaging(request.toDataRequest());
+        Page<Video> videos = videoRepository.findAllByCategoryPaging(request.toDataRequest());
 
-        List<Boolean> isPurchaseInOrder = isPurchaseInOrder(loginMemberId, video.getContent());
+        List<Boolean> isPurchaseInOrder = isPurchaseInOrder(loginMemberId, videos.getContent());
 
-        List<Boolean> isSubscribeInOrder = isSubscribeInOrder(loginMemberId, video.getContent(), request.isSubscribe());
+        List<Boolean> isSubscribeInOrder = isSubscribeInOrder(loginMemberId, videos.getContent(), request.isSubscribe());
 
-        List<String[]> urlsInOrder = getThumbnailAndImageUrlsInOrder(video.getContent());
+        List<String[]> urlsInOrder = getThumbnailAndImageUrlsInOrder(videos.getContent());
 
-        return VideoPageResponse.of(video, isPurchaseInOrder, isSubscribeInOrder, urlsInOrder);
+        List<Long> videoIdsInCart = getVideoIdsInCart(loginMemberId, videos.getContent());
+
+        return VideoPageResponse.of(videos,
+                isPurchaseInOrder,
+                isSubscribeInOrder,
+                urlsInOrder,
+                videoIdsInCart);
     }
 
     @Transactional
@@ -95,13 +101,15 @@ public class VideoService {
 
         checkIfVideoClosed(isPurchaseAndIsReplied.get("isPurchased"), video);
 
-        Boolean subscribed = isSubscribed(member, video);
-
-        Map<String, String> urls = getVideoUrls(video);
-
         watch(member, video);
 
-        return VideoDetailResponse.of(video, subscribed, urls, isPurchaseAndIsReplied);
+        List<Long> videoIdsInCart = getVideoIdsInCart(loginMemberId, List.of(video));
+
+        return VideoDetailResponse.of(video,
+                isSubscribed(member, video),
+                getVideoUrls(video),
+                isPurchaseAndIsReplied,
+                !videoIdsInCart.isEmpty());
     }
 
     @Transactional
@@ -250,6 +258,15 @@ public class VideoService {
                 location,
                 FileType.THUMBNAIL,
                 imageType);
+    }
+
+    private List<Long> getVideoIdsInCart(Long loginMemberId, List<Video> videos) {
+
+        List<Long> videoIds = videos.stream()
+                .map(Video::getVideoId)
+                .collect(Collectors.toList());
+
+        return videoRepository.findVideoIdInCart(loginMemberId, videoIds);
     }
 
     private Member verifiedMemberOrNull(Long loginMemberId) {

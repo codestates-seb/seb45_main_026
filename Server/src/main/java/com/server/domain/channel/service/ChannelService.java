@@ -192,7 +192,12 @@ public class ChannelService {
 
         List<String> thumbnailUrlsInOrder = getThumbnailUrlsInOrder(videos.getContent());
 
-        return ChannelVideoResponse.of(videos, isPurchaseInOrder, thumbnailUrlsInOrder);
+        List<Long> videoIdsInCart = getVideoIdsInCart(loginMemberId, videos.getContent());
+
+        return ChannelVideoResponse.of(videos,
+                isPurchaseInOrder,
+                thumbnailUrlsInOrder,
+                videoIdsInCart);
     }
 
 
@@ -230,6 +235,15 @@ public class ChannelService {
 
     private String getThumbnailUrl(Long memberId, Video video) {
         return awsService.getFileUrl(memberId, video.getThumbnailFile(), FileType.THUMBNAIL);
+    }
+
+    private List<Long> getVideoIdsInCart(Long loginMemberId, List<Video> videos) {
+
+        List<Long> videoIds = videos.stream()
+                .map(Video::getVideoId)
+                .collect(Collectors.toList());
+
+        return videoRepository.findVideoIdInCart(loginMemberId, videoIds);
     }
 
 

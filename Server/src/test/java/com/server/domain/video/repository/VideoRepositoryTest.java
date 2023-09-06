@@ -1,5 +1,6 @@
 package com.server.domain.video.repository;
 
+import com.server.domain.cart.entity.Cart;
 import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
@@ -7,9 +8,7 @@ import com.server.domain.reply.entity.Reply;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.dto.ChannelVideoGetDataRequest;
 import com.server.domain.video.repository.dto.VideoGetDataRequest;
-import com.server.domain.video.service.dto.response.VideoPageResponse;
 import com.server.global.testhelper.RepositoryTest;
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ListAssert;
 import org.hibernate.Hibernate;
 import org.junit.jupiter.api.DisplayName;
@@ -855,6 +854,36 @@ class VideoRepositoryTest extends RepositoryTest {
 
         //then
         assertThat(findVideo.getVideoId()).isEqualTo(video.getVideoId());
+    }
+
+    @Test
+    @DisplayName("videoId 중 특정 member 가 cart 에 담은 video 를 반환한다.")
+    void isInCart() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+        Video video3 = createAndSaveVideo(channel);
+
+        createAndSaveCart(member, video1);
+        createAndSaveCart(member, video2);
+
+        em.flush();
+        em.clear();
+
+        //when
+        List<Long> videoIds = videoRepository.findVideoIdInCart(member.getMemberId(), List.of(video1.getVideoId(), video2.getVideoId()));
+
+        //then
+        assertThat(videoIds).hasSize(2)
+                .contains(video1.getVideoId(), video2.getVideoId());
+    }
+
+    private Cart createAndSaveCart(Member member, Video video) {
+        Cart cart = Cart.createCart(member, video, video.getPrice());
+        em.persist(cart);
+        return cart;
     }
 
     private void createAndSaveReply(Member member, Video video) {
