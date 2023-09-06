@@ -42,7 +42,7 @@ export const ImageInput = ({
                 확장자
             );
             if(response.status==='success') {
-                console.log(response.data);
+                console.log(response.headers);
             } else {
                 console.log(response.data);
             }
