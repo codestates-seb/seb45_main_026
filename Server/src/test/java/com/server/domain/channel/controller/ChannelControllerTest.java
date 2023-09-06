@@ -369,6 +369,7 @@ class ChannelControllerTest extends ControllerTest {
                                 fieldWithPath("data[].thumbnailUrl").description("비디오 섬네일 URL"),
                                 fieldWithPath("data[].views").description("비디오 조회수"),
                                 fieldWithPath("data[].price").description("비디오 가격"),
+                                fieldWithPath("data[].star").description("비디오 별점"),
                                 fieldWithPath("data[].isPurchased").description("비디오 구매 여부"),
                                 fieldWithPath("data[].isInCart").description("장바구니 추가 여부"),
                                 fieldWithPath("data[].description").description("비디오 설명"),
@@ -551,9 +552,11 @@ class ChannelControllerTest extends ControllerTest {
                     .videoId((long) i)
                     .videoName("video name" + i)
                     .thumbnailUrl("https://s3.ap-northeast-2.amazonaws.com/prometheus-images/" + i + "video name")
+                    .price(1000)
                     .views(1000)
                     .isPurchased(true)
                     .isInCart(false)
+                    .star(4.5f)
                     .categories(createVideoCategoryResponse("category1", "category2"))
                     .createdDate(LocalDateTime.now())
                     .build();

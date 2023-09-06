@@ -3,6 +3,8 @@ package com.server.domain.order.repository;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderVideo;
+import com.server.domain.order.entity.QOrderVideo;
 import com.server.domain.video.entity.QVideo;
 import com.server.domain.video.entity.Video;
 
@@ -62,7 +64,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
         );
     }
 
-    public List<Video> findWatchVideosById(String orderId) {
+    public List<Video> findWatchVideosAfterPurchaseById(String orderId) {
 
         JPAQuery<Video> orderVideos = queryFactory.select(video)
                 .from(order)
@@ -77,9 +79,35 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                 .join(watch.video, video)
                 .where(order.orderId.eq(orderId)
                         .and(watch.video.in(orderVideos))
-                        .and(watch.modifiedDate.after(order.modifiedDate))
+                        .and(watch.modifiedDate.after(order.completedDate))
                 ).fetch();
 
         return watchVideos;
+    }
+
+    public Boolean findWatchVideoAfterPurchaseByVideoId(String orderId, Long videoId) {
+
+        Video watchVideo = queryFactory.select(video)
+                .from(order)
+                .join(member).on(member.memberId.eq(order.member.memberId))
+                .join(watch).on(watch.member.memberId.eq(member.memberId))
+                .join(video).on(video.videoId.eq(watch.video.videoId))
+                .where(watch.modifiedDate.after(order.completedDate))
+                .where(order.orderId.eq(orderId))
+                .where(video.videoId.eq(videoId)).fetchOne();
+
+        return watchVideo != null;
+    }
+
+    public Optional<OrderVideo> findOrderVideoByVideoId(String orderId, Long videoId) {
+        return Optional.ofNullable(
+                queryFactory.selectFrom(orderVideo)
+                        .join(orderVideo.order, order).fetchJoin()
+                        .join(order.member, member).fetchJoin()
+                        .join(orderVideo.video, video).fetchJoin()
+                        .where(order.orderId.eq(orderId)
+                                .and(video.videoId.eq(videoId))
+                        ).fetchOne()
+        );
     }
 }

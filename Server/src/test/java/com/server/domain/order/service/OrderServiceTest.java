@@ -5,6 +5,7 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
 import com.server.domain.order.service.dto.response.OrderResponse;
@@ -26,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -34,7 +36,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
 class OrderServiceTest extends ServiceTest {
-
 
     @Autowired OrderRepository orderRepository;
     @Autowired OrderService orderService;
@@ -162,7 +163,7 @@ class OrderServiceTest extends ServiceTest {
         Video video2 = createAndSaveVideo(channel);
 
         Order order = createAndSaveOrder(member, List.of(video2), 0);
-        order.deleteOrder(); // 2번 비디오는 이미 구매했지만 취소했다.
+        order.cancelAllOrder(); // 2번 비디오는 이미 구매했지만 취소했다.
 
         OrderCreateServiceRequest request = OrderCreateServiceRequest.builder()
                 .videoIds(List.of(video1.getVideoId(), video2.getVideoId()))
@@ -192,7 +193,7 @@ class OrderServiceTest extends ServiceTest {
         Video video2 = createAndSaveVideo(channel);
 
         Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
-        order.completeOrder(); // 주문 완료
+        order.completeOrder(LocalDateTime.now()); // 주문 완료
 
         setCancelResponseEntitySuccess();
 
@@ -216,7 +217,7 @@ class OrderServiceTest extends ServiceTest {
         Video video1 = createAndSaveVideo(channel);
         Video video2 = createAndSaveVideo(channel);
 
-        Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
+        Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video1, video2), 100);
 
         Watch watch = Watch.createWatch(member, video1);
         watchRepository.save(watch); // video1 을 시청한 기록이 있다.
@@ -306,7 +307,7 @@ class OrderServiceTest extends ServiceTest {
         Video video2 = createAndSaveVideo(channel);
 
         Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
-        order.deleteOrder(); // 이미 취소된 주문
+        order.cancelAllOrder(); // 이미 취소된 주문
 
         setCancelResponseEntitySuccess();
 
@@ -326,7 +327,7 @@ class OrderServiceTest extends ServiceTest {
         Video video2 = createAndSaveVideo(channel);
 
         Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
-        order.completeOrder(); // 완료된 주문
+        order.completeOrder(LocalDateTime.now()); // 완료된 주문
 
         setCancelResponseEntityFail();
 
@@ -336,7 +337,7 @@ class OrderServiceTest extends ServiceTest {
     }
 
     @Test
-    @DisplayName("완료된 주문을 취소할 때 적립받은 리워드를 다시 반환할 수 없으면(부족하면) RewardNotEnoughException 이 발생한다.")
+    @DisplayName("완료된 주문을 취소할 때 적립받은 리워드를 다시 반환할 수 없어도 가격에서 차감하여 취소할 수 있다.")
     void deleteOrderRewardNotEnoughException() {
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
@@ -345,7 +346,7 @@ class OrderServiceTest extends ServiceTest {
         Video video2 = createAndSaveVideo(channel);
 
         Order order = createAndSaveOrder(member, List.of(video1, video2), 0);
-        order.completeOrder(); // 완료된 주문
+        order.completeOrder(LocalDateTime.now()); // 완료된 주문
 
         NewReward reward1 = createAndSaveReward(member, video1);
         NewReward reward2 = createAndSaveReward(member, video2);
@@ -355,8 +356,7 @@ class OrderServiceTest extends ServiceTest {
         setCancelResponseEntitySuccess();
 
         //when & then
-        assertThatThrownBy(() -> orderService.cancelOrder(member.getMemberId(), order.getOrderId()))
-                .isInstanceOf(RewardNotEnoughException.class);
+        orderService.cancelOrder(member.getMemberId(), order.getOrderId());
     }
 
     @Test
@@ -369,7 +369,7 @@ class OrderServiceTest extends ServiceTest {
         Video video2 = createAndSaveVideo(channel);
 
         Order order = createAndSaveOrder(member, List.of(video1, video2), 1000); // reward 를 1000원을 사용해서 주문
-        order.completeOrder(); // 완료된 주문
+        order.completeOrder(LocalDateTime.now()); // 완료된 주문
 
         NewReward reward1 = createAndSaveReward(member, video1);
         NewReward reward2 = createAndSaveReward(member, video2);
@@ -573,7 +573,7 @@ class OrderServiceTest extends ServiceTest {
         createAndSaveCart(member, video1);
 
         Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
-        order.deleteOrder(); // 주문 취소
+        order.cancelAllOrder(); // 주문 취소
 
         setPayResponseEntitySuccess(order.getPrice());
 
@@ -597,7 +597,7 @@ class OrderServiceTest extends ServiceTest {
         createAndSaveCart(member, video1);
 
         Order order = createAndSaveOrder(member, List.of(video1, video2), 100);
-        order.completeOrder(); // 완료된 주문
+        order.completeOrder(LocalDateTime.now()); // 완료된 주문
 
         setPayResponseEntitySuccess(order.getPrice());
 
@@ -655,21 +655,141 @@ class OrderServiceTest extends ServiceTest {
     }
 
     @Test
+    @DisplayName("비디오 단건 취소를 요청하면 비디오로 적립한 리워드만큼 현재 리워드에서 차감된다.")
+    void cancelVideoRefundReward() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Member loginMember = createAndSaveMember();
+        createAndSaveChannel(loginMember);
+
+        Order order = createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video1, video2), 100);
+
+        NewReward reward = createAndSaveReward(loginMember, video1);
+
+        int currentReward = loginMember.getReward();
+
+        setCancelResponseEntitySuccess();
+
+        //when (video1 취소)
+        orderService.cancelVideo(loginMember.getMemberId(), order.getOrderId(), video1.getVideoId());
+
+        //then
+        assertThat(loginMember.getReward()).isEqualTo(currentReward - video1.getRewardPoint());
+    }
+
+    @Test
     @DisplayName("비디오 단건 취소를 하면 orderVideo 의 상태가 CANCELED 로 변경된다.")
     void cancelVideo() {
         //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
 
+        Member loginMember = createAndSaveMember();
+        Channel loginMemberChannel = createAndSaveChannel(loginMember);
 
-        //when
+        Order order = createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video1, video2), 100);
 
+        setCancelResponseEntitySuccess();
+
+        //when (video1 취소)
+        orderService.cancelVideo(loginMember.getMemberId(), order.getOrderId(), video1.getVideoId());
 
         //then
+        OrderVideo orderVideo1 = order.getOrderVideos().stream()
+                .filter(orderVideo -> orderVideo.getVideo().getVideoId().equals(video1.getVideoId()))
+                .findFirst().orElseThrow();
+
+        assertThat(orderVideo1.getOrderStatus()).isEqualTo(OrderStatus.CANCELED);
 
     }
 
     @Test
-    @DisplayName("비디오 단건 취소를 하면 얻은 리워드를 환불해야 한다.")
-    void cancelVideoReward() {
+    @DisplayName("비디오 단건 취소 시 리워드가 부족하면 환불 금액이 감소된다.")
+    void cancelVideoRewardNotEnoughReward() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Member loginMember = createAndSaveMember();
+        createAndSaveChannel(loginMember);
+
+        Order order = createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video1, video2), 100);
+
+        NewReward reward = createAndSaveReward(loginMember, video1);
+
+        loginMember.minusReward(loginMember.getReward()); // 리워드 부족
+
+        setCancelResponseEntitySuccess();
+
+        //when (video1 취소)
+        orderService.cancelVideo(loginMember.getMemberId(), order.getOrderId(), video1.getVideoId());
+
+        //then
+        assertThat(order.getRemainRefundReward()).isEqualTo(100 - video1.getRewardPoint());
+    }
+
+    @Test
+    @DisplayName("결제 완료된 주문의 비디오가 아니면 개별 취소할 수 없다. (OrderNotValidException)")
+    void cancelVideoNotCompleted() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Member loginMember = createAndSaveMember();
+        createAndSaveChannel(loginMember);
+
+        Order order = createAndSaveOrder(loginMember, List.of(video1, video2), 100);
+
+        //when & then
+        assertThatThrownBy(() -> orderService.cancelVideo(loginMember.getMemberId(), order.getOrderId(), video1.getVideoId()))
+                .isInstanceOf(OrderNotValidException.class);
+    }
+
+    @Test
+    @DisplayName("order 중 마지막 비디오를 환불하면 order 상태를 CANCELED 로 변경하고 모든 Reward 를 환불한다.")
+    void cancelLastVideo() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+
+        Member loginMember = createAndSaveMember();
+        createAndSaveChannel(loginMember);
+
+        Order order = createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video1, video2), 100);
+        OrderVideo orderVideo1 = order.getOrderVideos().stream()
+                .filter(orderVideo -> orderVideo.getVideo().getVideoId().equals(video1.getVideoId()))
+                .findFirst().orElseThrow();
+        orderVideo1.cancel(); // video1 가 취소된 상황
+
+        NewReward reward2 = createAndSaveReward(loginMember, video2);
+
+        int currentReward = loginMember.getReward();
+
+        setCancelResponseEntitySuccess();
+
+        //when (video2 취소)
+        orderService.cancelVideo(loginMember.getMemberId(), order.getOrderId(), video2.getVideoId());
+
+        //then
+        assertThat(loginMember.getReward()).isEqualTo(currentReward + 100 - video2.getRewardPoint());
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELED);
+    }
+
+    @Test
+    @DisplayName("2개 video 의 Order 에서 하나의 video 만 취소한 뒤 order 전체를 취소하는 경우")
+    void cancelVideoAndCancelOrder() {
         //given
 
 

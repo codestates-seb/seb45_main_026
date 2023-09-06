@@ -27,7 +27,7 @@ class NewRewardRepositoryTest extends RepositoryTest {
     NewRewardRepository newRewardRepository;
 
     @Test
-    @DisplayName("주문번호로 reward 리스트를 찾는다. reward 의 member 는 초기화되어있다.")
+    @DisplayName("주문번호로 reward 리스트를 찾는다.")
     void findByOrderId() {
         //given
         Member owner = createAndSaveMember();
@@ -64,10 +64,6 @@ class NewRewardRepositoryTest extends RepositoryTest {
                         reward3.getRewardId(),
                         reward4.getRewardId()
                 );
-
-        for (NewReward reward : rewards) {
-            assertThat(Hibernate.isInitialized(reward.getMember())).isTrue();
-        }
     }
 
     @Test
@@ -186,6 +182,45 @@ class NewRewardRepositoryTest extends RepositoryTest {
 
         //then
         assertThat(findRewards).isEmpty();
+    }
+    
+    @Test
+    @DisplayName("videoId, memberId 를 통해 해당 video 를 통해 얻은 모든 Reward 를 확인한다.")
+    void findByMemberAndVideoId() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+        Video video1 = createAndSaveVideo(channel);
+        Video video2 = createAndSaveVideo(channel);
+        Question question = createAndSaveQuestion(video1);
+
+        Member member = createAndSaveMember();
+        Channel memberChannel = createAndSaveChannel(member);
+
+        Reply reply = createAndSaveReply(member, video1);
+
+        Order order = createAndSaveOrderComplete(member, List.of(video1, video2));
+
+        NewReward reward1 = createAndSaveReward(member, video1);
+        NewReward reward2 = createAndSaveReward(member, question);
+        NewReward reward3 = createAndSaveReward(member, video2);
+        NewReward reward4 = createAndSaveReward(member, reply);
+
+
+        em.flush();
+        em.clear();
+
+        //when
+        List<NewReward> rewards = newRewardRepository.findByMemberAndVideoId(member.getMemberId(), video1.getVideoId());
+
+        //then
+        assertThat(rewards).hasSize(3)
+                .extracting("rewardId")
+                .containsExactlyInAnyOrder(
+                        reward1.getRewardId(),
+                        reward2.getRewardId(),
+                        reward4.getRewardId()
+                );
     }
 
     protected NewReward createAndSaveReward(Member member, Rewardable rewardable) {

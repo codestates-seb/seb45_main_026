@@ -1,6 +1,7 @@
 package com.server.domain.reward.service;
 
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.Rewardable;
@@ -24,5 +25,7 @@ public interface RewardService {
 	void createQuestionRewardsIfNotPresent(List<Question> questions, Member member);
 
 	void cancelReward(Order order);
+
+	void cancelVideoReward(OrderVideo orderVideo);
 
 }

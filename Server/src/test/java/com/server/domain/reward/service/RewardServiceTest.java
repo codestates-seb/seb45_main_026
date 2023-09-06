@@ -3,6 +3,7 @@ package com.server.domain.reward.service;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reward.entity.*;
 import com.server.domain.video.entity.Video;
@@ -197,24 +198,24 @@ class RewardServiceTest extends ServiceTest {
         Member member = createAndSaveMember();
         Channel memberChannel = createAndSaveChannel(member);
 
-        int currentPoint = member.getReward();
-
         NewReward reward1 = createAndSaveReward(member, video);
         NewReward reward2 = createAndSaveReward(member, question);
 
         Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 100);
 
+        int currentPoint = member.getReward();
+
         //when
         rewardService.cancelReward(order);
 
         //then
-        assertThat(member.getReward()).isEqualTo(currentPoint + 100);
+        assertThat(member.getReward()).isEqualTo(currentPoint - video.getRewardPoint() - question.getRewardPoint());
         assertThat(reward1.isCanceled()).isTrue();
         assertThat(reward2.isCanceled()).isTrue();
     }
 
     @Test
-    @DisplayName("order 를 통해 리워드 취소 시 reward 가 부족하면 RewardNotEnoughException 예외가 발생한다.")
+    @DisplayName("order 를 통해 리워드 취소 시 reward 가 부족하면 order 에서 차감해 사용한다.")
     void cancelRewardRewardNotEnoughException() {
         //given
         Member owner = createAndSaveMember();
@@ -226,14 +227,102 @@ class RewardServiceTest extends ServiceTest {
         Member member = createAndSaveMember();
         Channel memberChannel = createAndSaveChannel(member);
 
-        Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
+        Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 100);
         createAndSaveReward(member, video);
         createAndSaveReward(member, question);
 
         member.minusReward(member.getReward()); // 리워드를 0 으로 만든다.
 
-        //when & then
-        assertThatThrownBy(() -> rewardService.cancelReward(order))
-                .isInstanceOf(RewardNotEnoughException.class);
+        int currentPoint = order.getRemainRefundReward();
+
+        //when
+        rewardService.cancelReward(order);
+
+        //then
+        assertThat(order.getRemainRefundReward()).isEqualTo(currentPoint - video.getRewardPoint() - question.getRewardPoint());
+
+    }
+
+    @Test
+    @DisplayName("orderVideo 를 통해 해당 비디오에 관련된 리워드를 취소하고 Member 에서 차감한다.")
+    void cancelVideoReward() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+        Question question = createAndSaveQuestion(video);
+
+        Member member = createAndSaveMember();
+        Channel memberChannel = createAndSaveChannel(member);
+
+        Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
+        OrderVideo orderVideo = order.getOrderVideos().get(0);
+        createAndSaveReward(member, video);
+        createAndSaveReward(member, question);
+
+        int currentPoint = member.getReward();
+
+        //when
+        rewardService.cancelVideoReward(orderVideo);
+
+        //then
+        assertThat(member.getReward())
+                .isEqualTo(currentPoint - video.getRewardPoint() - question.getRewardPoint());
+    }
+
+    @Test
+    @DisplayName("orderVideo 를 통해 비디오 리워드를 취소할 때 환불할 리워드가 부족하면 order 에서 차감해 사용한다.")
+    void cancelVideoRewardEnoughInOrder() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+        Question question = createAndSaveQuestion(video);
+
+        Member member = createAndSaveMember();
+        Channel memberChannel = createAndSaveChannel(member);
+
+        Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 100);
+        OrderVideo orderVideo = order.getOrderVideos().get(0);
+        createAndSaveReward(member, video);
+        createAndSaveReward(member, question);
+
+        member.minusReward(member.getReward()); // 리워드 소멸
+
+        //when
+        rewardService.cancelVideoReward(orderVideo);
+
+        //then
+        assertThat(order.getRemainRefundReward()).isEqualTo(100 - video.getRewardPoint() - question.getRewardPoint());
+    }
+
+    @Test
+    @DisplayName("orderVideo 를 통해 비디오 리워드를 취소할 때 환불할 리워드가 order 에서도 부족하면 환불 금액에서 차감한다.")
+    void cancelVideoRewardNotEnough() {
+        //given
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
+
+        Video video = createAndSaveVideo(channel);
+        Question question = createAndSaveQuestion(video);
+
+        Member member = createAndSaveMember();
+        Channel memberChannel = createAndSaveChannel(member);
+
+        Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
+        OrderVideo orderVideo = order.getOrderVideos().get(0);
+        int orderPrice = order.getRemainRefundAmount();
+        createAndSaveReward(member, video);
+        createAndSaveReward(member, question);
+
+        member.minusReward(member.getReward()); // 리워드 소멸
+
+        //when
+        rewardService.cancelVideoReward(orderVideo);
+
+        //then
+        assertThat(order.getRemainRefundAmount()).isEqualTo(orderPrice - video.getRewardPoint() - question.getRewardPoint());
     }
 }

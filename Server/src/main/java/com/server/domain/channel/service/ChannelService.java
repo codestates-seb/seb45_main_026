@@ -62,10 +62,11 @@ public class ChannelService {
 
 
             return ChannelInfo.builder()
-                    .memberId(-1L)
+                    .memberId(channel.getMember().getMemberId())
                     .channelName(channel.getChannelName())
                     .description(channel.getDescription())
                     .subscribers(channel.getSubscribers())
+                    .isSubscribed(false)
                     .imageUrl(awsService.getFileUrl(channel.getMember().getMemberId(), channel.getMember().getImageFile(), FileType.PROFILE_IMAGE))
                     .createdDate(channel.getCreatedDate())
                     .build();
@@ -74,7 +75,7 @@ public class ChannelService {
 
             boolean isSubscribed = isSubscribed(loginMemberId, memberId);
 
-            return ChannelInfo.of(channel, isSubscribed, awsService, channel.getMember());
+            return ChannelInfo.of(channel, isSubscribed, awsService.getFileUrl(channel.getMember().getMemberId(), channel.getMember().getImageFile(), FileType.PROFILE_IMAGE));
         }
     }
 
@@ -104,24 +105,24 @@ public class ChannelService {
 
 
     // 구독 여부 업데이트
-    public boolean updateSubscribe(Long memberId, Long loginMemberId){
+    public boolean updateSubscribe(Long memberId, Long loginMemberId) {
 
-        if(loginMemberId == null || loginMemberId.equals(-1L)){
+
+        if (loginMemberId == null || loginMemberId.equals(-1L)) {
             throw new MemberAccessDeniedException();
         }
 
+        boolean isSubscribed = isSubscribed(memberId, loginMemberId);
 
-        if (isSubscribed(memberId, loginMemberId)) {
 
-            unsubscribe(memberId, loginMemberId);
+        if (!isSubscribed) {
+            subscribe(memberId, loginMemberId);
+            return true;
 
-            return false;
 
         } else {
-
-            subscribe(memberId, loginMemberId);
-
-            return true;
+            unsubscribe(memberId, loginMemberId);
+            return false;
         }
     }
 
@@ -134,8 +135,13 @@ public class ChannelService {
 //
         Channel channel = existChannel(memberId);
 
+        if (isSubscribed(memberId, loginMemberId)) {
+            unsubscribe(memberId, loginMemberId);
+            return;
+        }
 
-        channel.addSubscribers(1);
+
+        channel.addSubscriber();
 
         Subscribe subscribe = Subscribe.builder()
                 .member(loginMember)
@@ -158,13 +164,18 @@ public class ChannelService {
 //            throw new ChannelNotFoundException();
 //        }
 
+
         Channel channel = existChannel(memberId);
+
+//        if (isSubscribed(loginMemberId, memberId)) {
+//            throw new RuntimeException("이미 구독을 취소하셨습니다.");
+//        }
 
         Member loginMember = memberRepository.findById(loginMemberId)
                 .orElseThrow(() -> new MemberNotFoundException());
 
-//        if (isSubscribed(loginMemberId, memberId)) {
-        channel.decreaseSubscribers(1);
+        //if (isSubscribed(loginMemberId, memberId)) {
+        channel.decreaseSubscribers();
 
         Optional<Subscribe> subscription = subscribeRepository.findByMemberAndChannel(loginMember, channel);
 
@@ -236,10 +247,10 @@ public class ChannelService {
     }
 
 
-    private Channel existChannel(Long loginMemberId) {
+    private Channel existChannel(Long memberId) {
 
         //Member member = memberRepository.findById(loginMemberId).orElseThrow(MemberAccessDeniedException::new);
 
-        return channelRepository.findByMember(loginMemberId).orElseThrow(ChannelNotFoundException::new);
+        return channelRepository.findByMember(memberId).orElseThrow(ChannelNotFoundException::new); //여기서 에러남 ㅠ 되돌아 오는 길에 에러남
     }
 }

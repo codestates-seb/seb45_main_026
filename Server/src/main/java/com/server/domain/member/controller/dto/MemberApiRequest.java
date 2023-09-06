@@ -34,7 +34,6 @@ public class MemberApiRequest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Image {
-		private String imageName;
 		@ImageTypeValid(message = "{validation.imageType}")
 		private ImageType imageType;
 	}

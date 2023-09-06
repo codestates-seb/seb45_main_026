@@ -19,5 +19,6 @@ public class WatchsResponse {
 	public static class Channel {
 		private Long memberId;
 		private String channelName;
+		private String profileImageUrl;
 	}
 }

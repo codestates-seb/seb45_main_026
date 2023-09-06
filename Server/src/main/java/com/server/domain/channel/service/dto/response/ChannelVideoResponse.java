@@ -20,6 +20,7 @@ public class ChannelVideoResponse {
     private String thumbnailUrl;
     private int views;
     private int price;
+    private float star;
     private Boolean isPurchased;
     private Boolean isInCart;
     private String description;
@@ -37,6 +38,7 @@ public class ChannelVideoResponse {
                 .thumbnailUrl(thumbnailUrlsInOrder.get(videos.getContent().indexOf(video)))
                 .views(video.getView())
                 .price(video.getPrice())
+                .star(video.getStar())
                 .isPurchased(isPurchaseInOrder.get(videos.getContent().indexOf(video)))
                 .isInCart(videoIdsInCart.contains(video.getVideoId()))
                 .description(video.getDescription())

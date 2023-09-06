@@ -1,5 +1,6 @@
 package com.server.auth;
 
+import static com.server.auth.util.AuthConstant.*;
 import static com.server.global.testhelper.ControllerTest.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -13,6 +14,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
 
@@ -36,18 +38,27 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.snippet.Attributes;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.auth.controller.dto.AuthApiRequest;
+import com.server.auth.jwt.service.CustomUserDetails;
 import com.server.auth.jwt.service.JwtProvider;
 import com.server.auth.oauth.service.OAuthProvider;
 import com.server.auth.oauth.service.OAuthService;
@@ -83,30 +94,19 @@ public class AuthControllerTest {
 	private ObjectMapper objectMapper;
 	@Autowired
 	private MockMvc mockMvc;
-	@Autowired
-	private PasswordEncoder passwordEncoder;
 
 	@Autowired
-	private MemberRepository memberRepository;
-
+	private JwtProvider provider;
 	@Autowired
 	private MessageSource messageSource;
-
 	private BeanDescriptor beanDescriptor;
-
 	private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 	private Validator validator = factory.getValidator();
 
-	// @BeforeAll
-	// void addMember() {
-	// 	Member member = Member.createMember(
-	// 		"test@email.com",
-	// 		passwordEncoder.encode("qwer1234!"),
-	// 		"testname"
-	// 	);
-	//
-	// 	memberRepository.save(member);
-	// }
+	@Autowired
+	private MemberRepository memberRepository;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@Test
 	@DisplayName("로컬 로그인 성공 테스트")
@@ -192,6 +192,40 @@ public class AuthControllerTest {
 					responseHeaders(
 						headerWithName("Authorization").description("accessToken"),
 						headerWithName("Refresh").description("refreshToken")
+					)
+				)
+			);
+	}
+
+	@Test
+	@DisplayName("리프래쉬 토큰으로 액세스 토큰 재발급 테스트")
+	void refreshTokenToAccessToken() throws Exception {
+		Member member = createMember("refresh@email.com", "qwer1234!");
+
+		String refresh = getRefreshToken(member);
+
+		ResultActions actions = mockMvc.perform(
+			post("/auth/refresh")
+				.header(REFRESH, BEARER + refresh)
+				.contentType(MediaType.APPLICATION_JSON)
+		);
+
+		actions
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(header().exists("Authorization"));
+
+		actions
+			.andDo(
+				document(
+					"auth/refresh",
+					preprocessRequest(prettyPrint()),
+					preprocessResponse(prettyPrint()),
+					requestHeaders(
+						headerWithName("Refresh").description("refreshToken")
+					),
+					responseHeaders(
+						headerWithName("Authorization").description("accessToken")
 					)
 				)
 			);
@@ -390,12 +424,14 @@ public class AuthControllerTest {
 	}
 
 	private Member createMember(String email, String password) {
-		return Member.builder()
+		Member member = Member.builder()
 			.email(email)
 			.nickname("test")
-			.password(password)
+			.password(passwordEncoder.encode(password))
 			.authority(Authority.ROLE_USER)
 			.build();
+
+		return memberRepository.save(member);
 	}
 
 	private void setConstraintClass(Class<?> clazz){
@@ -445,5 +481,25 @@ public class AuthControllerTest {
 		}
 
 		return message.replace("{min}", min.toString()).replace("{max}", max.toString());
+	}
+
+	private String getRefreshToken(Member member) {
+		UserDetails userDetails = getUserDetails(member);
+
+		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+			userDetails, null, userDetails.getAuthorities());
+
+		return provider.createRefreshToken(authenticationToken, 1000000);
+	}
+
+	private UserDetails getUserDetails(Member member) {
+		GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getAuthority().toString());
+
+		return new CustomUserDetails(
+			member.getMemberId(),
+			String.valueOf(member.getEmail()),
+			member.getPassword(),
+			Collections.singleton(grantedAuthority)
+		);
 	}
 }
