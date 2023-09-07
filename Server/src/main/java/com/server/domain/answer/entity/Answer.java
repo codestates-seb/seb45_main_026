@@ -42,17 +42,19 @@ public class Answer extends BaseEntity {
                 .build();
     }
 
-    public boolean solveAnswer(String myAnswer) {
+    public void solveAnswer(String myAnswer) {
 
         this.myAnswer = myAnswer;
 
         if (myAnswer.equals(this.question.getQuestionAnswer())) {
             this.answerStatus = AnswerStatus.CORRECT;
-            return true;
         } else {
             this.answerStatus = AnswerStatus.WRONG;
-            return false;
         }
+    }
+
+    public boolean isCorrect() {
+        return this.answerStatus.equals(AnswerStatus.CORRECT);
     }
 
 }
