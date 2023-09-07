@@ -23,7 +23,7 @@ export const getUserInfoService = async (authorization) => {
         }
     }
 }
-//프로필 변경 step1 : 프로필 등록 URL 받기
+//프로필 변경 step1 : 프로필 등록 presignedUrl 받기
 export const getUploadProfileImgUrlService = async (
     authorization, 
     email, 
@@ -44,9 +44,31 @@ export const getUploadProfileImgUrlService = async (
         )
         return {
             status : 'success',
-            data: response.data,
+            data: response.headers.location,
         }
     } catch(err) {
+        return {
+            status: 'error',
+            data: err
+        }
+    }
+}
+
+//프로필 변경 step2 : presignedUrl로 post 요청하기
+export const uploadProfileImage = async (presignedUrl, file) => {
+    try {
+        let ex = file.name.split(".")[1];
+        ex = ex.toLowerCase();
+        const response = await axios.put(
+            `${presignedUrl}`, 
+            file,
+            { headers: { "Content-type": `image/${ex}`, } }
+        );
+        return {
+            status: 'success',
+            data: response
+        }
+    } catch (err) {
         return {
             status: 'error',
             data: err

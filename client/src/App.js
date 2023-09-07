@@ -52,6 +52,8 @@ function App() {
   //authorization 갱신에도 실패하면 강제 로그아웃 한다.
   useEffect(() => {
     if (!(tokens.authorization === "")) {
+      console.log('App.js 실행됨');
+     
       getUserInfoService(tokens.authorization).then((res) => {
         //토큰이 유효하면 회원 정보를 dispatch 후, isLogin을 true로 설정한다.
         if (res.status === 'success') {
@@ -61,7 +63,7 @@ function App() {
               email: res.data.email, 
               nickname: res.data.nickname,
               grade: res.data.grade,
-              imgUrl: res.data.imgUrl,
+              imgUrl: res.data.imageUrl,
               reward: res.data.reward
             }));
           dispatch(setIsLogin(true));
