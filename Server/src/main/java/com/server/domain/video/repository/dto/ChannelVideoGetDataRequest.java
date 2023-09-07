@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 public class ChannelVideoGetDataRequest {
 
     private Long memberId;
+    private Long loginMemberId;
     private String categoryName;
     private Pageable pageable;
     private String sort;

@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 public class ChannelVideoGetServiceRequest {
 
     private Long memberId;
+    private Long loginMemberId;
     private int page;
     private int size;
     private String categoryName;
@@ -19,9 +20,10 @@ public class ChannelVideoGetServiceRequest {
     private Boolean free;
     private boolean isPurchased;
 
-    public ChannelVideoGetDataRequest toDataRequest() {
+    public ChannelVideoGetDataRequest toDataRequest(Long loginMemberId) {
         return ChannelVideoGetDataRequest.builder()
                 .memberId(memberId)
+                .loginMemberId(loginMemberId)
                 .categoryName(categoryName)
                 .pageable(PageRequest.of(page, size))
                 .sort(sort)

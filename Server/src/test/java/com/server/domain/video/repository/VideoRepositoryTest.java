@@ -587,11 +587,14 @@ class VideoRepositoryTest extends RepositoryTest {
     @DisplayName("memberId 로 해당 채널의 video 목록을 조회한다.")
     Collection<DynamicTest> findChannelVideoByCategoryPaging() {
         //given
-        Member member = createAndSaveMember();
-        Channel channel = createAndSaveChannel(member);
+        Member owner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(owner);
 
         Member otherMember = createAndSaveMember();
         Channel otherChannel = createAndSaveChannel(otherMember);
+
+        Member loginMember = createMemberWithChannel();
+
 
         Category category1 = createAndSaveCategory("java");
         Category category2 = createAndSaveCategory("spring");
@@ -602,7 +605,7 @@ class VideoRepositoryTest extends RepositoryTest {
         Video video4 = createAndSaveFreeVideo(channel);
         Video video5 = createAndSaveVideo(channel);
         Video video6 = createAndSaveVideo(channel);
-        createAndSaveOrderComplete(member, List.of(video4, video5, video6)); // member 가 video4, video5, video6 구매
+        createAndSaveOrderComplete(loginMember, List.of(video4, video5, video6)); // member 가 video4, video5, video6 구매
 
         for(int i = 1; i <= 100; i++) {
             Video otherVideo = createAndSaveVideo(otherChannel);// otherMember 의 video
@@ -624,7 +627,8 @@ class VideoRepositoryTest extends RepositoryTest {
                 dynamicTest("채널의 비디오를 페이징으로 최신순으로 조회한다.", () -> {
                     //given
                     ChannelVideoGetDataRequest request = new ChannelVideoGetDataRequest(
-                            member.getMemberId(),
+                            owner.getMemberId(),
+                            loginMember.getMemberId(),
                             null,
                             pageRequest,
                             null,
@@ -641,12 +645,13 @@ class VideoRepositoryTest extends RepositoryTest {
                             .allSatisfy(video -> assertThat(video.getChannel())
                                     .extracting("member")
                                     .extracting("memberId")
-                                    .isEqualTo(member.getMemberId()));
+                                    .isEqualTo(owner.getMemberId()));
                 }),
                 dynamicTest("채널의 비디오를 페이징으로 조회수순으로 조회한다. video 2 가 먼저 조회된 후 최신순으로 조회된다.", () -> {
                     //given
                     ChannelVideoGetDataRequest request = new ChannelVideoGetDataRequest(
-                            member.getMemberId(),
+                            owner.getMemberId(),
+                            loginMember.getMemberId(),
                             null,
                             pageRequest,
                             "view",
@@ -668,7 +673,8 @@ class VideoRepositoryTest extends RepositoryTest {
                 dynamicTest("채널의 비디오를 페이징으로 별점순으로 조회한다. video 3 이 먼저 조회된 후 최신순으로 조회된다.", () -> {
                     //given
                     ChannelVideoGetDataRequest request = new ChannelVideoGetDataRequest(
-                            member.getMemberId(),
+                            owner.getMemberId(),
+                            loginMember.getMemberId(),
                             null,
                             pageRequest,
                             "star",
@@ -690,7 +696,8 @@ class VideoRepositoryTest extends RepositoryTest {
                 dynamicTest("채널의 비디오를 페이징으로 java 카테고리를 조회한다. video 1, 2, 4, 6 이 조회된다.", () -> {
                     //given
                     ChannelVideoGetDataRequest request = new ChannelVideoGetDataRequest(
-                            member.getMemberId(),
+                            owner.getMemberId(),
+                            loginMember.getMemberId(),
                             "java",
                             pageRequest,
                             "star",
@@ -706,7 +713,8 @@ class VideoRepositoryTest extends RepositoryTest {
                 dynamicTest("채널의 비디오를 페이징으로 spring 카테고리를 조회한다. video 1, 3, 5 가 조회된다.", () -> {
                     //given
                     ChannelVideoGetDataRequest request = new ChannelVideoGetDataRequest(
-                            member.getMemberId(),
+                            owner.getMemberId(),
+                            loginMember.getMemberId(),
                             "spring",
                             pageRequest,
                             null,
@@ -722,7 +730,8 @@ class VideoRepositoryTest extends RepositoryTest {
                 dynamicTest("채널의 비디오를 페이징으로 조회순, java 카테고리를 조회한다. video 2 가 먼저 조회되고, 1, 4, 6 이 조회된다.", () -> {
                     //given
                     ChannelVideoGetDataRequest request = new ChannelVideoGetDataRequest(
-                            member.getMemberId(),
+                            owner.getMemberId(),
+                            loginMember.getMemberId(),
                             "java",
                             pageRequest,
                             "view",
@@ -744,7 +753,8 @@ class VideoRepositoryTest extends RepositoryTest {
                 dynamicTest("채널의 비디오를 페이징으로 별점순, spring 카테고리를 조회한다. video 3 이 먼저 조회되고, 1, 5 가 조회된다.", () -> {
                     //given
                     ChannelVideoGetDataRequest request = new ChannelVideoGetDataRequest(
-                            member.getMemberId(),
+                            owner.getMemberId(),
+                            loginMember.getMemberId(),
                             "spring",
                             pageRequest,
                             "star",
@@ -767,6 +777,7 @@ class VideoRepositoryTest extends RepositoryTest {
                     //given
                     ChannelVideoGetDataRequest request = new ChannelVideoGetDataRequest(
                             otherMember.getMemberId(),
+                            loginMember.getMemberId(),
                             null,
                             pageRequest,
                             "star",
@@ -785,7 +796,8 @@ class VideoRepositoryTest extends RepositoryTest {
                 dynamicTest("채널의 비디오를 중 무료인 동영상을 조회하면 video 4 만 조회된다.", () -> {
                     //given
                     ChannelVideoGetDataRequest request = new ChannelVideoGetDataRequest(
-                            member.getMemberId(),
+                            owner.getMemberId(),
+                            loginMember.getMemberId(),
                             null,
                             pageRequest,
                             null,
@@ -802,7 +814,8 @@ class VideoRepositoryTest extends RepositoryTest {
                 dynamicTest("채널의 비디오를 중 유료인 동영상을 조회하면 video 4 를 제외하고 조회된다.", () -> {
                     //given
                     ChannelVideoGetDataRequest request = new ChannelVideoGetDataRequest(
-                            member.getMemberId(),
+                            owner.getMemberId(),
+                            loginMember.getMemberId(),
                             null,
                             pageRequest,
                             null,
@@ -821,7 +834,8 @@ class VideoRepositoryTest extends RepositoryTest {
                 dynamicTest("채널의 비디오 중 구매안한 video 인 1, 2, 3 만 조회한다.", ()-> {
                     //given
                     ChannelVideoGetDataRequest request = new ChannelVideoGetDataRequest(
-                            member.getMemberId(),
+                            owner.getMemberId(),
+                            loginMember.getMemberId(),
                             null,
                             pageRequest,
                             null,
