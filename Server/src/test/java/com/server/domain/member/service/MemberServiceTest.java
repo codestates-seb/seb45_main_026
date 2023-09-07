@@ -331,11 +331,10 @@ public class MemberServiceTest extends ServiceTest {
 		Member member = createNoImageMember();
 
 		Long loginId = member.getMemberId();
-		String imageName = member.getEmail();
+		String imageName = "profile20230907140835";
 
-		memberService.updateImage(loginId);
+		memberService.updateImage(loginId, imageName);
 
-		assertThat(imageName).isEqualTo("test@gmail.com");
 		assertThat(member.getImageFile()).isNotNull().isEqualTo(imageName);
 	}
 
