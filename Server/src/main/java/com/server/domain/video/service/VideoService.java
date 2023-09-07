@@ -412,13 +412,11 @@ public class VideoService {
 
     public Page<ReplyInfo> getReplies(Long videoId, int page, int size, ReplySort replySort, Integer star) {
         Sort sort = Sort.by(Sort.Direction.DESC, replySort.getSort());
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequest.of(page, size, sort); //
 
-        if (star != null) {
-            // 별점 이상의 댓글만 필터링하여 반환
+        if (star != null) { //(별점 필터링 o)
             return replyRepository.findAllByVideoIdAndStarOrStarIsNull(videoId, star, pageRequest);
-        } else {
-            // 별점 필터링 없이 모든 댓글 반환
+        } else { //(별점 필터링 x)
             return replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
         }
     }

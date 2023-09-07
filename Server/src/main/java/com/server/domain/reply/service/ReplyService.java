@@ -15,16 +15,12 @@ import org.springframework.stereotype.Service;
 public class ReplyService {
 
     private final ReplyRepository replyRepository;
-    private final MemberRepository memberRepository;
-    private final AwsService awsService;
 
 
 
 
-    public ReplyService(ReplyRepository replyRepository, MemberRepository memberRepository, AwsService awsService) {
+    public ReplyService(ReplyRepository replyRepository) {
         this.replyRepository = replyRepository;
-        this.memberRepository = memberRepository;
-        this.awsService = awsService;
     }
 
 
@@ -41,17 +37,12 @@ public class ReplyService {
 
     public ReplyInfo getReply(Long replyId, Long loginMemberId) {
 
-//        memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
-
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
         return ReplyInfo.of(reply);
     }
 
     public void deleteReply(Long replyId, Long loginMemberId) {
-
-        // memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
-
 
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 

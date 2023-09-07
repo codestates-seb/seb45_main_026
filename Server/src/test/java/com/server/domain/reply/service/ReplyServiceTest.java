@@ -10,6 +10,7 @@ import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.service.VideoService;
+import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.replyException.ReplyNotFoundException;
 import com.server.global.testhelper.ServiceTest;
 import org.junit.jupiter.api.DisplayName;
@@ -53,7 +54,6 @@ class ReplyServiceTest extends ServiceTest {
     @DisplayName("댓글 한 건을 조회한다.")
     void getReply() {
         Member loginMember = createAndSaveMember();
-        memberRepository.save(loginMember);
 
         Channel channel = createAndSaveChannel(loginMember);
         Video video = createAndSaveVideo(channel);
@@ -85,7 +85,6 @@ class ReplyServiceTest extends ServiceTest {
     @DisplayName("댓글 목록을 페이징으로 찾아서 조회한다.")
     void getReplies() {
         Member member = createAndSaveMember();
-        memberRepository.save(member);
 
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
@@ -111,7 +110,6 @@ class ReplyServiceTest extends ServiceTest {
     @DisplayName("댓글을 작성한다.")
     void createReply(){
         Member member = createAndSaveMember();
-        memberRepository.save(member);
 
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
@@ -180,7 +178,6 @@ class ReplyServiceTest extends ServiceTest {
     @DisplayName("댓글을 최신순으로 조회한다")
     void getRepliesByCreatedDate() {
         Member member = createAndSaveMember();
-        memberRepository.save(member);
 
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
@@ -194,7 +191,6 @@ class ReplyServiceTest extends ServiceTest {
                     .build();
             replyRepository.save(reply);
         }
-        replyRepository.findAll();
 
         Page<ReplyInfo> replies = videoService.getReplies(video.getVideoId(), 1, 10, ReplySort.CREATED_DATE, null);
 
@@ -229,5 +225,24 @@ class ReplyServiceTest extends ServiceTest {
         assertEquals(replyRepository.findById(reply.getReplyId()).get().getContent(), "content");
     }
 
+    @Test
+    @DisplayName("로그인한 회원이 아니면 자신의 댓글을 삭제 할 수 없다.")
+    void deleteReplyOnlyLoginUser(){
+        Member member = createAndSaveMember();
+        memberRepository.save(member);
 
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
+        Reply reply = createAndSaveReply(member, video);
+
+        Long replyId = reply.getReplyId();
+        Long loginMemberId = member.getMemberId();
+
+        if(reply.getMember().getMemberId() != loginMemberId){
+            throw new MemberAccessDeniedException();
+        }
+        replyService.deleteReply(replyId, loginMemberId);
+    }
 }
+
+
