@@ -11,6 +11,7 @@ import axios from "axios";
 import frofileGray from "../../assets/images/icons/profile/profileGray.svg"
 import Setting from '../../components/contentListItems/Setting';
 import { useParams } from "react-router";
+import { BodyTextTypo, Heading5Typo } from "../../atoms/typographys/Typographys";
 
 const globalTokens = tokens.global;
 
@@ -25,22 +26,24 @@ const ProfileContainer = styled.div`
   flex-direction: row;
   gap: ${globalTokens.Spacing20.value}px;
   margin: ${globalTokens.Spacing36.value}px 0;
+  
 `
 export const ProfileImg = styled.img`
-    max-height: 130px;
-    height: auto;
-    width: auto;
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    
 `
 export const ImgContainer = styled.div`
     width: 130px;
     height: 130px;
     min-width: 130px;
     border-radius: ${globalTokens.ProfileRadius.value}px;
-    background-color: ${globalTokens.White.value};
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    border: 1px solid ${globalTokens.LightGray.value};
 `
 const InforContainer = styled.div`
     min-height: 130px;
@@ -50,24 +53,23 @@ const InforContainer = styled.div`
     justify-content: space-between;
     gap: ${globalTokens.Spacing8.value}px;
 `
-const ChannelTitle = styled.h1`
-  height: 30px;
+const ChannelTitle = styled(Heading5Typo)`
+  /* height: 30px;
   font-size: ${globalTokens.Heading4.value}px;
-  font-weight: ${globalTokens.Bold.value};
+  font-weight: ${globalTokens.Bold.value}; */
 `;
-const ChannelSubscribers = styled.div`
-  height: 20px;
+const ChannelSubscribers = styled(BodyTextTypo)`
+  /* height: 20px;
   font-size: ${globalTokens.BodyText.value}px;
-  font-weight: ${globalTokens.Bold.value};
+  font-weight: ${globalTokens.Bold.value}; */
 `
 const ChannelDescription = styled.div`
   flex-grow: 1;
   padding: ${globalTokens.Spacing8.value}px;
-  background-color: lightgray;
+  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.Background.value};
+  color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
   border-radius: ${globalTokens.RegularRadius.value}px;
 `
-
-
 
 export default function ChannelPage() {
   const isDark = useSelector((state) => state.uiSetting.isDark);
@@ -95,11 +97,11 @@ export default function ChannelPage() {
               />
             </ImgContainer>
             <InforContainer>
-              <ChannelTitle>{channelInfor.channelName}</ChannelTitle>
-              <ChannelSubscribers>
+              <ChannelTitle isDark={isDark}>{channelInfor.channelName}</ChannelTitle>
+              <ChannelSubscribers isDark={isDark}>
                 구독자 {channelInfor.subscribers}명
               </ChannelSubscribers>
-              <ChannelDescription>
+              <ChannelDescription isDark={isDark}>
                 {channelInfor.description
                   ? channelInfor.description
                   : "아직 채널 소개가 없습니다"}

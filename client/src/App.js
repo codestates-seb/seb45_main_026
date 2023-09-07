@@ -12,7 +12,7 @@ import Footer from "./components/footers/Footer";
 import ChannelPage from "./pages/contents/ChannelPage";
 import DetailPage from "./pages/contents/DetailPage/DetailPage";
 import CartPage from "./pages/contents/CartPage/CartPage";
-import UploadPage from "./pages/contents/UploadPage";
+import CourseUploadPage from "./pages/contents/CourseUploadPage";
 import SignupPage from "./pages/auth/SignupPage";
 import "./App.css";
 import ProblemPage from "./pages/contents/ProblemPage";
@@ -30,8 +30,8 @@ import PurchasedListPage from "./pages/contents/PurchasedListPage";
 import UpdatePasswordPage from "./pages/auth/UpdatePasswordPage";
 import ChannelListPage from "./pages/contents/ChannelListPage";
 import { AlertModal } from './atoms/modal/Modal';
+import ProblemUploadPage from "./pages/contents/ProblemUploadPage";
 import { getNewAuthorizationService } from "./services/authServices";
-import Loading from "./atoms/loading/Loading";
 
 function App() {
   const dispatch = useDispatch();
@@ -51,7 +51,7 @@ function App() {
   //authorization 갱신에 성공하면 다시 프로필 조회를 한다.
   //authorization 갱신에도 실패하면 강제 로그아웃 한다.
   useEffect(() => {
-    if (!(tokens.authorization === "")) {
+    if (!(tokens.authorization === "")) {     
       getUserInfoService(tokens.authorization).then((res) => {
         //토큰이 유효하면 회원 정보를 dispatch 후, isLogin을 true로 설정한다.
         if (res.status === 'success') {
@@ -61,7 +61,7 @@ function App() {
               email: res.data.email, 
               nickname: res.data.nickname,
               grade: res.data.grade,
-              imgUrl: res.data.imgUrl,
+              imgUrl: res.data.imageUrl,
               reward: res.data.reward
             }));
           dispatch(setIsLogin(true));
@@ -124,7 +124,8 @@ function App() {
         <Route path="/videos/:videoId" element={<DetailPage />} />
         <Route path="/channels/:userId" element={<ChannelPage/>} />
         <Route path="/carts" element={<CartPage />} />
-        <Route path="/upload" element={<UploadPage />} />
+        <Route path="/upload/course" element={<CourseUploadPage />} />
+        <Route path="/upload/problem" element={<ProblemUploadPage />} />
         <Route path="/videos/1/problems" element={<ProblemPage />} />
         <Route path="/purchased" element={<PurchasedListPage />} />
         <Route path="/channellist" element={<ChannelListPage />} />

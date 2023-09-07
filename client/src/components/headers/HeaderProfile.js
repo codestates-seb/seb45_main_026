@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { HeaderProfileContainer, HeaderProfileImg } from './HeaderProfile.style';
+import { HeaderProfileContainer, HeaderProfileImg, HeaderProfileImgContainer } from './HeaderProfile.style';
 import { BodyTextTypo } from '../../atoms/typographys/Typographys';
 import ProfileGray from '../../assets/images/icons/profile/profileGray.svg'
 import { setIsSideBar } from '../../redux/createSlice/UISettingSlice';
@@ -26,7 +26,10 @@ const HeaderProfile = () => {
             onClick= {handleHeaderProfileClick} 
             onBlur={handleHeaderProfileBlur}>
                 <BodyTextTypo isDark={isDark}>{userInfo.nickname}</BodyTextTypo>
-                <HeaderProfileImg src={ProfileGray}/>
+                <HeaderProfileImgContainer>
+                    <HeaderProfileImg 
+                        src={userInfo.imgUrl!=='프로필 이미지 미등록'?userInfo.imgUrl:ProfileGray}/>
+                </HeaderProfileImgContainer>
                 <SideBar/>
         </HeaderProfileContainer>
     );

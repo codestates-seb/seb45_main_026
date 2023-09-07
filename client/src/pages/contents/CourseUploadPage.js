@@ -1,8 +1,18 @@
 import { styled } from "styled-components";
 import { PageContainer } from "../../atoms/layouts/PageContainer";
 import CourseUpload from "../../components/UploadPage/CourseUpload";
-import QuestionUpload from "../../components/UploadPage/QuestionUpload";
-import { useState } from "react";
+
+const CourseUploadPage = () => {
+  return (
+    <PageContainer>
+      <UploadContainer>
+        <CourseUpload />
+      </UploadContainer>
+    </PageContainer>
+  );
+};
+
+export default CourseUploadPage;
 
 export const UploadContainer = styled.section`
   width: 100%;
@@ -65,52 +75,3 @@ export const ColBox = styled.div`
   align-items: start;
   width: 100%;
 `;
-
-export const NextBtn = styled.button`
-  position: absolute;
-  bottom: 4%;
-  right: 6%;
-  width: 100px;
-  height: 40px;
-  color: white;
-  font-weight: 600;
-  border-radius: 8px;
-  background-color: rgb(255, 100, 100);
-  &:hover {
-    background-color: rgb(255, 150, 150);
-  }
-`;
-
-const UploadPage = () => {
-  const [isPage, setPage] = useState({ page: 1 });
-  const pages = [1, 2];
-
-  return (
-    <PageContainer>
-      <UploadContainer>
-        <UploadType>
-          {pages.map((el, idx) => (
-            <UploadTypeBtn
-              key={idx}
-              isFocus={isPage.page === el}
-              onClick={() => setPage({ ...isPage, page: el })}
-            >
-              {el}
-            </UploadTypeBtn>
-          ))}
-        </UploadType>
-        {isPage.page === 1 && <CourseUpload />}
-        {isPage.page === 2 && <QuestionUpload />}
-        {isPage.page !== pages.slice(-1)[0] && (
-          <NextBtn
-            onClick={() => setPage({ ...isPage, page: isPage.page + 1 })}
-          >
-            다음
-          </NextBtn>
-        )}
-      </UploadContainer>
-    </PageContainer>
-  );
-};
-
-export default UploadPage;
