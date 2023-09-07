@@ -475,6 +475,22 @@ class VideoServiceTest extends ServiceTest {
     }
 
     @Test
+    @DisplayName("비디오 put url 요청 시 문자 \"/\" 가 포함되면 VideoNameNotValidException 이 발생한다.")
+    void getVideoCreateUrlVideoNameNotValidException() {
+        //given
+        Member owner = createMemberWithChannel();
+
+        VideoCreateUrlServiceRequest request = VideoCreateUrlServiceRequest.builder()
+                .imageType(ImageType.PNG)
+                .fileName("test/test")
+                .build();
+
+        //when & then
+        assertThatThrownBy(() -> videoService.getVideoCreateUrl(owner.getMemberId(), request))
+                .isInstanceOf(VideoNameNotValidException.class);
+    }
+
+    @Test
     @DisplayName("비디오 put url 을 받을 때 채널 내 비디오명이 중복되면 VideoNameDuplicateException 이 발생한다.")
     void getVideoCreateUrlVideoNameDuplicateException() {
         //given

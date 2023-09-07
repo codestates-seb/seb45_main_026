@@ -28,10 +28,7 @@ import com.server.global.exception.businessexception.categoryexception.CategoryN
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
-import com.server.global.exception.businessexception.videoexception.VideoNameDuplicateException;
-import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
-import com.server.global.exception.businessexception.videoexception.VideoClosedException;
-import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
+import com.server.global.exception.businessexception.videoexception.*;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
@@ -74,7 +71,7 @@ public class VideoService {
 
         Member member = verifiedMemberOrNull(loginMemberId);
 
-        Page<Video> videos = videoRepository.findAllByCategoryPaging(request.toDataRequest());
+        Page<Video> videos = videoRepository.findAllByCond(request.toDataRequest());
 
         List<Boolean> isPurchaseInOrder = isPurchaseInOrder(member, videos.getContent());
 
@@ -116,6 +113,8 @@ public class VideoService {
     @Transactional
     public VideoCreateUrlResponse getVideoCreateUrl(Long loginMemberId, VideoCreateUrlServiceRequest request) {
 
+        checkValidVideoName(request.getFileName());
+
         Member member = verifiedMemberWithChannel(loginMemberId);
 
         checkDuplicateVideoNameInChannel(loginMemberId, request.getFileName());
@@ -135,6 +134,12 @@ public class VideoService {
                 .videoUrl(getUploadVideoUrl(loginMemberId, location))
                 .thumbnailUrl(getUploadThumbnailUrl(loginMemberId, location, request.getImageType()))
                 .build();
+    }
+
+    private void checkValidVideoName(String fileName) {
+        if (fileName.contains("/")) {
+            throw new VideoNameNotValidException("/");
+        }
     }
 
     @Transactional
