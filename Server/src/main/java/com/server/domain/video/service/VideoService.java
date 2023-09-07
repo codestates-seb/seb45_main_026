@@ -186,10 +186,7 @@ public class VideoService {
 
         Video video = verifedVideo(loginMemberId, videoId);
 
-        awsService.deleteFile(loginMemberId, video.getVideoName(), FileType.VIDEO);
-        awsService.deleteFile(loginMemberId, video.getThumbnailFile(), FileType.THUMBNAIL);
-
-        videoRepository.delete(video);
+        video.close();
     }
 
     private List<Boolean> isPurchaseInOrder(Member loginMember, List<Video> content) {

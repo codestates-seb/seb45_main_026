@@ -28,6 +28,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Comparator.*;
+
 @Service
 @Transactional(readOnly = true)
 public class QuestionService {
@@ -52,7 +54,7 @@ public class QuestionService {
 
     public QuestionResponse getQuestion(Long loginMemberId, Long questionId) {
 
-        checkQuestionPurchased(loginMemberId, questionId);
+        checkQuestionGetAuthority(loginMemberId, questionId);
 
         QuestionData questionData = getQuestionData(loginMemberId, questionId);
 
@@ -61,7 +63,7 @@ public class QuestionService {
 
     public List<QuestionResponse> getQuestions(Long loginMemberId, Long videoId) {
 
-        checkVideoPurchased(loginMemberId, videoId);
+        checkVideoGetAuthority(loginMemberId, videoId);
 
         List<QuestionData> questionDatas = getQuestionDatas(loginMemberId, videoId);
 
@@ -76,28 +78,29 @@ public class QuestionService {
         Video video = verifedVideo(loginMemberId, videoId);
 
         return requests.stream()
-                .map(request -> {
+                .map(request -> createQuestion(video, request))
+                .map(Question::getQuestionId)
+                        .collect(Collectors.toList());
+    }
 
-                    Question question = Question.createQuestion(
-                            request.getPosition(),
-                            request.getContent(),
-                            request.getQuestionAnswer(),
-                            request.getDescription(),
-                            request.getSelections(),
-                            video
-                    );
-                    return questionRepository.save(question).getQuestionId();
-                })
-                .collect(Collectors.toList());
+    private Question createQuestion(Video video, QuestionCreateServiceRequest request) {
+        Question question = Question.createQuestion(
+                request.getPosition(),
+                request.getContent(),
+                request.getQuestionAnswer(),
+                request.getDescription(),
+                request.getSelections(),
+                video
+        );
+        return questionRepository.save(question);
     }
 
     @Transactional
     public void updateQuestion(Long loginMemberId, QuestionUpdateServiceRequest request) {
 
-        checkQuestionAuthority(loginMemberId, request.getQuestionId());
+        checkQuestionModifyingAuthority(loginMemberId, request.getQuestionId());
 
-        Question question = questionRepository.findById(request.getQuestionId())
-                .orElseThrow(QuestionNotFoundException::new);
+        Question question = verifiedQuestion(request.getQuestionId());
 
         question.update(
                 request.getPosition(),
@@ -110,7 +113,8 @@ public class QuestionService {
 
     @Transactional
     public void deleteQuestion(Long loginMemberId, Long questionId) {
-        checkQuestionAuthority(loginMemberId, questionId);
+
+        checkQuestionModifyingAuthority(loginMemberId, questionId);
 
         questionRepository.deleteById(questionId);
     }
@@ -118,65 +122,93 @@ public class QuestionService {
     @Transactional
     public List<Boolean> solveQuestions(Long loginMemberId, Long videoId, List<String> myAnswers) {
 
-        checkVideoPurchased(loginMemberId, videoId);
+        checkVideoGetAuthority(loginMemberId, videoId);
 
         List<Question> questions = questionRepository.findQuestionsWithVideoByVideoId(videoId);
 
         if(questions.size() != myAnswers.size()) {
             throw new AnswerCountException();
         }
-        List<Answer> answers = createOrGetAnswersInPositionOrder(loginMemberId, questions);
 
-        List<Boolean> results = solveQuestions(myAnswers, answers);
+        List<Answer> answers = createOrGetAnswers(loginMemberId, questions);
 
-        List<Question> toGetRewards = correctQuestionsFrom(answers);
+        solveQuestions(myAnswers, answers);
 
-        rewardService.createQuestionRewardsIfNotPresent(toGetRewards, verifiedMember(loginMemberId));
+        getRewards(loginMemberId, answers);
 
-        return results;
-    }
-
-    private List<Boolean> solveQuestions(List<String> myAnswers, List<Answer> answers) {
-        return IntStream.range(0, myAnswers.size())
-                .mapToObj(index -> answers.get(index).solveAnswer(myAnswers.get(index)))
-                .collect(Collectors.toList());
-    }
-
-    private List<Question> correctQuestionsFrom(List<Answer> answers) {
         return answers.stream()
-                .filter(answer -> answer.getAnswerStatus().equals(AnswerStatus.CORRECT))
-                .map(Answer::getQuestion)
+                .map(Answer::getAnswerStatus)
+                .map(answerStatus -> answerStatus.equals(AnswerStatus.CORRECT))
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public Boolean solveQuestion(Long loginMemberId, AnswerCreateServiceRequest request) {
 
-        checkQuestionPurchased(loginMemberId, request.getQuestionId());
+        checkQuestionGetAuthority(loginMemberId, request.getQuestionId());
 
-        Answer answer = createOrGetAnswer(loginMemberId, request.getQuestionId());
+        Answer myAnswer = createOrGetAnswer(loginMemberId, request.getQuestionId());
 
-        boolean result = answer.solveAnswer(request.getMyAnswer());
+        myAnswer.solveAnswer(request.getMyAnswer());
 
-        if(result) {
-            getReward(answer);
-        }
+        getReward(myAnswer);
 
-        return result;
+        return myAnswer.isCorrect();
+    }
+
+    private void solveQuestions(List<String> myAnswers, List<Answer> answers) {
+
+        IntStream.range(0, myAnswers.size())
+                .forEach(i -> answers.get(i).solveAnswer(myAnswers.get(i))
+        );
+    }
+
+    private List<Question> correctQuestionsFrom(List<Answer> answers) {
+        return answers.stream()
+                .filter(Answer::isCorrect)
+                .map(Answer::getQuestion)
+                .collect(Collectors.toList());
+    }
+
+    private void getRewards(Long loginMemberId, List<Answer> answers) {
+
+        List<Question> correctAnsweredQuestions = correctQuestionsFrom(answers);
+
+        rewardService.createQuestionRewardsIfNotPresent(correctAnsweredQuestions, verifiedMember(loginMemberId));
     }
 
     private void getReward(Answer answer) {
-        rewardService.createRewardIfNotPresent(answer.getQuestion(), answer.getMember());
+
+        if(answer.isCorrect())
+            rewardService.createRewardIfNotPresent(answer.getQuestion(), answer.getMember());
     }
 
-    private List<Answer> createOrGetAnswersInPositionOrder(Long loginMemberId, List<Question> questions) {
+    private List<Long> getCreatedAnswerQuestionIds(List<Answer> answers) {
+        return answers.stream()
+                .map(answer -> answer.getQuestion().getQuestionId())
+                .collect(Collectors.toList());
+    }
+
+    private List<Long> getQuestionIds(List<Question> questions) {
+        return questions.stream()
+                .map(Question::getQuestionId)
+                .collect(Collectors.toList());
+    }
+
+    private List<Answer> createOrGetAnswers(Long loginMemberId, List<Question> questions) {
 
         Member member = verifiedMember(loginMemberId);
 
+        List<Answer> answers = answerRepository.findByMemberIdAndQuestionIds(
+                member.getMemberId(),
+                getQuestionIds(questions));
+
+        List<Long> createdAnswerQuestionIds = getCreatedAnswerQuestionIds(answers);
+
         return questions.stream().map(question ->
-                getAnswer(member.getMemberId(), question.getQuestionId())
-                .orElseGet(() -> createAnswer(member, question)))
-                .sorted(Comparator.comparingInt(answer -> answer.getQuestion().getPosition()))
+                        createdAnswerQuestionIds.contains(question.getQuestionId()) ?
+                                findAnswerInQuestion(answers, question) : createAnswer(member, question))
+                .sorted(comparingInt(answer -> answer.getQuestion().getPosition()))
                 .collect(Collectors.toList());
     }
 
@@ -192,6 +224,12 @@ public class QuestionService {
                 });
     }
 
+    private Answer findAnswerInQuestion(List<Answer> answers, Question question) {
+        return answers.stream()
+                .filter(answer -> answer.getQuestion().equals(question))
+                .findFirst().orElseThrow(QuestionNotFoundException::new);
+    }
+
     private Optional<Answer> getAnswer(Long memberId, Long questionId) {
         return answerRepository.findByMemberIdAndQuestionId(memberId, questionId);
     }
@@ -205,28 +243,43 @@ public class QuestionService {
         return answerRepository.save(answer);
     }
 
-    private void checkQuestionPurchased(Long loginMemberId, Long questionId) {
+    private void checkQuestionGetAuthority(Long loginMemberId, Long questionId) {
         Video video = questionRepository.findVideoByQuestionId(questionId)
                 .orElseThrow(QuestionNotFoundException::new);
+
+        if(video.isOwnedBy(loginMemberId)) return;
 
         Boolean isPurchased = memberRepository.checkMemberPurchaseVideo(loginMemberId, video.getVideoId());
         if(!isPurchased) throw new VideoNotPurchasedException();
     }
 
-    private void checkVideoPurchased(Long loginMemberId, Long videoId) {
+    private void checkVideoGetAuthority(Long loginMemberId, Long videoId) {
         Video video = videoRepository.findById(videoId)
                 .orElseThrow(VideoNotFoundException::new);
 
+        if(video.isOwnedBy(loginMemberId)) return;
+
         Boolean isPurchased = memberRepository.checkMemberPurchaseVideo(loginMemberId, video.getVideoId());
         if(!isPurchased) throw new VideoNotPurchasedException();
     }
 
-    private void checkQuestionAuthority(Long loginMemberId, Long questionId) {
+    private void checkQuestionModifyingAuthority(Long loginMemberId, Long questionId) {
+
         Video video = questionRepository.findVideoByQuestionId(questionId)
                 .orElseThrow(QuestionNotFoundException::new);
 
-        if(!video.getChannel().getMember().getMemberId().equals(loginMemberId))
+        if(!video.isOwnedBy(loginMemberId))
             throw new VideoAccessDeniedException();
+    }
+
+    private QuestionData getQuestionData(Long loginMemberId, Long questionId) {
+        return questionRepository.findQuestionDataWithMemberAnswer(loginMemberId, questionId)
+                .orElseThrow(QuestionNotFoundException::new);
+    }
+
+    private List<QuestionData> getQuestionDatas(Long loginMemberId, Long videoId) {
+        List<QuestionData> datas = questionRepository.findQuestionDatasWithMemberAnswerByVideoId(loginMemberId, videoId);
+        return datas.stream().sorted(comparingInt(QuestionData::getPosition)).collect(Collectors.toList());
     }
 
     private Video verifedVideo(Long loginMemberId, Long videoId) {
@@ -237,16 +290,6 @@ public class QuestionService {
             throw new VideoAccessDeniedException();
 
         return video;
-    }
-
-    private QuestionData getQuestionData(Long loginMemberId, Long questionId) {
-        return questionRepository.findQuestionDataWithMemberAnswer(loginMemberId, questionId)
-                .orElseThrow(QuestionNotFoundException::new);
-    }
-
-    private List<QuestionData> getQuestionDatas(Long loginMemberId, Long videoId) {
-        List<QuestionData> datas = questionRepository.findQuestionDatasWithMemberAnswerByVideoId(loginMemberId, videoId);
-        return datas.stream().sorted(Comparator.comparingInt(QuestionData::getPosition)).collect(Collectors.toList());
     }
 
     private Member verifiedMember(Long memberId) {
