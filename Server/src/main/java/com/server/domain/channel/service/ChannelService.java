@@ -154,7 +154,7 @@ public class ChannelService {
 
         Member member = verifiedMemberOrNull(loginMemberId);
 
-        Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request.toDataRequest());
+        Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request.toDataRequest(loginMemberId));
 
         List<Boolean> isPurchaseInOrder = isPurchaseInOrder(member, videos.getContent());
 
