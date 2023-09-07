@@ -420,8 +420,6 @@ class VideoServiceTest extends ServiceTest {
                 }),
                 dynamicTest("해당 fileName 이 아닌 다른 이름으로 비디오를 생성하려고 하면 VideoNotFoundException 이 발생한다.", ()-> {
                     //given
-                    given(redisService.getData(anyString())).willReturn(videoName);
-
                     VideoCreateServiceRequest request = VideoCreateServiceRequest.builder()
                             .videoName(videoName + "1")
                             .price(1000)
@@ -438,7 +436,28 @@ class VideoServiceTest extends ServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 memberId 면 MemberNotFoundException 이 발생한다.")
+    @DisplayName("비디오 생성 시 이미 생성된 비디오(status=created) 로 요청하면 VideoAlreadyCreatedException 이 발생한다.")
+    void createVideoVideoAlreadyCreatedException() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel()); // 이미 생성된 비디오
+
+        Category category1 = createAndSaveCategory("category1");
+
+        VideoCreateServiceRequest request = VideoCreateServiceRequest.builder()
+                .videoName(video.getVideoName())
+                .price(1000)
+                .description("test")
+                .categories(List.of("category1"))
+                .build();
+
+        //when & then
+        assertThatThrownBy(() -> videoService.createVideo(owner.getMemberId(), request))
+                .isInstanceOf(VideoAlreadyCreatedException.class);
+    }
+
+    @Test
+    @DisplayName("비디오 put url 요청 시 존재하지 않는 memberId 면 MemberNotFoundException 이 발생한다.")
     void getVideoCreateUrlMemberNotFoundException() {
         //given
         Member owner = createAndSaveMember();
@@ -453,6 +472,42 @@ class VideoServiceTest extends ServiceTest {
         //when & then
         assertThatThrownBy(() -> videoService.getVideoCreateUrl(requestMemberId, request))
                 .isInstanceOf(MemberNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("비디오 put url 을 받을 때 채널 내 비디오명이 중복되면 VideoNameDuplicateException 이 발생한다.")
+    void getVideoCreateUrlVideoNameDuplicateException() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+
+        VideoCreateUrlServiceRequest request = VideoCreateUrlServiceRequest.builder()
+                .imageType(ImageType.PNG)
+                .fileName(video.getVideoName())
+                .build();
+
+        //when & then
+        assertThatThrownBy(() -> videoService.getVideoCreateUrl(owner.getMemberId(), request))
+                .isInstanceOf(VideoNameDuplicateException.class);
+    }
+
+    @Test
+    @DisplayName("비디오 Put url 을 받을 때 다른 채널의 비디오명과 중복되어도 정상적으로 받을 수 있다.")
+    void getVideoCreateUrlVideoNameDuplicateWithOtherChannel() {
+        //given
+        Member owner = createMemberWithChannel();
+
+        Member otherMember = createAndSaveMember();
+        Video video = createAndSaveVideo(otherMember.getChannel());
+
+        VideoCreateUrlServiceRequest request = VideoCreateUrlServiceRequest.builder()
+                .imageType(ImageType.PNG)
+                .fileName(video.getVideoName())
+                .build();
+
+        //when & then
+        assertThatNoException()
+                .isThrownBy(() -> videoService.getVideoCreateUrl(owner.getMemberId(), request));
     }
     
     @Test

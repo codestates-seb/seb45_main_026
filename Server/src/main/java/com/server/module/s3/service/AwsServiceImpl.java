@@ -89,7 +89,7 @@ public class AwsServiceImpl implements AwsService {
         Duration duration = Duration.ofMinutes(10);
 
         URL presignedPutObjectUrl = getPresignedPutVideoObjectUrl(
-                memberId + "/" + fileName,
+                memberId + "/videos/" + fileName,
                 VIDEO_TYPE,
                 duration);
 
@@ -151,7 +151,7 @@ public class AwsServiceImpl implements AwsService {
     private URL getPresignedPutImageObjectUrl(String location, String contentType, Duration duration) {
 
         String bucketName = location.split("/")[0];
-        String path = location.substring(location.indexOf("/"));
+        String path = location.substring(location.indexOf("/") + 1);
 
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
@@ -170,7 +170,7 @@ public class AwsServiceImpl implements AwsService {
     private void deleteFile(String location) {
 
         String bucketName = location.split("/")[0];
-        String path = location.substring(location.indexOf("/"));
+        String path = location.substring(location.indexOf("/") + 1);
 
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)

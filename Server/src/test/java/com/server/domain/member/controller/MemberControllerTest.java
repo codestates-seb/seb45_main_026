@@ -496,7 +496,7 @@ public class MemberControllerTest extends ControllerTest {
 					PlaylistsResponse.Channel.builder()
 						.memberId(23L)
 						.channelName("알고리즘 채널")
-						.profileImageUrl("https://d2ouhv9pc4idoe.cloudfront.net/777/test")
+						.imageUrl("https://d2ouhv9pc4idoe.cloudfront.net/777/test")
 						.build()
 				)
 				.build(),
@@ -510,7 +510,7 @@ public class MemberControllerTest extends ControllerTest {
 					PlaylistsResponse.Channel.builder()
 						.memberId(23L)
 						.channelName("알고리즘 채널")
-						.profileImageUrl("https://d2ouhv9pc4idoe.cloudfront.net/777/test")
+						.imageUrl("https://d2ouhv9pc4idoe.cloudfront.net/777/test")
 						.build()
 				)
 				.build(),
@@ -524,7 +524,7 @@ public class MemberControllerTest extends ControllerTest {
 					PlaylistsResponse.Channel.builder()
 						.memberId(23L)
 						.channelName("알고리즘 채널")
-						.profileImageUrl("https://d2ouhv9pc4idoe.cloudfront.net/777/test")
+						.imageUrl("https://d2ouhv9pc4idoe.cloudfront.net/777/test")
 						.build()
 				)
 				.build(),
@@ -538,7 +538,7 @@ public class MemberControllerTest extends ControllerTest {
 					PlaylistsResponse.Channel.builder()
 						.memberId(23L)
 						.channelName("알고리즘 채널")
-						.profileImageUrl("https://d2ouhv9pc4idoe.cloudfront.net/777/test")
+						.imageUrl("https://d2ouhv9pc4idoe.cloudfront.net/777/test")
 						.build()
 				)
 				.build()
@@ -570,7 +570,7 @@ public class MemberControllerTest extends ControllerTest {
 			fieldWithPath("data[].channel").description("영상 업로더의 채널 정보"),
 			fieldWithPath("data[].channel.memberId").description("업로더의 아이디"),
 			fieldWithPath("data[].channel.channelName").description("업로더의 채널명"),
-			fieldWithPath("data[].channel.profileImageUrl").description("채널을 소유한 회원의 프로필 이미지 주소")
+			fieldWithPath("data[].channel.imageUrl").description("채널을 소유한 회원의 프로필 이미지 주소")
 		};
 
 		actions
@@ -601,7 +601,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoId(837L)
 				.videoName("자바스크립트 강의")
 				.description("착한 사람 눈에만 보이는 영상 설명")
-				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.thumbnailUrl("www.thumbnailImageUrl.com")
 				.view(109)
 				.star(8.3F)
 				.build(),
@@ -609,7 +609,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoId(109L)
 				.videoName("깃허브 강의")
 				.description("착한 사람 눈에만 보이는 영상 설명")
-				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.thumbnailUrl("www.thumbnailImageUrl.com")
 				.view(2048)
 				.star(9.1F)
 				.build(),
@@ -617,7 +617,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoId(390L)
 				.videoName("알고리즘 강의")
 				.description("착한 사람 눈에만 보이는 영상 설명")
-				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.thumbnailUrl("www.thumbnailImageUrl.com")
 				.view(93)
 				.star(3.9F)
 				.build(),
@@ -625,7 +625,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoId(683L)
 				.videoName("자바 강의")
 				.description("착한 사람 눈에만 보이는 영상 설명")
-				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.thumbnailUrl("www.thumbnailImageUrl.com")
 				.view(386)
 				.star(6.8F)
 				.build(),
@@ -633,7 +633,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoId(731L)
 				.videoName("스프링 강의")
 				.description("착한 사람 눈에만 보이는 영상 설명")
-				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.thumbnailUrl("www.thumbnailImageUrl.com")
 				.view(137)
 				.star(7.3F)
 				.build(),
@@ -641,7 +641,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoId(591L)
 				.videoName("리액트 강의")
 				.description("착한 사람 눈에만 보이는 영상 설명")
-				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.thumbnailUrl("www.thumbnailImageUrl.com")
 				.view(159)
 				.star(5.9F)
 				.build(),
@@ -649,7 +649,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoId(668L)
 				.videoName("테스트 하는 법")
 				.description("착한 사람 눈에만 보이는 영상 설명")
-				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.thumbnailUrl("www.thumbnailImageUrl.com")
 				.view(866)
 				.star(6.6F)
 				.build(),
@@ -657,7 +657,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoId(749L)
 				.videoName("파이썬 강의")
 				.description("착한 사람 눈에만 보이는 영상 설명")
-				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.thumbnailUrl("www.thumbnailImageUrl.com")
 				.view(947)
 				.star(7.4F)
 				.build(),
@@ -665,7 +665,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoId(333L)
 				.videoName("C++ 강의")
 				.description("착한 사람 눈에만 보이는 영상 설명")
-				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.thumbnailUrl("www.thumbnailImageUrl.com")
 				.view(333)
 				.star(3.3F)
 				.build(),
@@ -673,7 +673,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoId(777L)
 				.videoName("네트워크 기본 강의")
 				.description("착한 사람 눈에만 보이는 영상 설명")
-				.thumbnailImageUrl("www.thumbnailImageUrl.com")
+				.thumbnailUrl("www.thumbnailImageUrl.com")
 				.view(777)
 				.star(7.7F)
 				.build()
@@ -708,9 +708,10 @@ public class MemberControllerTest extends ControllerTest {
 						fieldWithPath("data[].videoId").description("강의 ID"),
 						fieldWithPath("data[].videoName").description("강의명"),
 						fieldWithPath("data[].description").description("강의에 대한 설명"),
-						fieldWithPath("data[].thumbnailImageUrl").description("강의의 썸네일 이미지 주소"),
+						fieldWithPath("data[].thumbnailUrl").description("강의의 썸네일 이미지 주소"),
 						fieldWithPath("data[].view").description("강의의 조회 수"),
-						fieldWithPath("data[].star").description("강의의 평점")
+						fieldWithPath("data[].star").description("강의의 평점"),
+						fieldWithPath("data[].createdDate").description("영상 업로드 날짜")
 					)
 				)
 			);
@@ -724,7 +725,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistChannelResponse.builder()
 				.memberId(1L)
 				.channelName("채널명1")
-				.profileImageUrl("www.profileImageUrl.com")
+				.imageUrl("www.profileImageUrl.com")
 				.videoCount(4L)
 				.subscribers(10)
 				.isSubscribed(true)
@@ -732,7 +733,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistChannelResponse.builder()
 				.memberId(2L)
 				.channelName("채널명2")
-				.profileImageUrl("www.profileImageUrl.com")
+				.imageUrl("www.profileImageUrl.com")
 				.videoCount(7L)
 				.subscribers(89)
 				.isSubscribed(false)
@@ -740,7 +741,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistChannelResponse.builder()
 				.memberId(3L)
 				.channelName("채널명3")
-				.profileImageUrl("www.profileImageUrl.com")
+				.imageUrl("www.profileImageUrl.com")
 				.videoCount(4L)
 				.subscribers(107)
 				.isSubscribed(false)
@@ -748,7 +749,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistChannelResponse.builder()
 				.memberId(4L)
 				.channelName("채널명4")
-				.profileImageUrl("www.profileImageUrl.com")
+				.imageUrl("www.profileImageUrl.com")
 				.videoCount(11L)
 				.subscribers(88)
 				.isSubscribed(true)
@@ -756,7 +757,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistChannelResponse.builder()
 				.memberId(5L)
 				.channelName("채널명5")
-				.profileImageUrl("www.profileImageUrl.com")
+				.imageUrl("www.profileImageUrl.com")
 				.videoCount(3L)
 				.subscribers(27)
 				.isSubscribed(false)
@@ -764,7 +765,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistChannelResponse.builder()
 				.memberId(6L)
 				.channelName("채널명6")
-				.profileImageUrl("www.profileImageUrl.com")
+				.imageUrl("www.profileImageUrl.com")
 				.videoCount(7L)
 				.subscribers(339)
 				.isSubscribed(true)
@@ -772,7 +773,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistChannelResponse.builder()
 				.memberId(7L)
 				.channelName("채널명7")
-				.profileImageUrl("www.profileImageUrl.com")
+				.imageUrl("www.profileImageUrl.com")
 				.videoCount(9L)
 				.subscribers(201)
 				.isSubscribed(true)
@@ -780,7 +781,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistChannelResponse.builder()
 				.memberId(8L)
 				.channelName("채널명8")
-				.profileImageUrl("www.profileImageUrl.com")
+				.imageUrl("www.profileImageUrl.com")
 				.videoCount(7L)
 				.subscribers(10415)
 				.isSubscribed(true)
@@ -788,7 +789,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistChannelResponse.builder()
 				.memberId(9L)
 				.channelName("채널명9")
-				.profileImageUrl("www.profileImageUrl.com")
+				.imageUrl("www.profileImageUrl.com")
 				.videoCount(8L)
 				.subscribers(19)
 				.isSubscribed(false)
@@ -796,7 +797,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistChannelResponse.builder()
 				.memberId(10L)
 				.channelName("채널명10")
-				.profileImageUrl("www.profileImageUrl.com")
+				.imageUrl("www.profileImageUrl.com")
 				.videoCount(5L)
 				.subscribers(8910)
 				.isSubscribed(true)
@@ -833,10 +834,11 @@ public class MemberControllerTest extends ControllerTest {
 						fieldWithPath("data[]").description("강의를 구매한 채널 목록"),
 						fieldWithPath("data[].memberId").description("해당 채널의 회원 ID"),
 						fieldWithPath("data[].channelName").description("채널명"),
-						fieldWithPath("data[].profileImageUrl").description("해당 채널의 회원 프로필 이미지"),
+						fieldWithPath("data[].imageUrl").description("해당 채널의 회원 프로필 이미지"),
 						fieldWithPath("data[].videoCount").description("해당 채널에서 구매한 영상의 수"),
 						fieldWithPath("data[].isSubscribed").description("해당 채널의 구독 여부"),
-						fieldWithPath("data[].subscribers").description("해당 채널의 구독자 수")
+						fieldWithPath("data[].subscribers").description("해당 채널의 구독자 수"),
+						fieldWithPath("data[].list").description("비디오를 담을 빈 배열")
 					)
 				)
 			);
@@ -855,7 +857,7 @@ public class MemberControllerTest extends ControllerTest {
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
 					.channelName("채널1")
-					.profileImageUrl("www.profileImageUrl.com")
+					.imageUrl("www.profileImageUrl.com")
 					.build())
 				.build(),
 			WatchsResponse.builder()
@@ -866,7 +868,7 @@ public class MemberControllerTest extends ControllerTest {
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
 					.channelName("채널2")
-					.profileImageUrl("www.profileImageUrl.com")
+					.imageUrl("www.profileImageUrl.com")
 					.build())
 				.build(),
 			WatchsResponse.builder()
@@ -877,7 +879,7 @@ public class MemberControllerTest extends ControllerTest {
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
 					.channelName("채널3")
-					.profileImageUrl("www.profileImageUrl.com")
+					.imageUrl("www.profileImageUrl.com")
 					.build())
 				.build(),
 			WatchsResponse.builder()
@@ -888,7 +890,7 @@ public class MemberControllerTest extends ControllerTest {
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
 					.channelName("채널3")
-					.profileImageUrl("www.profileImageUrl.com")
+					.imageUrl("www.profileImageUrl.com")
 					.build())
 				.build()
 		);
@@ -918,7 +920,7 @@ public class MemberControllerTest extends ControllerTest {
 			fieldWithPath("data[].channel").description("영상 업로더의 채널 정보"),
 			fieldWithPath("data[].channel.memberId").description("업로더의 아이디"),
 			fieldWithPath("data[].channel.channelName").description("업로더의 채널명"),
-			fieldWithPath("data[].channel.profileImageUrl").description("업로더의 프로필 이미지 주소")
+			fieldWithPath("data[].channel.imageUrl").description("업로더의 프로필 이미지 주소")
 		};
 
 		actions
@@ -980,15 +982,14 @@ public class MemberControllerTest extends ControllerTest {
 	@DisplayName("프로필 이미지 변경 성공 테스트")
 	void updateImage() throws Exception {
 		//given
+		String imageName = "profile20230907140835";
 		MemberApiRequest.Image request = new MemberApiRequest.Image(
-			ImageType.JPG
+			imageName, ImageType.JPG
 		);
 
 		String content = objectMapper.writeValueAsString(request);
 
 		String presignedUrl = "http://www.uploadUrl.com";
-
-		given(memberService.updateImage(Mockito.anyLong())).willReturn("email@email.com");
 
 		given(awsService.getImageUploadUrl(anyLong(), anyString(), any(FileType.class), any(ImageType.class)))
 			.willReturn(presignedUrl);
@@ -1016,6 +1017,7 @@ public class MemberControllerTest extends ControllerTest {
 							headerWithName(AUTHORIZATION).description("액세스 토큰")
 						),
 						requestFields(
+							fieldWithPath("imageName").description("이미지 확장자"),
 							fieldWithPath("imageType").description("이미지 확장자").attributes(getConstraint("imageType"))
 						),
 						responseHeaders(
@@ -1067,6 +1069,29 @@ public class MemberControllerTest extends ControllerTest {
 	void deleteMember() throws Exception {
 		ResultActions actions = mockMvc.perform(
 			delete("/members")
+				.header(AUTHORIZATION, TOKEN)
+		);
+
+		actions
+			.andDo(print())
+			.andExpect(status().isNoContent());
+
+		actions
+			.andDo(
+				documentHandler
+					.document(
+						requestHeaders(
+							headerWithName(AUTHORIZATION).description("액세스 토큰")
+						)
+					)
+			);
+	}
+
+	@Test
+	@DisplayName("프로필 이미지 삭제 성공 테스트")
+	void deleteImage() throws Exception {
+		ResultActions actions = mockMvc.perform(
+			delete("/members/image")
 				.header(AUTHORIZATION, TOKEN)
 		);
 

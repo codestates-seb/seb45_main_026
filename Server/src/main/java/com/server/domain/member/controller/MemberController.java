@@ -145,11 +145,11 @@ public class MemberController {
 	public ResponseEntity<Void> updateImage(@LoginId Long loginId,
 														@RequestBody @Valid MemberApiRequest.Image request) {
 
-		String imageName = memberService.updateImage(loginId);
+		memberService.updateImage(loginId, request.getImageName());
 
 		String presignedUrl = awsService.getImageUploadUrl(
 				loginId,
-				imageName,
+				request.getImageName(),
 				FileType.PROFILE_IMAGE,
 				request.getImageType());
 
