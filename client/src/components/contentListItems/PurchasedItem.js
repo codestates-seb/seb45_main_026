@@ -155,8 +155,8 @@ export default function PurchasedItem({channel,setChannelList}) {
           </AccordionButton>
         </TopContainer>
         <ContentContainer>
-          <HorizonItemContainer isOpen={isOpen}>
-            {channel.videos!==[]?channel.videos.map(el=><HorizonItem lecture={el} channel={channel} />):<></>}
+          <HorizonItemContainer >
+            {channel.videos!==[]?channel.videos.map(el=><HorizonItem key={el.viedoId} lecture={el} channel={channel} />):<></>}
           </HorizonItemContainer>
         </ContentContainer>
       </ItemBody>

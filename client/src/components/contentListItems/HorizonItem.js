@@ -192,7 +192,7 @@ export default function HorizonItem({lecture, channel}) {
                 <StarImage src={yellowStar} />
                 <StarImage src={yellowStar} />
               </ScoreContainer>
-              {isPurchased ? <PriceText>구매됨</PriceText> : lecture.price?<PriceText>{price}원</PriceText>:<></>}
+              {isPurchased ? <PriceText>구매됨</PriceText> :isPurchased===false?<PriceText>{price}원</PriceText>:<></>}
             </InforContainerRight>
           </InforContainer>
         </ItemInfors>
