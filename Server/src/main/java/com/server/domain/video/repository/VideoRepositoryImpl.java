@@ -234,7 +234,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
     }
 
     private BooleanExpression videoOwnerIs(Long memberId) {
-        return video.channel.member.memberId.eq(memberId);
+        return member.memberId.eq(memberId);
     }
 
     private BooleanExpression videoIsCreated() {
