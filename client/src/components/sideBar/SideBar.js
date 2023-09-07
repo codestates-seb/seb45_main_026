@@ -100,7 +100,7 @@ export const SideBar = () => {
 
     }
     const handleWriteClick = () => {
-        navigate('/upload');
+        navigate('/upload/course');
     }
 
     return (

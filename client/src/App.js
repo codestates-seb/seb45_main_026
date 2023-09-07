@@ -12,7 +12,7 @@ import Footer from "./components/footers/Footer";
 import ChannelPage from "./pages/contents/ChannelPage";
 import DetailPage from "./pages/contents/DetailPage/DetailPage";
 import CartPage from "./pages/contents/CartPage/CartPage";
-import UploadPage from "./pages/contents/UploadPage";
+import CourseUploadPage from "./pages/contents/CourseUploadPage";
 import SignupPage from "./pages/auth/SignupPage";
 import "./App.css";
 import ProblemPage from "./pages/contents/ProblemPage";
@@ -30,13 +30,12 @@ import PurchasedListPage from "./pages/contents/PurchasedListPage";
 import UpdatePasswordPage from "./pages/auth/UpdatePasswordPage";
 import ChannelListPage from "./pages/contents/ChannelListPage";
 import { AlertModal } from './atoms/modal/Modal';
+import ProblemUploadPage from "./pages/contents/ProblemUploadPage";
 import { getNewAuthorizationService } from "./services/authServices";
-import Loading from "./atoms/loading/Loading";
 
 function App() {
   const dispatch = useDispatch();
   const tokens = useSelector((state) => state.loginInfo.accessToken);
-  const userInfo = useSelector(state=>state.loginInfo.loginInfo);
   const [ is로그인실패모달, setIs로그인실패모달 ] = useState(false);
 
   const handleResize = () => {
@@ -125,7 +124,8 @@ function App() {
         <Route path="/videos/1" element={<DetailPage />} />
         <Route path="/channels/:userId" element={<ChannelPage/>} />
         <Route path="/carts" element={<CartPage />} />
-        <Route path="/upload" element={<UploadPage />} />
+        <Route path="/upload/course" element={<CourseUploadPage />} />
+        <Route path="/upload/problem" element={<ProblemUploadPage />} />
         <Route path="/videos/1/problems" element={<ProblemPage />} />
         <Route path="/purchased" element={<PurchasedListPage />} />
         <Route path="/channellist" element={<ChannelListPage />} />
