@@ -103,9 +103,7 @@ public class Member extends BaseEntity {
 
 
 	public void updateImageFile(String imageFile) {
-		if (this.imageFile == null) {
-			this.imageFile = imageFile;
-		}
+		this.imageFile = imageFile;
 	}
 
 	public void deleteImageFile() {

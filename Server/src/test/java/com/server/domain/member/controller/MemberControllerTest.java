@@ -980,15 +980,14 @@ public class MemberControllerTest extends ControllerTest {
 	@DisplayName("프로필 이미지 변경 성공 테스트")
 	void updateImage() throws Exception {
 		//given
+		String imageName = "profile20230907140835";
 		MemberApiRequest.Image request = new MemberApiRequest.Image(
-			ImageType.JPG
+			imageName, ImageType.JPG
 		);
 
 		String content = objectMapper.writeValueAsString(request);
 
 		String presignedUrl = "http://www.uploadUrl.com";
-
-		given(memberService.updateImage(Mockito.anyLong())).willReturn("email@email.com");
 
 		given(awsService.getImageUploadUrl(anyLong(), anyString(), any(FileType.class), any(ImageType.class)))
 			.willReturn(presignedUrl);
@@ -1016,6 +1015,7 @@ public class MemberControllerTest extends ControllerTest {
 							headerWithName(AUTHORIZATION).description("액세스 토큰")
 						),
 						requestFields(
+							fieldWithPath("imageName").description("이미지 확장자"),
 							fieldWithPath("imageType").description("이미지 확장자").attributes(getConstraint("imageType"))
 						),
 						responseHeaders(
