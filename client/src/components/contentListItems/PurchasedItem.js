@@ -156,7 +156,7 @@ export default function PurchasedItem({channel,setChannelList}) {
         </TopContainer>
         <ContentContainer>
           <HorizonItemContainer >
-            {channel.videos!==[]?channel.videos.map(el=><HorizonItem key={el.viedoId} lecture={el} channel={channel} />):<></>}
+            {channel.videos!==[]?channel.videos.map(el=><HorizonItem key={el.videoId} lecture={el} channel={channel} />):<></>}
           </HorizonItemContainer>
         </ContentContainer>
       </ItemBody>
