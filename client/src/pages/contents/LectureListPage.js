@@ -9,18 +9,22 @@ import VerticalItem from "../../components/contentListItems/VerticalItem";
 import { setLocation } from "../../redux/createSlice/UISettingSlice";
 import axios from "axios";
 import { resetToInitialState,setIsHorizon } from "../../redux/createSlice/FilterSlice";
+import { Heading5Typo } from '../../atoms/typographys/Typographys';
 
 const globalTokens = tokens.global;
 
 const LectureMainContainer = styled(MainContainer)`
   min-width: 600px;
   min-height: 700px;
-  background-color: ${globalTokens.White.value};
+  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
   border: none;
   gap: ${globalTokens.Spacing28.value}px;
+  margin-top: ${globalTokens.Spacing40.value}px;
+  margin-bottom: ${globalTokens.Spacing40.value}px;
   padding: ${globalTokens.Spacing8.value}px;
+  border-radius: ${globalTokens.BigRadius.value}px;
 `;
-const ListTitle = styled.h2`
+const ListTitle = styled(Heading5Typo)`
   height: 30px;
   width: 100%;
   font-size: ${globalTokens.Heading5.value}px;
@@ -93,8 +97,8 @@ const LectureListPage = () => {
   
   return (
     <PageContainer isDark={isDark}>
-      <LectureMainContainer>
-        <ListTitle>강의 목록</ListTitle>
+      <LectureMainContainer isDark={isDark}>
+        <ListTitle isDark={isDark}>강의 목록</ListTitle>
         <FilterContainer>
           <CategoryFilter />
           <StructureButton
@@ -105,13 +109,13 @@ const LectureListPage = () => {
         {isHorizon ? (
           <HorizonItemContainer>
             {lectures.map((el) => (
-              <HorizonItem key={el.videoId} lecture={el} channel={el.channel} />
+              <HorizonItem key={el.videoId} lecture={el} channel={el.channel} isDark={isDark}/>
             ))}
           </HorizonItemContainer>
         ) : (
           <VerticalItemContainer>
             {lectures.map((el) => (
-              <VerticalItem key={el.videoId} lecture={el} channel={el.channel} />
+              <VerticalItem key={el.videoId} lecture={el} channel={el.channel} isDark={isDark}/>
             ))}
           </VerticalItemContainer>
         )}

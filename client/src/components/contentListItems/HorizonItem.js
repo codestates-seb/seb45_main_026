@@ -4,6 +4,8 @@ import { styled } from "styled-components";
 import yellowStar from "../../assets/images/icons/star/starYellow.svg"
 import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { BodyTextTypo, Heading5Typo, SmallTextTypo } from "../../atoms/typographys/Typographys";
 
 const globalTokens = tokens.global;
 
@@ -13,7 +15,6 @@ const ComponentBody = styled.li`
     display: flex;
     flex-direction: row;
     border-radius: ${globalTokens.RegularRadius.value}px;
-    background-color: lightgray;
 `
 const ThumbnailContainer = styled.div`
     width: 300px;
@@ -42,11 +43,10 @@ const ItemInfors = styled.div`
     flex-direction: column;
     justify-content: space-between;
     padding: ${globalTokens.Spacing8.value}px;
-    background-color: ${globalTokens.White.value};
     border-radius: 0px ${globalTokens.RegularRadius.value}px ${globalTokens.RegularRadius.value}px 0px;
 
 `
-const Title = styled.h3`
+const Title = styled(Heading5Typo)`
     width: 100%;
     height: 60px;
     font-size: ${globalTokens.Heading5.value}px;
@@ -55,7 +55,7 @@ const Title = styled.h3`
       cursor: pointer;
     }
 `
-const Description = styled.div`
+const Description = styled(BodyTextTypo)`
     width: 100%;
     height: 50px;
     font-size: ${globalTokens.BodyText.value}px;
@@ -115,7 +115,7 @@ const ImgContainer = styled.div`
     }
 `
 
-const AuthorName = styled.span`
+const AuthorName = styled(BodyTextTypo)`
     height: 30px;
     font-weight: ${globalTokens.Bold.value};
     font-size: ${globalTokens.BodyText.value}px;
@@ -124,7 +124,7 @@ const AuthorName = styled.span`
       cursor: pointer;
     }
 `
-const CreatedAt = styled.span`
+const CreatedAt = styled(SmallTextTypo)`
     height: 20px;
     font-size: ${globalTokens.SmallText.value}px;
 `
@@ -138,18 +138,19 @@ const ScoreContainer = styled.div`
     flex-direction: row;
     align-items: center;
 `
-const ScoreText = styled.span`
+const ScoreText = styled(SmallTextTypo)`
     font-size: ${globalTokens.BodyText.value}px;
     padding-top: ${globalTokens.Spacing4.value}px;
     height: 30px;
 `
-const PriceText = styled.div`
+const PriceText = styled(Heading5Typo)`
     font-size: ${globalTokens.Heading5.value}px;
     font-weight: ${globalTokens.Bold.value};
     height: 30px;
 `
 
 export default function HorizonItem({lecture, channel}) {
+  const isDark = useSelector(state=>state.uiSetting.isDark);
   const {videoName,thumbnailUrl,createdDate,isPurchased,price,star,description}=lecture
   const navigate=useNavigate()
   const date = new Date(createdDate);
@@ -157,13 +158,13 @@ export default function HorizonItem({lecture, channel}) {
   const month = (date.getMonth() + 1).toString().padStart(2, "0"); // 월은 0부터 시작하므로 +1
   const day = date.getDate().toString().padStart(2, "0");
     return (
-      <ComponentBody>
+      <ComponentBody isDark={isDark}>
         <ThumbnailContainer onClick={()=>navigate(`/videos/${lecture.videoId}`)}>
           <Thumbnail src={thumbnailUrl} alt="thumbnail" />
         </ThumbnailContainer>
         <ItemInfors>
-          <Title onClick={()=>navigate(`/videos/${lecture.videoId}`)} >{videoName}</Title>
-          <Description>{description}</Description>
+          <Title isDark={isDark} onClick={()=>navigate(`/videos/${lecture.videoId}`)} >{videoName}</Title>
+          <Description isDark={isDark}>{description}</Description>
           <InforContainer>
             <InforContainerLeft>
               <AuthorContainer>
@@ -177,22 +178,22 @@ export default function HorizonItem({lecture, channel}) {
                     alt="profile"
                   />
                 </ImgContainer>
-                <AuthorName onClick={()=>navigate(`/channels/${channel.memberId}`)}>{channel.channelName}</AuthorName>
-                <CreatedAt>
+                <AuthorName isDark={isDark} onClick={()=>navigate(`/channels/${channel.memberId}`)}>{channel.channelName}</AuthorName>
+                <CreatedAt isDark={isDark}>
                   {month}월{day}일 업로드됨
                 </CreatedAt>
               </AuthorContainer>
             </InforContainerLeft>
             <InforContainerRight>
               <ScoreContainer>
-                <ScoreText>{star}</ScoreText>
+                <ScoreText isDark={isDark}>{star}</ScoreText>
                 <StarImage src={yellowStar} />
                 <StarImage src={yellowStar} />
                 <StarImage src={yellowStar} />
                 <StarImage src={yellowStar} />
                 <StarImage src={yellowStar} />
               </ScoreContainer>
-              {isPurchased ? <PriceText>구매됨</PriceText> :isPurchased===false?<PriceText>{price}원</PriceText>:<></>}
+              {isPurchased ? <PriceText isDark={isDark}>구매됨</PriceText> :isPurchased===false?<PriceText isDark={isDark}>{price}원</PriceText>:<></>}
             </InforContainerRight>
           </InforContainer>
         </ItemInfors>

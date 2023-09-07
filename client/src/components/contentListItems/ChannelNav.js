@@ -13,7 +13,7 @@ const NavyContainer = styled.div`
   flex-direction: row;
   border-radius: ${globalTokens.RegularRadius.value}px ${globalTokens.RegularRadius.value}px 0 0;
   background-color: ${ props=>props.isDark ? 'rgba(255,255,255,0.15)' : globalTokens.White.value };
-  border-bottom: 3px solid ${globalTokens.LightGray.value};
+  border-bottom: 3px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
 `;
 //선택한 Nav Item
 const NavyItem = styled.div`
@@ -24,7 +24,7 @@ const NavyItem = styled.div`
   font-weight: ${globalTokens.Bold.value};
   text-align: center;
   padding-top: ${globalTokens.Spacing8.value}px;
-  border-bottom: 3px solid ${globalTokens.Gray.value};
+  border-bottom: 3px solid ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
   &:hover{
     cursor: pointer;
   }
@@ -38,7 +38,7 @@ const NavyItem2 = styled.div`
   /* font-weight: ${globalTokens.Bold.value}; */
   text-align: center;
   padding-top: ${globalTokens.Spacing8.value}px;
-  border-bottom: 3px solid ${globalTokens.LightGray.value};
+  border-bottom: 3px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
   &:hover {
     cursor: pointer;
   }
