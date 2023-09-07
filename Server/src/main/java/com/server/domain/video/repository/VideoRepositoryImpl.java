@@ -2,6 +2,7 @@ package com.server.domain.video.repository;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -76,11 +77,11 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .offset(request.getPageable().getOffset())
                 .limit(request.getPageable().getPageSize())
                 .orderBy(getSort(request.getSort()))
-                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(request.getFree())));
+                .where(video.videoStatus.eq(VideoStatus.CREATED).and(freeOrPaidVideo(request.getFree())));
 
         JPAQuery<Video> countQuery = queryFactory.selectFrom(video)
                 .distinct()
-                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(request.getFree())));
+                .where(video.videoStatus.eq(VideoStatus.CREATED).and(freeOrPaidVideo(request.getFree())));
 
         if (hasCategory(request.getCategoryName())) {
             query
@@ -135,32 +136,6 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
         return new PageImpl<>(query.fetch(), request.getPageable(), countQuery.fetchCount());
     }
 
-    private OrderSpecifier[] getSort(String sort) {
-
-        List<OrderSpecifier<?>> orders = new ArrayList<>();
-        orders.add(getOrderSpecifier(sort));
-        orders.add(video.createdDate.desc());
-
-        return orders.toArray(new OrderSpecifier[0]);
-    }
-
-    private BooleanExpression searchFree(Boolean free) {
-
-        if(free == null) {
-            return null;
-        }
-
-        if(free) {
-            return video.price.eq(0);
-        }
-
-        return video.price.gt(0);
-    }
-
-    private boolean hasCategory(String categoryName) {
-        return categoryName != null;
-    }
-
     @Override
     public List<Boolean> isPurchasedAndIsReplied(Long memberId, Long videoId) {
 
@@ -188,27 +163,34 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
     @Override
     public Page<Video> findChannelVideoByCond(ChannelVideoGetDataRequest request) {
 
-
         JPAQuery<Video> query = queryFactory
                 .selectFrom(video)
                 .distinct()
-                .join(video.channel, channel).fetchJoin()
-                .join(channel.member, member).fetchJoin()
-                .offset(request.getPageable().getOffset())
-                .limit(request.getPageable().getPageSize())
-                .orderBy(getSort(request.getSort()))
-                .where(member.memberId.eq(request.getMemberId()))
-                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(request.getFree())));
+                .join(video.channel, channel)
+                .join(channel.member, member) //채널 주인(request.getMemberId()) 의 비디오를 조회하기 위해 조인
+                .offset(request.getPageable().getOffset()) // 페이징 조건 1
+                .limit(request.getPageable().getPageSize()) // 페이징 조건 2
+                .orderBy(getSort(request.getSort())) // 정렬 조건
+                .where(
+                        videoOwnerIs(request.getMemberId()), // 채널 주인의 비디오만 조회
+                        videoIsCreated(), // 비디오 상태가 CREATED 인 것만 조회
+                        freeOrPaidVideo(request.getFree()), // 무료 비디오인지 유료 비디오인지 선택
+                        includePurchaseVideo(request) // 구매한 비디오를 포함할지 여부
+                );
 
-
-        JPAQuery<Video> countQuery = queryFactory.selectFrom(video)
+        JPAQuery<Long> countQuery = queryFactory.select(video.count()) // 쿼리문에 해당하는 count 쿼리
+                .from(video)
                 .join(video.channel, channel)
                 .join(channel.member, member)
-                .where(member.memberId.eq(request.getMemberId()))
-                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(request.getFree())));
+                .where(
+                        videoOwnerIs(request.getMemberId()),
+                        videoIsCreated(),
+                        freeOrPaidVideo(request.getFree()),
+                        includePurchaseVideo(request)
+                );
 
-        if (hasCategory(request.getCategoryName())) {
-            query
+        if (hasCategory(request.getCategoryName())) { // 카테고리가 존재하면
+            query // 카테고리에 해당하는 비디오만 조회 (카테고리 이름은 UNIQUE 인덱스로 포함함)
                     .join(video.videoCategories, videoCategory)
                     .join(videoCategory.category, category)
                     .where(category.categoryName.eq(request.getCategoryName()));
@@ -219,26 +201,80 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                     .where(category.categoryName.eq(request.getCategoryName()));
         }
 
-        if(!request.isPurchased()) {
+        return new PageImpl<>(query.fetch(), request.getPageable(), countQuery.fetchOne());
+    }
 
-            List<Long> videoIds = queryFactory // member 가 구매한 비디오의 id
-                    .select(video.videoId)
-                    .from(member)
-                    .join(member.orders, order)
-                    .join(order.orderVideos, orderVideo)
-                    .join(orderVideo.video, video)
-                    .where(orderVideo.orderStatus.eq(OrderStatus.COMPLETED))
-                    .where(member.memberId.eq(request.getLoginMemberId()))
-                    .fetch();
+    private OrderSpecifier[] getSort(String sort) {
 
-            query
-                    .where(video.videoId.notIn(videoIds));
+        List<OrderSpecifier<?>> orders = new ArrayList<>();
+        orders.add(getOrderSpecifier(sort));
+        orders.add(video.createdDate.desc());
 
-            countQuery
-                    .where(video.videoId.notIn(videoIds));
+        return orders.toArray(new OrderSpecifier[0]);
+    }
+
+    private OrderSpecifier<?> getOrderSpecifier(String sort) {
+
+        if(sort == null || sort.equals("")) {
+            return video.createdDate.desc();
         }
 
-        return new PageImpl<>(query.fetch(), request.getPageable(), countQuery.fetchCount());
+        switch (sort) {
+            case "view":
+                return video.view.desc();
+            case "star":
+                return video.star.desc();
+            default:
+                return video.createdDate.desc();
+        }
+    }
+
+    private boolean hasCategory(String categoryName) {
+        return categoryName != null;
+    }
+
+    private BooleanExpression videoOwnerIs(Long memberId) {
+        return video.channel.member.memberId.eq(memberId);
+    }
+
+    private BooleanExpression videoIsCreated() {
+        return video.videoStatus.eq(VideoStatus.CREATED);
+    }
+
+    private BooleanExpression freeOrPaidVideo(Boolean free) {
+
+        if(free == null) {
+            return null;
+        }
+
+        if(free) {
+            return video.price.eq(0);
+        }
+
+        return video.price.gt(0);
+    }
+
+    private Predicate includePurchaseVideo(ChannelVideoGetDataRequest request) {
+
+        if(request.isPurchased()) {
+            return null;
+        }
+
+        List<Long> videoIds = getPurchasedVideoIds(request.getLoginMemberId());
+
+        return video.videoId.notIn(videoIds);
+    }
+
+    private List<Long> getPurchasedVideoIds(Long loginMemberId) {
+        return queryFactory
+                .select(video.videoId)
+                .from(member)
+                .join(member.orders, order)
+                .join(order.orderVideos, orderVideo)
+                .join(orderVideo.video, video)
+                .where(orderVideo.orderStatus.eq(OrderStatus.COMPLETED))
+                .where(member.memberId.eq(loginMemberId))
+                .fetch();
     }
 
     @Override
@@ -264,22 +300,6 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .where(member.memberId.eq(memberId)
                         .and(video.videoId.in(videoIds))
                 ).fetch();
-    }
-
-    private OrderSpecifier<?> getOrderSpecifier(String sort) {
-
-        if(sort == null || sort.equals("")) {
-            return video.createdDate.desc();
-        }
-
-        switch (sort) {
-            case "view":
-                return video.view.desc();
-            case "star":
-                return video.star.desc();
-            default:
-                return video.createdDate.desc();
-        }
     }
 
 

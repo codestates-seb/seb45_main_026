@@ -39,26 +39,23 @@ class ChannelServiceTest extends ServiceTest {
     @DisplayName("채널의 비디오를 페이징하여 조회한다.")
     void getChannelVideos() {
         //given
-        Member loginMember = createAndSaveMember(); // 로그인한 회원
+        Member loginMember = createMemberWithChannel(); // 로그인한 회원
 
         Category category1 = createAndSaveCategory("java");
         Category category2 = createAndSaveCategory("spring");
 
-        Member owner1 = createAndSaveMember();
-        Channel channel1 = createAndSaveChannel(owner1);
+        Member owner1 = createMemberWithChannel();
 
-        Member owner2 = createAndSaveMember();
-        Channel channel2 = createAndSaveChannel(owner2);
+        Member owner2 = createMemberWithChannel();
 
-        List<Video> videos1 = createAndSaveVideos(loginMember, channel1, 60, category1, category2);
-        createAndSaveVideos(loginMember, channel2, 60, category1, category2);
+        List<Video> videos1 = createAndSaveVideos(owner1, 60, category1, category2);
+        createAndSaveVideos(owner2, 60, category1, category2);
 
         em.flush();
         em.clear();
 
         ChannelVideoGetServiceRequest request = ChannelVideoGetServiceRequest.builder()
                 .memberId(owner1.getMemberId())
-                .loginMemberId(loginMember.getMemberId())
                 .page(0)
                 .size(10)
                 .categoryName(null)
@@ -78,22 +75,22 @@ class ChannelServiceTest extends ServiceTest {
                 .containsAnyElementsOf(videos1.stream().map(Video::getVideoId).collect(Collectors.toList()));
     }
 
-    private List<Video> createAndSaveVideos(Member purchaseMember, Channel channel, int count, Category category1, Category category2) {
+    private List<Video> createAndSaveVideos(Member member, int count, Category category1, Category category2) {
 
         List<Video> videos = new ArrayList<>();
 
-        for(int i = 1; i <= 60; i++) {
+        for(int i = 1; i <= count; i++) {
 
             Video video;
 
             if(i % 2 == 0) {
-                video = createAndSaveVideo(channel);
+                video = createAndSaveVideo(member.getChannel());
                 createAndSaveVideoCategory(video, category1);
             }else {
-                video = createAndSaveVideo(channel);
+                video = createAndSaveVideo(member.getChannel());
                 createAndSaveVideoCategory(video, category2);
             }
-            if(i % 3 == 0) createAndSaveOrderWithPurchaseComplete(purchaseMember, List.of(video), 0);
+            if(i % 3 == 0) createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
 
             videos.add(video);
         }
