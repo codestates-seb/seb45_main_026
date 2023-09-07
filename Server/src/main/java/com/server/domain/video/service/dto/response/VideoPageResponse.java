@@ -21,20 +21,32 @@ public class VideoPageResponse {
     private Integer price;
     private Float star;
     private Boolean isPurchased;
+    private Boolean isInCart;
+    private String description;
     private List<VideoCategoryResponse> categories;
     private VideoChannelResponse channel;
     private LocalDateTime createdDate;
 
-    public static Page<VideoPageResponse> of(Page<Video> videos, List<Boolean> isPurchaseInOrder, List<Boolean> isSubscribeInOrder, List<String[]> urlsInOrder) {
+    public static Page<VideoPageResponse> of(
+            Page<Video> videos,
+            List<Boolean> isPurchaseInOrder,
+            List<Boolean> isSubscribeInOrder,
+            List<String[]> urlsInOrder,
+            List<Long> videoIdsInCart) {
         return videos.map(video
                 -> of(video,
                 isPurchaseInOrder.get(videos.getContent().indexOf(video)),
                 isSubscribeInOrder.get(videos.getContent().indexOf(video)),
-                urlsInOrder.get(videos.getContent().indexOf(video))
+                urlsInOrder.get(videos.getContent().indexOf(video)),
+                videoIdsInCart.contains(video.getVideoId())
         ));
     }
 
-    private static VideoPageResponse of(Video video, boolean isPurchased, boolean isSubscribed, String[] urls) {
+    private static VideoPageResponse of(Video video,
+                                        boolean isPurchased,
+                                        boolean isSubscribed,
+                                        String[] urls,
+                                        boolean isInCart) {
         return VideoPageResponse.builder()
                 .videoId(video.getVideoId())
                 .videoName(video.getVideoName())
@@ -43,6 +55,8 @@ public class VideoPageResponse {
                 .price(video.getPrice())
                 .star(video.getStar())
                 .isPurchased(isPurchased)
+                .isInCart(isInCart)
+                .description(video.getDescription())
                 .categories(VideoCategoryResponse.of(video.getVideoCategories()))
                 .channel(VideoChannelResponse.of(video.getChannel(), isSubscribed, urls[1]))
                 .createdDate(video.getCreatedDate())

@@ -29,6 +29,9 @@ public class OrderVideo extends BaseEntity {
     @JoinColumn(name = "video_id")
     private Video video;
 
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus = OrderStatus.ORDERED;
+
     private OrderVideo(Order order, Video video, Integer price) {
         this.order = order;
         this.video = video;
@@ -41,5 +44,13 @@ public class OrderVideo extends BaseEntity {
 
     public void addOrder(Order order) {
         this.order = order;
+    }
+
+    public void cancel() {
+        this.orderStatus = OrderStatus.CANCELED;
+    }
+
+    public void complete() {
+        this.orderStatus = OrderStatus.COMPLETED;
     }
 }

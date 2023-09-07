@@ -58,7 +58,7 @@ public enum OAuthProvider implements BaseEnum {
 	@JsonCreator
 	public static OAuthProvider from(String value) {
 		for (OAuthProvider provider : OAuthProvider.values()) {
-			if (provider.getName().toLowerCase().equals(value)) {
+			if (provider.getName().equalsIgnoreCase(value)) {
 				return provider;
 			}
 		}

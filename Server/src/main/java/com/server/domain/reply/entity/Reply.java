@@ -1,21 +1,26 @@
 package com.server.domain.reply.entity;
 
 import com.server.domain.member.entity.Member;
+import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
-import lombok.Getter;
+import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
-public class Reply extends BaseEntity {
+@AllArgsConstructor(access= AccessLevel.PRIVATE)
+@NoArgsConstructor
+@Builder
+public class Reply extends BaseEntity implements Rewardable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long replyId;
 
     @Column(nullable = false)
-    private int star;
+    private Integer star;
 
     @Lob
     @Column(nullable = false)
@@ -29,25 +34,40 @@ public class Reply extends BaseEntity {
     @JoinColumn(name = "video_id")
     private Video video;
 
-    public void setReplyId(Long replyId){
+
+    public void setReplyId(Long replyId) {
         this.replyId = replyId;
     }
 
-    public void setStar(int star){
+    public void setStar(int star) {
         this.star = star;
     }
 
-    public void setContent(String content){
+    public void setContent(String content) {
         this.content = content;
     }
 
-    public void setMember(Member member){
+    public void setMember(Member member) {
         this.member = member;
     }
 
-    public void setVideo(Video video){
+    public void setVideo(Video video) {
         this.video = video;
     }
 
-}
 
+    public Long setReplyId() {
+        return replyId;
+    }
+
+
+    public void updateReply(String content, Integer star) {
+        this.content = content;
+        this.star = star;
+    }
+
+    public int getRewardPoint(){
+        return 10;
+    }
+
+}

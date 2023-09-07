@@ -26,6 +26,8 @@ include::{snippets}/member/updatenickname/http-response.adoc[]
 include::{snippets}/member/updateimage/http-request.adoc[]
 ==== Request Header
 include::{snippets}/member/updateimage/request-headers.adoc[]
+==== HTTP Request
+include::{snippets}/member/updateimage/http-request.adoc[]
 ==== Request Field
 include::{snippets}/member/updateimage/request-fields.adoc[]
 === HTTP Response

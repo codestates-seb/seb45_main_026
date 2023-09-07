@@ -1,52 +1,58 @@
 package com.server.domain.reply.controller;
 
-import com.server.domain.reply.dto.ReplyDto;
-import com.server.domain.reply.entity.Reply;
+import com.server.domain.reply.dto.ReplyInfo;
+import com.server.domain.reply.dto.ReplyUpdateControllerApi;
 import com.server.domain.reply.service.ReplyService;
+import com.server.global.annotation.LoginId;
+import com.server.global.reponse.ApiSingleResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.util.List;
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 
 @RestController
-@RequestMapping("/videos/{videoId}/replies")
+@RequestMapping("/replies")
+@Validated
 public class ReplyController {
 
-    private ReplyService replyService;
+    private final ReplyService replyService;
 
     public ReplyController(ReplyService replyService) {
         this.replyService = replyService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<Reply>> getReply(@PathVariable Long videoId,
-                                                @RequestParam(defaultValue = "1") int page,
-                                                @RequestParam(defaultValue = "createdAt") String sort,
-                                                @RequestParam(defaultValue = "0") int star) {
-        List<Reply> replies = replyService.getReply(videoId, page, sort, star);
-        return ResponseEntity.ok(replies);
+
+
+    @PatchMapping("/{reply-id}")
+    public ResponseEntity<Void> updateReply(
+            @PathVariable("reply-id") @Positive(message = "{validation.positive}") Long replyId,
+            @RequestBody @Valid ReplyUpdateControllerApi request,
+            @LoginId Long loginMemberId) {
+
+        replyService.updateReply(loginMemberId, replyId, request.toService());
+
+        return ResponseEntity.noContent().build();
     }
 
-    @PostMapping
-    public ResponseEntity<Void> createReply(@PathVariable Long videoId, @RequestBody ReplyDto replyDto) {
-        Reply createdReply = replyService.createReply(videoId, replyDto);
-        URI location = URI.create("/videos/" + videoId + "/replies/" + createdReply.getReplyId());
+    @GetMapping("/{reply-id}")
+    public ResponseEntity<ApiSingleResponse<ReplyInfo>> getReply(
+            @PathVariable("reply-id") @Positive(message = "{validation.positive}") Long replyId,
+            @LoginId Long loginMemberId) {
 
-        return ResponseEntity.created(location).build();
+        ReplyInfo reply = replyService.getReply(replyId, loginMemberId);
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(reply, "댓글 단건 조회 성공"));
     }
 
-    @PatchMapping("/{replyId}")
-    public ResponseEntity<Reply> updateReply(@PathVariable Long videoId,
-                                             @PathVariable Long replyId,
-                                             @RequestBody ReplyDto replyDto) {
-        Reply reply = replyService.updateReply(replyId, replyDto);
-        return ResponseEntity.ok(reply);
-    }
+    @DeleteMapping("/{reply-id}")
+    public ResponseEntity<Void> deleteReply(
+            @PathVariable("reply-id") @Positive(message = "{validation.positive}") Long replyId,
+            @LoginId Long loginMemberId) {
 
-    @DeleteMapping("/{replyId}")
-    public ResponseEntity<Void> deleteReply(@PathVariable Long replyId) {
-        replyService.deleteReply(replyId);
+        replyService.deleteReply(replyId, loginMemberId);
+
         return ResponseEntity.noContent().build();
     }
 }

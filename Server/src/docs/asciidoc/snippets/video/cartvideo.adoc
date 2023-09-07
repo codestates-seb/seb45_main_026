@@ -32,6 +32,17 @@ include::{snippets}/video/changecartcancel/http-response.adoc[]
 ==== Response Fields
 include::{snippets}/video/changecartcancel/response-fields.adoc[]
 
+== 비디오 장바구니 목록 취소
+=== HTTP Request
+include::{snippets}/video/deletecarts/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/deletecarts/request-headers.adoc[]
+==== Request Body
+include::{snippets}/video/deletecarts/request-body.adoc[]
+==== Request Fields
+include::{snippets}/video/deletecarts/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/video/deletecarts/http-response.adoc[]
 
 
 

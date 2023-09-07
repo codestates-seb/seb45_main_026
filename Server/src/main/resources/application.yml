@@ -37,16 +37,16 @@ spring:
         registration:
           google:
             scope: email
-            redirect-uri: http://localhost:3000/login
+            redirect-uri: https://www.itprometheus.net/login
           github:
             scope: user:email, read:user
-            redirect-uri: http://localhost:3000/login
+            redirect-uri: https://www.itprometheus.net/login
           kakao:
             client-authentication-method: POST
             authorization-grant-type: authorization_code
             scope: profile_nickname, account_email
             client-name: Kakao
-            redirect-uri: http://localhost:3000/login
+            redirect-uri: https://www.itprometheus.net/login
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
@@ -56,6 +56,14 @@ spring:
   redis:
     host: 127.0.0.1
     port: 6379
+
+jwt:
+  access:
+    expiration: 3600000
+    header: Authorization
+  refresh:
+    expiration: 1209600000
+    header: Refresh
 
 # p6spy ?? ??
 decorator:
@@ -76,7 +84,7 @@ spring:
     url: jdbc:mysql://sixman-rds.c2bhjqsi4ogs.ap-northeast-2.rds.amazonaws.com/sixmandb?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     database: mysql
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
 

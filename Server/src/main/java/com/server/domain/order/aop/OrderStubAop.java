@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.List;
 import java.util.UUID;
 
-@Aspect
+//@Aspect
 //@Component
 public class OrderStubAop {
 

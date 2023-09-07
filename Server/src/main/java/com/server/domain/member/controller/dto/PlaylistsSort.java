@@ -11,8 +11,7 @@ import lombok.AllArgsConstructor;
 public enum PlaylistsSort implements BaseEnum {
 	CREATED_DATE("최신순", "created-date", "createdDate"),
 	NAME("이름 순", "name", "name"),
-	STAR("별점 순", "star", "star"),
-	CHANNEL("채널 순", "channel", "channel");
+	STAR("별점 순", "star", "star");
 
 	private final String description;
 	private final String url;

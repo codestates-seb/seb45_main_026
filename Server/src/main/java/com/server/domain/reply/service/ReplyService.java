@@ -1,58 +1,72 @@
 package com.server.domain.reply.service;
 
-import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.reply.dto.ReplyInfo;
+import com.server.domain.reply.dto.ReplyUpdateServiceApi;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.reply.dto.ReplyDto;
 import com.server.domain.reply.repository.ReplyRepository;
+import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.replyException.ReplyNotFoundException;
-import org.springframework.data.domain.PageRequest;
+import com.server.module.s3.service.AwsService;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 @Service
 public class ReplyService {
 
-    private ReplyRepository replyRepository;
-    private MemberRepository memberRepository;
+    private final ReplyRepository replyRepository;
+    private final MemberRepository memberRepository;
+    private final AwsService awsService;
 
-    public ReplyService(ReplyRepository replyRepository, MemberRepository memberRepository) {
+
+
+
+    public ReplyService(ReplyRepository replyRepository, MemberRepository memberRepository, AwsService awsService) {
         this.replyRepository = replyRepository;
         this.memberRepository = memberRepository;
+        this.awsService = awsService;
     }
 
-    public List<Reply> getReply(Long videoId, int page, String sort, int star) {
-        int replyListPage = 10;
-        return replyRepository.findByVideo_VideoId(videoId, star, PageRequest.of(page - 1, replyListPage));
+
+    public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi response) {
+
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+
+//            if (!reply.getMember().getMemberId().equals(loginMemberId)) {
+//                throw new MemberAccessDeniedException();
+//            }
+
+        reply.updateReply(response.getContent(), response.getStar());
     }
 
-    public Reply createReply(Long videoId, ReplyDto replyDto) {
-        Member member = memberRepository.findById(replyDto.getMemberId())
-                .orElseThrow(() -> new MemberNotFoundException());
+    public ReplyInfo getReply(Long replyId, Long loginMemberId) {
 
-        Reply reply = new Reply();
-        reply.setContent(replyDto.getContent());
-        reply.setStar(replyDto.getStar());
-        reply.setMember(member);
+        memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
 
-        return replyRepository.save(reply);
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+
+        return ReplyInfo.of(reply);
     }
 
-    public Reply updateReply(Long replyId, ReplyDto replyDto) {
-        Reply reply = replyRepository.findById(replyId)
-                .orElseThrow(() -> new ReplyNotFoundException());
+    public void deleteReply(Long replyId, Long loginMemberId) {
 
-        reply.setContent(replyDto.getContent());
-        reply.setStar(replyDto.getStar());
+        // memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
 
-        return replyRepository.save(reply);
+        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+
+        if (!reply.getMember().getMemberId().equals(loginMemberId)) {
+            throw new MemberAccessDeniedException();
+        }
+
+        replyRepository.deleteById(replyId);
     }
 
-    public void deleteReply(Long replyId) {
-        Reply reply = replyRepository.findById(replyId)
-                .orElseThrow(() -> new ReplyNotFoundException());
 
-        replyRepository.delete(reply);
-    }
+//    public void existReply(Long replyId) {
+//
+//        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+//
+//        ReplyInfo.of(reply);
+
 }
+

@@ -1,5 +1,6 @@
 package com.server.auth;
 
+import static com.server.auth.util.AuthConstant.*;
 import static com.server.global.testhelper.ControllerTest.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -13,7 +14,17 @@ import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Set;
+
 import javax.persistence.EntityManager;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import javax.validation.metadata.BeanDescriptor;
+import javax.validation.metadata.ConstraintDescriptor;
+import javax.validation.metadata.PropertyDescriptor;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -26,18 +37,28 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.MessageSource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.snippet.Attributes;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.auth.controller.dto.AuthApiRequest;
+import com.server.auth.jwt.service.CustomUserDetails;
 import com.server.auth.jwt.service.JwtProvider;
 import com.server.auth.oauth.service.OAuthProvider;
 import com.server.auth.oauth.service.OAuthService;
@@ -73,22 +94,19 @@ public class AuthControllerTest {
 	private ObjectMapper objectMapper;
 	@Autowired
 	private MockMvc mockMvc;
+
 	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private JwtProvider provider;
+	@Autowired
+	private MessageSource messageSource;
+	private BeanDescriptor beanDescriptor;
+	private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+	private Validator validator = factory.getValidator();
 
 	@Autowired
 	private MemberRepository memberRepository;
-
-	// @BeforeAll
-	// void addMember() {
-	// 	Member member = Member.createMember(
-	// 		"test@email.com",
-	// 		passwordEncoder.encode("qwer1234!"),
-	// 		"testname"
-	// 	);
-	//
-	// 	memberRepository.save(member);
-	// }
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@Test
 	@DisplayName("로컬 로그인 성공 테스트")
@@ -112,14 +130,16 @@ public class AuthControllerTest {
 			.andExpect(header().exists("Authorization"))
 			.andExpect(header().exists("Refresh"));
 
+		setConstraintClass(AuthApiRequest.Login.class);
+
 		//restdocs
 		actions.andDo(
 			document("auth/login",
 				preprocessRequest(prettyPrint()),
 				preprocessResponse(prettyPrint()),
 				requestFields(
-					fieldWithPath("email").description("로그인 이메일"),
-					fieldWithPath("password").description("로그인 비밀번호")
+					fieldWithPath("email").description("로그인 이메일").attributes(getConstraint("email")),
+					fieldWithPath("password").description("로그인 비밀번호").attributes(getConstraint("password"))
 				),
 				responseHeaders(
 					headerWithName("Authorization").description("액세스 토큰"),
@@ -145,7 +165,7 @@ public class AuthControllerTest {
 
 		//when
 		ResultActions actions = mockMvc.perform(
-			get("/auth/oauth")
+			post("/auth/oauth")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(content)
 		);
@@ -157,6 +177,8 @@ public class AuthControllerTest {
 			.andExpect(header().exists("Authorization"))
 			.andExpect(header().exists("Refresh"));
 
+		setConstraintClass(AuthApiRequest.OAuth.class);
+
 		actions
 			.andDo(
 				document(
@@ -164,12 +186,46 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("provider").description(generateLinkCode(OAuthProvider.class)),
-						fieldWithPath("code").description("OAuth 인증 코드")
+						fieldWithPath("provider").description(generateLinkCode(OAuthProvider.class)).attributes(getConstraint("provider")),
+						fieldWithPath("code").description("OAuth 인증 코드").attributes(getConstraint("code"))
 					),
 					responseHeaders(
 						headerWithName("Authorization").description("accessToken"),
 						headerWithName("Refresh").description("refreshToken")
+					)
+				)
+			);
+	}
+
+	@Test
+	@DisplayName("리프래쉬 토큰으로 액세스 토큰 재발급 테스트")
+	void refreshTokenToAccessToken() throws Exception {
+		Member member = createMember("refresh@email.com", "qwer1234!");
+
+		String refresh = getRefreshToken(member);
+
+		ResultActions actions = mockMvc.perform(
+			post("/auth/refresh")
+				.header(REFRESH, BEARER + refresh)
+				.contentType(MediaType.APPLICATION_JSON)
+		);
+
+		actions
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(header().exists("Authorization"));
+
+		actions
+			.andDo(
+				document(
+					"auth/refresh",
+					preprocessRequest(prettyPrint()),
+					preprocessResponse(prettyPrint()),
+					requestHeaders(
+						headerWithName("Refresh").description("refreshToken")
+					),
+					responseHeaders(
+						headerWithName("Authorization").description("accessToken")
 					)
 				)
 			);
@@ -194,6 +250,8 @@ public class AuthControllerTest {
 			.andDo(print())
 			.andExpect(status().isNoContent());
 
+		setConstraintClass(AuthApiRequest.Send.class);
+
 		signup
 			.andDo(
 				document(
@@ -201,7 +259,7 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("email").description("이메일")
+						fieldWithPath("email").description("이메일").attributes(getConstraint("email"))
 					)
 				)
 			);
@@ -223,7 +281,7 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("email").description("이메일")
+						fieldWithPath("email").description("이메일").attributes(getConstraint("email"))
 					)
 				)
 			);
@@ -247,6 +305,8 @@ public class AuthControllerTest {
 				.content(content)
 		);
 
+		setConstraintClass(AuthApiRequest.Confirm.class);
+
 		signup
 			.andDo(print())
 			.andExpect(status().isNoContent())
@@ -256,8 +316,8 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("email").description("이메일"),
-						fieldWithPath("code").description("이메일로 받은 인증번호")
+						fieldWithPath("email").description("이메일").attributes(getConstraint("email")),
+						fieldWithPath("code").description("이메일로 받은 인증번호").attributes(getConstraint("code"))
 					)
 				)
 			);
@@ -277,8 +337,8 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("email").description("이메일"),
-						fieldWithPath("code").description("이메일로 받은 인증번호")
+						fieldWithPath("email").description("이메일").attributes(getConstraint("email")),
+						fieldWithPath("code").description("이메일로 받은 인증번호").attributes(getConstraint("code"))
 					)
 				)
 			);
@@ -307,6 +367,8 @@ public class AuthControllerTest {
 			.andDo(print())
 			.andExpect(status().isCreated());
 
+		setConstraintClass(AuthApiRequest.SignUp.class);
+
 		actions
 			.andDo(
 				document(
@@ -314,9 +376,9 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("email").description("이메일"),
-						fieldWithPath("password").description("패스워드"),
-						fieldWithPath("nickname").description("닉네임(기본 채널명)")
+						fieldWithPath("email").description("이메일").attributes(getConstraint("email")),
+						fieldWithPath("password").description("패스워드").attributes(getConstraint("password")),
+						fieldWithPath("nickname").description("닉네임(기본 채널명)").attributes(getConstraint("nickname"))
 					)
 				)
 			);
@@ -345,6 +407,8 @@ public class AuthControllerTest {
 			.andDo(print())
 			.andExpect(status().isNoContent());
 
+		setConstraintClass(AuthApiRequest.Reset.class);
+
 		actions
 			.andDo(
 				document(
@@ -352,19 +416,90 @@ public class AuthControllerTest {
 					preprocessRequest(prettyPrint()),
 					preprocessResponse(prettyPrint()),
 					requestFields(
-						fieldWithPath("email").description("이메일"),
-						fieldWithPath("password").description("변경할 패스워드")
+						fieldWithPath("email").description("이메일").attributes(getConstraint("email")),
+						fieldWithPath("password").description("변경할 패스워드").attributes(getConstraint("password"))
 					)
 				)
 			);
 	}
 
 	private Member createMember(String email, String password) {
-		return Member.builder()
+		Member member = Member.builder()
 			.email(email)
 			.nickname("test")
-			.password(password)
+			.password(passwordEncoder.encode(password))
 			.authority(Authority.ROLE_USER)
 			.build();
+
+		return memberRepository.save(member);
+	}
+
+	private void setConstraintClass(Class<?> clazz){
+		this.beanDescriptor = validator.getConstraintsForClass(clazz);
+	}
+
+	private Attributes.Attribute getConstraint(String value){
+		assert(beanDescriptor != null) : "constraint 설정이 되어있지 않습니다. setConstraintClass() 를 통해 설정해주세요 ";
+
+		PropertyDescriptor propertyDescriptor = beanDescriptor.getConstraintsForProperty(value);
+
+		StringBuilder sb = new StringBuilder();
+
+		if(propertyDescriptor == null){
+			return new Attributes.Attribute("constraints", sb.toString());
+		}
+
+		Set<ConstraintDescriptor<?>> constraintDescriptors = propertyDescriptor.getConstraintDescriptors();
+
+		for (ConstraintDescriptor<?> constraintDescriptor : constraintDescriptors) {
+
+			String type = constraintDescriptor.getAnnotation().annotationType().getSimpleName();
+
+			String message = (String) constraintDescriptor.getAttributes().get("message");
+			Integer min = (Integer) constraintDescriptor.getAttributes().get("min");
+			Integer max = (Integer) constraintDescriptor.getAttributes().get("max");
+
+			String actualMessage = getActualMessage(message, min, max);
+
+			sb.append(" [");
+			sb.append(type);
+			sb.append(" : ");
+			sb.append(actualMessage);
+			sb.append("] ");
+		}
+
+		return new Attributes.Attribute("constraints", sb.toString());
+	}
+
+	private String getActualMessage(String messageKey, Integer min, Integer max) {
+		String actualMessageKey = messageKey.replace("{", "").replace("}", "");
+
+		String message = messageSource.getMessage(actualMessageKey, null, Locale.getDefault());
+
+		if(min == null || max == null){
+			return message;
+		}
+
+		return message.replace("{min}", min.toString()).replace("{max}", max.toString());
+	}
+
+	private String getRefreshToken(Member member) {
+		UserDetails userDetails = getUserDetails(member);
+
+		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+			userDetails, null, userDetails.getAuthorities());
+
+		return provider.createRefreshToken(authenticationToken, 1000000);
+	}
+
+	private UserDetails getUserDetails(Member member) {
+		GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getAuthority().toString());
+
+		return new CustomUserDetails(
+			member.getMemberId(),
+			String.valueOf(member.getEmail()),
+			member.getPassword(),
+			Collections.singleton(grantedAuthority)
+		);
 	}
 }

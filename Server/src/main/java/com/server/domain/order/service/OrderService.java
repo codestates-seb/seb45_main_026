@@ -5,15 +5,20 @@ import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.repository.dto.MemberVideoData;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
+import com.server.domain.order.service.dto.response.CancelServiceResponse;
+import com.server.domain.reward.service.RewardService;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.orderexception.*;
+import com.server.global.exception.businessexception.videoexception.VideoClosedException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,9 +31,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -40,16 +47,45 @@ public class OrderService {
     private final MemberRepository memberRepository;
     private final VideoRepository videoRepository;
     private final OrderRepository orderRepository;
+    private final RewardService rewardService;
     private final RestTemplate restTemplate;
 
     @Value("${order.payment-secret-key}")
     private String paymentSecretKey;
 
-    public OrderService(MemberRepository memberRepository, VideoRepository videoRepository, OrderRepository orderRepository, RestTemplate restTemplate) {
+    public OrderService(MemberRepository memberRepository, VideoRepository videoRepository, OrderRepository orderRepository, RewardService rewardService, RestTemplate restTemplate) {
         this.memberRepository = memberRepository;
         this.videoRepository = videoRepository;
         this.orderRepository = orderRepository;
+        this.rewardService = rewardService;
         this.restTemplate = restTemplate;
+    }
+
+    public OrderResponse createOrder(Long memberId, OrderCreateServiceRequest request) {
+
+        Member member = verifiedMember(memberId);
+
+        List<Video> videos = checkValidVideos(request);
+
+        checkDuplicateOrder(member, videos);
+
+        checkIfVideoClosed(videos);
+
+        Order order = Order.createOrder(member, videos, request.getReward());
+
+        return OrderResponse.of(orderRepository.save(order));
+    }
+
+    private void checkIfVideoClosed(List<Video> videos) {
+
+        List<String> closedVideoNames = videos.stream()
+                .filter(video -> video.getVideoStatus().equals(VideoStatus.CLOSED))
+                .map(Video::getVideoName)
+                .collect(Collectors.toList());
+
+        if(!closedVideoNames.isEmpty()) {
+            throw new VideoClosedException(String.join(", ", closedVideoNames));
+        }
     }
 
     public PaymentServiceResponse requestFinalPayment(Long memberId, String paymentKey, String orderId, int amount) {
@@ -74,19 +110,28 @@ public class OrderService {
 
     private void orderCompleteProcess(Long memberId, String paymentKey, String orderId, int amount) {
 
-        Member member = verifedMember(memberId);
+        Member member = verifiedMember(memberId);
 
-        Order order = verifedOrder(member, orderId);
-
-        order.checkValidOrder(amount);
+        Order order = verifiedOrderWithVideo(member, orderId);
 
         deleteCartFrom(memberId, orderId);
 
-        order.completeOrder();
+        order.checkValidOrder(amount);
+
+        order.completeOrder(LocalDateTime.now());
 
         order.setPaymentKey(paymentKey);
 
         member.minusReward(order.getReward());
+
+        addReward(member, order);
+    }
+
+    private void addReward(Member member, Order order) {
+
+        for (Video video : order.getVideos()) {
+            rewardService.createRewardIfNotPresent(video, member);
+        }
     }
 
     private HttpHeaders paymentRequestHeader() {
@@ -107,16 +152,65 @@ public class OrderService {
         return param;
     }
 
-    public void deleteOrder(Long memberId, String orderId) {
+    public CancelServiceResponse cancelOrder(Long memberId, String orderId) {
 
-        Member member = verifedMember(memberId);
-        Order order = verifedOrder(member, orderId);
+        Member member = verifiedMember(memberId);
+
+        Order order = verifiedOrder(member, orderId);
 
         if(isAlreadyCanceled(order)) throw new OrderAlreadyCanceledException();
 
-        if(isCompleted(order)) orderCancelProcess(member, order);
+        Order.Refund totalRefund = orderCancelProcess(order);
 
-        order.deleteOrder();
+        return new CancelServiceResponse(
+                order.getTotalPayAmount(),
+                totalRefund.getRefundAmount(),
+                totalRefund.getRefundReward());
+    }
+
+    public CancelServiceResponse cancelVideo(Long loginMemberId, String orderId, Long videoId) {
+
+        Member member = verifiedMember(loginMemberId);
+
+        Order order = verifiedOrderWithVideo(member, orderId);
+
+        if(!isCompleted(order)) throw new OrderNotValidException();
+
+        OrderVideo orderVideo = getOrderVideo(order, videoId);
+
+        if(isAlreadyCanceled(orderVideo)) throw new OrderAlreadyCanceledException();
+
+        checkIfWatchVideo(orderVideo);
+
+        rewardService.cancelVideoReward(orderVideo);
+
+        Order.Refund totalRefund = order.cancelVideoOrder(orderVideo);
+
+        orderCancelRequest(order, totalRefund.getRefundAmount());
+
+        return new CancelServiceResponse(
+                orderVideo.getPrice(),
+                totalRefund.getRefundAmount(),
+                totalRefund.getRefundReward());
+    }
+
+    private OrderVideo getOrderVideo(Order order, Long videoId) {
+        return order.getOrderVideos().stream()
+                .filter(ov -> ov.getVideo().getVideoId().equals(videoId))
+                .findFirst()
+                .orElseThrow(VideoNotFoundException::new);
+    }
+
+    private void checkIfWatchAny(Order order) {
+        if(!orderRepository.findWatchVideosAfterPurchaseById(order.getOrderId()).isEmpty())
+            throw new VideoAlreadyWatchedException();
+    }
+
+    private void checkIfWatchVideo(OrderVideo orderVideo) {
+        if(orderRepository.findWatchVideoAfterPurchaseByVideoId(
+                orderVideo.getOrder().getOrderId(),
+                orderVideo.getVideo().getVideoId()))
+            throw new VideoAlreadyWatchedException();
     }
 
     private boolean isCompleted(Order order) {
@@ -127,9 +221,30 @@ public class OrderService {
         return order.getOrderStatus().equals(OrderStatus.CANCELED);
     }
 
-    private void orderCancelProcess(Member member, Order order) {
+    private boolean isAlreadyCanceled(OrderVideo orderVideo) {
+        return orderVideo.getOrderStatus().equals(OrderStatus.CANCELED);
+    }
 
-        member.addReward(order.getReward());
+    private Order.Refund orderCancelProcess(Order order) {
+
+        if(!isCompleted(order)) {
+            order.cancelOrdered();
+
+            return new Order.Refund(0, 0);
+        }
+
+        checkIfWatchAny(order);
+
+        rewardService.cancelReward(order);
+
+        Order.Refund refund = order.cancelAllOrder();
+
+        orderCancelRequest(order, refund.getRefundAmount());
+
+        return refund;
+    }
+
+    private void orderCancelRequest(Order order, Integer cancelPrice) {
 
         URI uri = URI.create(TOSS_ORIGIN_URL + order.getPaymentKey() + "/cancel");
 
@@ -137,30 +252,17 @@ public class OrderService {
 
         JSONObject param = new JSONObject();
         param.put("cancelReason", "사용자 취소");
+        param.put("cancelAmount", cancelPrice);
 
         ResponseEntity<String> responseEntity
                 = restTemplate.postForEntity(
-                        uri,
+                uri,
                 new HttpEntity<>(param, headers),
                 String.class);
 
         if(responseEntity.getStatusCode().value() != 200)
             throw new CancelFailException();
-    }
 
-    public OrderResponse createOrder(Long memberId, OrderCreateServiceRequest request) {
-
-        Member member = verifedMember(memberId);
-
-        List<Video> videos = checkValidVideos(request);
-
-        checkDuplicateOrder(member, videos);
-
-        Order order = Order.createOrder(member, videos, request.getReward());
-
-        orderRepository.save(order);
-
-        return OrderResponse.of(order);
     }
 
     private void checkDuplicateOrder(Member member, List<Video> toBuyVideos) {
@@ -188,13 +290,23 @@ public class OrderService {
         orderRepository.deleteCartByMemberAndOrderId1(memberId, orderId);
     }
 
-    private Member verifedMember(Long memberId) {
+    private Member verifiedMember(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
     }
 
-    private Order verifedOrder(Member member, String orderId) {
+    private Order verifiedOrder(Member member, String orderId) {
         Order order = orderRepository.findById(orderId)
+                .orElseThrow(OrderNotFoundException::new);
+
+        if(!order.getMember().equals(member))
+            throw new MemberAccessDeniedException();
+
+        return order;
+    }
+
+    private Order verifiedOrderWithVideo(Member member, String orderId) {
+        Order order = orderRepository.findByIdWithVideos(orderId)
                 .orElseThrow(OrderNotFoundException::new);
 
         if(!order.getMember().equals(member))

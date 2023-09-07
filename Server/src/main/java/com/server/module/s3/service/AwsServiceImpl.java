@@ -50,7 +50,7 @@ public class AwsServiceImpl implements AwsService {
     @Override
     public String getFileUrl(Long memberId, String fileName, FileType fileType) {
 
-        checkValidFile(fileName);
+        if(fileName == null) return null;
 
         if(fileType.isRequiredAuth()) {
             Instant tenSecondsLater = getInstantDuration(60);
@@ -69,7 +69,7 @@ public class AwsServiceImpl implements AwsService {
             return getUploadVideoUrl(memberId, fileName);
         }
 
-        checkValidFile(fileName);
+        if(fileName == null) return null;
 
         Duration duration = Duration.ofMinutes(10);
 
@@ -84,7 +84,7 @@ public class AwsServiceImpl implements AwsService {
     @Override
     public String getUploadVideoUrl(Long memberId, String fileName) {
 
-        checkValidFile(fileName);
+        if(fileName == null) return null;
 
         Duration duration = Duration.ofMinutes(10);
 

@@ -1,60 +1,31 @@
 package com.server.domain.reward.service;
 
+import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderVideo;
+import com.server.domain.question.entity.Question;
+import com.server.domain.reply.entity.Reply;
+import com.server.domain.reward.entity.Rewardable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.server.domain.answer.entity.Answer;
 import com.server.domain.member.entity.Member;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.RewardType;
 import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.video.entity.Video;
 
-@Service
-@Transactional
-public class RewardService {
+import java.util.List;
 
-	private RewardRepository rewardRepository;
 
-	public RewardService(RewardRepository rewardRepository) {
-		this.rewardRepository = rewardRepository;
-	}
 
-	public void createReward(Object entity, Member member) {
-		if (entity instanceof Video) {
-			Video video = (Video) entity;
-			createRewardForVideo(video, member);
-		}
-		else if (entity instanceof Answer) {
-			Answer answer = (Answer) entity;
-			createRewardForAnswer(answer, member);
-		}
-	}
+public interface RewardService {
 
-	private void createRewardForVideo(Video video, Member member) {
-		Reward reward = Reward.createReward(
-			video.getVideoId(),
-			RewardType.VIDEO,
-			(int) (video.getPrice() * 0.01),
-			member
-		);
+	void createRewardIfNotPresent(Rewardable rewardable, Member member);
 
-		saveAndUpdateReward(reward, member);
-	}
+	void createQuestionRewardsIfNotPresent(List<Question> questions, Member member);
 
-	private void createRewardForAnswer(Answer answer, Member member) {
-		Reward reward = Reward.createReward(
-			answer.getAnswerId(),
-			RewardType.QUIZ,
-			10,
-			member
-		);
+	void cancelReward(Order order);
 
-		saveAndUpdateReward(reward, member);
-	}
+	void cancelVideoReward(OrderVideo orderVideo);
 
-	private void saveAndUpdateReward(Reward reward, Member member) {
-		rewardRepository.save(reward);
-		reward.updateMemberReward(member);
-	}
 }

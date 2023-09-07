@@ -1,15 +1,10 @@
 package com.server.domain.channel.service.dto;
 
-import com.server.domain.announcement.service.dto.request.AnnouncementCreateServiceRequest;
-import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
-import com.server.domain.video.service.dto.response.VideoCategoryResponse;
-import lombok.*;
-import org.springframework.stereotype.Component;
+import lombok.Builder;
+import lombok.Getter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder
 public class ChannelDto {

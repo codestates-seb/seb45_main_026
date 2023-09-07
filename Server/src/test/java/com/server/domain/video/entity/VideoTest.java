@@ -45,6 +45,7 @@ class VideoTest {
         assertThat(video.getVideoName()).isEqualTo(videoName);
         assertThat(video.getPrice()).isEqualTo(price);
         assertThat(video.getDescription()).isEqualTo(description);
+        assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.UPLOADING);
 
         List<VideoCategory> videoCategories = video.getVideoCategories();
         assertThat(videoCategories.size()).isEqualTo(2);

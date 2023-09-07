@@ -2,6 +2,7 @@ package com.server.domain.question.entity;
 
 import com.server.domain.answer.entity.Answer;
 import com.server.domain.question.service.dto.request.QuestionUpdateServiceRequest;
+import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
 import lombok.*;
@@ -19,7 +20,7 @@ import static lombok.AccessLevel.*;
 @NoArgsConstructor(access = PROTECTED)
 @AllArgsConstructor(access = PRIVATE)
 @Builder
-public class Question extends BaseEntity {
+public class Question extends BaseEntity implements Rewardable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long questionId;
@@ -35,6 +36,7 @@ public class Question extends BaseEntity {
     private List<Answer> answers = new ArrayList<>();
 
     @ElementCollection
+    @OrderColumn(name = "selection_order")
     private List<String> selections = new ArrayList<>();
 
     @Lob
@@ -62,5 +64,9 @@ public class Question extends BaseEntity {
         this.questionAnswer = questionAnswer == null ? this.questionAnswer : questionAnswer;
         this.description = description == null ? this.description : description;
         this.selections = selections == null ? this.selections : selections;
+    }
+
+    public int getRewardPoint(){
+        return 10;
     }
 }

@@ -1,14 +1,14 @@
 package com.server.domain.member.repository;
 
+import com.querydsl.core.Tuple;
+import com.server.domain.cart.entity.Cart;
+import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.dto.MemberVideoData;
-import com.server.domain.member.service.dto.response.CartsResponse;
-import com.server.domain.member.service.dto.response.OrdersResponse;
-import com.server.domain.member.service.dto.response.PlaylistsResponse;
-import com.server.domain.member.service.dto.response.RewardsResponse;
-import com.server.domain.member.service.dto.response.SubscribesResponse;
-import com.server.domain.member.service.dto.response.WatchsResponse;
+import com.server.domain.order.entity.Order;
 import com.server.domain.reward.entity.Reward;
+import com.server.domain.video.entity.Video;
+import com.server.domain.watch.entity.Watch;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,15 +28,18 @@ public interface MemberRepositoryCustom {
 
     Optional<Member> findByIdWithChannel(Long memberId);
 
-    Page<SubscribesResponse> findSubscribeWithChannelForMember(Long memberId, Pageable pageable);
+    Page<Channel> findSubscribeWithChannelForMember(Long memberId, Pageable pageable);
 
-    Page<CartsResponse> findCartsOrderByCreatedDateForMember(Long memberId, Pageable pageable);
+    Page<Cart> findCartsOrderByCreatedDateForMember(Long memberId, Pageable pageable);
 
-    Page<OrdersResponse> findOrdersOrderByCreatedDateForMember(Long memberId, Pageable pageable, int month);
+    Page<Order> findOrdersOrderByCreatedDateForMember(Long memberId, Pageable pageable, int month);
 
-    Page<WatchsResponse> findWatchesForMember(Long memberId, int days, Pageable pageable);
+    Page<Watch> findWatchesForMember(Long memberId, Pageable pageable, int days);
 
-    Page<PlaylistsResponse> findPlaylistsOrderBySort(Long memberId, String sort, Pageable pageable);
+    Page<Video>  findPlaylistsOrderBySort(Long memberId, Pageable pageable, String sort);
 
-    Page<RewardsResponse> findRewardsByMemberId(Long memberId, Pageable pageable);
+    Page<Reward> findRewardsByMemberId(Long memberId, Pageable pageable);
+
+    Page<Tuple> findPlaylistGroupByChannelName(Long memberId, Pageable pageable);
+    Page<Video> findPlaylistChannelDetails(Long loginId, Long memberId);
 }

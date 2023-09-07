@@ -16,8 +16,8 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class AnnouncementStubAop {
 
     @Around("execution(* com.server.domain.announcement.controller.AnnouncementController.getAnnouncement(..))")

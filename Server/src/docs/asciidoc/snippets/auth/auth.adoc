@@ -16,6 +16,8 @@ link:/index.html[APIs, onclick="window.location.href='index.html'"]
 include::{snippets}/auth/login/http-request.adoc[]
 ==== Request Body
 include::{snippets}/auth/login/request-body.adoc[]
+==== Request Field
+include::{snippets}/auth/login/request-fields.adoc[]
 === HTTP Response
 include::{snippets}/auth/login/http-response.adoc[]
 === Response Header
@@ -26,12 +28,24 @@ include::{snippets}/auth/login/response-body.adoc[]
 == OAuth2 로그인
 === HTTP Request
 include::{snippets}/auth/oauth/http-request.adoc[]
-==== Request Path Parameter
-include::{snippets}/auth/oauth/request-parameters.adoc[]
+==== Request Body
+include::{snippets}/auth/oauth/request-body.adoc[]
+==== Request Field
+include::{snippets}/auth/oauth/request-fields.adoc[]
 === HTTP Response
 include::{snippets}/auth/oauth/http-response.adoc[]
 === Response Header
 include::{snippets}/auth/oauth/response-headers.adoc[]
+
+== 리프래시 토큰으로 액세스 토큰 재발급
+=== HTTP Request
+include::{snippets}/auth/refresh/http-request.adoc[]
+==== Request Header
+include::{snippets}/auth/refresh/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/auth/refresh/http-response.adoc[]
+=== Response Header
+include::{snippets}/auth/refresh/response-headers.adoc[]
 
 == 회원가입 인증 이메일 전송
 === HTTP Request

@@ -2,12 +2,13 @@ package com.server.domain.channel.service;
 
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.respository.ChannelRepository;
-import com.server.domain.channel.service.dto.ChannelDto;
+import com.server.domain.channel.service.dto.ChannelInfo;
+import com.server.domain.channel.service.dto.ChannelUpdate;
 import com.server.domain.channel.service.dto.request.ChannelVideoGetServiceRequest;
 import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
-import com.server.domain.member.repository.MemberRepositoryCustom;
+import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.subscribe.repository.SubscribeRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
@@ -16,167 +17,161 @@ import com.server.global.exception.businessexception.memberexception.MemberAcces
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Transactional
 @Service
 public class ChannelService {
 
     private final ChannelRepository channelRepository;
-    private final VideoRepository videoRepository;
     private final AwsService awsService;
-    private final MemberRepositoryCustom memberRepositoryCustom;
     private final MemberRepository memberRepository;
+
+    private final SubscribeRepository subscribeRepository;
+    private final VideoRepository videoRepository;
 
 
     public ChannelService(ChannelRepository channelRepository,
-                          VideoRepository videoRepository,
                           AwsService awsService,
+                          MemberRepository memberRepository,
                           SubscribeRepository subscribeRepository,
-                          @Qualifier("memberRepositoryImpl") MemberRepositoryCustom memberRepositoryCustom,
-                          MemberRepository memberRepository) {
+                          VideoRepository videoRepository) {
 
         this.channelRepository = channelRepository;
-        this.videoRepository = videoRepository;
         this.awsService = awsService;
-        this.memberRepositoryCustom = memberRepositoryCustom;
         this.memberRepository = memberRepository;
-
+        this.subscribeRepository = subscribeRepository;
+        this.videoRepository = videoRepository;
     }
 
 
     @Transactional(readOnly = true)
-    public ChannelDto.ChannelInfo getChannel(Long memberId, Long loginMemberId) {
+    public ChannelInfo getChannel(Long memberId, Long loginMemberId) {
 
-        Channel channel = existChannel(loginMemberId);
+        Channel channel = existChannel(memberId);
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
 
-        Boolean subscribed = isSubscribed(loginMemberId, channel);
+        if (loginMemberId == null || loginMemberId.equals(-1L)) {
 
-        return ChannelDto.ChannelInfo.of(channel,
-                channel.getChannelName(),
-                channel.getSubscribers(),
-                subscribed,
-                channel.getDescription(),
-                channel.getMember().getImageFile(),
-                channel.getCreatedDate());
+
+            return ChannelInfo.builder()
+                    .memberId(channel.getMember().getMemberId())
+                    .channelName(channel.getChannelName())
+                    .description(channel.getDescription())
+                    .subscribers(channel.getSubscribers())
+                    .isSubscribed(false)
+                    .imageUrl(awsService.getFileUrl(channel.getMember().getMemberId(), channel.getMember().getImageFile(), FileType.PROFILE_IMAGE))
+                    .createdDate(channel.getCreatedDate())
+                    .build();
+        }
+        else {
+
+            boolean isSubscribed = isSubscribed(loginMemberId, memberId);
+
+            return ChannelInfo.of(channel, isSubscribed, awsService.getFileUrl(channel.getMember().getMemberId(), channel.getMember().getImageFile(), FileType.PROFILE_IMAGE));
+        }
     }
 
 
-
-    private Boolean isSubscribed(Long loginMemberId, Channel channel) {
-        if (loginMemberId == null) {
-            return false;
-        }
-
-            return memberRepository.checkMemberSubscribeChannel(loginMemberId,
-                    List.of(channel.getChannelId())).get(0); //최신순으로 정렬해서 첫번째 값만 가져온다.
-        }
-
-
-
-    //채널정보 수정
     @Transactional
-    public void updateChannelInfo(Long loginMemberId, long memberId, ChannelDto.UpdateInfo updateInfo){
+    public void updateChannelInfo(long ownerId, long loginMemberId, ChannelUpdate updateInfo) {
 
-        Channel channel = existChannel(loginMemberId);
-
-        if(loginMemberId != memberId){
+        if (loginMemberId != ownerId) {
             throw new MemberAccessDeniedException();
         }
 
+        Channel channel = existChannel(ownerId);
+
         channel.updateChannel(updateInfo.getChannelName(), updateInfo.getDescription());
 
+    }
+
+
+    public boolean updateSubscribe(Long memberId, Long loginMemberId) {
+
+
+        if (loginMemberId == null || loginMemberId.equals(-1L)) {
+            throw new MemberAccessDeniedException();
         }
 
+        boolean isSubscribed = isSubscribed(loginMemberId, memberId);
 
 
-
-
-    // 구독 여부 업데이트
-    public boolean updateSubscribe(Long loginMemberId, Channel channel) {
-
-        // 이미 구독 중인지 여부 확인
-        boolean isSubscribed = isSubscribed(loginMemberId, channel);
-
-        if (isSubscribed) { //구독중이면 해지
-
-            unsubscribe(loginMemberId, memberRepositoryCustom.checkMemberSubscribeChannel(loginMemberId, List.of(channel.getChannelId())).get(0)); //구독취소
-
-            return false;
-
-        } else { //구독중이 아니면 구독
-
+        if (!isSubscribed) {
+            subscribe(memberId, loginMemberId);
             return true;
+
+
+        } else {
+            unsubscribe(memberId, loginMemberId);
+            return false;
         }
     }
 
 
-    // 구독.
-    private void subscribe(Long memberId, Long channelId) {
+    private void subscribe(Long memberId, Long loginMemberId) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
+        Member loginMember = memberRepository.findById(loginMemberId)
+                .orElseThrow(() -> new MemberNotFoundException()); //(이 부분을 빼면  .member(loginMember) 여기가 에러남)
 
-        Channel channel = channelRepository.findById(channelId)
-                .orElseThrow(ChannelNotFoundException::new);
+        Channel channel = existChannel(memberId);
 
-      List<Boolean> subscribeList =  memberRepositoryCustom.checkMemberSubscribeChannel(memberId, List.of(channelId));
+        channel.addSubscriber();
 
-      if(!subscribeList.contains(true)) //내 목록에 현재 채널이 없으면 구독
-          channel.addSubscribers(1); //구독자 수 증가
-         channelRepository.save(channel);
+        Subscribe subscribe = Subscribe.builder()
+                .member(loginMember)
+                .channel(channel)
+                .build();
+
+        subscribeRepository.save(subscribe);
     }
 
+    private void unsubscribe(Long memberId, Long loginMemberId) { //이 부분 코드를 더 간결하게 못하겟음 수정할거 다 빼면 테스트코드 에러남
 
-    // 구독 취소
-    private void unsubscribe(Long memberId, Boolean channelId) {
+        Channel channel = existChannel(memberId);
 
-        Member member = memberRepository.findById(memberId) //일단 member를 찾는다
-                .orElseThrow(MemberNotFoundException::new);
+        Member loginMember = memberRepository.findById(loginMemberId)
+                .orElseThrow(() -> new MemberNotFoundException());
 
-        Channel channel = channelRepository.findById(memberId) //채널을 찾는다
-                .orElseThrow(ChannelNotFoundException::new);
+        channel.decreaseSubscribers();
 
-        List<Boolean> subscribeList =  memberRepositoryCustom.checkMemberSubscribeChannel(memberId, List.of(memberId));
-
-        if(subscribeList.contains(true)){ //이미 구독중이면
-        channel.decreaseSubscribers(1); //구독자 수 감소
-        channelRepository.save(channel);
-
-    } //근데 중복 처리도 해야할 것 같은.. 구독중이 아닌데 구독취소를 누르면 어떻게 되는지..??
+        subscribeRepository.findByMemberAndChannel(loginMember, channel)
+                .ifPresent(subscribeRepository::delete);
     }
 
 
     @Transactional(readOnly = true)
     public Page<ChannelVideoResponse> getChannelVideos(Long loginMemberId, ChannelVideoGetServiceRequest request) {
 
-        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
+        Member member = verifiedMemberOrNull(loginMemberId);
 
-        Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(
-                request.getMemberId(),
-                request.getCategoryName(),
-                pageRequest,
-                request.getSort()
-        );
+        Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request.toDataRequest());
 
-        List<Boolean> isPurchaseInOrder = isPurchaseInOrder(loginMemberId, videos.getContent());
+        List<Boolean> isPurchaseInOrder = isPurchaseInOrder(member, videos.getContent());
 
         List<String> thumbnailUrlsInOrder = getThumbnailUrlsInOrder(videos.getContent());
 
-        return ChannelVideoResponse.of(videos, isPurchaseInOrder, thumbnailUrlsInOrder);
+        List<Long> videoIdsInCart = getVideoIdsInCart(member, videos.getContent());
+
+        return ChannelVideoResponse.of(videos,
+                isPurchaseInOrder,
+                thumbnailUrlsInOrder,
+                videoIdsInCart);
     }
 
-
+    private Member verifiedMemberOrNull(Long loginMemberId) {
+        return memberRepository.findById(loginMemberId)
+                .orElse(null);
+    }
     public void createChannel(Member signMember) {
         Channel channel = Channel.createChannel(signMember.getNickname());
 
@@ -184,18 +179,27 @@ public class ChannelService {
         channelRepository.save(channel);
     }
 
-    private Channel existChannel(Long memberId) {
-        return channelRepository.findByMember(memberId)
-                .orElseThrow(ChannelNotFoundException::new);
+
+    private Boolean isSubscribed(Long loginMemberId, long memberId) {
+
+        return memberRepository.checkMemberSubscribeChannel(loginMemberId, List.of(memberId)).get(0);
+
     }
 
-    private List<Boolean> isPurchaseInOrder(Long loginMemberId, List<Video> videos) {
+
+    private List<Boolean> isPurchaseInOrder(Member loginMember, List<Video> videos) {
+
+        if(loginMember == null) {
+            return IntStream.range(0, videos.size())
+                    .mapToObj(i -> false)
+                    .collect(Collectors.toList());
+        }
 
         List<Long> videoIds = videos.stream()
                 .map(Video::getVideoId)
                 .collect(Collectors.toList());
 
-        return memberRepository.checkMemberPurchaseVideos(loginMemberId, videoIds);
+        return memberRepository.checkMemberPurchaseVideos(loginMember.getMemberId(), videoIds);
     }
 
     private List<String> getThumbnailUrlsInOrder(List<Video> videos) {
@@ -210,6 +214,22 @@ public class ChannelService {
         return awsService.getFileUrl(memberId, video.getThumbnailFile(), FileType.THUMBNAIL);
     }
 
+    private List<Long> getVideoIdsInCart(Member loginMember, List<Video> videos) {
+
+        if(loginMember == null) {
+            return Collections.emptyList();
+        }
+
+        List<Long> videoIds = videos.stream()
+                .map(Video::getVideoId)
+                .collect(Collectors.toList());
+
+        return videoRepository.findVideoIdInCart(loginMember.getMemberId(), videoIds);
+    }
 
 
+    private Channel existChannel(Long memberId) {
+
+        return channelRepository.findByMember(memberId).orElseThrow(ChannelNotFoundException::new);
+    }
 }

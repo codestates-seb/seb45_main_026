@@ -17,10 +17,12 @@ include::overview.adoc[]
 
 === Member API
 * link:snippets/member/getmember.html[회원 정보 조회 API, onclick="window.location.href='snippets/member/getmember.html'"]
-* link:snippets/member/getmember.html[회원 정보 관리 API, onclick="window.location.href='snippets/member/member.html'"]
+* link:snippets/member/member.html[회원 정보 관리 API, onclick="window.location.href='snippets/member/member.html'"]
 
 === Channel API
 * link:snippets/channel/getchannel.html[채널 정보/채널 비디오 목록 조회 API, onclick="window.location.href='snippets/channel/getchannel.html'"]
+* link:snippets/channel/updatechannel.html[채널 정보 수정 API, onclick="window.location.href='snippets/channel/updatechannel.html'"]
+* link:snippets/channel/subscribechannel.html[채널 구독/구독 취소 API, onclick="window.location.href='snippets/channel/subscribechannel.html'"]
 
 === Announcement API
 * link:snippets/announcement/getannouncement.html[공지사항 조회 API, onclick="window.location.href='snippets/announcement/getannouncement.html'"]
@@ -28,20 +30,25 @@ include::overview.adoc[]
 
 === Order API
 * link:snippets/order/createorder.html[주문 생성/요청 API, onclick="window.location.href='snippets/order/createorder.html'"]
-* link:snippets/order/cancelorder.html[주문 취소 API, onclick="window.location.href='snippets/order/cancelorder.html'"]
+* link:snippets/order/cancelorder.html[주문 전체/개별 취소 API, onclick="window.location.href='snippets/order/cancelorder.html'"]
 
 === Video API
 * link:snippets/video/getvideo.html[비디오 조회 API, onclick="window.location.href='snippets/video/getvideo.html'"]
 * link:snippets/video/createvideo.html[비디오 생성 API, onclick="window.location.href='snippets/video/createvideo.html'"]
 * link:snippets/video/updatedeletevideo.html[비디오 수정/삭제 API, onclick="window.location.href='snippets/video/updatedeletevideo.html'"]
+* link:snippets/video/cartvideo.html[비디오 장바구니 담기/취소 API, onclick="window.location.href='snippets/video/cartvideo.html'"]
 
 === Reply API
+* link:snippets/reply/getreply.html[댓글 목록/단건 조회 API, onclick="window.location.href='snippets/reply/getreply.html'"]
+* link:snippets/reply/replycud.html[댓글 생성/수정/삭제 API, onclick="window.location.href='snippets/reply/replycud.html'"]
 
 === Question API
 * link:snippets/question/getquestion.html[비디오 내 문제 조회 API, onclick="window.location.href='snippets/question/getquestion.html'"]
 * link:snippets/question/cudquestion.html[문제 생성/수정/삭제 API, onclick="window.location.href='snippets/question/cudquestion.html'"]
 * link:snippets/question/solvequestion.html[문제 풀기 API, onclick="window.location.href='snippets/question/solvequestion.html'"]
 
+=== Category API
+* link:snippets/category/getcategory.html[카테고리 목록 전체 조회 API, onclick="window.location.href='snippets/category/getcategory.html'"]
 
 
 

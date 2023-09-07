@@ -1,6 +1,12 @@
 package com.server.domain.member.service.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.catalina.LifecycleState;
+
+import com.server.domain.video.entity.Video;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -20,5 +26,6 @@ public class PlaylistsResponse {
 	public static class Channel {
 		private Long memberId;
 		private String channelName;
+		private String profileImageUrl;
 	}
 }

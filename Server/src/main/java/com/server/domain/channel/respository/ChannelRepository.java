@@ -10,9 +10,8 @@ import java.util.Optional;
 
 public interface ChannelRepository extends JpaRepository<Channel, Long>, ChannelRepositoryCustom {
 
-    Optional<Channel> findByMember(Long memberId);
-
     Page<Channel> findAllBy(Pageable pageable, Long memberId, boolean subscribe);
+
 
 
 }

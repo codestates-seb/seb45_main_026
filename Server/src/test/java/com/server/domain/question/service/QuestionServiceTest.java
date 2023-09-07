@@ -11,6 +11,7 @@ import com.server.domain.question.service.dto.request.AnswerCreateServiceRequest
 import com.server.domain.question.service.dto.request.QuestionCreateServiceRequest;
 import com.server.domain.question.service.dto.request.QuestionUpdateServiceRequest;
 import com.server.domain.question.service.dto.response.QuestionResponse;
+import com.server.domain.reward.service.RewardService;
 import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.answerexception.AnswerCountException;
 import com.server.global.exception.businessexception.questionexception.QuestionNotFoundException;
@@ -39,6 +40,7 @@ class QuestionServiceTest extends ServiceTest {
     @Autowired AnswerRepository answerRepository;
     @Autowired QuestionService questionService;
     @Autowired QuestionRepository questionRepository;
+    @Autowired RewardService rewardService;
 
     @Test
     @DisplayName("개별 문제에 대한 정보를 조회한다. (아직 답변하지 않은 상태)")
@@ -476,8 +478,114 @@ class QuestionServiceTest extends ServiceTest {
                     Answer answer = answerRepository.findAll().get(0);
                     assertThat(answer.getAnswerStatus()).isEqualTo(AnswerStatus.CORRECT);
                     assertThat(answer.getMyAnswer()).isEqualTo(question.getQuestionAnswer());
+                }),
+                dynamicTest("세 번째에 정답을 맞추지 못하면 다시 false 를 반환받는다.", ()-> {
+                    //given
+                    AnswerCreateServiceRequest request = AnswerCreateServiceRequest.builder()
+                            .questionId(question.getQuestionId())
+                            .myAnswer("2")
+                            .build();
+
+                    //when
+                    Boolean result = questionService.solveQuestion(member.getMemberId(), request);
+
+                    //then
+                    assertThat(result).isFalse();
+                }),
+                dynamicTest("마지막 푼 결과는 다시 WRONG 이 된다.", ()-> {
+                    //when & then
+                    assertThat(answerRepository.count()).isEqualTo(1);
+                    Answer answer = answerRepository.findAll().get(0);
+                    assertThat(answer.getAnswerStatus()).isEqualTo(AnswerStatus.WRONG);
+                    assertThat(answer.getMyAnswer()).isEqualTo("2");
                 })
         );
+    }
+
+    @TestFactory
+    @DisplayName("question 을 풀면 reward 를 적립받는다.")
+    Collection<DynamicTest> solveQuestionGetReward() {
+        //given
+        Member channelOwner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(channelOwner);
+        Video video = createAndSavePurchasedVideo(channelOwner, channel);
+
+        String answer = "answer";
+        Question question = createAndSaveQuestion(video, answer);
+
+        Member member = createAndSaveMember();
+        int currentReward = member.getReward();
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0); // member 가 구매
+
+        return List.of(
+                dynamicTest("문제를 틀리면 reward 를 적립받지 않는다.", () -> {
+                    //given
+                    AnswerCreateServiceRequest request = AnswerCreateServiceRequest.builder()
+                            .questionId(question.getQuestionId())
+                            .myAnswer("2")
+                            .build();
+
+                    //when
+                    questionService.solveQuestion(member.getMemberId(), request);
+
+                    //then
+                    assertThat(member.getReward()).isEqualTo(currentReward);
+                }),
+                dynamicTest("문제를 맞추면 reward 를 적립받는다.", () -> {
+                    //given
+                    AnswerCreateServiceRequest request = AnswerCreateServiceRequest.builder()
+                            .questionId(question.getQuestionId())
+                            .myAnswer(answer)
+                            .build();
+
+                    //when
+                    questionService.solveQuestion(member.getMemberId(), request);
+
+                    //then
+                    assertThat(member.getReward()).isEqualTo(currentReward + question.getRewardPoint());
+                }),
+                dynamicTest("문제를 다시 틀려도 reward 를 반환하지 않는다.", () -> {
+                    //given
+                    AnswerCreateServiceRequest request = AnswerCreateServiceRequest.builder()
+                            .questionId(question.getQuestionId())
+                            .myAnswer("2")
+                            .build();
+
+                    //when
+                    questionService.solveQuestion(member.getMemberId(), request);
+
+                    //then
+                    assertThat(member.getReward()).isEqualTo(currentReward + question.getRewardPoint());
+                }),
+                dynamicTest("문제를 다시 맞춰도 이미 한번 적립되었으면 reward 를 추가로 적립받지 않는다.", () -> {
+                    //given
+                    AnswerCreateServiceRequest request = AnswerCreateServiceRequest.builder()
+                            .questionId(question.getQuestionId())
+                            .myAnswer(answer)
+                            .build();
+
+                    //when
+                    questionService.solveQuestion(member.getMemberId(), request);
+
+                    //then
+                    assertThat(member.getReward()).isEqualTo(currentReward + question.getRewardPoint());
+
+                }),
+                dynamicTest("맞춘 문제를 또 맞춰도 이미 한번 적립되었으면 reward 를 추가로 적립받지 않는다.", () -> {
+                    //given
+                    AnswerCreateServiceRequest request = AnswerCreateServiceRequest.builder()
+                            .questionId(question.getQuestionId())
+                            .myAnswer(answer)
+                            .build();
+
+                    //when
+                    questionService.solveQuestion(member.getMemberId(), request);
+
+                    //then
+                    assertThat(member.getReward()).isEqualTo(currentReward + question.getRewardPoint());
+                })
+        );
+
     }
 
     @Test
@@ -529,9 +637,9 @@ class QuestionServiceTest extends ServiceTest {
                 .isInstanceOf(QuestionNotFoundException.class);
     }
 
-    @Test
+    @TestFactory
     @DisplayName("Video 에 있는 모든 Question 을 푼다.")
-    void solveQuestions() {
+    Collection<DynamicTest> solveQuestions() {
         //given
         Member channelOwner = createAndSaveMember();
         Channel channel = createAndSaveChannel(channelOwner);
@@ -542,18 +650,159 @@ class QuestionServiceTest extends ServiceTest {
         Member member = createAndSaveMember();
         createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0); // member 가 구매
 
-        List<String> myAnswer = questions.stream()
-                .map(Question::getQuestionAnswer)
-                .collect(Collectors.toList());
+        return List.of(
+                dynamicTest("첫 번째 문제를 틀린 답을 입력하면 첫 번째 값만 false 를 반환한다.", () -> {
+                    List<String> myAnswer = questions.stream()
+                            .map(Question::getQuestionAnswer)
+                            .collect(Collectors.toList());
 
-        myAnswer.set(0, "111"); // 첫 번째 문제는 틀린 답을 입력
+                    myAnswer.set(0, "111"); // 첫 번째 문제는 틀린 답을 입력
 
-        //when
-        List<Boolean> results = questionService.solveQuestions(member.getMemberId(), video.getVideoId(), myAnswer);
+                    //when
+                    List<Boolean> results = questionService.solveQuestions(member.getMemberId(), video.getVideoId(), myAnswer);
 
-        //then
-        assertThat(results).hasSize(5)
-                .containsExactly(false, true, true, true, true);
+                    //then
+                    assertThat(results).hasSize(5)
+                            .containsExactly(false, true, true, true, true);
+                }),
+                dynamicTest("answer 은 모두 5개 생성되고, 첫번째만 WRONG 으로 되어있다.", () -> {
+
+                    //when
+                    List<Answer> answers = answerRepository.findAll();
+
+                    //then
+                    assertThat(answers).hasSize(5);
+
+                    // 첫 번째 문제는 틀린 답을 입력
+                    Answer firstAnswer = answers.stream().filter(answer -> answer.getQuestion().getQuestionId().equals(questions.get(0).getQuestionId())).findFirst().orElseThrow();
+                    assertThat(firstAnswer.getAnswerStatus()).isEqualTo(AnswerStatus.WRONG);
+
+                    // 나머지 문제는 모두 맞은 답을 입력
+                    List<Answer> otherAnswers = answers.stream().filter(answer -> !answer.getAnswerId().equals(firstAnswer.getAnswerId())).collect(Collectors.toList());
+                    assertThat(otherAnswers).allMatch(answer -> answer.getAnswerStatus().equals(AnswerStatus.CORRECT));
+                }),
+                dynamicTest("첫 번째 문제를 올바른 답을 입력하고 마지막 값을 틀린 답을 입력하면 마지막만 false 를 반환한다.", () -> {
+
+                    List<String> myAnswer = questions.stream()
+                            .map(Question::getQuestionAnswer)
+                            .collect(Collectors.toList());
+
+                    myAnswer.set(4, "111"); // 마지막 문제는 틀린 답을 입력
+
+                    //when
+                    List<Boolean> results = questionService.solveQuestions(member.getMemberId(), video.getVideoId(), myAnswer);
+
+                    //then
+                    assertThat(results).hasSize(5)
+                            .containsExactly(true, true, true, true, false);
+                }),
+                dynamicTest("answer 은 그대로 5개이고, 마지막만 WRONG 으로 되어있다.", () -> {
+
+                    //when
+                    List<Answer> answers = answerRepository.findAll();
+
+                    //then
+                    assertThat(answers).hasSize(5);
+
+                    // 마지막 문제는 틀린 답을 입력
+                    Answer firstAnswer = answers.stream().filter(answer -> answer.getQuestion().getQuestionId().equals(questions.get(4).getQuestionId())).findFirst().orElseThrow();
+                    assertThat(firstAnswer.getAnswerStatus()).isEqualTo(AnswerStatus.WRONG);
+
+                    // 나머지 문제는 모두 맞은 답을 입력
+                    List<Answer> otherAnswers = answers.stream().filter(answer -> !answer.getAnswerId().equals(firstAnswer.getAnswerId())).collect(Collectors.toList());
+                    assertThat(otherAnswers).allMatch(answer -> answer.getAnswerStatus().equals(AnswerStatus.CORRECT));
+                })
+        );
+    }
+
+    @TestFactory
+    @DisplayName("Video 에 있는 문제를 풀고 맞춘 개수만큼 리워드를 적립받는다.")
+    Collection<DynamicTest> solveQuestionsReward() {
+        Member channelOwner = createAndSaveMember();
+        Channel channel = createAndSaveChannel(channelOwner);
+        Video video = createAndSavePurchasedVideo(channelOwner, channel);
+
+        List<Question> questions = createAndSaveQuestions(video);
+
+        Member member = createAndSaveMember();
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0); // member 가 구매
+
+        return List.of(
+                DynamicTest.dynamicTest("첫 번째 문제만 맞추고 reward 를 적립받는다.", () -> {
+                    //given
+                    int currentReward = member.getReward();
+
+                    List<String> myAnswer = List.of(
+                            questions.get(0).getQuestionAnswer(),
+                            "qq", "qq", "qq", "qq");
+
+                    //when
+                    questionService.solveQuestions(member.getMemberId(), video.getVideoId(), myAnswer);
+
+                    //then
+                    assertThat(member.getReward()).isEqualTo(currentReward + questions.get(0).getRewardPoint());
+                }),
+                DynamicTest.dynamicTest("두 번째 문제만 맞추고 reward 를 적립받는다.", () -> {
+                    //given
+                    int currentReward = member.getReward();
+
+                    List<String> myAnswer = List.of(
+                            "qq",
+                            questions.get(1).getQuestionAnswer(),
+                            "qq", "qq", "qq");
+
+                    //when
+                    questionService.solveQuestions(member.getMemberId(), video.getVideoId(), myAnswer);
+
+                    //then
+                    assertThat(member.getReward()).isEqualTo(currentReward + questions.get(0).getRewardPoint());
+                }),
+                DynamicTest.dynamicTest("첫 번째 문제만 다시 맞춰도 reward 를 적립받지 못한다.", () -> {
+                    //given
+                    int currentReward = member.getReward();
+
+                    List<String> myAnswer = List.of(
+                            questions.get(0).getQuestionAnswer(),
+                            "qq", "qq", "qq", "qq");
+
+                    //when
+                    questionService.solveQuestions(member.getMemberId(), video.getVideoId(), myAnswer);
+
+                    //then
+                    assertThat(member.getReward()).isEqualTo(currentReward);
+                }),
+                DynamicTest.dynamicTest("두 번째 문제만 다시 맞춰도 reward 를 적립받지 못한다.", () -> {
+                    //given
+                    int currentReward = member.getReward();
+
+                    List<String> myAnswer = List.of(
+                            "qq",
+                            questions.get(1).getQuestionAnswer(),
+                            "qq", "qq", "qq");
+
+                    //when
+                    questionService.solveQuestions(member.getMemberId(), video.getVideoId(), myAnswer);
+
+                    //then
+                    assertThat(member.getReward()).isEqualTo(currentReward);
+                }),
+                DynamicTest.dynamicTest("세 번째, 네 번째, 다섯 번째 문제를 맞추고 reward 를 적립받는다..", () -> {
+                    //given
+                    int currentReward = member.getReward();
+
+                    List<String> myAnswer = List.of(
+                            "qq", "qq",
+                            questions.get(2).getQuestionAnswer(),
+                            questions.get(3).getQuestionAnswer(),
+                            questions.get(4).getQuestionAnswer());
+
+                    //when
+                    questionService.solveQuestions(member.getMemberId(), video.getVideoId(), myAnswer);
+
+                    //then
+                    assertThat(member.getReward()).isEqualTo(currentReward + questions.get(0).getRewardPoint() * 3);
+                })
+        );
     }
 
     @Test
@@ -654,6 +903,20 @@ class QuestionServiceTest extends ServiceTest {
         questionRepository.saveAll(questions);
 
         return questions;
+    }
 
+    private Question createAndSaveQuestion(Video video, String answer) {
+
+        Question question = Question.builder()
+                .position(1)
+                .content("content")
+                .questionAnswer(answer)
+                .selections(List.of("1", "2", "3", "4", "5"))
+                .video(video)
+                .build();
+
+        questionRepository.save(question);
+
+        return question;
     }
 }

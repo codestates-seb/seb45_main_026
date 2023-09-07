@@ -25,9 +25,9 @@ public class QuestionController {
         this.questionService = questionService;
     }
 
-    @GetMapping("/{question-id}") //개별 문제 조회 사용 x
+    @GetMapping("/{question-id}") //개별 문제 조회, 사용 x
     public ResponseEntity<ApiSingleResponse<QuestionResponse>> getQuestion(
-            @PathVariable("question-id") @Positive Long questionId,
+            @PathVariable("question-id") @Positive(message = "{validation.positive}") Long questionId,
             @LoginId Long loginMemberId) {
 
         QuestionResponse questionResponse = questionService.getQuestion(loginMemberId, questionId);
@@ -37,7 +37,7 @@ public class QuestionController {
 
     @PatchMapping("/{question-id}")
     public ResponseEntity<Void> updateQuestion(
-            @PathVariable("question-id") @Positive Long questionId,
+            @PathVariable("question-id") @Positive(message = "{validation.positive}") Long questionId,
             @RequestBody @Valid QuestionUpdateApiRequest request,
             @LoginId Long loginMemberId) {
 
@@ -48,7 +48,7 @@ public class QuestionController {
 
     @DeleteMapping("/{question-id}")
     public ResponseEntity<Void> deleteQuestion(
-            @PathVariable("question-id") @Positive Long questionId,
+            @PathVariable("question-id") @Positive(message = "{validation.positive}") Long questionId,
             @LoginId Long loginMemberId) {
 
         questionService.deleteQuestion(loginMemberId, questionId);
@@ -58,7 +58,7 @@ public class QuestionController {
 
     @PostMapping("/{question-id}/answers")
     public ResponseEntity<ApiSingleResponse<Boolean>> solveQuestion(
-            @PathVariable("question-id") @Positive Long questionId,
+            @PathVariable("question-id") @Positive(message = "{validation.positive}") Long questionId,
             @RequestBody @Valid AnswerCreateApiRequest request,
             @LoginId Long loginMemberId) {
 

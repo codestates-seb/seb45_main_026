@@ -20,21 +20,28 @@ public class ChannelVideoResponse {
     private String thumbnailUrl;
     private int views;
     private int price;
+    private float star;
     private Boolean isPurchased;
+    private Boolean isInCart;
+    private String description;
     private List<VideoCategoryResponse> categories;
     private LocalDateTime createdDate;
 
     public static Page<ChannelVideoResponse> of(
             Page<Video> videos,
             List<Boolean> isPurchaseInOrder,
-            List<String> thumbnailUrlsInOrder) {
+            List<String> thumbnailUrlsInOrder,
+            List<Long> videoIdsInCart) {
         return videos.map(video -> ChannelVideoResponse.builder()
                 .videoId(video.getVideoId())
                 .videoName(video.getVideoName())
                 .thumbnailUrl(thumbnailUrlsInOrder.get(videos.getContent().indexOf(video)))
                 .views(video.getView())
                 .price(video.getPrice())
+                .star(video.getStar())
                 .isPurchased(isPurchaseInOrder.get(videos.getContent().indexOf(video)))
+                .isInCart(videoIdsInCart.contains(video.getVideoId()))
+                .description(video.getDescription())
                 .categories(VideoCategoryResponse.of(video.getVideoCategories()))
                 .createdDate(video.getCreatedDate())
                 .build());

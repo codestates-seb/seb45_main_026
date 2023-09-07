@@ -1,24 +1,37 @@
 package com.server.domain.video.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.server.domain.answer.entity.AnswerStatus;
 import com.server.domain.question.service.dto.response.QuestionResponse;
+import com.server.domain.reply.controller.convert.ReplySort;
+import com.server.domain.reply.dto.MemberInfo;
+import com.server.domain.reply.dto.ReplyCreateControllerApi;
+import com.server.domain.reply.dto.ReplyCreateServiceApi;
+import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
+import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
 import com.server.domain.video.service.dto.response.*;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.global.testhelper.ControllerTest;
 import com.server.module.s3.service.dto.ImageType;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import static com.server.global.testhelper.RestDocsUtil.pageResponseFields;
+import static com.server.global.testhelper.RestDocsUtil.singleResponseFields;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -79,6 +92,7 @@ class VideoControllerTest extends ControllerTest {
                         fieldWithPath("data[].answerStatus").description(generateLinkCode(AnswerStatus.class)),
                         fieldWithPath("data[].description").description("문제에 대한 답변 설명"),
                         fieldWithPath("data[].selections").description("문제에 대한 선택지"),
+                        fieldWithPath("data[].choice").description("객관식 여부"),
                         fieldWithPath("data[].solvedDate").description("문제 풀이 날짜"),
                         fieldWithPath("code").description("응답 코드"),
                         fieldWithPath("status").description("응답 상태"),
@@ -128,12 +142,9 @@ class VideoControllerTest extends ControllerTest {
                         requestFields(
                                 fieldWithPath("myAnswers").description("나의 답변 리스트").attributes(getConstraint("myAnswers"))
                         ),
-                        responseFields(
+                        singleResponseFields(
                                 fieldWithPath("data").description("문제 풀이 결과"),
-                                fieldWithPath("data[]").description("문제 풀이 결과"),
-                                fieldWithPath("code").description("응답 코드"),
-                                fieldWithPath("status").description("응답 상태"),
-                                fieldWithPath("message").description("응답 메시지")
+                                fieldWithPath("data[]").description("문제 풀이 결과")
                         )
                 ));
     }
@@ -178,18 +189,20 @@ class VideoControllerTest extends ControllerTest {
                         ),
                         requestFields(
                                 fieldWithPath("[]").description("문제 생성 요청 리스트"),
-                                fieldWithPath("[].content").description("문제 내용").attributes(getConstraint("content")),
-                                fieldWithPath("[].position").description("문제 순서").attributes(getConstraint("position")),
-                                fieldWithPath("[].questionAnswer").description("정답").attributes(getConstraint("questionAnswer")),
-                                fieldWithPath("[].description").description("문제에 대한 답변 설명").attributes(getConstraint("description")),
-                                fieldWithPath("[].selections").description("문제에 대한 선택지").attributes(getConstraint("selections"))
+                                fieldWithPath("[].content").description("문제 내용")
+                                        .attributes(getConstraint("content")),
+                                fieldWithPath("[].position").description("문제 순서")
+                                        .attributes(getConstraint("position")),
+                                fieldWithPath("[].questionAnswer").description("정답")
+                                        .attributes(getConstraint("questionAnswer")),
+                                fieldWithPath("[].description").description("문제에 대한 답변 설명").optional()
+                                        .attributes(getConstraint("description")),
+                                fieldWithPath("[].selections").description("문제에 대한 선택지").optional()
+                                        .attributes(getConstraint("selections"))
                         ),
-                        responseFields(
+                        singleResponseFields(
                                 fieldWithPath("data").description("문제 ID 리스트"),
-                                fieldWithPath("data[]").description("문제 ID"),
-                                fieldWithPath("code").description("응답 코드"),
-                                fieldWithPath("status").description("응답 상태"),
-                                fieldWithPath("message").description("응답 메시지")
+                                fieldWithPath("data[]").description("문제 ID")
                         )
                 ));
     }
@@ -206,7 +219,7 @@ class VideoControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses, "비디오 목록 조회 성공"));
 
-        given(videoService.getVideos(anyLong(), anyInt(), anyInt(), anyString(), anyString(), anyBoolean()))
+        given(videoService.getVideos(anyLong(), any(VideoGetServiceRequest.class)))
                 .willReturn(pageResponses);
 
         //when
@@ -217,6 +230,8 @@ class VideoControllerTest extends ControllerTest {
                         .param("sort", "created-date")
                         .param("category", "spring")
                         .param("subscribe", "true")
+                        .param("free", "false")
+                        .param("is-purchased", "true")
                         .accept(APPLICATION_JSON)
                         .header(AUTHORIZATION, TOKEN)
         );
@@ -236,9 +251,11 @@ class VideoControllerTest extends ControllerTest {
                         parameterWithName("size").description("페이지 사이즈").optional(),
                         parameterWithName("sort").description(generateLinkCode(VideoSort.class)).optional(),
                         parameterWithName("category").description("카테고리").optional(),
-                        parameterWithName("subscribe").description("구독 여부").optional()
+                        parameterWithName("subscribe").description("구독 여부").optional(),
+                        parameterWithName("free").description("무료/유료 여부").optional(),
+                        parameterWithName("is-purchased").description("구매한 비디오도 표시하는지 여부").optional()
                 ),
-                responseFields(
+                pageResponseFields(
                         fieldWithPath("data").description("비디오 목록"),
                         fieldWithPath("data[].videoId").description("비디오 ID"),
                         fieldWithPath("data[].videoName").description("비디오 제목"),
@@ -247,6 +264,8 @@ class VideoControllerTest extends ControllerTest {
                         fieldWithPath("data[].price").description("가격"),
                         fieldWithPath("data[].star").description("별점"),
                         fieldWithPath("data[].isPurchased").description("구매 여부"),
+                        fieldWithPath("data[].isInCart").description("장바구니 추가 여부"),
+                        fieldWithPath("data[].description").description("비디오 설명"),
                         fieldWithPath("data[].categories").description("카테고리 목록"),
                         fieldWithPath("data[].categories[].categoryId").description("카테고리 ID"),
                         fieldWithPath("data[].categories[].categoryName").description("카테고리 이름"),
@@ -256,19 +275,7 @@ class VideoControllerTest extends ControllerTest {
                         fieldWithPath("data[].channel.subscribes").description("구독자 수"),
                         fieldWithPath("data[].channel.isSubscribed").description("채널 구독 여부"),
                         fieldWithPath("data[].channel.imageUrl").description("채널 프로필 이미지 URL"),
-                        fieldWithPath("data[].createdDate").description("채널 생성일"),
-                        fieldWithPath("pageInfo").description("페이징 정보"),
-                        fieldWithPath("pageInfo.page").description("현재 페이지"),
-                        fieldWithPath("pageInfo.size").description("페이지 사이즈"),
-                        fieldWithPath("pageInfo.totalPage").description("전체 페이지 수"),
-                        fieldWithPath("pageInfo.totalSize").description("전체 개수"),
-                        fieldWithPath("pageInfo.first").description("첫 페이지 여부"),
-                        fieldWithPath("pageInfo.last").description("마지막 페이지 여부"),
-                        fieldWithPath("pageInfo.hasNext").description("다음 페이지가 있는지"),
-                        fieldWithPath("pageInfo.hasPrevious").description("이전 페이지가 있는지"),
-                        fieldWithPath("code").description("응답 코드"),
-                        fieldWithPath("status").description("응답 상태"),
-                        fieldWithPath("message").description("응답 메시지")
+                        fieldWithPath("data[].createdDate").description("채널 생성일")
                 )
         ));
     }
@@ -306,7 +313,7 @@ class VideoControllerTest extends ControllerTest {
                         pathParameters(
                                 parameterWithName("video-id").description("조회할 비디오 ID")
                         ),
-                        responseFields(
+                        singleResponseFields(
                                 fieldWithPath("data").description("비디오 정보"),
                                 fieldWithPath("data.videoId").description("비디오 ID"),
                                 fieldWithPath("data.videoName").description("비디오 제목"),
@@ -319,6 +326,7 @@ class VideoControllerTest extends ControllerTest {
                                 fieldWithPath("data.reward").description("리워드"),
                                 fieldWithPath("data.isPurchased").description("구매 여부"),
                                 fieldWithPath("data.isReplied").description("댓글 여부"),
+                                fieldWithPath("data.isInCart").description("장바구니 추가 여부"),
                                 fieldWithPath("data.categories").description("카테고리 목록"),
                                 fieldWithPath("data.categories[].categoryId").description("카테고리 ID"),
                                 fieldWithPath("data.categories[].categoryName").description("카테고리 이름"),
@@ -328,10 +336,7 @@ class VideoControllerTest extends ControllerTest {
                                 fieldWithPath("data.channel.subscribes").description("구독자 수"),
                                 fieldWithPath("data.channel.isSubscribed").description("채널 구독 여부"),
                                 fieldWithPath("data.channel.imageUrl").description("채널 프로필 이미지 URL"),
-                                fieldWithPath("data.createdDate").description("비디오 생성일"),
-                                fieldWithPath("code").description("응답 코드"),
-                                fieldWithPath("status").description("응답 상태"),
-                                fieldWithPath("message").description("응답 메시지")
+                                fieldWithPath("data.createdDate").description("비디오 생성일")
                         )
                 ));
     }
@@ -380,13 +385,10 @@ class VideoControllerTest extends ControllerTest {
                                 fieldWithPath("imageType").description(generateLinkCode(ImageType.class)).attributes(getConstraint("imageType")),
                                 fieldWithPath("fileName").description("파일 이름").attributes(getConstraint("fileName"))
                         ),
-                        responseFields(
+                        singleResponseFields(
                                 fieldWithPath("data").description("put url 정보"),
                                 fieldWithPath("data.videoUrl").description("비디오 put url"),
-                                fieldWithPath("data.thumbnailUrl").description("섬네일 put url"),
-                                fieldWithPath("code").description("응답 코드"),
-                                fieldWithPath("status").description("응답 상태"),
-                                fieldWithPath("message").description("응답 메시지")
+                                fieldWithPath("data.thumbnailUrl").description("섬네일 put url")
                         )
                 ));
     }
@@ -431,7 +433,8 @@ class VideoControllerTest extends ControllerTest {
                         requestFields(
                                 fieldWithPath("videoName").description("비디오 제목").attributes(getConstraint("videoName")),
                                 fieldWithPath("price").description("가격").attributes(getConstraint("price")),
-                                fieldWithPath("description").description("비디오 설명").attributes(getConstraint("description")),
+                                fieldWithPath("description").description("비디오 설명").optional()
+                                        .attributes(getConstraint("description")),
                                 fieldWithPath("categories").description("카테고리 목록").attributes(getConstraint("categories"))
                         ),
                         responseHeaders(
@@ -448,10 +451,7 @@ class VideoControllerTest extends ControllerTest {
         Long videoId = 1L;
 
         VideoUpdateApiRequest request = VideoUpdateApiRequest.builder()
-                .videoName("videoName")
-                .price(10000)
                 .description("description")
-                .categories(List.of("java", "react"))
                 .build();
 
         //when
@@ -479,10 +479,7 @@ class VideoControllerTest extends ControllerTest {
                                 headerWithName(AUTHORIZATION).description("Access Token")
                         ),
                         requestFields(
-                                fieldWithPath("videoName").description("비디오 제목").attributes(getConstraint("videoName")),
-                                fieldWithPath("price").description("가격").attributes(getConstraint("price")),
-                                fieldWithPath("description").description("비디오 설명").attributes(getConstraint("description")),
-                                fieldWithPath("categories").description("카테고리 목록").attributes(getConstraint("categories"))
+                                fieldWithPath("description").description("비디오 설명").attributes(getConstraint("description"))
                         )
                 )
         );
@@ -519,11 +516,8 @@ class VideoControllerTest extends ControllerTest {
                         requestHeaders(
                                 headerWithName(AUTHORIZATION).description("Access Token")
                         ),
-                        responseFields(
-                                fieldWithPath("data").description("장바구니 담기 여부"),
-                                fieldWithPath("code").description("응답 코드"),
-                                fieldWithPath("status").description("응답 상태"),
-                                fieldWithPath("message").description("응답 메시지")
+                        singleResponseFields(
+                                fieldWithPath("data").description("장바구니 담기 여부")
                         )
                 )
         );
@@ -560,14 +554,48 @@ class VideoControllerTest extends ControllerTest {
                         requestHeaders(
                                 headerWithName(AUTHORIZATION).description("Access Token")
                         ),
-                        responseFields(
-                                fieldWithPath("data").description("장바구니 취소 여부"),
-                                fieldWithPath("code").description("응답 코드"),
-                                fieldWithPath("status").description("응답 상태"),
-                                fieldWithPath("message").description("응답 메시지")
+                        singleResponseFields(
+                                fieldWithPath("data").description("장바구니 취소 여부")
                         )
                 )
         );
+    }
+
+    @Test
+    @DisplayName("videoId 를 통한 장바구니 전체 취소 API")
+    void deleteCarts() throws Exception {
+        //given
+        VideoCartDeleteApiRequest request = VideoCartDeleteApiRequest.builder()
+                .videoIds(List.of(1L, 2L, 3L))
+                .build();
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                delete(BASE_URL + "/carts")
+                        .contentType(APPLICATION_JSON)
+                        .header(AUTHORIZATION, TOKEN)
+                        .content(objectMapper.writeValueAsString(request))
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isNoContent());
+
+        //restDocs
+        setConstraintClass(VideoCartDeleteApiRequest.class);
+
+        actions
+                .andDo(
+                        documentHandler.document(
+                                requestHeaders(
+                                        headerWithName(AUTHORIZATION).description("Access Token")
+                                ),
+                                requestFields(
+                                        fieldWithPath("videoIds").description("장바구니에서 삭제할 비디오 ID 목록")
+                                                .attributes(getConstraint("videoIds"))
+                                )
+                        )
+                );
     }
 
     @Test
@@ -600,6 +628,1254 @@ class VideoControllerTest extends ControllerTest {
         );
     }
 
+    @Test
+    @DisplayName("비디오의 댓글 조회 API")
+    void getReplies() throws Exception {
+        //given
+        int page = 1;
+        int size = 5;
+
+        List<ReplyInfo> replyInfos = createReplyInfos(5);
+        Page<ReplyInfo> replyInfoPage =  createPage(replyInfos, page - 1, 5, 20);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(replyInfoPage, "댓글 조회 성공"));
+
+        given(videoService.getReplies(anyLong(), anyInt(), anyInt(), any(ReplySort.class))).willReturn(replyInfoPage);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                get(BASE_URL + "/{videoId}/replies", 1L)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .param("sort", "created-date")
+                        .param("star", "4")
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse)
+        );
+
+        //restdocs
+        actions
+                .andDo(documentHandler.document(
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("액세스 토큰").optional()
+                        ),
+                        pathParameters(
+                                parameterWithName("videoId").description("댓글을 조회할 비디오 ID")
+                        ),
+                        requestParameters(
+                                parameterWithName("page").description("페이지 번호").optional(),
+                                parameterWithName("size").description("페이지 크기").optional(),
+                                parameterWithName("sort").description(generateLinkCode(ReplySort.class)).optional(),
+                                parameterWithName("star").description("별점").optional()
+                        ),
+                        pageResponseFields(
+                                fieldWithPath("data").description("댓글 정보"),
+                                fieldWithPath("data[].replyId").description("댓글 ID"),
+                                fieldWithPath("data[].content").description("댓글 내용"),
+                                fieldWithPath("data[].star").description("별점"),
+                                fieldWithPath("data[].member").description("댓글"),
+                                fieldWithPath("data[].member.memberId").description("댓글 단 member 의 ID"),
+                                fieldWithPath("data[].member.nickname").description("member 의 닉네임"),
+                                fieldWithPath("data[].member.imageUrl").description("member 의 프로필 url"),
+                                fieldWithPath("data[].createdDate").description("댓글 생성일")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("비디오 댓글 생성 API")
+    void createReply() throws Exception {
+        //given
+        Long createdReplyId = 1L;
+
+        ReplyCreateControllerApi request = ReplyCreateControllerApi.builder()
+                        .content("댓글 내용")
+                        .star(4)
+                        .build();
+
+        given(videoService.createReply(anyLong(), anyLong(), any(ReplyCreateServiceApi.class))).willReturn(createdReplyId);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                post(BASE_URL + "/{videoId}/replies", 1L)
+                        .contentType(APPLICATION_JSON)
+                        .header(AUTHORIZATION, TOKEN)
+                        .content(objectMapper.writeValueAsString(request))
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "/replies/" + createdReplyId));
+
+        //restDocs
+        setConstraintClass(ReplyCreateControllerApi.class);
+
+        actions.andDo(documentHandler.document(
+                requestHeaders(
+                        headerWithName(AUTHORIZATION).description("액세스 토큰")
+                ),
+                pathParameters(
+                        parameterWithName("videoId").description("댓글을 생성할 비디오 ID")
+                ),
+                requestFields(
+                        fieldWithPath("content").description("댓글 내용").attributes(getConstraint("content")),
+                        fieldWithPath("star").description("별점").attributes(getConstraint("star"))
+                ),
+                responseHeaders(
+                        headerWithName("Location").description("생성된 댓글의 ID")
+                )
+        ));
+    }
+
+    @Test
+    @DisplayName("비디오의 전체 문제 조회 시 validation 테스트 - videoId 가 양수가 아니면 검증에 실패한다.")
+    void getQuestionsValidation() throws Exception {
+        //given
+        Long wrongVideoId = 0L;
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                get(BASE_URL + "/{video-id}/questions", wrongVideoId)
+                        .accept(APPLICATION_JSON)
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.data[0].field").value("videoId"))
+                .andExpect(jsonPath("$.data[0].value").value(wrongVideoId))
+                .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+    }
+
+    @TestFactory
+    @DisplayName("비디오의 전체 문제를 풀 때 validation 테스트")
+    Collection<DynamicTest> solveQuestionsValidation() {
+        //given
+        Long videoId = 1L;
+
+        return List.of(
+                dynamicTest("videoId 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Long wrongVideoId = 0L;
+
+                    List<String> myAnswers = List.of("apple", "1", "3", "banana", "2");
+                    AnswersCreateApiRequest request = new AnswersCreateApiRequest(myAnswers);
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/answers", wrongVideoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoId"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongVideoId))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("myAnswer 값이 null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    AnswersCreateApiRequest request = new AnswersCreateApiRequest();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/answers", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("myAnswers"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("나의 답변 내용은 필수입니다."));
+                }),
+                dynamicTest("myAnswer 값이 있지만 빈 배열이면 검증에 실패한다.", ()-> {
+                    //given
+                    AnswersCreateApiRequest request = new AnswersCreateApiRequest(new ArrayList<>());
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/answers", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("myAnswers"))
+                            .andExpect(jsonPath("$.data[0].value").value("[]"))
+                            .andExpect(jsonPath("$.data[0].reason").value("나의 답변은 1개 이상이어야 합니다."));
+                }),
+                dynamicTest("myAnswer 내부 값이 공백이면 검증에 실패한다.", ()-> {
+                    //given
+                    AnswersCreateApiRequest request = new AnswersCreateApiRequest(List.of(" ", "2"));
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/answers", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("myAnswers"))
+                            .andExpect(jsonPath("$.data[0].value").value("[ , 2]"))
+                            .andExpect(jsonPath("$.data[0].reason").value("나의 답변 내용은 공백을 허용하지 않습니다."));
+                })
+        );
+    }
+
+    @TestFactory
+    @DisplayName("비디오의 전체 문제 생성 validation 테스트")
+    Collection<DynamicTest> createQuestionsValidation() {
+        //given
+        Long videoId = 1L;
+
+        return List.of(
+                dynamicTest("videoId 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Long wrongVideoId = 0L;
+
+                    List<QuestionCreateApiRequest> requests = createQuestionCreateApiRequests(5);
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/questions", wrongVideoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(requests))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoId"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongVideoId))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("position 이 null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
+                            .content("content")
+                            .questionAnswer("answer")
+                            .description("description")
+                            .selections(List.of("selection1", "selection2", "selection3"))
+                            .build());
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/questions", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("position"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("문제의 위치는 필수입니다."));
+                }),
+                dynamicTest("position 이 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Integer wrongPosition = 0;
+
+                    List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
+                            .position(wrongPosition)
+                            .content("content")
+                            .questionAnswer("answer")
+                            .description("description")
+                            .selections(List.of("selection1", "selection2", "selection3"))
+                            .build());
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/questions", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("position"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongPosition))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("content 가 null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
+                            .position(1)
+                            .questionAnswer("answer")
+                            .description("description")
+                            .selections(List.of("selection1", "selection2", "selection3"))
+                            .build());
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/questions", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("content"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("문제의 내용은 필수입니다."));
+                }),
+                dynamicTest("content 가 공백이면 검증에 실패한다.", ()-> {
+                    //given
+                    String wrongContent = " ";
+
+                    List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
+                            .position(1)
+                            .content(wrongContent)
+                            .questionAnswer("answer")
+                            .description("description")
+                            .selections(List.of("selection1", "selection2", "selection3"))
+                            .build());
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/questions", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("content"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongContent))
+                            .andExpect(jsonPath("$.data[0].reason").value("문제의 내용은 필수입니다."));
+
+                }),
+                dynamicTest("selection 이 null 이라도 생성할 수 있다.", ()-> {
+                    //given
+                    List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
+                            .position(1)
+                            .content("content")
+                            .questionAnswer("answer")
+                            .description("description")
+                            .selections(null)
+                            .build());
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/questions", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isCreated());
+                }),
+                dynamicTest("selection 이 null 이 아니라 빈 배열이면 검증에 실패한다.", ()-> {
+                    //given
+                    List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
+                            .position(1)
+                            .content("content")
+                            .questionAnswer("answer")
+                            .description("description")
+                            .selections(new ArrayList<>())
+                            .build());
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/questions", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("selections"))
+                            .andExpect(jsonPath("$.data[0].value").value("[]"))
+                            .andExpect(jsonPath("$.data[0].reason").value("선택지를 추가하려면 최소 1개, 최대 4개까지 가능합니다."));
+                }),
+                dynamicTest("selection 이 5개 이상 있으면 검증에 실패한다.", ()-> {
+                    //given
+                    List<String> wrongSelection = List.of("selection1", "selection2", "selection3", "selection4", "selection5");
+
+                    List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
+                            .position(1)
+                            .content("content")
+                            .questionAnswer("answer")
+                            .description("description")
+                            .selections(wrongSelection)
+                            .build());
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/questions", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("selections"))
+                            .andExpect(jsonPath("$.data[0].value").value("[selection1, selection2, selection3, selection4, selection5]"))
+                            .andExpect(jsonPath("$.data[0].reason").value("선택지를 추가하려면 최소 1개, 최대 4개까지 가능합니다."));
+                }),
+                dynamicTest("selection 내부 값이 공백이면 검증에 실패한다.", ()-> {
+                    //given
+                    List<String> wrongSelection = List.of(" ", "2");
+
+                    List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
+                            .position(1)
+                            .content("content")
+                            .questionAnswer("answer")
+                            .description("description")
+                            .selections(wrongSelection)
+                            .build());
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/{video-id}/questions", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("selections"))
+                            .andExpect(jsonPath("$.data[0].value").value("[ , 2]"))
+                            .andExpect(jsonPath("$.data[0].reason").value("선택지의 내용은 공백을 허용하지 않습니다."));
+                })
+
+
+        );
+    }
+
+    @TestFactory
+    @DisplayName("비디오 전체 조회 시 validation 테스트")
+    Collection<DynamicTest> getVideosValidation() throws Exception {
+        //given
+        int page = 1;
+        int size = 12;
+
+        List<VideoPageResponse> responses = createVideoPageResponses(size);
+        Page<VideoPageResponse> pageResponses = createPage(responses, page, size, 50);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses, "비디오 목록 조회 성공"));
+
+        given(videoService.getVideos(anyLong(), any(VideoGetServiceRequest.class)))
+                .willReturn(pageResponses);
+
+
+        return List.of(
+                dynamicTest("쿼리 값을 보내지 않아도 조회할 수 있다.", ()-> {
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isOk())
+                            .andExpect(content().string(apiResponse));
+                }),
+                dynamicTest("page 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    int wrongPage = 0;
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .param("page", String.valueOf(wrongPage))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("page"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongPage))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("size 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    int wrongSize = 0;
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .param("size", String.valueOf(wrongSize))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("size"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongSize))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+
+                })
+        );
+    }
+
+    @TestFactory
+    @DisplayName("비디오 상세 조회 시 validation 테스트")
+    Collection<DynamicTest> getVideoValidation() {
+        //given
+        Long videoId = 1L;
+
+        return List.of(
+                dynamicTest("videoId 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Long wrongVideoId = 0L;
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL + "/{videoId}", wrongVideoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoId"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongVideoId))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                })
+        );
+    }
+
+    @TestFactory
+    @DisplayName("비디오 생성 url 요청 시 validation 테스트")
+    Collection<DynamicTest> getVideoCreateUrlValidation() {
+        //given
+
+        return List.of(
+                dynamicTest("imageType 이 null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    VideoCreateUrlApiRequest request = VideoCreateUrlApiRequest.builder()
+                            .fileName("videoName")
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/presigned-url")
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("imageType"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("이미지 타입을 선택해주세요."));
+                }),
+                dynamicTest("fileName 이 null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    VideoCreateUrlApiRequest request = VideoCreateUrlApiRequest.builder()
+                            .imageType(ImageType.PNG)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/presigned-url")
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("fileName"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("영상 이름은 필수입니다."));
+                }),
+                dynamicTest("fileName 이 공백이면 검증에 실패한다.", ()-> {
+                    //given
+                    VideoCreateUrlApiRequest request = VideoCreateUrlApiRequest.builder()
+                            .imageType(ImageType.PNG)
+                            .fileName(" ")
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL + "/presigned-url")
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("fileName"))
+                            .andExpect(jsonPath("$.data[0].value").value(" "))
+                            .andExpect(jsonPath("$.data[0].reason").value("영상 이름은 필수입니다."));
+                })
+        );
+    }
+
+    @TestFactory
+    @DisplayName("비디오 생성 시 validation 테스트")
+    Collection<DynamicTest> createVideoValidation() {
+        //given
+        Long videoId = 1L;
+
+        given(videoService.createVideo(anyLong(), any(VideoCreateServiceRequest.class))).willReturn(videoId);
+
+        return List.of(
+                dynamicTest("videoName 이 null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    VideoCreateApiRequest request = VideoCreateApiRequest.builder()
+                            .price(10000)
+                            .description("description")
+                            .categories(List.of("java", "react"))
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoName"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("영상 이름은 필수입니다."));
+
+                }),
+                dynamicTest("videoName 이 공백이면 검증에 실패한다.", ()-> {
+                    //given
+                    String wrongVideoName = " ";
+
+                    VideoCreateApiRequest request = VideoCreateApiRequest.builder()
+                            .videoName(wrongVideoName)
+                            .price(10000)
+                            .description("description")
+                            .categories(List.of("java", "react"))
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoName"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongVideoName))
+                            .andExpect(jsonPath("$.data[0].reason").value("영상 이름은 필수입니다."));
+
+                }),
+                dynamicTest("price 가 null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    VideoCreateApiRequest request = VideoCreateApiRequest.builder()
+                            .videoName("videoName")
+                            .description("description")
+                            .categories(List.of("java", "react"))
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("price"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("가격은 필수입니다."));
+
+                }),
+                dynamicTest("price 가 0 보다 작으면 검증에 실패한다.", ()-> {
+                    //given
+                    Integer wrongPrice = -1;
+
+                    VideoCreateApiRequest request = VideoCreateApiRequest.builder()
+                            .videoName("videoName")
+                            .price(wrongPrice)
+                            .description("description")
+                            .categories(List.of("java", "react"))
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("price"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongPrice))
+                            .andExpect(jsonPath("$.data[0].reason").value("가격은 0원 이상이어야 합니다."));
+                }),
+                dynamicTest("price 가 0 이면 검증에 성공한다.", ()-> {
+                    //given
+                    VideoCreateApiRequest request = VideoCreateApiRequest.builder()
+                            .videoName("videoName")
+                            .price(0)
+                            .description("description")
+                            .categories(List.of("java", "react"))
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isCreated())
+                            .andExpect(header().string("Location", "/videos/" + videoId));
+
+                }),
+                dynamicTest("categories 가 null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    VideoCreateApiRequest request = VideoCreateApiRequest.builder()
+                            .videoName("videoName")
+                            .price(10000)
+                            .description("description")
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("categories"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("카테고리는 필수입니다."));
+                }),
+                dynamicTest("categories 가 있지만 리스트가 비어있으면 검증에 실패한다.", ()-> {
+                    //given
+                    VideoCreateApiRequest request = VideoCreateApiRequest.builder()
+                            .videoName("videoName")
+                            .price(10000)
+                            .description("description")
+                            .categories(new ArrayList<>())
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("categories"))
+                            .andExpect(jsonPath("$.data[0].value").value("[]"))
+                            .andExpect(jsonPath("$.data[0].reason").value("카테고리는 1개 이상이어야 합니다."));
+                })
+        );
+    }
+
+    @TestFactory
+    @DisplayName("비디오 수정 시 validation 테스트")
+    Collection<DynamicTest> updateVideoValidation() {
+        //given
+        Long videoId = 1L;
+
+        return List.of(
+                dynamicTest("videoId 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Long wrongVideoId = 0L;
+
+                    VideoUpdateApiRequest request = VideoUpdateApiRequest.builder()
+                            .description("description")
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            patch(BASE_URL + "/{video-id}", wrongVideoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoId"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongVideoId))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                })
+        );
+    }
+
+    @Test
+    @DisplayName("장바구니 추가, 삭제 시 validation 테스트 - videoId 가 양수가 아니면 검증에 실패한다.")
+    void changeCartValidation() throws Exception {
+        //given
+        Long wrongVideoId = 0L;
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                patch(BASE_URL + "/{video-id}/carts", wrongVideoId)
+                        .contentType(APPLICATION_JSON)
+                        .accept(APPLICATION_JSON)
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.data[0].field").value("videoId"))
+                .andExpect(jsonPath("$.data[0].value").value(wrongVideoId))
+                .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+    }
+
+    @TestFactory
+    @DisplayName("장바구니 삭제 시 validation 테스트")
+    Collection<DynamicTest> deleteCartsValidation() {
+        //given
+
+
+        return List.of(
+                dynamicTest("videoIds 가 Null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    VideoCartDeleteApiRequest request = VideoCartDeleteApiRequest.builder()
+                            .videoIds(null)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            delete(BASE_URL + "/carts")
+                                    .contentType(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoIds"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("비디오 id 값은 필수입니다."));
+                }),
+                dynamicTest("videoIds 가 있지만 빈 배열이면 검증에 실패한다.", ()-> {
+                    //given
+                    VideoCartDeleteApiRequest request = VideoCartDeleteApiRequest.builder()
+                            .videoIds(new ArrayList<>())
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            delete(BASE_URL + "/carts")
+                                    .contentType(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoIds"))
+                            .andExpect(jsonPath("$.data[0].value").value("[]"))
+                            .andExpect(jsonPath("$.data[0].reason").value("비디오 id 값은 필수입니다."));
+                }),
+                dynamicTest("videoIds 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    VideoCartDeleteApiRequest request = VideoCartDeleteApiRequest.builder()
+                            .videoIds(List.of(0L, 1L))
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            delete(BASE_URL + "/carts")
+                                    .contentType(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoIds"))
+                            .andExpect(jsonPath("$.data[0].value").value("[0, 1]"))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                })
+
+
+
+
+        );
+    }
+
+    @Test
+    @DisplayName("비디오 삭제 시 validation 테스트 - videoId 가 양수가 아니면 검증에 실패한다.")
+    void deleteVideoValidation() throws Exception {
+        //given
+        Long wrongVideoId = 0L;
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                delete(BASE_URL + "/{video-id}", wrongVideoId)
+                        .contentType(APPLICATION_JSON)
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.data[0].field").value("videoId"))
+                .andExpect(jsonPath("$.data[0].value").value(wrongVideoId))
+                .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+    }
+
+    @TestFactory
+    @DisplayName("비디오 댓글 목록 조회 시 validation 테스트")
+    Collection<DynamicTest> getRepliesValidation() throws Exception {
+        //given
+        Long videoId = 1L;
+
+        List<ReplyInfo> replyInfos = createReplyInfos(5);
+        Page<ReplyInfo> replyInfoPage =  createPage(replyInfos, 0, 5, 20);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(replyInfoPage, "댓글 조회 성공"));
+
+        given(videoService.getReplies(anyLong(), anyInt(), anyInt(), any(ReplySort.class))).willReturn(replyInfoPage);
+
+        return List.of(
+                dynamicTest("쿼리 파라미터값으로 아무것도 주지 않아도 응답받을 수 있다.", ()-> {
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL + "/{video-id}/replies", videoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isOk())
+                            .andExpect(content().string(apiResponse));
+                }),
+                dynamicTest("videoId 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Long wrongVideoId = 0L;
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL + "/{video-id}/replies", wrongVideoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoId"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongVideoId))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("page 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    int wrongPage = 0;
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL + "/{video-id}/replies", videoId)
+                                    .param("page", String.valueOf(wrongPage))
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("page"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongPage))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("size 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    int wrongSize = 0;
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL + "/{video-id}/replies", videoId)
+                                    .param("size", String.valueOf(wrongSize))
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("size"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongSize))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("star 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    int wrongStar = 0;
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL + "/{video-id}/replies", videoId)
+                                    .param("star", String.valueOf(wrongStar))
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("star"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongStar))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                })
+        );
+    }
+
+    @TestFactory
+    @DisplayName("비디오의 댓글 생성 시 validation 테스트")
+    Collection<DynamicTest> createReplyValidation() {
+        //given
+        Long videoId = 1L;
+
+        return List.of(
+                dynamicTest("videoId 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Long wrongVideoId = 0L;
+
+                    ReplyCreateControllerApi request = ReplyCreateControllerApi.builder()
+                            .content("content")
+                            .star(5)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(post(BASE_URL + "/{video-id}/replies", wrongVideoId)
+                            .contentType(APPLICATION_JSON)
+                            .header(AUTHORIZATION, TOKEN)
+                            .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions
+                            .andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoId"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongVideoId))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                }),
+                dynamicTest("content 값이 null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    ReplyCreateControllerApi request = ReplyCreateControllerApi.builder()
+                            .star(5)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(post(BASE_URL + "/{video-id}/replies", videoId)
+                            .contentType(APPLICATION_JSON)
+                            .header(AUTHORIZATION, TOKEN)
+                            .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions
+                            .andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("content"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("수강평은 공백을 허용하지 않습니다."));
+                }),
+                dynamicTest("content 값이 공백이면 검증에 실패한다.", ()-> {
+                    //given
+                    String wrongContent = " ";
+
+                    ReplyCreateControllerApi request = ReplyCreateControllerApi.builder()
+                            .content(wrongContent)
+                            .star(5)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(post(BASE_URL + "/{video-id}/replies", videoId)
+                            .contentType(APPLICATION_JSON)
+                            .header(AUTHORIZATION, TOKEN)
+                            .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions
+                            .andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("content"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongContent))
+                            .andExpect(jsonPath("$.data[0].reason").value("수강평은 공백을 허용하지 않습니다."));
+                }),
+                dynamicTest("content 값이 100자를 초과하면 검증에 실패한다.", ()-> {
+                    //given
+                    String wrongContent = "11111111111111111111111111111111111111111111111111" +
+                            "11111111111111111111111111111111111111111111111111" + "1";
+
+                    ReplyCreateControllerApi request = ReplyCreateControllerApi.builder()
+                            .content(wrongContent)
+                            .star(5)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(post(BASE_URL + "/{video-id}/replies", videoId)
+                            .contentType(APPLICATION_JSON)
+                            .header(AUTHORIZATION, TOKEN)
+                            .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions
+                            .andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("content"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongContent))
+                            .andExpect(jsonPath("$.data[0].reason").value("허용된 글자 수는 1자에서 100자 입니다."));
+                }),
+                dynamicTest("star 가 null 이면 검증에 실패한다.", ()-> {
+                    //given
+                    ReplyCreateControllerApi request = ReplyCreateControllerApi.builder()
+                            .content("content")
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(post(BASE_URL + "/{video-id}/replies", videoId)
+                            .contentType(APPLICATION_JSON)
+                            .header(AUTHORIZATION, TOKEN)
+                            .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions
+                            .andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("star"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("별점을 입력해주세요."));
+                }),
+                dynamicTest("star 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Integer wrongStar = 0;
+
+                    ReplyCreateControllerApi request = ReplyCreateControllerApi.builder()
+                            .content("content")
+                            .star(wrongStar)
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(post(BASE_URL + "/{video-id}/replies", videoId)
+                            .contentType(APPLICATION_JSON)
+                            .header(AUTHORIZATION, TOKEN)
+                            .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions
+                            .andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("star"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongStar))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                })
+        );
+    }
+
     private List<QuestionResponse> createQuestionResponses(int size) {
 
         List<QuestionResponse> responses = new ArrayList<>();
@@ -611,7 +1887,7 @@ class VideoControllerTest extends ControllerTest {
                     .content("content" + i)
                     .myAnswer(String.valueOf(i))
                     .questionAnswer("2")
-                    .selections(List.of("selection1", "selection2", "selection3", "selection4", "selection5"))
+                    .selections(List.of("selection1", "selection2", "selection3", "selection4"))
                     .answerStatus(AnswerStatus.CORRECT)
                     .description("description" + i)
                     .solvedDate(LocalDateTime.now())
@@ -634,6 +1910,7 @@ class VideoControllerTest extends ControllerTest {
                     .price(1000 * i)
                     .star(4.5f)
                     .isPurchased(true)
+                    .isInCart(false)
                     .channel(createVideoChannelResponse())
                     .categories(createVideoCategoryResponse("java", "react"))
                     .createdDate(LocalDateTime.now())
@@ -698,9 +1975,33 @@ class VideoControllerTest extends ControllerTest {
                 .star(4.5f)
                 .isPurchased(true)
                 .isReplied(true)
+                .isInCart(false)
                 .categories(createVideoCategoryResponse("java", "react"))
                 .channel(createVideoChannelResponse())
                 .createdDate(LocalDateTime.now())
                 .build();
+    }
+
+    private List<ReplyInfo> createReplyInfos(int count) {
+        List<ReplyInfo> replyInfos = new ArrayList<>();
+
+        MemberInfo member = MemberInfo.builder()
+                .memberId(1L)
+                .nickname("nickname")
+                .imageUrl("imageUrl")
+                .build();
+
+        for(int i = 1; i <= count; i++) {
+            ReplyInfo replyInfo = ReplyInfo.builder()
+                    .replyId((long) i)
+                    .content("content" + i)
+                    .star(4)
+                    .member(member)
+                    .createdDate(LocalDateTime.now())
+                    .build();
+
+            replyInfos.add(replyInfo);
+        }
+        return replyInfos;
     }
 }

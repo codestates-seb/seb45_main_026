@@ -40,7 +40,7 @@ public class Channel extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "channel")
     private List<Video> videos = new ArrayList<>();
 
     @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL)
@@ -53,8 +53,8 @@ public class Channel extends BaseEntity {
     }
 
     public void updateChannel(String channelName, String description){
-        this.channelName = channelName;
-        this.description = description;
+        this.channelName = channelName == null ? this.channelName : channelName;
+        this.description = description == null ? this.description : description;
     }
 
 
@@ -66,12 +66,12 @@ public class Channel extends BaseEntity {
         }
     }
 
-    public void addSubscribers(int subscribers){
-        this.subscribers += subscribers;
+    public void addSubscriber() {
+        this.subscribers++;
     }
 
-    public void decreaseSubscribers(int subscribers){
-        this.subscribers -= subscribers;
+    public void decreaseSubscribers() {
+        this.subscribers--;
     }
 
 
