@@ -77,7 +77,7 @@ public class Member extends BaseEntity {
 	@Builder.Default
 	private List<Reply> replies = new ArrayList<>();
 
-	@OneToMany(mappedBy = "member")
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
 	@Builder.Default
 	private List<Subscribe> subscribes = new ArrayList<>();
 
@@ -101,12 +101,10 @@ public class Member extends BaseEntity {
 		this.nickname = nickname;
 	}
 
+
 	public void updateImageFile(String imageFile) {
-		if(this.imageFile == null && imageFile != null) {
+		if (this.imageFile == null) {
 			this.imageFile = imageFile;
-		}
-		else {
-			throw new MemberNotUpdatedException();
 		}
 	}
 

@@ -59,7 +59,7 @@ spring:
 
 jwt:
   access:
-    expiration: 60000
+    expiration: 3600000
     header: Authorization
   refresh:
     expiration: 1209600000

@@ -8,7 +8,7 @@ public class MemberNotUpdatedException extends MemberException{
 	public static final String CODE = "MEMBER-400";
 
 	public MemberNotUpdatedException() {
-		super(CODE, HttpStatus.CONFLICT, MESSAGE);
+		super(CODE, HttpStatus.BAD_REQUEST, MESSAGE);
 	}
 }
 
