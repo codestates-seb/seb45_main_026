@@ -86,7 +86,6 @@ const Setting = () => {
     }
     //Confirm 모달의 '예' 눌렀을 때 실행하는 메소드
     const handlePositiveButtonClick = async () => {
-        setIsDeleteUserConfirmModalOpen(false);
         //회원탈퇴 API를 실행한다. 
         const response = await deleteUserInfoService(accessToken.authorization);
         if(response.status==='success') {
@@ -106,6 +105,8 @@ const Setting = () => {
             dispatch(setIsLogin(false));
             setIsDeleteUserConfirmModalOpen(true);
         }
+        setIsDeleteUserConfirmModalOpen(false);
+        navigate('/')
     }
     //Confirm 모달의 '아니오' 눌렀을 때 실행되는 메소드
     const handleNegativeButtonClick = () => {

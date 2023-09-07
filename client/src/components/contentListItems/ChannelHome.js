@@ -21,6 +21,7 @@ const HomeBody = styled.div`
 export const HomeTitle = styled(Heading5Typo)`
     margin-left: ${globalTokens.Spacing28.value}px;
     margin-bottom: ${globalTokens.Spacing20.value}px;
+    width: 100%;
 `
 const ItemContainer = styled.ul`
     width: 100%;

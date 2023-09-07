@@ -66,7 +66,7 @@ const ChannelSubscribers = styled(BodyTextTypo)`
 const ChannelDescription = styled.div`
   flex-grow: 1;
   padding: ${globalTokens.Spacing8.value}px;
-  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.Background.value};
+  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
   color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
   border-radius: ${globalTokens.RegularRadius.value}px;
 `
