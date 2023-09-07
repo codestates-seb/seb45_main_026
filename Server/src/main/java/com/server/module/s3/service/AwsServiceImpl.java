@@ -18,8 +18,10 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -53,7 +55,7 @@ public class AwsServiceImpl implements AwsService {
         if(fileName == null) return null;
 
         if(fileType.isRequiredAuth()) {
-            Instant tenSecondsLater = getInstantDuration(60);
+            Instant tenSecondsLater = getInstantDuration(300);
 
             return getFilePresignedUrl(fileType.getLocation(memberId, fileName), tenSecondsLater);
         }
@@ -117,9 +119,10 @@ public class AwsServiceImpl implements AwsService {
 
     private String getFilePresignedUrl(String location, Instant tenSecondsLater) {
         CustomSignerRequest customSignerRequest = null;
+
         try {
             customSignerRequest = CustomSignerRequest.builder()
-                    .resourceUrl(location)
+                    .resourceUrl(encodeFileName(location))
                     .expirationDate(tenSecondsLater)
                     .keyPairId(KEY_PAIR_ID)
                     .privateKey(Path.of(PRIVATE_KEY_PATH))
@@ -131,6 +134,14 @@ public class AwsServiceImpl implements AwsService {
         SignedUrl signedUrlWithCustomPolicy = cloudFrontUtilities.getSignedUrlWithCustomPolicy(customSignerRequest);
 
         return URLDecoder.decode(signedUrlWithCustomPolicy.url(), UTF_8);
+    }
+
+    private String encodeFileName(String location) throws UnsupportedEncodingException {
+
+        String baseUrl = location.substring(0, location.lastIndexOf("/") + 1);
+        String fileName = location.substring(location.lastIndexOf("/") + 1);
+        String encodedFileName = URLEncoder.encode(fileName, "UTF-8").replace("+", "%20");
+        return baseUrl + encodedFileName;
     }
 
     private URL getPresignedPutVideoObjectUrl(String fileName, String contentType, Duration duration) {

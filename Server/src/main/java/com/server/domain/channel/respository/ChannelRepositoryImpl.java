@@ -2,12 +2,13 @@ package com.server.domain.channel.respository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.channel.entity.Channel;
-import com.server.domain.channel.entity.QChannel;
+import com.server.domain.member.entity.QMember;
 
 import javax.persistence.EntityManager;
 import java.util.Optional;
 
-import static com.server.domain.channel.entity.QChannel.*;
+import static com.server.domain.channel.entity.QChannel.channel;
+import static com.server.domain.member.entity.QMember.*;
 
 public class ChannelRepositoryImpl implements ChannelRepositoryCustom {
 
@@ -22,7 +23,8 @@ public class ChannelRepositoryImpl implements ChannelRepositoryCustom {
 
         return Optional.ofNullable(queryFactory
                 .selectFrom(channel)
-                .where(channel.member.memberId.eq(memberId))
+                        .join(channel.member, member).fetchJoin()
+                        .where(member.memberId.eq(memberId))
                 .fetchOne());
     }
 }
