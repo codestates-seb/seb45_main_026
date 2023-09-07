@@ -77,7 +77,7 @@ public class Member extends BaseEntity {
 	@Builder.Default
 	private List<Reply> replies = new ArrayList<>();
 
-	@OneToMany(mappedBy = "member")
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
 	@Builder.Default
 	private List<Subscribe> subscribes = new ArrayList<>();
 

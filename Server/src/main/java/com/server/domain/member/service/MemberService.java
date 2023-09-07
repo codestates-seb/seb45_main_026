@@ -196,25 +196,7 @@ public class MemberService {
 	@Transactional
 	public void deleteMember(Long loginId) {
 		Member member = validateMember(loginId);
-		try {
-			memberRepository.delete(member);
-		} catch (EntityNotFoundException entityNotFoundException) {
-			throw new com.server.global.exception.businessexception.databaseexception.EntityNotFoundException();
-		} catch (DataAccessException dataAccessException) {
-			throw new DataAccessFailedException();
-		} catch (ConstraintViolationException constraintViolationException) {
-			throw new DataConstraintViolationException();
-		} catch (OptimisticLockException optimisticLockException) {
-			throw new VersionControllException();
-		} catch (TransactionSystemException transactionSystemException) {
-			throw new TxSystemException();
-		} catch (TransactionRequiredException transactionRequiredException) {
-			throw new TxRequiredException();
-		} catch (IllegalArgumentException illegalArgumentException) {
-			throw new IllegalDataArgException();
-		} catch (PersistenceException persistenceException) {
-			throw new UnknownDatabaseException();
-		}
+		memberRepository.delete(member);
 	}
 
 	@Transactional
