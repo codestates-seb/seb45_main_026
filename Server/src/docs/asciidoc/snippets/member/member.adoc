@@ -33,6 +33,14 @@ include::{snippets}/member/updateimage/request-fields.adoc[]
 === HTTP Response
 include::{snippets}/member/updateimage/http-response.adoc[]
 
+== 프로필 이미지 삭제
+=== HTTP Request
+include::{snippets}/member/deleteimage/http-request.adoc[]
+==== Request Header
+include::{snippets}/member/deleteimage/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/member/deleteimage/http-response.adoc[]
+
 == 비밀번호 변경
 === HTTP Request
 include::{snippets}/member/updatepassword/http-request.adoc[]
