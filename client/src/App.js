@@ -36,6 +36,7 @@ import Loading from "./atoms/loading/Loading";
 function App() {
   const dispatch = useDispatch();
   const tokens = useSelector((state) => state.loginInfo.accessToken);
+  const userInfo = useSelector(state=>state.loginInfo.loginInfo);
   const [ is로그인실패모달, setIs로그인실패모달 ] = useState(false);
 
   const handleResize = () => {
@@ -51,9 +52,7 @@ function App() {
   //authorization 갱신에 성공하면 다시 프로필 조회를 한다.
   //authorization 갱신에도 실패하면 강제 로그아웃 한다.
   useEffect(() => {
-    if (!(tokens.authorization === "")) {
-      console.log('App.js 실행됨');
-     
+    if (!(tokens.authorization === "")) {     
       getUserInfoService(tokens.authorization).then((res) => {
         //토큰이 유효하면 회원 정보를 dispatch 후, isLogin을 true로 설정한다.
         if (res.status === 'success') {

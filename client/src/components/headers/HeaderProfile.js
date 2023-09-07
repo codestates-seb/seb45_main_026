@@ -28,7 +28,7 @@ const HeaderProfile = () => {
                 <BodyTextTypo isDark={isDark}>{userInfo.nickname}</BodyTextTypo>
                 <HeaderProfileImgContainer>
                     <HeaderProfileImg 
-                        src={userInfo.imgUrl?userInfo.imgUrl:ProfileGray}/>
+                        src={userInfo.imgUrl!=='프로필 이미지 미등록'?userInfo.imgUrl:ProfileGray}/>
                 </HeaderProfileImgContainer>
                 <SideBar/>
         </HeaderProfileContainer>

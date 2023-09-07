@@ -5,7 +5,7 @@ import { styled } from 'styled-components';
 import { BodyTextTypo } from '../typographys/Typographys';
 import { useSelector } from 'react-redux';
 import { NegativeTextButton, PositiveTextButton } from '../buttons/Buttons';
-import { getUploadProfileImgUrlService, getUserInfoService, uploadProfileImage } from '../../services/userInfoService';
+import { deleteProfileImage, getUploadProfileImgUrlService, getUserInfoService, uploadProfileImage } from '../../services/userInfoService';
 import { useDispatch } from 'react-redux';
 import { setLoginInfo } from '../../redux/createSlice/LoginInfoSlice';
 
@@ -27,6 +27,7 @@ export const ImageInput = ({
     const fileInput = useRef(null);
     const tokens = useSelector(state=>state.loginInfo.accessToken);
     const userInfo = useSelector(state=>state.loginInfo.loginInfo);
+    const myid = useSelector(state=>state.loginInfo.myid)
     const isDark = useSelector(state=>state.uiSetting.isDark);
     
     //새로운 이미지를 선택하면 실행됨
@@ -41,20 +42,19 @@ export const ImageInput = ({
             return;
         }
         const response = await getUploadProfileImgUrlService(
-           tokens.authorization, userInfo.email,확장자 );
+           tokens.authorization, `${myid}`, 확장자 );
 
         if(response.status==='success') {
             const presignedUrl = response.data;
             const res = await uploadProfileImage(presignedUrl, file);
             if(res.status==='success') {
-                window.location.reload();
-                // const response = await getUserInfoService(tokens.authorization);
-                // if(response.status==='success') {
-                //     dispatch(setLoginInfo({
-                //         ...userInfo,
-                //         imgUrl: response.data.imageUrl
-                //     }))
-                // }
+                const response = await getUserInfoService(tokens.authorization);
+                if(response.status==='success') {
+                    dispatch(setLoginInfo({
+                        ...userInfo,
+                        imgUrl: response.data.imageUrl
+                    }))
+                }
             } else {
 
             }
@@ -67,8 +67,14 @@ export const ImageInput = ({
         fileInput.current.click();
     }
     //삭제 버튼을 누르면 실행됨
-    const handleProfileDeleteButtonClick = () => {
-
+    const handleProfileDeleteButtonClick = async () => {
+        const response = await deleteProfileImage(tokens.authorization);
+        if(response.status==='success') {
+            dispatch(setLoginInfo({
+                ...userInfo,
+                imgUrl: '프로필 이미지 미등록'
+            }))
+        }
     }
 
     return (
@@ -77,7 +83,7 @@ export const ImageInput = ({
                 <BodyTextTypo isDark={isDark}>{label}</BodyTextTypo>
             }
             <ImgContainer>
-                <ProfileImg src={userInfo.imgUrl?userInfo.imgUrl:profileGray}/>
+                <ProfileImg src={userInfo.imgUrl!=='프로필 이미지 미등록'?userInfo.imgUrl:profileGray}/>
             </ImgContainer>
             <input
                 type='file'

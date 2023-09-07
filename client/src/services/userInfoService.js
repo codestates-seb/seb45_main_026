@@ -26,14 +26,14 @@ export const getUserInfoService = async (authorization) => {
 //프로필 변경 step1 : 프로필 등록 presignedUrl 받기
 export const getUploadProfileImgUrlService = async (
     authorization, 
-    email, 
+    imageName, 
     imageType
 ) => {
     try {
         const response = await axios.patch(
             `${ROOT_URL}/members/image`,
             {
-                imageName: email,
+                imageName: imageName,
                 imageType: imageType
             },
             {
@@ -53,7 +53,6 @@ export const getUploadProfileImgUrlService = async (
         }
     }
 }
-
 //프로필 변경 step2 : presignedUrl로 post 요청하기
 export const uploadProfileImage = async (presignedUrl, file) => {
     try {
@@ -75,7 +74,27 @@ export const uploadProfileImage = async (presignedUrl, file) => {
         }
     }
 }
-
+//프로필 삭제
+export const deleteProfileImage = async (authorization) => {
+    try {
+        await axios.delete(
+            `${ROOT_URL}/members/image`,{
+                headers: {
+                    Authorization: authorization
+                }
+            }
+        );
+        return {
+            status: 'success',
+            data: null
+        }
+    } catch (err) {
+        return {
+            status: 'error',
+            data: err
+        }
+    }
+}
 //닉네임 변경
 export const updateNicknameService = async (authorization, nickname) => {
     try {
@@ -95,7 +114,6 @@ export const updateNicknameService = async (authorization, nickname) => {
         }
     }
 }
-
 //비밀번호 변경
 export const updatePasswordService = async (authorization, prevPassword, newPassword) => {
     try {
@@ -122,7 +140,6 @@ export const updatePasswordService = async (authorization, prevPassword, newPass
         }
     }
 }
-
 //회원 탈퇴
 export const deleteUserInfoService = async (authorization) => {
     try {
