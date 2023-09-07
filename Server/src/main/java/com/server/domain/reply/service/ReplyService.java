@@ -28,20 +28,20 @@ public class ReplyService {
     }
 
 
-    public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi response) {
+    public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi request) {
 
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
-//            if (!reply.getMember().getMemberId().equals(loginMemberId)) {
-//                throw new MemberAccessDeniedException();
-//            }
+            if (!reply.getMember().getMemberId().equals(loginMemberId)) {
+                throw new MemberAccessDeniedException();
+            }
 
-        reply.updateReply(response.getContent(), response.getStar());
+        reply.updateReply(request.getContent(), request.getStar());
     }
 
     public ReplyInfo getReply(Long replyId, Long loginMemberId) {
 
-        memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
+//        memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
 
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
@@ -51,6 +51,7 @@ public class ReplyService {
     public void deleteReply(Long replyId, Long loginMemberId) {
 
         // memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
+
 
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 

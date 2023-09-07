@@ -10,15 +10,21 @@ import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.service.VideoService;
+import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.replyException.ReplyNotFoundException;
 import com.server.global.testhelper.ServiceTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ReplyServiceTest extends ServiceTest {
 
@@ -72,39 +78,59 @@ class ReplyServiceTest extends ServiceTest {
 
     @Test
     @DisplayName("댓글을 삭제한다.")
-    void deleteReply(){
+    void deleteReply() {
+        // Given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
+        Reply reply = createAndSaveReply(member, video);
+        replyRepository.save(reply);
 
-        long replyId = 123L;
-        long memberId = 456L;
+        // When
+        replyService.deleteReply(reply.getReplyId(), member.getMemberId());
 
-        assertThrows(ReplyNotFoundException.class, () -> replyService.deleteReply(replyId, memberId));
+        // Then
+        Reply deletedReply = replyRepository.findById(reply.getReplyId()).orElse(null);
+        assertNull(deletedReply);
     }
 
     @Test
     @DisplayName("댓글 목록을 페이징으로 찾아서 조회한다.")
-    void getReplies(){
+    void getReplies() {
+        // Given
         Member member = createAndSaveMember();
-        memberRepository.save(member);
-
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
 
-        for(int i = 0; i < 10; i++){
-            Reply reply = Reply.builder()
-                    .content("content" + i)
-                    .star(i)
-                    .member(member)
-                    .video(video)
-                    .build();
-            replyRepository.save(reply);
+        List<Reply> replies = generateReplies(member, video, 100);
+
+        Long videoId = video.getVideoId();
+        int page = 87;
+        int size = 10;
+        ReplySort replySort = ReplySort.CREATED_DATE;
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, replySort.getSort());
+
+        when(replyRepository.findAllByVideoIdPaging(videoId, pageRequest))
+                .thenReturn(new PageImpl<>(replies.stream().map(ReplyInfo::of).collect(Collectors.toList())));
+
+        // When
+        Page<ReplyInfo> resultPage = videoService.getReplies(videoId, page, size, replySort, null);
+
+        // Then
+        verify(replyRepository).findAllByVideoIdPaging(videoId, pageRequest);
+        assertEquals(resultPage.getTotalElements(), 100);
+        assertEquals(resultPage.getNumber(), page);
+        assertEquals(resultPage.getSize(), size);
+    }
+
+    private List<Reply> generateReplies(Member member, Video video, int count) {
+        List<Reply> replies = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            Reply reply = createAndSaveReply(member, video);
+            replies.add(reply);
         }
-        replyRepository.findAll();
-
-        Page<ReplyInfo> replies = videoService.getReplies(video.getVideoId(), 1, 10, ReplySort.CREATED_DATE);
-
-        assertEquals(replies.getTotalElements(), 10);
-        assertEquals(replies.getNumber(), 1);
-        assertEquals(replies.getSize(), 10);
+        return replies;
     }
 
     @Test
@@ -148,7 +174,7 @@ class ReplyServiceTest extends ServiceTest {
         }
         replyRepository.findAll();
 
-        Page<ReplyInfo> replies = videoService.getReplies(video.getVideoId(), 1, 10,  ReplySort.STAR);
+        Page<ReplyInfo> replies = videoService.getReplies(video.getVideoId(), 1, 10,  ReplySort.STAR, null);
 
         assertEquals(replies.getTotalElements(), 10);
         assertEquals(replies.getNumber(), 1);
@@ -175,7 +201,7 @@ class ReplyServiceTest extends ServiceTest {
         }
         replyRepository.findAll();
 
-        Page<ReplyInfo> replies = videoService.getReplies(video.getVideoId(), 1, 10,  ReplySort.CREATED_DATE);
+        Page<ReplyInfo> replies = videoService.getReplies(video.getVideoId(), 1, 10,  ReplySort.CREATED_DATE, null);
 
         assertEquals(replies.getTotalElements(), 10);
         assertEquals(replies.getNumber(), 1);
@@ -202,6 +228,4 @@ class ReplyServiceTest extends ServiceTest {
 
         assertEquals(replyRepository.findById(reply.getReplyId()).get().getContent(), "content");
     }
-
-
 }

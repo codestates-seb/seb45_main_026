@@ -86,20 +86,11 @@ public class ChannelService {
     @Transactional
     public void updateChannelInfo(long ownerId, long loginMemberId, ChannelUpdate updateInfo) {
 
-
-        //Member member = memberRepository.findById(loginMemberId).get().getChannel().getMember();
-
-
-
         if (loginMemberId != ownerId) {
             throw new MemberAccessDeniedException();
         }
 
-
         Channel channel = existChannel(ownerId);
-
-        //Channel channel = existChannel(channelRepository.findByMember(loginMemberId).get().getChannelId());
-
 
         channel.updateChannel(updateInfo.getChannelName(), updateInfo.getDescription());
 
@@ -114,13 +105,11 @@ public class ChannelService {
             throw new MemberAccessDeniedException();
         }
 
-        boolean isSubscribed = isSubscribed(memberId, loginMemberId);
-
+        boolean isSubscribed = isSubscribed(loginMemberId, memberId);
 
         if (!isSubscribed) {
             subscribe(memberId, loginMemberId);
             return true;
-
 
         } else {
             unsubscribe(memberId, loginMemberId);
@@ -134,14 +123,8 @@ public class ChannelService {
 
         Member loginMember = memberRepository.findById(loginMemberId)
                 .orElseThrow(() -> new MemberNotFoundException()); //(이 부분을 빼면  .member(loginMember) 여기가 에러남)
-//
+
         Channel channel = existChannel(memberId);
-
-        if (isSubscribed(memberId, loginMemberId)) {
-            unsubscribe(memberId, loginMemberId);
-            return;
-        }
-
 
         channel.addSubscriber();
 
@@ -156,32 +139,15 @@ public class ChannelService {
     // 구독 취소
     private void unsubscribe(Long memberId, Long loginMemberId) { //이 부분 코드를 더 간결하게 못하겟음 수정할거 다 빼면 테스트코드 에러남
 
-//        if (memberId == null) {
-//            throw new ChannelNotFoundException();
-//        }
-
-//        Channel findChannel = channelRepository.findById(memberId).orElseThrow(() -> new ChannelNotFoundException());
-
-//        if (findChannel == null) {
-//            throw new ChannelNotFoundException();
-//        }
-
-
         Channel channel = existChannel(memberId);
-
-//        if (isSubscribed(loginMemberId, memberId)) {
-//            throw new RuntimeException("이미 구독을 취소하셨습니다.");
-//        }
 
         Member loginMember = memberRepository.findById(loginMemberId)
                 .orElseThrow(() -> new MemberNotFoundException());
 
-        //if (isSubscribed(loginMemberId, memberId)) {
         channel.decreaseSubscribers();
 
-        Optional<Subscribe> subscription = subscribeRepository.findByMemberAndChannel(loginMember, channel);
-
-        subscription.ifPresent(subscribeRepository::delete);
+        subscribeRepository.findByMemberAndChannel(loginMember, channel)
+                .ifPresent(subscribeRepository::delete);
     }
 
 
@@ -265,8 +231,6 @@ public class ChannelService {
 
 
     private Channel existChannel(Long memberId) {
-
-        //Member member = memberRepository.findById(loginMemberId).orElseThrow(MemberAccessDeniedException::new);
 
         return channelRepository.findByMember(memberId).orElseThrow(ChannelNotFoundException::new); //여기서 에러남 ㅠ 되돌아 오는 길에 에러남
     }

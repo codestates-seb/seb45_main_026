@@ -9,6 +9,7 @@ import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
+import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.NewReward;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.RewardType;
@@ -279,5 +280,18 @@ public abstract class RepositoryTest {
         em.persist(channel);
 
         return channel;
+    }
+
+    protected Reply createAndSaveReplies(Member member, Video video) {
+        Reply reply = Reply.builder()
+                .member(member)
+                .video(video)
+                .content("content")
+                .star(9)
+                .build();
+
+        em.persist(reply);
+
+        return reply;
     }
 }
