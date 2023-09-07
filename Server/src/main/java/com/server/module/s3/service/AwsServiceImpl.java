@@ -89,7 +89,7 @@ public class AwsServiceImpl implements AwsService {
         Duration duration = Duration.ofMinutes(10);
 
         URL presignedPutObjectUrl = getPresignedPutVideoObjectUrl(
-                memberId + "/" + fileName,
+                memberId + "/videos/" + fileName,
                 VIDEO_TYPE,
                 duration);
 
