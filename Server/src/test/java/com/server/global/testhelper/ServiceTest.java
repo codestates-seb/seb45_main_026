@@ -1,6 +1,7 @@
 package com.server.global.testhelper;
 
 import com.server.domain.announcement.repository.AnnouncementRepository;
+import com.server.domain.answer.entity.Answer;
 import com.server.domain.answer.repository.AnswerRepository;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.cart.repository.CartRepository;
@@ -162,7 +163,7 @@ public abstract class ServiceTest {
         return video;
     }
 
-    protected Video createAndSavePurchasedVideo(Member member, Channel channel) {
+    protected Video createAndSavePurchasedVideo(Member member) {
         Video video = Video.builder()
                 .videoName("title")
                 .description("description")
@@ -172,7 +173,7 @@ public abstract class ServiceTest {
                 .star(0.0F)
                 .price(1000)
                 .videoStatus(VideoStatus.CREATED)
-                .channel(channel)
+                .channel(member.getChannel())
                 .build();
 
         Order order = Order.createOrder(member, List.of(video), 0);
@@ -292,5 +293,12 @@ public abstract class ServiceTest {
         Cart cart = Cart.createCart(member, video, video.getPrice());
 
         return cartRepository.save(cart);
+    }
+
+    protected Answer createAndSaveAnswer(Member loginMember, Question question) {
+
+        Answer answer = Answer.createAnswer("1", loginMember, question);
+
+        return answerRepository.save(answer);
     }
 }

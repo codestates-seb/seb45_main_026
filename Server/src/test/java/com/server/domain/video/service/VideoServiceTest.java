@@ -681,19 +681,18 @@ class VideoServiceTest extends ServiceTest {
     }
 
     @Test
-    @DisplayName("video 소유자는 video 를 삭제할 수 있다.")
+    @DisplayName("video 소유자는 video 를 삭제할 수 있다. 삭제하면 video status 가 close 가 된다.")
     void deleteVideo() {
         //given
         Member owner = createAndSaveMember();
         Channel channel = createAndSaveChannel(owner);
-
         Video video = createAndSaveVideo(channel);
 
         //when
         videoService.deleteVideo(owner.getMemberId(), video.getVideoId());
 
         //then
-        assertThat(videoRepository.findById(video.getVideoId()).isEmpty()).isTrue();
+        assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.CLOSED);
     }
 
     @Test

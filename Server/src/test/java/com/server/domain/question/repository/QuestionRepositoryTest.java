@@ -30,22 +30,27 @@ class QuestionRepositoryTest extends RepositoryTest {
     @DisplayName("member Id 와 QuestionId 로 해당 Question 정보를 조회한다.")
     void findQuestionWithMemberAnswer() {
         //given
-        Member member = createAndSaveMember();
-        Member otherMember = createAndSaveMember();
-
-        Channel channel = createAndSaveChannel(member);
-        Video video = createAndSaveVideo(channel);
-        Order order = createAndSaveOrder(member, List.of(video));
-
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         List<Question> questions = createAndSaveQuestions(video);
         Question question = questions.get(0);
+
+        Member member = createMemberWithChannel();
+        Order order = createAndSaveOrder(member, List.of(video));
+
+        Member otherMember = createAndSaveMember();
+
         Answer answer = createAndSaveAnswer(member, question);// 1번 문제에 대한 답을 저장한다.
         Answer otherAnswer = createAndSaveAnswer(otherMember, question);// 다른 member 도 1번 문제에 대한 답을 저장한다.
 
         em.flush();
         em.clear();
 
-        QuestionData questionData = questionRepository.findQuestionDataWithMemberAnswer(member.getMemberId(), question.getQuestionId()).orElseThrow();
+        QuestionData questionData =
+                questionRepository.findQuestionDataWithMemberAnswer(
+                        member.getMemberId(),
+                        question.getQuestionId())
+                .orElseThrow();
 
         //then
         assertThat(questionData.getQuestionId()).isEqualTo(question.getQuestionId());
@@ -67,22 +72,22 @@ class QuestionRepositoryTest extends RepositoryTest {
     @DisplayName("member 가 Question 을 풀지 않아도 Question 정보를 조회할 수 있다.")
     void findQuestionWithMemberAnswerWithoutSolving() {
         //given
-        Member member = createAndSaveMember();
-        Member otherMember = createAndSaveMember();
-
-        Channel channel = createAndSaveChannel(member);
-
-        Video video = createAndSaveVideo(channel);
-        Order order = createAndSaveOrder(member, List.of(video));
-
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         List<Question> questions = createAndSaveQuestions(video);
         Question question = questions.get(0);
-        Answer otherAnswer = createAndSaveAnswer(otherMember, question);// 다른 member 도 1번 문제에 대한 답을 저장한다.
+
+        Member member = createMemberWithChannel();
+        Order order = createAndSaveOrder(member, List.of(video));
+
+        Member otherMember = createMemberWithChannel();
+        Answer otherAnswer = createAndSaveAnswer(otherMember, question);// 다른 member 는 1번 문제에 대한 답을 저장한다.
 
         em.flush();
         em.clear();
 
-        QuestionData questionData = questionRepository.findQuestionDataWithMemberAnswer(member.getMemberId(), question.getQuestionId()).orElseThrow();
+        QuestionData questionData =
+                questionRepository.findQuestionDataWithMemberAnswer(member.getMemberId(), question.getQuestionId()).orElseThrow();
 
         //then
         assertThat(questionData.getQuestionId()).isEqualTo(question.getQuestionId());
@@ -100,13 +105,9 @@ class QuestionRepositoryTest extends RepositoryTest {
     @DisplayName("questionId 로 video 를 찾는다.")
     void findVideoWithQuestion() {
         //given
-        Member member = createAndSaveMember();
-        Channel channel = createAndSaveChannel(member);
-
-        Video video = createAndSaveVideo(channel);
-
-        List<Question> questions = createAndSaveQuestions(video);
-        Question question = questions.get(0);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+        Question question = createAndSaveQuestion(video);
 
         em.flush();
         em.clear();
@@ -123,16 +124,14 @@ class QuestionRepositoryTest extends RepositoryTest {
     @DisplayName("memberId 와 videoId 로 해당 video 의 모든 question 정보를 조회한다.")
     void findQuestionDatasWithMemberAnswerByVideoId() {
         //given
-        Member member = createAndSaveMember();
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+        List<Question> questions = createAndSaveQuestions(video);
 
-        Channel channel = createAndSaveChannel(member);
-
-        Video video = createAndSaveVideo(channel);
+        Member member = createMemberWithChannel();
         Order order = createAndSaveOrder(member, List.of(video));
 
-        List<Question> questions = createAndSaveQuestions(video);
-        Question question = questions.get(0);
-        Answer answer = createAndSaveAnswer(member, question); //한 문제는 품
+        Answer answer = createAndSaveAnswer(member, questions.get(0)); //한 문제는 품
 
         em.flush();
         em.clear();
@@ -161,9 +160,8 @@ class QuestionRepositoryTest extends RepositoryTest {
     @DisplayName("videoId 로 해당 video 의 모든 question 정보를 조회한다. video 도 초기화되어있다.")
     void findByVideoId() {
         //given
-        Member member = createAndSaveMember();
-        Channel channel = createAndSaveChannel(member);
-        Video video = createAndSaveVideo(channel);
+        Member member = createMemberWithChannel();
+        Video video = createAndSaveVideo(member.getChannel());
         List<Question> questions = createAndSaveQuestions(video);
 
         em.flush();
