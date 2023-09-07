@@ -27,6 +27,7 @@ import com.server.global.exception.businessexception.categoryexception.CategoryN
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
+import com.server.global.exception.businessexception.videoexception.VideoNameDuplicateException;
 import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
 import com.server.global.exception.businessexception.videoexception.VideoClosedException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
@@ -115,6 +116,8 @@ public class VideoService {
     public VideoCreateUrlResponse getVideoCreateUrl(Long loginMemberId, VideoCreateUrlServiceRequest request) {
 
         Member member = verifiedMemberWithChannel(loginMemberId);
+
+        checkDuplicateVideoNameInChannel(loginMemberId, request.getFileName());
 
         Video video = Video.createVideo(
                 member.getChannel(),
@@ -317,6 +320,14 @@ public class VideoService {
 
         return videoRepository.findVideoByNameWithMember(memberId, videoName)
                 .orElseThrow(VideoNotFoundException::new);
+    }
+
+    private void checkDuplicateVideoNameInChannel(Long memberId, String videoName) {
+
+        videoRepository.findVideoByNameWithMember(memberId, videoName)
+                .ifPresent(video -> {
+                    throw new VideoNameDuplicateException();
+                });
     }
 
     private void watch(Member member, Video video) {

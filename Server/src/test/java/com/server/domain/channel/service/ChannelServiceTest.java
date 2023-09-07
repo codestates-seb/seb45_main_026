@@ -58,9 +58,13 @@ class ChannelServiceTest extends ServiceTest {
 
         ChannelVideoGetServiceRequest request = ChannelVideoGetServiceRequest.builder()
                 .memberId(owner1.getMemberId())
+                .loginMemberId(loginMember.getMemberId())
                 .page(0)
                 .size(10)
                 .categoryName(null)
+                .free(null)
+                .isPurchased(true)
+                .sort(null)
                 .build();
 
         //when
