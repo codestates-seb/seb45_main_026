@@ -11,7 +11,6 @@ import { Link } from "react-router-dom";
 const DetailVideo = () => {
   const dispatch = useDispatch();
   const videoDatas = useSelector((state) => state.videoInfo.data);
-  console.log(videoDatas);
 
   return (
     <VideoContainer>

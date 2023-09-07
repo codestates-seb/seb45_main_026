@@ -2,6 +2,8 @@ import React from "react";
 import tokens from "../../styles/tokens.json";
 import { styled } from "styled-components";
 import yellowStar from "../../assets/images/icons/star/starYellow.svg"
+import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
+import { useNavigate } from "react-router-dom";
 
 const globalTokens = tokens.global;
 
@@ -11,6 +13,7 @@ const ComponentBody = styled.li`
     display: flex;
     flex-direction: row;
     border-radius: ${globalTokens.RegularRadius.value}px;
+    background-color: lightgray;
 `
 const ThumbnailContainer = styled.div`
     width: 300px;
@@ -22,6 +25,9 @@ const ThumbnailContainer = styled.div`
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    &:hover{
+      cursor: pointer;
+    }
 `
 const Thumbnail = styled.img`
     object-fit: cover;
@@ -45,6 +51,9 @@ const Title = styled.h3`
     height: 60px;
     font-size: ${globalTokens.Heading5.value}px;
     padding: ${globalTokens.Spacing4.value}px;
+    &:hover{
+      cursor: pointer;
+    }
 `
 const Description = styled.div`
     width: 100%;
@@ -86,9 +95,9 @@ const AuthorContainer = styled.div`
     gap: ${globalTokens.Spacing4.value}px;
 `
 const ProfileImg = styled.img`
-    max-height: 40px;
-    height: auto;
-    width: auto;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
 `
 const ImgContainer = styled.div`
     width: 40px;
@@ -101,6 +110,9 @@ const ImgContainer = styled.div`
     align-items: center;
     overflow: hidden;
     border: 1px solid lightgray;
+    &:hover{
+      cursor: pointer;
+    }
 `
 
 const AuthorName = styled.span`
@@ -108,6 +120,9 @@ const AuthorName = styled.span`
     font-weight: ${globalTokens.Bold.value};
     font-size: ${globalTokens.BodyText.value}px;
     margin-right: ${globalTokens.Spacing8.value}px;
+    &:hover{
+      cursor: pointer;
+    }
 `
 const CreatedAt = styled.span`
     height: 20px;
@@ -136,26 +151,36 @@ const PriceText = styled.div`
 
 export default function HorizonItem({lecture, channel}) {
   const {videoName,thumbnailUrl,createdDate,isPurchased,price,star,description}=lecture
+  const navigate=useNavigate()
   const date = new Date(createdDate);
   date.setHours(date.getHours() + 9);
   const month = (date.getMonth() + 1).toString().padStart(2, "0"); // 월은 0부터 시작하므로 +1
   const day = date.getDate().toString().padStart(2, "0");
     return (
       <ComponentBody>
-        <ThumbnailContainer>
+        <ThumbnailContainer onClick={()=>navigate(`/videos/${lecture.videoId}`)}>
           <Thumbnail src={thumbnailUrl} alt="thumbnail" />
         </ThumbnailContainer>
         <ItemInfors>
-          <Title>{videoName}</Title>
+          <Title onClick={()=>navigate(`/videos/${lecture.videoId}`)} >{videoName}</Title>
           <Description>{description}</Description>
           <InforContainer>
             <InforContainerLeft>
               <AuthorContainer>
-                <ImgContainer>
-                  <ProfileImg src={channel.imageUrl} alt="profile" />
+                <ImgContainer onClick={()=>navigate(`/channels/${channel.memberId}`)}>
+                  <ProfileImg
+                    src={
+                      channel.imageUrl
+                        ? channel.imageUrl
+                        : frofileGray
+                    }
+                    alt="profile"
+                  />
                 </ImgContainer>
-                <AuthorName>{channel.channelName}</AuthorName>
-                <CreatedAt>{month}월{day}일 업로드됨</CreatedAt>
+                <AuthorName onClick={()=>navigate(`/channels/${channel.memberId}`)}>{channel.channelName}</AuthorName>
+                <CreatedAt>
+                  {month}월{day}일 업로드됨
+                </CreatedAt>
               </AuthorContainer>
             </InforContainerLeft>
             <InforContainerRight>
@@ -167,7 +192,7 @@ export default function HorizonItem({lecture, channel}) {
                 <StarImage src={yellowStar} />
                 <StarImage src={yellowStar} />
               </ScoreContainer>
-              {isPurchased?<PriceText>구매됨</PriceText>:<PriceText>{price}원</PriceText>}
+              {isPurchased ? <PriceText>구매됨</PriceText> : lecture.price?<PriceText>{price}원</PriceText>:<></>}
             </InforContainerRight>
           </InforContainer>
         </ItemInfors>

@@ -10,11 +10,13 @@ import ChannelNotice from "../../components/contentListItems/ChannelNotice";
 import axios from "axios";
 import frofileGray from "../../assets/images/icons/profile/profileGray.svg"
 import Setting from '../../components/contentListItems/Setting';
+import { useParams } from "react-router";
 
 const globalTokens = tokens.global;
 
 const ChannelMainContainer = styled(MainContainer)`
   min-width: 600px;
+  min-height: 700px;
   border: none;
 `
 const ProfileContainer = styled.div`
@@ -69,34 +71,59 @@ const ChannelDescription = styled.div`
 
 export default function ChannelPage() {
   const isDark = useSelector((state) => state.uiSetting.isDark);
+  const accessToken = useSelector(state=>state.loginInfo.accessToken);
   const [navigate, setNavigate] = useState(0)
-  const [channelInfor,setChannelInfor]=useState({})
+  const [channelInfor, setChannelInfor] = useState({})
+  const { userId } = useParams();
   useEffect(() => {
-    axios.get("https://api.itprometheus.net/channels/4")
-      .then(res => setChannelInfor(res.data.data))
-      .catch(err=>console.log(err))
+    axios
+      .get(`https://api.itprometheus.net/channels/${userId}`, {
+        headers: { Authorization: accessToken.authorization },
+      })
+      .then((res) => setChannelInfor(res.data.data))
+      .catch((err) => console.log(err));
   },[])
     return (
       <PageContainer isDark={isDark}>
         <ChannelMainContainer>
           <ProfileContainer>
             <ImgContainer>
-              <ProfileImg src={channelInfor.imageUrl?channelInfor.imageUrl:frofileGray} />
+              <ProfileImg
+                src={
+                  channelInfor.imageUrl ? channelInfor.imageUrl : frofileGray
+                }
+              />
             </ImgContainer>
             <InforContainer>
               <ChannelTitle>{channelInfor.channelName}</ChannelTitle>
-              <ChannelSubscribers>구독자 {channelInfor.subscribers}명</ChannelSubscribers>
-              <ChannelDescription>{channelInfor.description?channelInfor.description:"아직 채널 소개가 없습니다"}</ChannelDescription>
+              <ChannelSubscribers>
+                구독자 {channelInfor.subscribers}명
+              </ChannelSubscribers>
+              <ChannelDescription>
+                {channelInfor.description
+                  ? channelInfor.description
+                  : "아직 채널 소개가 없습니다"}
+              </ChannelDescription>
             </InforContainer>
           </ProfileContainer>
           <ChannelNav navigate={navigate} setNavigate={setNavigate} />
-          {
-            navigate === 0 ? 
-            <ChannelHome channelInfor={channelInfor} />
-            : navigate===1?<ChannelList channelInfor={channelInfor}/>
-            : navigate===2?<ChannelNotice/>
-            : <Setting/>
-          }
+          {navigate === 0 ? (
+            <ChannelHome
+              channelInfor={channelInfor}
+              accessToken={accessToken}
+              userId={userId}
+            />
+          ) : navigate === 1 ? (
+            <ChannelList
+              channelInfor={channelInfor}
+              accessToken={accessToken}
+              userId={userId}
+            />
+          ) : navigate === 2 ? (
+            <ChannelNotice />
+          ) : (
+            <Setting />
+          )}
         </ChannelMainContainer>
       </PageContainer>
     );
