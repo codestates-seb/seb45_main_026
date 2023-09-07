@@ -836,7 +836,8 @@ public class MemberControllerTest extends ControllerTest {
 						fieldWithPath("data[].profileImageUrl").description("해당 채널의 회원 프로필 이미지"),
 						fieldWithPath("data[].videoCount").description("해당 채널에서 구매한 영상의 수"),
 						fieldWithPath("data[].isSubscribed").description("해당 채널의 구독 여부"),
-						fieldWithPath("data[].subscribers").description("해당 채널의 구독자 수")
+						fieldWithPath("data[].subscribers").description("해당 채널의 구독자 수"),
+						fieldWithPath("data[].list").description("빈 배열")
 					)
 				)
 			);

@@ -1,5 +1,7 @@
 package com.server.domain.member.service.dto.response;
 
+import java.util.ArrayList;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,4 +18,6 @@ public class PlaylistChannelResponse {
 	private Long videoCount;
 	private Boolean isSubscribed;
 	private Integer subscribers;
+	@Builder.Default
+	private ArrayList<Object> list = new ArrayList<>();
 }
