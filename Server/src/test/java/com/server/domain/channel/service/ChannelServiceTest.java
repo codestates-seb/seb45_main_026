@@ -45,7 +45,6 @@ class ChannelServiceTest extends ServiceTest {
         Category category2 = createAndSaveCategory("spring");
 
         Member owner1 = createMemberWithChannel();
-
         Member owner2 = createMemberWithChannel();
 
         List<Video> videos1 = createAndSaveVideos(owner1, 60, category1, category2);
@@ -73,6 +72,120 @@ class ChannelServiceTest extends ServiceTest {
         assertThat(videos.getSize()).isEqualTo(10);
         assertThat(videos.getContent()).extracting("videoId")
                 .containsAnyElementsOf(videos1.stream().map(Video::getVideoId).collect(Collectors.toList()));
+    }
+
+    @Test
+    @DisplayName("채널의 비디오 목록을 조회할 때 구매된 비디오는 구매되었다고 표시된다.")
+    void getChannelVideosPurchase() {
+        //given
+        Member owner = createMemberWithChannel();
+
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
+
+        Member loginMember = createMemberWithChannel(); // 로그인한 회원
+        createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video1), 0);
+
+        em.flush();
+        em.clear();
+
+        ChannelVideoGetServiceRequest request = ChannelVideoGetServiceRequest.builder()
+                .memberId(owner.getMemberId())
+                .page(0)
+                .size(10)
+                .categoryName(null)
+                .free(null)
+                .isPurchased(true)
+                .sort(null)
+                .build();
+
+        //when
+        Page<ChannelVideoResponse> videos = channelService.getChannelVideos(loginMember.getMemberId(), request);
+
+        //then
+        assertThat(findVideo(video1, videos).getIsPurchased()).isTrue();
+        assertThat(findVideo(video2, videos).getIsPurchased()).isFalse();
+    }
+
+    @Test
+    @DisplayName("채널의 비디오 목록을 조회할 때 장바구니에 담긴 비디오는 장바구니에 담겼다고 표시된다.")
+    void getChannelVideosInCart() {
+        //given
+        Member owner = createMemberWithChannel();
+
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
+
+        Member loginMember = createMemberWithChannel(); // 로그인한 회원
+        createAndSaveCartWithVideo(loginMember, video1); // 장바구니에 담기
+
+        em.flush();
+        em.clear();
+
+        ChannelVideoGetServiceRequest request = ChannelVideoGetServiceRequest.builder()
+                .memberId(owner.getMemberId())
+                .page(0)
+                .size(10)
+                .categoryName(null)
+                .free(null)
+                .isPurchased(true)
+                .sort(null)
+                .build();
+
+        //when
+        Page<ChannelVideoResponse> videos = channelService.getChannelVideos(loginMember.getMemberId(), request);
+
+        //then
+        assertThat(findVideo(video1, videos).getIsInCart()).isTrue();
+        assertThat(findVideo(video2, videos).getIsInCart()).isFalse();
+    }
+
+    @Test
+    @DisplayName("채널의 비디오 목록을 조회할 때 비디오의 카테고리는 모두 조회한다.")
+    void getChannelVideosWithCategory() {
+        //given
+        Category category1 = createAndSaveCategory("java");
+        Category category2 = createAndSaveCategory("spring");
+
+        Member owner = createMemberWithChannel();
+
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
+
+        createAndSaveVideoCategory(video1, category1);
+        createAndSaveVideoCategory(video2, category1, category2);
+
+        Member loginMember = createMemberWithChannel(); // 로그인한 회원
+
+        em.flush();
+        em.clear();
+
+        ChannelVideoGetServiceRequest request = ChannelVideoGetServiceRequest.builder()
+                .memberId(owner.getMemberId())
+                .page(0)
+                .size(10)
+                .categoryName(null)
+                .free(null)
+                .isPurchased(true)
+                .sort(null)
+                .build();
+
+        //when
+        Page<ChannelVideoResponse> videos = channelService.getChannelVideos(loginMember.getMemberId(), request);
+
+        //then
+        assertThat(findVideo(video1, videos).getCategories())
+                .extracting("categoryName")
+                .containsExactlyInAnyOrder("java");
+        assertThat(findVideo(video2, videos).getCategories())
+                .extracting("categoryName")
+                .containsExactlyInAnyOrder("java", "spring");
+    }
+
+    private ChannelVideoResponse findVideo(Video video1, Page<ChannelVideoResponse> videos) {
+        return videos.getContent().stream()
+                .filter(cr -> cr.getVideoId().equals(video1.getVideoId()))
+                .findFirst().orElseThrow();
     }
 
     private List<Video> createAndSaveVideos(Member member, int count, Category category1, Category category2) {
