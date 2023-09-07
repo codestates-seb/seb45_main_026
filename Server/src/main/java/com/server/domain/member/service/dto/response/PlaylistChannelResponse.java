@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class PlaylistChannelResponse {
 	private Long memberId; // 채널 소유자인 회원의 아이디
 	private String channelName;
-	private String profileImageUrl;
+	private String imageUrl;
 	private Long videoCount;
 	private Boolean isSubscribed;
 	private Integer subscribers;

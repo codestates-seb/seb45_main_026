@@ -86,7 +86,7 @@ public class MemberResponseConverter {
 					PlaylistsResponse.Channel.builder()
 						.memberId(video.getChannel().getMember().getMemberId())
 						.channelName(video.getChannel().getChannelName())
-						.profileImageUrl(getProfileUrl(memberId, member.getImageFile()))
+						.imageUrl(getProfileUrl(memberId, member.getImageFile()))
 						.build()
 				)
 				.build();
@@ -107,7 +107,7 @@ public class MemberResponseConverter {
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(memberId)
 					.channelName(watch.getVideo().getChannel().getChannelName())
-					.profileImageUrl(getProfileUrl(memberId, member.getImageFile()))
+					.imageUrl(getProfileUrl(memberId, member.getImageFile()))
 					.build())
 				.build();
 			}
@@ -153,7 +153,7 @@ public class MemberResponseConverter {
 				return PlaylistChannelResponse.builder()
 					.memberId(memberId)
 					.channelName(channelName)
-					.profileImageUrl(getProfileUrl(memberId, imageFile))
+					.imageUrl(getProfileUrl(memberId, imageFile))
 					.videoCount(videoCount)
 					.subscribers(subscribers)
 					.isSubscribed(isSubscribed)
@@ -167,9 +167,10 @@ public class MemberResponseConverter {
 				.videoId(video.getVideoId())
 				.videoName(video.getVideoName())
 				.description(video.getDescription())
-				.thumbnailImageUrl(getThumbnailUrl(memberId, video.getThumbnailFile()))
+				.thumbnailUrl(getThumbnailUrl(memberId, video.getThumbnailFile()))
 				.view(video.getView())
 				.star(video.getStar())
+				.createdDate(video.getCreatedDate())
 				.build()
 		);
 	}
