@@ -165,4 +165,8 @@ public class Video extends BaseEntity implements Rewardable {
             throw new VideoAlreadyCreatedException();
         }
     }
+
+    public Long getMemberId() {
+        return this.channel.getMember().getMemberId();
+    }
 }

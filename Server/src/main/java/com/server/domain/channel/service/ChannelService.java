@@ -18,13 +18,11 @@ import com.server.global.exception.businessexception.memberexception.MemberNotFo
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -92,7 +90,6 @@ public class ChannelService {
         Channel channel = existChannel(ownerId);
 
         channel.updateChannel(updateInfo.getChannelName(), updateInfo.getDescription());
-
     }
 
 
@@ -154,7 +151,7 @@ public class ChannelService {
 
         Member member = verifiedMemberOrNull(loginMemberId);
 
-        Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request.toDataRequest(loginMemberId));
+        Page<Video> videos = videoRepository.findChannelVideoByCond(request.toDataRequest(loginMemberId));
 
         List<Boolean> isPurchaseInOrder = isPurchaseInOrder(member, videos.getContent());
 
@@ -186,7 +183,6 @@ public class ChannelService {
 
     }
 
-
     private List<Boolean> isPurchaseInOrder(Member loginMember, List<Video> videos) {
 
         if(loginMember == null) {
@@ -205,13 +201,12 @@ public class ChannelService {
     private List<String> getThumbnailUrlsInOrder(List<Video> videos) {
 
         return videos.stream()
-                .map(video ->
-                        getThumbnailUrl(video.getChannel().getMember().getMemberId(), video))
+                .map(this::getThumbnailUrl)
                 .collect(Collectors.toList());
     }
 
-    private String getThumbnailUrl(Long memberId, Video video) {
-        return awsService.getFileUrl(memberId, video.getThumbnailFile(), FileType.THUMBNAIL);
+    private String getThumbnailUrl(Video video) {
+        return awsService.getFileUrl(video.getMemberId(), video.getThumbnailFile(), FileType.THUMBNAIL);
     }
 
     private List<Long> getVideoIdsInCart(Member loginMember, List<Video> videos) {
@@ -226,7 +221,6 @@ public class ChannelService {
 
         return videoRepository.findVideoIdInCart(loginMember.getMemberId(), videoIds);
     }
-
 
     private Channel existChannel(Long memberId) {
 

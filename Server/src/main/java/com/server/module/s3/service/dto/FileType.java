@@ -22,15 +22,15 @@ public enum FileType implements BaseEnum {
 
     private final String description;
     private final boolean requiredAuth;
-    private final Function<List<String>, String> getUrl;
-    private final Function<List<String>, String> deleteUrl;
+    private final Function<List<String>, String> cloudFrontUrl;
+    private final Function<List<String>, String> s3Url;
 
     public String getLocation(Long memberId, String path) {
-        return this.getUrl.apply(List.of(String.valueOf(memberId), path));
+        return this.cloudFrontUrl.apply(List.of(String.valueOf(memberId), path));
     }
 
     public String s3Location(Long memberId, String path) {
-        return this.deleteUrl.apply(List.of(String.valueOf(memberId), path));
+        return this.s3Url.apply(List.of(String.valueOf(memberId), path));
     }
 
     private static String getImageCloudFrontUrl(){

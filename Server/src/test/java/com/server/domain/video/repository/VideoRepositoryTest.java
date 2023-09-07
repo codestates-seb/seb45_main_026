@@ -126,7 +126,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         true);
 
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 assertThat(videos.getContent())
@@ -145,7 +145,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         true);
 
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 assertThat(videos.getContent())
@@ -164,7 +164,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         true);
 
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 assertThat(videos.getContent().get(0).getVideoId()).isEqualTo(video3.getVideoId());
@@ -184,7 +184,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         null,
                         true);
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 assertThat(videos.getContent()).hasSize(6);
@@ -206,7 +206,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         true);
 
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 assertThat(videos.getContent())
@@ -224,7 +224,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         true);
 
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 assertThat(videos.getContent().get(0).getVideoId()).isEqualTo(video3.getVideoId());
@@ -247,7 +247,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         null,
                         true);
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 assertThat(videos.getContent().get(0).getVideoId()).isEqualTo(video2.getVideoId());
@@ -270,7 +270,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         true);
 
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 assertThat(videos.getContent())
@@ -292,7 +292,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         true);
 
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 assertThat(videos.getContent())
@@ -314,7 +314,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         true);
 
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 assertThat(videos.getContent())
@@ -336,7 +336,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         true);
 
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 assertThat(videos.getContent().get(0).getVideoId()).isEqualTo(video2.getVideoId());
@@ -360,7 +360,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         true);
 
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 videos.getContent().forEach(video ->
@@ -378,7 +378,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         true);
 
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 assertThat(videos.getContent())
@@ -398,7 +398,7 @@ class VideoRepositoryTest extends RepositoryTest {
                         false);
 
                 //when
-                Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                Page<Video> videos = videoRepository.findAllByCond(request);
 
                 //then
                 assertThat(videos.getContent())
@@ -450,7 +450,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             true);
 
                     //when
-                    Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                    Page<Video> videos = videoRepository.findAllByCond(request);
 
                     //then
                     assertThat(videos.getContent().size()).isEqualTo(10);
@@ -475,7 +475,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             true);
 
                     //when
-                    Page<Video> videos = videoRepository.findAllByCategoryPaging(request);
+                    Page<Video> videos = videoRepository.findAllByCond(request);
 
                     //then
                     assertThat(videos.getContent().size()).isEqualTo(12);
@@ -636,7 +636,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             true);
 
                     //when
-                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request);
+                    Page<Video> videos = videoRepository.findChannelVideoByCond(request);
 
                     //then
                     assertThat(videos.getContent()).hasSize(6)
@@ -659,7 +659,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             true);
 
                     //when
-                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request);
+                    Page<Video> videos = videoRepository.findChannelVideoByCond(request);
 
                     //then
                     assertThat(videos.getContent()).hasSize(6);
@@ -682,7 +682,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             true);
 
                     //when
-                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request);
+                    Page<Video> videos = videoRepository.findChannelVideoByCond(request);
 
                     //then
                     assertThat(videos.getContent()).hasSize(6);
@@ -705,7 +705,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             true);
 
                     //when
-                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request);
+                    Page<Video> videos = videoRepository.findChannelVideoByCond(request);
 
                     //then
                     assertHasCategoryName(assertThat(videos.getContent()).hasSize(4), "java");
@@ -722,7 +722,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             true);
 
                     //when
-                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request);
+                    Page<Video> videos = videoRepository.findChannelVideoByCond(request);
 
                     //then
                     assertHasCategoryName(assertThat(videos.getContent()).hasSize(3), "spring");
@@ -739,7 +739,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             true);
 
                     //when
-                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request);
+                    Page<Video> videos = videoRepository.findChannelVideoByCond(request);
 
                     //then
                     assertThat(videos.getContent().get(0).getVideoId()).isEqualTo(video2.getVideoId());
@@ -762,7 +762,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             true);
 
                     //when
-                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request);
+                    Page<Video> videos = videoRepository.findChannelVideoByCond(request);
 
                     //then
                     assertThat(videos.getContent().get(0).getVideoId()).isEqualTo(video3.getVideoId());
@@ -785,7 +785,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             true);
 
                     //when
-                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request);
+                    Page<Video> videos = videoRepository.findChannelVideoByCond(request);
 
                     //then
                     assertThat(videos.getContent()).hasSize(10)
@@ -805,7 +805,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             true);
 
                     //when
-                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request);
+                    Page<Video> videos = videoRepository.findChannelVideoByCond(request);
 
                     //then
                     videos.getContent().forEach(video ->
@@ -823,7 +823,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             true);
 
                     //when
-                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request);
+                    Page<Video> videos = videoRepository.findChannelVideoByCond(request);
 
                     //then
                     assertThat(videos.getContent())
@@ -843,7 +843,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             false);
 
                     //when
-                    Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request);
+                    Page<Video> videos = videoRepository.findChannelVideoByCond(request);
 
                     //then
                     assertThat(videos.getContent())

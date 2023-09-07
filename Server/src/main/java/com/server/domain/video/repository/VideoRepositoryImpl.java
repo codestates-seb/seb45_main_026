@@ -64,7 +64,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
     }
 
     @Override
-    public Page<Video> findAllByCategoryPaging(VideoGetDataRequest request) {
+    public Page<Video> findAllByCond(VideoGetDataRequest request) {
 
         QMember subscribedMember = new QMember("subscribedMember");
 
@@ -186,7 +186,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
     }
 
     @Override
-    public Page<Video> findChannelVideoByCategoryPaging(ChannelVideoGetDataRequest request) {
+    public Page<Video> findChannelVideoByCond(ChannelVideoGetDataRequest request) {
 
 
         JPAQuery<Video> query = queryFactory
