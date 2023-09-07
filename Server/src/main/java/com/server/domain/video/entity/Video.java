@@ -11,6 +11,7 @@ import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.entity.BaseEntity;
+import com.server.global.exception.businessexception.videoexception.VideoAlreadyCreatedException;
 import lombok.*;
 
 import javax.persistence.*;
@@ -137,6 +138,9 @@ public class Video extends BaseEntity implements Rewardable {
     }
 
     public void additionalCreateProcess(Integer price, String description) {
+
+        checkIsUploading();
+
         this.price = price;
         this.description = description;
         this.videoStatus = VideoStatus.CREATED;
@@ -150,5 +154,11 @@ public class Video extends BaseEntity implements Rewardable {
 
     public void close() {
         this.videoStatus = VideoStatus.CLOSED;
+    }
+
+    private void checkIsUploading() {
+        if(this.videoStatus != VideoStatus.UPLOADING) {
+            throw new VideoAlreadyCreatedException();
+        }
     }
 }
