@@ -5,6 +5,7 @@ import yellowStar from "../../assets/images/icons/star/starYellow.svg"
 import blankStar from "../../assets/images/icons/star/starWhite.svg"
 import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const globalTokens = tokens.global;
 
@@ -129,6 +130,7 @@ const ScoreText = styled.span`
 `
 
 export default function VerticalItem({ lecture ,channel}) { 
+  const isDark = useSelector(state=>state.uiSetting.isDark);
   const {videoName,thumbnailUrl,createdDate,isPurchased,price,star}=lecture
   const navigate=useNavigate()
   const date = new Date(createdDate);
