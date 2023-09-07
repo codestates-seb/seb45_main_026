@@ -837,7 +837,7 @@ public class MemberControllerTest extends ControllerTest {
 						fieldWithPath("data[].videoCount").description("해당 채널에서 구매한 영상의 수"),
 						fieldWithPath("data[].isSubscribed").description("해당 채널의 구독 여부"),
 						fieldWithPath("data[].subscribers").description("해당 채널의 구독자 수"),
-						fieldWithPath("data[].list").description("빈 배열")
+						fieldWithPath("data[].list").description("비디오를 담을 빈 배열")
 					)
 				)
 			);
