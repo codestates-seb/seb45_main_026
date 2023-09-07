@@ -249,11 +249,12 @@ public abstract class ServiceTest {
     }
 
     protected Reply createAndSaveReply(Member member, Video video) {
-        Reply reply = new Reply();
-        reply.setMember(member);
-        reply.setVideo(video);
-        reply.setContent("content");
-        reply.setStar(0);
+        Reply reply = Reply.builder()
+                .content("content")
+                .star(1)
+                .member(member)
+                .video(video)
+                .build();
 
         replyRepository.save(reply);
 

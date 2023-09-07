@@ -901,11 +901,12 @@ class VideoRepositoryTest extends RepositoryTest {
     }
 
     private void createAndSaveReply(Member member, Video video) {
-        Reply reply = new Reply();
-        reply.setMember(member);
-        reply.setVideo(video);
-        reply.setContent("reply");
-        reply.setStar(5);
+        Reply reply = Reply.builder()
+                .member(member)
+                .video(video)
+                .content("reply")
+                .star(5)
+                .build();
 
         em.persist(reply);
     }

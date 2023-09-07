@@ -406,37 +406,4 @@ public class VideoService {
         cartRepository.save(Cart.createCart(member, video, video.getPrice()));
         return true;
     }
-
-    public Page<ReplyInfo> getReplies(Long videoId, int page, int size, ReplySort replySort, Integer star) {
-        Sort sort = Sort.by(Sort.Direction.DESC, replySort.getSort());
-        PageRequest pageRequest = PageRequest.of(page, size, sort); //
-
-        if (star != null) { //(별점 필터링 o)
-            return replyRepository.findAllByVideoIdAndStarOrStarIsNull(videoId, star, pageRequest);
-        } else { //(별점 필터링 x)
-            return replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
-        }
-    }
-
-    public Long createReply(Long loginMemberId, Long videoId, ReplyCreateServiceApi request) {
-        Member member = memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberAccessDeniedException());
-        Integer star = request.getStar();
-
-        if (star < 1 || star > 10) {
-            throw new ReplyNotValidException();
-        }
-
-        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException());
-
-        ReplyCreateResponse response = ReplyCreateResponse.builder()
-                .content(request.getContent())
-                .star(request.getStar())
-                .member(member)
-                .video(video)
-                .build();
-
-        Reply savedReply = replyRepository.save(response.toEntity());
-
-        return savedReply.getReplyId();
-    }
 }
