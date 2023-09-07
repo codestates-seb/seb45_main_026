@@ -105,11 +105,9 @@ public class ChannelService {
 
         boolean isSubscribed = isSubscribed(loginMemberId, memberId);
 
-
         if (!isSubscribed) {
             subscribe(memberId, loginMemberId);
             return true;
-
 
         } else {
             unsubscribe(memberId, loginMemberId);

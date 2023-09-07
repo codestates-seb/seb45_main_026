@@ -640,7 +640,8 @@ class VideoControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(replyInfoPage, "댓글 조회 성공"));
 
-        given(videoService.getReplies(anyLong(), anyInt(), anyInt(), any(ReplySort.class))).willReturn(replyInfoPage);
+        given(videoService.getReplies(anyLong(), anyInt(), anyInt(), any(ReplySort.class), any(Integer.class)))
+                .willReturn(replyInfoPage);
 
         //when
         ResultActions actions = mockMvc.perform(
@@ -1628,13 +1629,14 @@ class VideoControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(replyInfoPage, "댓글 조회 성공"));
 
-        given(videoService.getReplies(anyLong(), anyInt(), anyInt(), any(ReplySort.class))).willReturn(replyInfoPage);
+        given(videoService.getReplies(anyLong(), anyInt(), anyInt(), any(ReplySort.class), any(Integer.class))).willReturn(replyInfoPage);
 
         return List.of(
                 dynamicTest("쿼리 파라미터값으로 아무것도 주지 않아도 응답받을 수 있다.", ()-> {
                     //when
                     ResultActions actions = mockMvc.perform(
                             get(BASE_URL + "/{video-id}/replies", videoId)
+                                    .param("star", "9")
                                     .contentType(APPLICATION_JSON)
                                     .accept(APPLICATION_JSON)
                                     .header(AUTHORIZATION, TOKEN)

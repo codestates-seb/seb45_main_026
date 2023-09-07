@@ -15,33 +15,27 @@ import org.springframework.stereotype.Service;
 public class ReplyService {
 
     private final ReplyRepository replyRepository;
-    private final MemberRepository memberRepository;
-    private final AwsService awsService;
 
 
 
 
-    public ReplyService(ReplyRepository replyRepository, MemberRepository memberRepository, AwsService awsService) {
+    public ReplyService(ReplyRepository replyRepository) {
         this.replyRepository = replyRepository;
-        this.memberRepository = memberRepository;
-        this.awsService = awsService;
     }
 
 
-    public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi response) {
+    public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi request) {
 
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
-//            if (!reply.getMember().getMemberId().equals(loginMemberId)) {
-//                throw new MemberAccessDeniedException();
-//            }
+            if (!reply.getMember().getMemberId().equals(loginMemberId)) {
+                throw new MemberAccessDeniedException();
+            }
 
-        reply.updateReply(response.getContent(), response.getStar());
+        reply.updateReply(request.getContent(), request.getStar());
     }
 
     public ReplyInfo getReply(Long replyId, Long loginMemberId) {
-
-        memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
 
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
@@ -49,8 +43,6 @@ public class ReplyService {
     }
 
     public void deleteReply(Long replyId, Long loginMemberId) {
-
-        // memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
 
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 
@@ -60,13 +52,5 @@ public class ReplyService {
 
         replyRepository.deleteById(replyId);
     }
-
-
-//    public void existReply(Long replyId) {
-//
-//        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
-//
-//        ReplyInfo.of(reply);
-
 }
 

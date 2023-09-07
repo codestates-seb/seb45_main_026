@@ -7,6 +7,7 @@ import com.server.domain.category.repository.CategoryRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.reply.controller.convert.ReplySort;
+import com.server.domain.reply.dto.ReplyCreateResponse;
 import com.server.domain.reply.dto.ReplyCreateServiceApi;
 import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.entity.Reply;
@@ -406,32 +407,36 @@ public class VideoService {
         return true;
     }
 
-    public Page<ReplyInfo> getReplies(Long videoId, int page, int size, ReplySort replySort) {
-
+    public Page<ReplyInfo> getReplies(Long videoId, int page, int size, ReplySort replySort, Integer star) {
         Sort sort = Sort.by(Sort.Direction.DESC, replySort.getSort());
+        PageRequest pageRequest = PageRequest.of(page, size, sort); //
 
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
-
-        return replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
+        if (star != null) { //(별점 필터링 o)
+            return replyRepository.findAllByVideoIdAndStarOrStarIsNull(videoId, star, pageRequest);
+        } else { //(별점 필터링 x)
+            return replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
+        }
     }
 
-    public Long createReply(Long loginMemberId, Long videoId, ReplyCreateServiceApi response) {
+    public Long createReply(Long loginMemberId, Long videoId, ReplyCreateServiceApi request) {
+        Member member = memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberAccessDeniedException());
+        Integer star = request.getStar();
 
-        memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberAccessDeniedException());
-
-        Integer star = response.getStar();
-
-        if (star < 1 || star > 5) {
+        if (star < 1 || star > 10) {
             throw new ReplyNotValidException();
         }
 
-        videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException());
+        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException());
 
-        Reply reply = Reply.builder()
-                .content(response.getContent())
-                .star(response.getStar())
+        ReplyCreateResponse response = ReplyCreateResponse.builder()
+                .content(request.getContent())
+                .star(request.getStar())
+                .member(member)
+                .video(video)
                 .build();
 
-        return replyRepository.save(reply).getReplyId();
+        Reply savedReply = replyRepository.save(response.toEntity());
+
+        return savedReply.getReplyId();
     }
 }

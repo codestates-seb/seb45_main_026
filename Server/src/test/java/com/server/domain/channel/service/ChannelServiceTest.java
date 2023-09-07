@@ -199,6 +199,7 @@ class ChannelServiceTest extends ServiceTest {
         boolean subscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
 
         assertTrue(subscribe);
+        assertThat(subscribeRepository.findAll().size()).isEqualTo(1);
     }
 
     @Test
@@ -213,6 +214,7 @@ class ChannelServiceTest extends ServiceTest {
 
         assertThat(initialSubscribe).isTrue();
         assertFalse(unsubscribe);
+        assertThat(subscribeRepository.findAll().size()).isEqualTo(0);
     }
 
     @Test
@@ -304,12 +306,6 @@ class ChannelServiceTest extends ServiceTest {
         Long updatedChannel = otherMemberChannel.getMember().getMemberId();
         assertThat(updatedChannel).isEqualTo(Subscribers);
     }
-
-
-
-
-
-
 
 
 
