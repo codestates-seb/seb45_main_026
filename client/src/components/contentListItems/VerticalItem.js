@@ -3,6 +3,8 @@ import styled from "styled-components"
 import tokens from "../../styles/tokens.json";
 import yellowStar from "../../assets/images/icons/star/starYellow.svg"
 import blankStar from "../../assets/images/icons/star/starWhite.svg"
+import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
+import { useNavigate } from "react-router-dom";
 
 const globalTokens = tokens.global;
 
@@ -16,6 +18,7 @@ const ComponentBody = styled.li`
     align-items: center;
     justify-content: space-between;
     background-color: white;
+    background-color: lightgray;
 `
 const ThumbnailContainer = styled.div`
     width: 250px;
@@ -27,6 +30,9 @@ const ThumbnailContainer = styled.div`
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    &:hover{
+      cursor: pointer;
+    }
 `
 const Thumbnail = styled.img`
     object-fit: cover;
@@ -38,6 +44,9 @@ const ItemTitle = styled.h2`
     width: 250px;
     height: 40px;
     font-weight: ${globalTokens.Bold.value};
+    &:hover{
+      cursor: pointer;
+    }
 `  
 const ItemInfors = styled.div`
     width: 250px;
@@ -70,9 +79,9 @@ const AuthorInfor = styled.div`
     align-items: center;
 `
 const ProfileImg = styled.img`
-    max-height: 24px;
-    height: auto;
-    width: auto;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
 `
 const ImgContainer = styled.span`
     width: 24px;
@@ -84,6 +93,9 @@ const ImgContainer = styled.span`
     align-items: center;
     border: 1px solid lightgray;
     overflow: hidden;
+    &:hover{
+      cursor: pointer;
+    }
 `
 const AuthorName = styled.span`
   height: 30px;
@@ -92,6 +104,9 @@ const AuthorName = styled.span`
   padding-top: ${globalTokens.Spacing4.value}px;
   overflow: hidden;
   white-space: nowrap;
+  &:hover{
+    cursor: pointer;
+  }
 `;
 const PriceInfor = styled.div`
     font-size: ${globalTokens.BodyText.value}px;
@@ -115,25 +130,32 @@ const ScoreText = styled.span`
 
 export default function VerticalItem({ lecture ,channel}) { 
   const {videoName,thumbnailUrl,createdDate,isPurchased,price,star}=lecture
+  const navigate=useNavigate()
   const date = new Date(createdDate);
   date.setHours(date.getHours() + 9);
   const month = (date.getMonth() + 1).toString().padStart(2, "0"); // 월은 0부터 시작하므로 +1
   const day = date.getDate().toString().padStart(2, "0");
     return (
       <ComponentBody>
-        <ThumbnailContainer>
+        <ThumbnailContainer onClick={()=>navigate(`/videos/${lecture.videoId}`)}>
           <Thumbnail src={thumbnailUrl} />
         </ThumbnailContainer>
-        <ItemTitle>{videoName}</ItemTitle>
+        <ItemTitle onClick={()=>navigate(`/videos/${lecture.videoId}`) }>{videoName}</ItemTitle>
         <ItemInfors>
           <InforContainerLeft>
             <AuthorInfor>
-              <ImgContainer>
-                <ProfileImg src={channel.imageUrl} />
+              <ImgContainer onClick={()=>navigate(`/channels/${channel.memberId}`)}>
+                <ProfileImg
+                  src={
+                    channel.imageUrl ? channel.imageUrl : frofileGray
+                  }
+                />
               </ImgContainer>
-              <AuthorName>{channel.channelName}</AuthorName>
+              <AuthorName onClick={()=>navigate(`/channels/${channel.memberId}`)}>{channel.channelName}</AuthorName>
             </AuthorInfor>
-            <DateInfor>{month}월{day}일 업로드됨</DateInfor>
+            <DateInfor>
+              {month}월{day}일 업로드됨
+            </DateInfor>
           </InforContainerLeft>
           <InforContainerRight>
             <ScoreContainer>

@@ -4,6 +4,9 @@ import { styled } from "styled-components";
 import arrowDown from "../../assets/images/icons/arrow/subscribe_arrow_down.svg";
 import arrowUp from "../../assets/images/icons/arrow/subscribe_arrow_up.svg";
 import HorizonItem from "./HorizonItem";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const globalTokens = tokens.global;
 
@@ -18,15 +21,19 @@ const ItemBody = styled.div`
 `
 const ProfileContainer = styled.div`
     height: 50px;
+    max-width: 250px;
     display: flex;
     flex-direction: row;
     align-items: center;   
     gap: ${globalTokens.Spacing8.value}px;
+    &:hover{
+        cursor: pointer;
+    }
 `
 const ProfileImg = styled.img`
-    max-height: 50px;
-    height: auto;
-    width: auto;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
 `
 const ImgContainer = styled.span`
     width: 50px;
@@ -87,61 +94,71 @@ const HorizonItemContainer = styled.ul`
     flex-direction: column;
     gap: ${globalTokens.Spacing16.value}px;
     margin-bottom: ${globalTokens.Spacing28.value}px;
-    max-height: ${(props)=>props.isOpen?'10000px':'0px'};
-    overflow: hidden;
+    /* max-height: ${(props)=>props.isOpen?'10000px':'0px'};
+    overflow: hidden; */
+    max-height: 1000px;
     transition: 500ms;
 `
 
 
-export default function PurchasedItem() {
+export default function PurchasedItem({channel,setChannelList}) {
+    const navigate=useNavigate()
     const [isOpen, setIsOpen] = useState(false)
-    const a = {
-            "videoId": 1,
-            "videoName": "촛불로 공부하기",
-            "thumbnailUrl": "https://d2ouhv9pc4idoe.cloudfront.net/4/videos/1/video1.png",
-            "views": 1266,
-            "price": 0,
-            "star": 0.0,
-            "isPurchased": false,
-            "description": "test 영상입니다.",
-            "categories": [
-                {
-                    "categoryId": 1,
-                    "categoryName": "React"
-                },
-                {
-                    "categoryId": 2,
-                    "categoryName": "Redux"
-                }
-            ],
-            "channel": {
-                "memberId": 4,
-                "channelName": "andygugu",
-                "subscribes": 3,
-                "isSubscribed": false,
-                "imageUrl": "https://d2ouhv9pc4idoe.cloudfront.net/4/profile/test22.png"
-            },
-            "createdDate": "2023-09-04T00:00:00"
-        }
+    const accessToken = useSelector((state) => state.loginInfo.accessToken);
+    const arccordionHandler = (memberId) => {
+        setIsOpen(!isOpen);
+        axios
+          .get(
+            `https://api.itprometheus.net/members/playlists/channels/details?member-id=${memberId}`,
+            {
+              headers: { Authorization: accessToken.authorization },
+            }
+          )
+            .then((res) => {
+                if (!isOpen) {
+                    setChannelList(prev => prev.map((el) => {
+                        if (el.memberId === memberId) {
+                            return {...el,videos:res.data.data}
+                        } else {
+                            return el
+                        }
+                    }))
+                } else {
+                    setChannelList(prev => prev.map((el) => {
+                        if (el.memberId === memberId) {
+                            return {...el,videos:[]}
+                        } else {
+                            return el
+                        }
+                    }))
+              }
+          })
+          .catch((err) => console.log(err));
+    }
     return (
-        <ItemBody>
-            <ProfileContainer>
-            <ImgContainer>
-                <ProfileImg src="https://d2ouhv9pc4idoe.cloudfront.net/4/profile/test22.png" />
-            </ImgContainer>
-            <TextInfor>
-                <AuthorName>andygugu</AuthorName>
-                <Subscribers>구독자 3명</Subscribers>
-            </TextInfor>
-            </ProfileContainer>
-            <TopContainer> 
-                <LectureCount><CountNum>3</CountNum>개의 강의</LectureCount>
-                <AccordionButton onClick={() => setIsOpen(!isOpen)} ><AccordionArrow src={isOpen?arrowUp:arrowDown} /></AccordionButton>
-            </TopContainer>
-            <ContentContainer >
-                <HorizonItemContainer isOpen={isOpen}>
-                    <HorizonItem lecture={a} /><HorizonItem lecture={a} channel={a.channel} /><HorizonItem lecture={a} channel={a.channel} /></HorizonItemContainer>
-            </ContentContainer>
-        </ItemBody>
-    )
+      <ItemBody>
+        <ProfileContainer onClick={()=>navigate(`/channels/${channel.memberId}`)} >
+          <ImgContainer>
+            <ProfileImg src={channel.imageUrl} />
+          </ImgContainer>
+          <TextInfor>
+            <AuthorName>{channel.channelName}</AuthorName>
+            <Subscribers>구독자 {channel.subscribers} 명</Subscribers>
+          </TextInfor>
+        </ProfileContainer>
+        <TopContainer>
+          <LectureCount>
+            <CountNum>{channel.videoCount}</CountNum>개의 강의
+          </LectureCount>
+          <AccordionButton onClick={() => arccordionHandler(channel.memberId)}>
+            <AccordionArrow src={isOpen ? arrowUp : arrowDown} />
+          </AccordionButton>
+        </TopContainer>
+        <ContentContainer>
+          <HorizonItemContainer isOpen={isOpen}>
+            {channel.videos!==[]?channel.videos.map(el=><HorizonItem lecture={el} channel={channel} />):<></>}
+          </HorizonItemContainer>
+        </ContentContainer>
+      </ItemBody>
+    );
 }

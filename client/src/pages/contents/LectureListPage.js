@@ -14,9 +14,11 @@ const globalTokens = tokens.global;
 
 const LectureMainContainer = styled(MainContainer)`
   min-width: 600px;
+  min-height: 700px;
   background-color: ${globalTokens.White.value};
   border: none;
   gap: ${globalTokens.Spacing28.value}px;
+  padding: ${globalTokens.Spacing8.value}px;
 `;
 const ListTitle = styled.h2`
   height: 30px;
@@ -53,7 +55,7 @@ const VerticalItemContainer = styled.ul`
     flex-direction: row;
     justify-content: center;
     flex-wrap: wrap;
-    gap: ${globalTokens.Spacing28.value}px;
+    gap: ${globalTokens.Spacing12.value}px;
     margin-bottom: ${globalTokens.Spacing28.value}px;
 `
 
@@ -62,22 +64,28 @@ const LectureListPage = () => {
   const [lectures, setLectures] = useState([]);
   const filterState = useSelector((state) => state.filterSlice.filter);
   const isHorizon = useSelector((state) => state.filterSlice.isHorizon);
+  const accessToken = useSelector(state=>state.loginInfo.accessToken);
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(resetToInitialState());
-    axios
-      .get(`https://api.itprometheus.net/videos?sort=created-date`)
-      .then((res) => setLectures(res.data.data))
-      .catch((err) => console.log(err));
+    return () => {
+      dispatch(resetToInitialState());
+    };
   }, []);
   useEffect(()=>{
     axios
       .get(
-        `https://api.itprometheus.net/videos?sort=${filterState.sortBy.value}&is-purchased=${filterState.isPurchased.value}${
+        `https://api.itprometheus.net/videos?sort=${
+          filterState.sortBy.value
+        }&is-purchased=${filterState.isPurchased.value}${
           filterState.category.value
             ? `&category=${filterState.category.value}`
             : ""
-        }${filterState.isFree.value?`&free=${filterState.isFree.value}`:""}`
+        }${
+          filterState.isFree.value ? `&free=${filterState.isFree.value}` : ""
+        }`,
+        {
+          headers: { Authorization: accessToken.authorization },
+        }
       )
       .then((res) => setLectures(res.data.data))
       .catch((err) => console.log(err));

@@ -121,7 +121,7 @@ function App() {
         <Route path="/findPassword" element={<FindPasswordPage />} />
         <Route path="/findPassword/updatePassword" element={<UpdatePasswordPage/>}/>
         <Route path="/lecture" element={<LectureListPage />} />
-        <Route path="/videos/1" element={<DetailPage />} />
+        <Route path="/videos/:videoId" element={<DetailPage />} />
         <Route path="/channels/:userId" element={<ChannelPage/>} />
         <Route path="/carts" element={<CartPage />} />
         <Route path="/upload/course" element={<CourseUploadPage />} />
