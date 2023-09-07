@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { deleteUserInfoService, updateNicknameService, updatePasswordService } from '../../services/userInfoService';
 import { setIsLogin, setLoginInfo, setMyid, setProvider, setToken } from '../../redux/createSlice/LoginInfoSlice';
 import { NegativeTextButton, PositiveTextButton, } from '../../atoms/buttons/Buttons';
-import { SettingContainer, SettingTitle, UserInfoContainer, ExtraButtonContainer  } from './Setting.style';
+import { SettingContainer, SettingTitle, SettingTitle2, UserInfoContainer, ExtraButtonContainer  } from './Setting.style';
 import { AlertModal, ConfirmModal } from '../../atoms/modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import ImageInput from '../../atoms/inputs/ImageInput';
@@ -172,7 +172,7 @@ const Setting = () => {
                 handleButtonClick={()=>{ setIs비밀번호변경실패팝업(false) }}/>
             <SettingContainer isDark={isDark}>
                 <UserInfoContainer>
-                    <SettingTitle isDark={isDark}>내 정보</SettingTitle>
+                    <SettingTitle2 isDark={isDark}>내 정보</SettingTitle2>
                     <ImageInput
                         marginTop={globalTokens.Spacing8.value} 
                         label='프로필 이미지'/>

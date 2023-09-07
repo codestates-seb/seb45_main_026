@@ -25,13 +25,13 @@ import {
   setProvider,
   setToken,
 } from "./redux/createSlice/LoginInfoSlice";
-import useConfirm from "./hooks/useConfirm";
 import FindPasswordPage from "./pages/auth/FindPasswordPage";
 import PurchasedListPage from "./pages/contents/PurchasedListPage";
 import UpdatePasswordPage from "./pages/auth/UpdatePasswordPage";
 import ChannelListPage from "./pages/contents/ChannelListPage";
 import { AlertModal } from './atoms/modal/Modal';
 import ProblemUploadPage from "./pages/contents/ProblemUploadPage";
+import { getNewAuthorizationService } from "./services/authServices";
 
 function App() {
   const dispatch = useDispatch();
@@ -51,22 +51,44 @@ function App() {
   //authorization 갱신에 성공하면 다시 프로필 조회를 한다.
   //authorization 갱신에도 실패하면 강제 로그아웃 한다.
   useEffect(() => {
-    if (!(tokens.authorization === "")) {
+    if (!(tokens.authorization === "")) {     
       getUserInfoService(tokens.authorization).then((res) => {
+        //토큰이 유효하면 회원 정보를 dispatch 후, isLogin을 true로 설정한다.
         if (res.status === 'success') {
-          //토큰이 유효하면 회원 정보를 dispatch 후, isLogin을 true로 설정한다.
           dispatch(setMyid(res.data.memberId));
           dispatch(
-            setLoginInfo({ 
+            setLoginInfo({
               email: res.data.email, 
               nickname: res.data.nickname,
               grade: res.data.grade,
-              imgUrl: res.data.imgUrl,
+              imgUrl: res.data.imageUrl,
               reward: res.data.reward
             }));
           dispatch(setIsLogin(true));
-        } else {
-          //프로필정보 조회 API, 토큰 재발급 API를 모두 실패하면 로그아웃 처리한다. 
+        } else if(res.data==='만료된 토큰입니다.'){ //토큰 만료 에러인 경우
+        //프로필정보 조회 API, 토큰 재발급 API를 모두 실패하면 로그아웃 처리한다. 
+            //토큰 refresh 요청
+            getNewAuthorizationService(tokens.refresh).then((res)=>{
+              if(res.status==='success') { //토큰 재발급 성공
+                dispatch(setToken({
+                  ...tokens,
+                  authorization: res.data
+                }));
+              } else { //토큰 재발급 실패
+                //로그아웃 처리 로직
+                dispatch(setMyid(''));
+                dispatch(setLoginInfo({
+                email: "",
+                nickname: "",
+                grade: "",
+                imgUrl: "",
+                reward: "" 
+              }));
+                dispatch(setProvider(''));
+                dispatch(setIsLogin(false));
+              }
+            })
+         } else { //토큰 만료 에러가 아닌 경우
           dispatch(setMyid(''));
           dispatch(setLoginInfo({
             email: "",
