@@ -1636,6 +1636,7 @@ class VideoControllerTest extends ControllerTest {
                     //when
                     ResultActions actions = mockMvc.perform(
                             get(BASE_URL + "/{video-id}/replies", videoId)
+                                    .param("star", "9")
                                     .contentType(APPLICATION_JSON)
                                     .accept(APPLICATION_JSON)
                                     .header(AUTHORIZATION, TOKEN)

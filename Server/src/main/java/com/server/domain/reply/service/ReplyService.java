@@ -61,13 +61,5 @@ public class ReplyService {
 
         replyRepository.deleteById(replyId);
     }
-
-
-//    public void existReply(Long replyId) {
-//
-//        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
-//
-//        ReplyInfo.of(reply);
-
 }
 

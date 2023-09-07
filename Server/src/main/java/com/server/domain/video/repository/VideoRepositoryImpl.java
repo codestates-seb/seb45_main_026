@@ -186,53 +186,6 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
     }
 
     @Override
-    public Page<Video> findChannelVideoByCategoryPaging(Long memberId,
-                                                        String categoryName,
-                                                        Pageable pageable,
-                                                        String sort,
-                                                        Boolean free) {
-
-        List<OrderSpecifier<?>> orders = new ArrayList<>();
-        orders.add(getOrderSpecifier(sort));
-        orders.add(video.createdDate.desc());
-
-        JPAQuery<Video> query = queryFactory
-                .selectFrom(video)
-                .distinct()
-                .join(video.channel, channel).fetchJoin()
-                .join(channel.member, member).fetchJoin()
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .where(member.memberId.eq(memberId))
-                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(free)))
-                .orderBy(orders.toArray(new OrderSpecifier[0]));
-
-        if (categoryName != null && !categoryName.isEmpty()) {
-            query
-                    .join(video.videoCategories, videoCategory)
-                    .join(videoCategory.category, category)
-                    .where(category.categoryName.eq(categoryName));
-        }
-
-        JPAQuery<Video> countQuery = queryFactory.selectFrom(video)
-                .join(video.channel, channel)
-                .join(channel.member, member)
-                .where(member.memberId.eq(memberId))
-                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(free)));
-
-        if (categoryName != null && !categoryName.isEmpty()) {
-            countQuery
-                    .join(video.videoCategories, videoCategory)
-                    .join(videoCategory.category, category)
-                    .where(category.categoryName.eq(categoryName));
-        }
-
-        long totalCount = countQuery.fetchCount();
-
-        return new PageImpl<>(query.fetch(), pageable, totalCount);
-    }
-
-    @Override
     public Page<Video> findChannelVideoByCategoryPaging(ChannelVideoGetDataRequest request) {
 
 
@@ -275,7 +228,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                     .join(order.orderVideos, orderVideo)
                     .join(orderVideo.video, video)
                     .where(orderVideo.orderStatus.eq(OrderStatus.COMPLETED))
-                    .where(member.memberId.eq(request.getMemberId()))
+                    .where(member.memberId.eq(request.getLoginMemberId()))
                     .fetch();
 
             query

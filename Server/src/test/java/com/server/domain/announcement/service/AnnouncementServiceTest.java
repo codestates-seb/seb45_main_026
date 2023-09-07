@@ -9,6 +9,7 @@ import com.server.domain.member.entity.Member;
 import com.server.global.exception.businessexception.announcementexception.AnnouncementNotFoundException;
 import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
+import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.testhelper.ServiceTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,20 +38,11 @@ class AnnouncementServiceTest extends ServiceTest {
         Channel channel2 = createAndSaveChannel(member2);
         List<Announcement> announcements2 = new ArrayList<>();
 
-        for (int i = 0; i < 100; i++) { //member 1 의 announcement 50개, member 2 의 announcement 50개
-
-            Channel channel;
-
-            channel = i % 2 == 0 ? channel1 : channel2;
-
-            Announcement announcement = createAndSaveAnnouncement(channel);
-
-            if(i % 2 == 0) announcements1.add(announcement);
-            else announcements2.add(announcement);
-        }
+        setAnnouncements(channel1, announcements1, channel2, announcements2, 100);
 
         //when
-        Page<AnnouncementResponse> announcements = announcementService.getAnnouncements(member1.getMemberId(), 0, 10);
+        Page<AnnouncementResponse> announcements =
+                announcementService.getAnnouncements(member1.getMemberId(), 0, 10);
 
         //then
         assertThat(announcements.getTotalElements()).isEqualTo(50);
@@ -65,6 +57,21 @@ class AnnouncementServiceTest extends ServiceTest {
         assertThat(announcements.getContent())
                 .allMatch(announcementResponse -> announcements1.stream()
                         .anyMatch(announcement -> announcementResponse.getAnnouncementId().equals(announcement.getAnnouncementId())));
+    }
+
+    @Test
+    @DisplayName("memberId 가 존재하지 않으면 ChannelNotFoundException 예외가 발생한다.")
+    void getAnnouncementsChannelNotFoundException() {
+        //given
+        Member member1 = createAndSaveMember();
+        Channel channel1 = createAndSaveChannel(member1);
+        createAndSaveAnnouncement(channel1);
+
+        Long wrongMemberId = member1.getMemberId() + 999L;
+
+        //when & then
+        assertThatThrownBy(() -> announcementService.getAnnouncements(wrongMemberId, 0, 10))
+                .isInstanceOf(ChannelNotFoundException.class);
     }
 
     @Test
@@ -84,7 +91,7 @@ class AnnouncementServiceTest extends ServiceTest {
     }
 
     @Test
-    @DisplayName("announcement 를 찾을 때 해당 announcement 가 없으면 AnnouncementNotFoundException 이 발생한다.")
+    @DisplayName("announcement 를 찾을 때 해당 announcementId 가 없으면 AnnouncementNotFoundException 이 발생한다.")
     void getAnnouncementAnnouncementNotFoundException() {
         //given
         Member member = createAndSaveMember();
@@ -102,8 +109,7 @@ class AnnouncementServiceTest extends ServiceTest {
     @DisplayName("content 를 받아서 해당 member 의 채널에 announcement 를 생성한다.")
     void createAnnouncement() {
         //given
-        Member member = createAndSaveMember();
-        Channel channel = createAndSaveChannel(member);
+        Member member = createMemberWithChannel();
 
         String content = "content";
 
@@ -118,18 +124,16 @@ class AnnouncementServiceTest extends ServiceTest {
         //then
         Announcement announcement = announcementRepository.findById(announcementId).orElseThrow();
         assertThat(announcement.getContent()).isEqualTo(content);
-        assertThat(announcement.getChannel().getChannelId()).isEqualTo(channel.getChannelId());
+        assertThat(announcement.getChannel().getChannelId()).isEqualTo(member.getChannel().getChannelId());
     }
 
     @Test
     @DisplayName("Announcement 생성 시 loginMember 와 요청한 채널의 멤버의 id 가 다르면 MemberAccessDeniedException 이 발생한다.")
     void createAnnouncementMemberAccessDeniedException() {
         //given
-        Member owner = createAndSaveMember();
-        createAndSaveChannel(owner);
+        Member owner = createMemberWithChannel();
 
-        Member loginMember = createAndSaveMember();
-        createAndSaveChannel(loginMember);
+        Member loginMember = createMemberWithChannel();
 
         String content = "content";
 
@@ -147,8 +151,7 @@ class AnnouncementServiceTest extends ServiceTest {
     @DisplayName("Announcement 생성 시 생성 요청한 채널의 멤버의 id 가 없으면 ChannelNotFoundException 이 발생한다.")
     void createAnnouncementMemberNotFoundException() {
         //given
-        Member owner = createAndSaveMember();
-        createAndSaveChannel(owner);
+        Member owner = createMemberWithChannel();
 
         String content = "content";
 
@@ -159,21 +162,17 @@ class AnnouncementServiceTest extends ServiceTest {
                 .content(content)
                 .build();
 
-
         //when
         assertThatThrownBy(() -> announcementService.createAnnouncement(notExistMemberId, request))
                 .isInstanceOf(ChannelNotFoundException.class);
-
     }
 
     @Test
     @DisplayName("content 를 받아서 해당 announcement 를 수정한다.")
     void updateAnnouncement() {
         //given
-        Member member = createAndSaveMember();
-        Channel channel = createAndSaveChannel(member);
-
-        Announcement announcement = createAndSaveAnnouncement(channel);
+        Member member = createMemberWithChannel();
+        Announcement announcement = createAndSaveAnnouncement(member.getChannel());
 
         String updateContent = "updateContent";
 
@@ -194,15 +193,12 @@ class AnnouncementServiceTest extends ServiceTest {
     @DisplayName("Announcement 수정 시 loginMember 와 요청한 채널의 멤버의 id 가 다르면 MemberAccessDeniedException 이 발생한다.")
     void updateAnnouncementMemberAccessDeniedException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Member loginMember = createAndSaveMember();
-        createAndSaveChannel(loginMember);
-
-        Announcement announcement = createAndSaveAnnouncement(channel);
+        Member owner = createMemberWithChannel();
+        Announcement announcement = createAndSaveAnnouncement(owner.getChannel());
 
         String updateContent = "updateContent";
+
+        Member loginMember = createMemberWithChannel();
 
         AnnouncementUpdateServiceRequest request = AnnouncementUpdateServiceRequest.builder()
                 .announcementId(announcement.getAnnouncementId())
@@ -222,15 +218,16 @@ class AnnouncementServiceTest extends ServiceTest {
     @DisplayName("Announcement 수정 시 수정 요청한 announcement 가 없으면 AnnouncementNotFoundException 이 발생한다.")
     void updateAnnouncementAnnouncementNotFoundException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
+        Member owner = createMemberWithChannel();
 
-        Announcement announcement = createAndSaveAnnouncement(channel);
+        Announcement announcement = createAndSaveAnnouncement(owner.getChannel());
 
         String updateContent = "updateContent";
 
+        Long notExistAnnouncementId = announcement.getAnnouncementId() + 999L; // 존재하지 않는 announcementId
+
         AnnouncementUpdateServiceRequest request = AnnouncementUpdateServiceRequest.builder()
-                .announcementId(announcement.getAnnouncementId() + 999L) // 존재하지 않는 announcementId
+                .announcementId(notExistAnnouncementId)
                 .content(updateContent)
                 .build();
 
@@ -248,26 +245,23 @@ class AnnouncementServiceTest extends ServiceTest {
     @DisplayName("announcement 를 삭제한다.")
     void deleteAnnouncement() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Announcement announcement = createAndSaveAnnouncement(channel);
+        Member owner = createMemberWithChannel();
+        Announcement announcement = createAndSaveAnnouncement(owner.getChannel());
 
         //when
         announcementService.deleteAnnouncement(owner.getMemberId(), announcement.getAnnouncementId());
 
         //then
-        assertThat(announcementRepository.findById(announcement.getAnnouncementId()).isEmpty()).isTrue();
+        assertThat(announcementRepository.findById(announcement.getAnnouncementId()).isEmpty())
+                .isTrue();
     }
 
     @Test
     @DisplayName("Announcement 삭제 시 loginMember 와 announcement 의 채널 멤버가 다르면 MemberAccessDeniedException 이 발생한다.")
     void deleteAnnouncementMemberAccessDeniedException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Announcement announcement = createAndSaveAnnouncement(channel);
+        Member owner = createMemberWithChannel();
+        Announcement announcement = createAndSaveAnnouncement(owner.getChannel());
 
         Long notExistMemberId = owner.getMemberId() + 999L; // 다른 멤버의 id
 
@@ -283,14 +277,28 @@ class AnnouncementServiceTest extends ServiceTest {
     @DisplayName("Announcement 삭제 시 announcement 가 존재하지 않으면 AnnouncementNotFoundException 이 발생한다.")
     void deleteAnnouncementAnnouncementNotFoundException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
+        Member owner = createMemberWithChannel();
+        Announcement announcement = createAndSaveAnnouncement(owner.getChannel());
 
-        Long notExistAnnouncementId = 999L; // 존재하지 않는 announcementId
+        Long notExistAnnouncementId = announcement.getAnnouncementId() + 999L; // 존재하지 않는 announcementId
 
         //when & then
         assertThatThrownBy(() -> announcementService.deleteAnnouncement(owner.getMemberId(), notExistAnnouncementId))
                 .isInstanceOf(AnnouncementNotFoundException.class);
+    }
+
+    private void setAnnouncements(Channel channel1, List<Announcement> announcements1, Channel channel2, List<Announcement> announcements2, int count) {
+        for (int i = 0; i < count; i++) { //member 1 의 announcement 50개, member 2 의 announcement 50개
+
+            Channel channel;
+
+            channel = i % 2 == 0 ? channel1 : channel2;
+
+            Announcement announcement = createAndSaveAnnouncement(channel);
+
+            if(i % 2 == 0) announcements1.add(announcement);
+            else announcements2.add(announcement);
+        }
     }
 
     private Announcement createAndSaveAnnouncement(Channel channel) {

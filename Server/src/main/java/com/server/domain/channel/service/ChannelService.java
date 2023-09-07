@@ -82,7 +82,6 @@ public class ChannelService {
     }
 
 
-    //채널정보 수정
     @Transactional
     public void updateChannelInfo(long ownerId, long loginMemberId, ChannelUpdate updateInfo) {
 
@@ -97,7 +96,6 @@ public class ChannelService {
     }
 
 
-    // 구독 여부 업데이트
     public boolean updateSubscribe(Long memberId, Long loginMemberId) {
 
 
@@ -118,7 +116,6 @@ public class ChannelService {
     }
 
 
-    // 구독.
     private void subscribe(Long memberId, Long loginMemberId) {
 
         Member loginMember = memberRepository.findById(loginMemberId)
@@ -136,7 +133,6 @@ public class ChannelService {
         subscribeRepository.save(subscribe);
     }
 
-    // 구독 취소
     private void unsubscribe(Long memberId, Long loginMemberId) { //이 부분 코드를 더 간결하게 못하겟음 수정할거 다 빼면 테스트코드 에러남
 
         Channel channel = existChannel(memberId);
@@ -156,7 +152,7 @@ public class ChannelService {
 
         Member member = verifiedMemberOrNull(loginMemberId);
 
-        Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request.toDataRequest());
+        Page<Video> videos = videoRepository.findChannelVideoByCategoryPaging(request.toDataRequest(loginMemberId));
 
         List<Boolean> isPurchaseInOrder = isPurchaseInOrder(member, videos.getContent());
 
@@ -232,6 +228,6 @@ public class ChannelService {
 
     private Channel existChannel(Long memberId) {
 
-        return channelRepository.findByMember(memberId).orElseThrow(ChannelNotFoundException::new); //여기서 에러남 ㅠ 되돌아 오는 길에 에러남
+        return channelRepository.findByMember(memberId).orElseThrow(ChannelNotFoundException::new);
     }
 }
