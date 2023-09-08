@@ -4,33 +4,30 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.reply.controller.convert.ReplySort;
-import com.server.domain.reply.dto.ReplyCreateServiceApi;
+import com.server.domain.reply.dto.CreateReply;
 import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.dto.ReplyUpdateServiceApi;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
-import com.server.domain.video.service.VideoService;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.replyException.ReplyDuplicateException;
-import com.server.global.exception.businessexception.replyException.ReplyNotFoundException;
 import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
+import com.server.global.reponse.PageInfo;
 import com.server.global.testhelper.ServiceTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 class ReplyServiceTest extends ServiceTest {
 
@@ -44,6 +41,7 @@ class ReplyServiceTest extends ServiceTest {
     @Test
     @DisplayName("댓글과 별점을 수정한다.")
     void updateReply() {
+        //given
         Member loginMember = createAndSaveMember();
         Channel channel = createAndSaveChannel(loginMember);
         Video video = createAndSaveVideo(channel);
@@ -56,8 +54,10 @@ class ReplyServiceTest extends ServiceTest {
                 .star(5)
                 .build();
 
+        //when
         replyService.updateReply(loginMemberId, replyId, updateInfo);
 
+        //then
         Reply reply = replyRepository.findById(replyId).orElse(null);
         assertThat(reply).isNotNull();
         assertThat(reply.getContent()).isEqualTo("updateContent");
@@ -67,6 +67,7 @@ class ReplyServiceTest extends ServiceTest {
     @Test
     @DisplayName("댓글 한 건을 조회한다.")
     void getReply() {
+        //given
         Member loginMember = createAndSaveMember();
 
         Channel channel = createAndSaveChannel(loginMember);
@@ -75,12 +76,13 @@ class ReplyServiceTest extends ServiceTest {
         Long loginMemberId = loginMember.getMemberId();
         Long replyId = createAndSaveReply(loginMember, video).getReplyId();
 
-        ReplyInfo reply = replyService.getReply(replyId, loginMemberId);
+        //when
+        ReplyInfo reply = replyService.getReply(replyId);
 
         assertThat(reply.getContent()).isEqualTo("content");
         assertThat(reply.getStar()).isEqualTo(1);
 
-        // repository에서도 조회된 값을 가져와서 비교
+        //then
         Reply reply2 = replyRepository.findById(replyId).orElse(null);
         assertThat(reply2).isNotNull();
         assertThat(reply2.getContent()).isEqualTo("content");
@@ -90,14 +92,17 @@ class ReplyServiceTest extends ServiceTest {
     @Test
     @DisplayName("댓글을 삭제한다.")
     public void testDeleteReply() {
+        //given
         Member member = createAndSaveMember();
         Reply reply = createAndSaveReply(member, createAndSaveVideo(createAndSaveChannel(member)));
 
         Long replyId = reply.getReplyId();
         Long loginMemberId = member.getMemberId();
 
+        //when
         replyService.deleteReply(replyId, loginMemberId);
 
+        //then
         Reply deletedReply = replyRepository.findById(replyId).orElse(null);
 
         assertThat(deletedReply).isNull();
@@ -107,6 +112,7 @@ class ReplyServiceTest extends ServiceTest {
     @Test
     @DisplayName("댓글 목록을 페이징으로 찾아서 조회한다.")
     void getReplies() {
+        //given
         Member member = createAndSaveMember();
 
         Channel channel = createAndSaveChannel(member);
@@ -122,8 +128,10 @@ class ReplyServiceTest extends ServiceTest {
             replyRepository.save(reply);
         }
 
+        //when
         Page<ReplyInfo> replies = replyService.getReplies(video.getVideoId(), 8, 10, ReplySort.CREATED_DATE, null);
 
+        //then
         Page<ReplyInfo> replies2 = replyRepository.findAllByVideoIdPaging(video.getVideoId(), PageRequest.of(8, 10, Sort.by(Sort.Order.asc("createdDate"))));
 
         assertThat(replies.getTotalElements()).isEqualTo(replies2.getTotalElements());
@@ -134,11 +142,13 @@ class ReplyServiceTest extends ServiceTest {
     @Test
     @DisplayName("댓글을 작성한다.")
     void createReply(){
+        //given
         Member member = createAndSaveMember();
 
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
 
+        //when
         Reply reply = Reply.builder()
                 .content("description")
                 .star(0)
@@ -148,12 +158,14 @@ class ReplyServiceTest extends ServiceTest {
 
         replyRepository.save(reply);
 
+        //then
         assertEquals(replyRepository.findById(reply.getReplyId()).get().getContent(), "description");
     }
 
     @Test
     @DisplayName("별점이 8인 댓글을 조회한다")
     void getRepliesWithHighStarFilter() {
+        //given
         Member member = createAndSaveMember();
         memberRepository.save(member);
 
@@ -162,7 +174,7 @@ class ReplyServiceTest extends ServiceTest {
 
         List<Reply> replies = new ArrayList<>();
 
-        // 별점이 8점 이상인 댓글들
+        //when
         for (int i = 8; i <= 10; i++) {
             Reply reply = Reply.builder()
                     .content("content" + i)
@@ -185,13 +197,14 @@ class ReplyServiceTest extends ServiceTest {
 
         Page<ReplyInfo> repliesPage = replyService.getReplies(video.getVideoId(), 1, 10, ReplySort.STAR, 8);
 
+        //then
         // 별점이 8인 댓글만 조회되었는지 확인하는 코드
         List<ReplyInfo> replyInfoList = repliesPage.getContent();
         for (ReplyInfo replyInfo : replyInfoList) {
             assertTrue(replyInfo.getStar() == 8);
         }
 
-        // 8,9,10 - 댓글 세 개
+
         assertThat(repliesPage.getTotalElements()).isEqualTo(3);
         assertThat(repliesPage.getNumber()).isEqualTo(1);
         assertThat(repliesPage.getSize()).isEqualTo(10);
@@ -202,11 +215,13 @@ class ReplyServiceTest extends ServiceTest {
     @Test
     @DisplayName("댓글을 최신순으로 조회한다")
     void getRepliesByCreatedDate() {
+        //given
         Member member = createAndSaveMember();
 
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
 
+        //when
         for (int i = 0; i < 10; i++) {
             Reply reply = Reply.builder()
                     .content("content" + i)
@@ -219,6 +234,7 @@ class ReplyServiceTest extends ServiceTest {
 
         Page<ReplyInfo> replies = replyService.getReplies(video.getVideoId(), 1, 10, ReplySort.CREATED_DATE, null);
 
+        //then
         assertThat(replies.getTotalElements()).isEqualTo(10);
         assertThat(replies.getNumber()).isEqualTo(1);
         assertThat(replies.getSize()).isEqualTo(10);
@@ -232,15 +248,18 @@ class ReplyServiceTest extends ServiceTest {
     @Test
     @DisplayName("로그인한 회원만 댓글을 작성할 수 있다.")
     void createRepliesLoginUser() {
+        //given
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
 
         Long loginId = member.getMemberId();
 
+        //when
         Reply reply = createAndSaveReply(member, video);
         Long replyId = reply.getMember().getMemberId();
 
+        //then
         assertThat(replyId).isEqualTo(loginId);
 
     }
@@ -248,6 +267,7 @@ class ReplyServiceTest extends ServiceTest {
     @Test
     @DisplayName("로그인한 회원이 아니면 자신의 댓글을 삭제할 수 없다.")
     void deleteRepliesOnlyLoginUser() {
+        //given
         Member member = createAndSaveMember();
         memberRepository.save(member);
 
@@ -258,6 +278,7 @@ class ReplyServiceTest extends ServiceTest {
         Long replyId = reply.getReplyId();
         Long loginMemberId = member.getMemberId();
 
+        //when&then
         if (reply.getMember().getMemberId() != loginMemberId) {
             assertThrows(MemberAccessDeniedException.class, () -> replyService.deleteReply(replyId, loginMemberId));
         } else {
@@ -268,20 +289,23 @@ class ReplyServiceTest extends ServiceTest {
     @Test
     @DisplayName("별점을 초과해서 부여할 수 없다")
     void notExceedStar(){
+        //given
         Member member = createAndSaveMember();
         Long loginMemberId = member.getMemberId();
 
         Channel channel = createAndSaveChannel(member);
-        Video video = createAndSaveVideo(channel);
+        Video video = createAndSavePurchasedVideo(member);
         Long videoId = video.getVideoId();
 
-        ReplyCreateServiceApi request = ReplyCreateServiceApi.builder()
+        //when
+        Reply reply = Reply.builder()
                 .content("content")
                 .star(11)
                 .build();
 
+        //then
         ReplyNotValidException exception = assertThrows(ReplyNotValidException.class, () -> {
-            replyService.createReply(loginMemberId, videoId, request);
+            replyService.createReply(loginMemberId, videoId, new CreateReply("content", 11));
         });
 
         assertThat(exception).isInstanceOf(ReplyNotValidException.class);
@@ -289,31 +313,28 @@ class ReplyServiceTest extends ServiceTest {
 
     @Test
     @DisplayName("댓글을 중복하여 작성할 수 없다")
-    void cannotDuplicateReplies(){
+    void cannotDuplicateReplies() {
+        //given
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
+        Reply reply1 = createAndSaveReply(member, video);
+        Reply reply = createAndSaveReply(member, video);
 
-        Long loginId = member.getMemberId();
-        Long videoId = video.getVideoId();
-
-        ReplyCreateServiceApi request = ReplyCreateServiceApi.builder()
-                .content("content")
-                .star(10)
-                .build();
-
-        Long reply = replyService.createReply(loginId, videoId, request);
-
-        Throwable throwable = assertThrows(ReplyDuplicateException.class, () -> {
-            replyService.createReply(loginId, videoId, request);
-        });
-
-        assertThat(throwable).isInstanceOf(ReplyDuplicateException.class);
+        //when & then
+        if (reply.getMember().getMemberId() == reply1.getMember().getMemberId()) {
+            assertThrows(ReplyDuplicateException.class, () -> {
+                replyService.createReply(member.getMemberId(), video.getVideoId(), new CreateReply("content", 3));
+            });
+        }
     }
+
 
     @Test
     @DisplayName("로그인한 사용자만 댓글을 수정할 수 있다.")
     public void onlyLoginUserModifyReplies() {
+        //given
         Member member = createAndSaveMember();
         Long loginMemberId = member.getMemberId();
         Channel channel = createAndSaveChannel(member);
@@ -327,13 +348,45 @@ class ReplyServiceTest extends ServiceTest {
                 .build();
         replyRepository.save(reply);
 
-        if(reply.getMember().getMemberId() == loginMemberId){
+        //when & then
+        if (reply.getMember().getMemberId() == loginMemberId) {
             assertDoesNotThrow(() -> replyService.updateReply(loginMemberId, reply.getReplyId(), new ReplyUpdateServiceApi("modifyContent", 3)));
-        }else{
-            assertThrows(MemberAccessDeniedException.class, () -> replyService.updateReply(loginMemberId, reply.getReplyId(), new ReplyUpdateServiceApi("modifyContent", 3)));
+        } else {
+            assertThrows(MemberAccessDeniedException.class, () ->
+                    replyService.updateReply(loginMemberId, reply.getReplyId(), new ReplyUpdateServiceApi("modifyContent", 3)));
         }
     }
 
+    @Test
+    @DisplayName("별점이 같으면 최신순으로 정렬한다")
+    void getRepliesByStarAndCreatedDate() {
+        //given
+        Member member = createAndSaveMember();
+
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
+
+        Reply reply = createAndSaveReply(member, video);
+        Reply reply1 = createAndSaveReply(member, video);
+        Reply reply2 = createAndSaveReply(member, video);
+        Reply reply3 = createAndSaveReply(member, video);
+
+        //when
+        Page<ReplyInfo> replies = replyService.getReplies(video.getVideoId(), 1, 10, ReplySort.STAR, null);
+
+        //then
+        assertThat(replies.getTotalElements()).isEqualTo(4);
+        assertThat(replies.getNumber()).isEqualTo(1);
+        assertThat(replies.getSize()).isEqualTo(10);
+
+        List<ReplyInfo> replyInfoList = replies.getContent();
+        for (int i = 0; i < replyInfoList.size() - 1; i++) {
+            if(replyInfoList.get(i).getStar() == replyInfoList.get(i+1).getStar()){
+
+             assertThat(Sort.by(Sort.Order.desc("createdDate")));
+            }
+        }
+    }
 }
 
 

@@ -3,10 +3,7 @@ package com.server.domain.reply.service;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.reply.controller.convert.ReplySort;
-import com.server.domain.reply.dto.ReplyCreateResponse;
-import com.server.domain.reply.dto.ReplyCreateServiceApi;
-import com.server.domain.reply.dto.ReplyInfo;
-import com.server.domain.reply.dto.ReplyUpdateServiceApi;
+import com.server.domain.reply.dto.*;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
@@ -17,7 +14,7 @@ import com.server.global.exception.businessexception.replyException.ReplyDuplica
 import com.server.global.exception.businessexception.replyException.ReplyNotFoundException;
 import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
-import com.server.module.s3.service.AwsService;
+import com.server.global.exception.businessexception.videoexception.VideoNotPurchasedException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -35,8 +32,6 @@ public class ReplyService {
     private final VideoRepository videoRepository;
 
 
-
-
     public ReplyService(ReplyRepository replyRepository, MemberRepository memberRepository, VideoRepository videoRepository) {
         this.replyRepository = replyRepository;
         this.memberRepository = memberRepository;
@@ -45,7 +40,14 @@ public class ReplyService {
 
     @Transactional(readOnly = true)
     public Page<ReplyInfo> getReplies(Long videoId, int page, int size, ReplySort replySort, Integer star) {
-        Sort sort = Sort.by(Sort.Direction.DESC, replySort.getSort());
+        Sort sort;
+
+        if (replySort == ReplySort.STAR) {
+            sort = Sort.by(Sort.Direction.DESC, "star").and(Sort.by(Sort.Direction.DESC, "createdDate"));
+        } else {
+            sort = Sort.by(Sort.Direction.DESC, "createdDate");
+        }
+
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         if (star != null) { //(별점 필터링 o)
@@ -53,39 +55,38 @@ public class ReplyService {
         } else { //(별점 필터링 x)
             return replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
         }
+
+
     }
 
-    public Long createReply(Long loginMemberId, Long videoId, ReplyCreateServiceApi request) {
-        Member member = memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberAccessDeniedException());
-        Integer star = request.getStar();
+    public Long createReply(Long loginMemberId, Long videoId, CreateReply reply) {
 
+        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException());
+        validateReply(loginMemberId, video, reply);
+
+        List<Reply> existReplies = replyRepository.findAllByMemberIdAndVideoId(loginMemberId, videoId);
+        if (!existReplies.isEmpty()) {
+            throw new ReplyDuplicateException();
+        }
+
+        Member member = memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
+
+        Reply newReply = new Reply(reply.getStar(), reply.getContent(), member, video);
+
+        return replyRepository.save(newReply).getReplyId();
+    }
+
+    private void validateReply(Long loginMemberId, Video video, CreateReply request) {
+        Boolean isPurchased = memberRepository.checkMemberPurchaseVideo(loginMemberId, video.getVideoId());
+        if (!isPurchased) {
+            throw new VideoNotPurchasedException();
+        }
+
+        Integer star = request.getStar();
         if (star < 1 || star > 10) {
             throw new ReplyNotValidException();
         }
-
-        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException());
-
-        List<Reply> allReplies = replyRepository.findAll();
-
-        for (Reply reply : allReplies) {
-            if (reply.getMember().equals(member) && reply.getVideo().equals(video)
-                    && reply.getContent().equals(request.getContent())) {
-                throw new ReplyDuplicateException();
-            }
-        }
-
-        ReplyCreateResponse response = ReplyCreateResponse.builder()
-                .content(request.getContent())
-                .star(request.getStar())
-                .member(member)
-                .video(video)
-                .build();
-
-        Reply savedReply = replyRepository.save(response.toEntity());
-
-        return savedReply.getReplyId();
     }
-
 
     public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi request) {
 
@@ -99,7 +100,7 @@ public class ReplyService {
     }
 
     @Transactional(readOnly = true)
-    public ReplyInfo getReply(Long replyId, Long loginMemberId) {
+    public ReplyInfo getReply(Long replyId) {
 
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
 

@@ -95,9 +95,25 @@ class ReplyRepositoryTest extends RepositoryTest {
 
     }
 
+    @Test
+    @DisplayName("memberId 와 videoId 로 댓글들을 찾는다")
+    void findAllByMemberIdAndVideoId(){
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
+        Reply reply = createAndSaveReplies(member, video);
+        Reply reply1 = createAndSaveReplies(member, video);
+        Reply reply2 = createAndSaveReplies(member, video);
 
+        em.flush();
+        em.clear();
 
+        //when
+        List<Reply> findAllByMemberIdAndVideoId = replyRepository.findAllByMemberIdAndVideoId(member.getMemberId(), video.getVideoId());
 
-
-
+        //then
+        assertThat(findAllByMemberIdAndVideoId.size()).isEqualTo(3);
+        assertThat(findAllByMemberIdAndVideoId.get(2).getReplyId()).isEqualTo(reply2.getReplyId());
+    }
 }

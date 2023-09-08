@@ -6,11 +6,9 @@ import java.util.List;
 import com.server.module.s3.service.dto.FileType;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 
 import com.server.domain.member.entity.Grade;
 import com.server.domain.member.service.dto.response.CartsResponse;
@@ -239,7 +237,7 @@ public class MemberStubAop {
 			PlaylistsResponse.builder()
 				.videoId(321L)
 				.videoName("가볍게 배우는 알고리즘")
-				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailUrl(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.star(4.7f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -252,7 +250,7 @@ public class MemberStubAop {
 			PlaylistsResponse.builder()
 				.videoId(2218L)
 				.videoName("더 가볍게 배우는 알고리즘")
-				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailUrl(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.star(3.4f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -265,7 +263,7 @@ public class MemberStubAop {
 			PlaylistsResponse.builder()
 				.videoId(7831L)
 				.videoName("많이 가볍게 배우는 알고리즘")
-				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailUrl(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.star(2.9f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -278,7 +276,7 @@ public class MemberStubAop {
 			PlaylistsResponse.builder()
 				.videoId(321L)
 				.videoName("진짜 가볍게 배우는 알고리즘")
-				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailUrl(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.star(1.8f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
