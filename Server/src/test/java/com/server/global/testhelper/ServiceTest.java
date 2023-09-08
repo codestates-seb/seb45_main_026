@@ -137,6 +137,7 @@ public abstract class ServiceTest {
                 .videoCategories(new ArrayList<>())
                 .videoStatus(VideoStatus.CREATED)
                 .channel(channel)
+                .questions(new ArrayList<>())
                 .build();
 
         videoRepository.save(video);

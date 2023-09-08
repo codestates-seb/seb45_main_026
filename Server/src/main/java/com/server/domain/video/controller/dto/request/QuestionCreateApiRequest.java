@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,9 +15,7 @@ import java.util.stream.Collectors;
 @Builder
 @Getter
 public class QuestionCreateApiRequest {
-    @Positive(message = "{validation.positive}")
-    @NotNull(message = "{validation.question.position}")
-    private Integer position;
+
     @NotBlank(message = "{validation.question.content}")
     private String content;
     @NotBlank(message = "{validation.question.questionAnswer}")
@@ -31,7 +27,6 @@ public class QuestionCreateApiRequest {
 
     public QuestionCreateServiceRequest toServiceRequest() {
         return QuestionCreateServiceRequest.builder()
-                .position(position)
                 .content(content)
                 .questionAnswer(questionAnswer)
                 .description(description)

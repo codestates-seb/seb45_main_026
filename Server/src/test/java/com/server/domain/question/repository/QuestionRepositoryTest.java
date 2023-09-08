@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 class QuestionRepositoryTest extends RepositoryTest {
 
@@ -176,6 +177,30 @@ class QuestionRepositoryTest extends RepositoryTest {
                 .containsExactlyElementsOf(questions.stream().map(Question::getQuestionId).collect(Collectors.toList()));
 
         assertThat(Hibernate.isInitialized(findQuestions.get(0).getVideo())).isTrue();
+    }
+
+    @Test
+    @DisplayName("videoId 로 video 와 해당되는 member, questions 를 모두 초기화하여 조회한다.")
+    void findVideoWIthMemberAndQuestions() {
+        //given
+        Member member = createMemberWithChannel();
+        Video video = createAndSaveVideo(member.getChannel());
+        List<Question> questions = createAndSaveQuestions(video);
+
+        em.flush();
+        em.clear();
+
+        //when
+        Video findVideo = questionRepository.findVideoWIthMemberAndQuestions(video.getVideoId()).orElseThrow();
+
+        //then
+        assertAll("video 의 member, questions 가 모두 초기화되어있다.",
+                () -> assertThat(Hibernate.isInitialized(findVideo.getQuestions())).isTrue(),
+                () -> assertThat(Hibernate.isInitialized(findVideo.getChannel().getMember())).isTrue()
+        );
+
+        assertThat(findVideo.getVideoId()).isEqualTo(video.getVideoId());
+        assertThat(findVideo.getQuestions()).hasSize(questions.size());
     }
 
     private List<Question> createAndSaveQuestions(Video video) {

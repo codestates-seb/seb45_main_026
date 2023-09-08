@@ -191,8 +191,6 @@ class VideoControllerTest extends ControllerTest {
                                 fieldWithPath("[]").description("문제 생성 요청 리스트"),
                                 fieldWithPath("[].content").description("문제 내용")
                                         .attributes(getConstraint("content")),
-                                fieldWithPath("[].position").description("문제 순서")
-                                        .attributes(getConstraint("position")),
                                 fieldWithPath("[].questionAnswer").description("정답")
                                         .attributes(getConstraint("questionAnswer")),
                                 fieldWithPath("[].description").description("문제에 대한 답변 설명").optional()
@@ -877,63 +875,9 @@ class VideoControllerTest extends ControllerTest {
                             .andExpect(jsonPath("$.data[0].value").value(wrongVideoId))
                             .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
                 }),
-                dynamicTest("position 이 null 이면 검증에 실패한다.", ()-> {
-                    //given
-                    List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
-                            .content("content")
-                            .questionAnswer("answer")
-                            .description("description")
-                            .selections(List.of("selection1", "selection2", "selection3"))
-                            .build());
-
-                    //when
-                    ResultActions actions = mockMvc.perform(
-                            post(BASE_URL + "/{video-id}/questions", videoId)
-                                    .contentType(APPLICATION_JSON)
-                                    .content(objectMapper.writeValueAsString(request))
-                                    .accept(APPLICATION_JSON)
-                                    .header(AUTHORIZATION, TOKEN)
-                    );
-
-                    //then
-                    actions.andDo(print())
-                            .andExpect(status().isBadRequest())
-                            .andExpect(jsonPath("$.data[0].field").value("position"))
-                            .andExpect(jsonPath("$.data[0].value").value("null"))
-                            .andExpect(jsonPath("$.data[0].reason").value("문제의 위치는 필수입니다."));
-                }),
-                dynamicTest("position 이 양수가 아니면 검증에 실패한다.", ()-> {
-                    //given
-                    Integer wrongPosition = 0;
-
-                    List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
-                            .position(wrongPosition)
-                            .content("content")
-                            .questionAnswer("answer")
-                            .description("description")
-                            .selections(List.of("selection1", "selection2", "selection3"))
-                            .build());
-
-                    //when
-                    ResultActions actions = mockMvc.perform(
-                            post(BASE_URL + "/{video-id}/questions", videoId)
-                                    .contentType(APPLICATION_JSON)
-                                    .content(objectMapper.writeValueAsString(request))
-                                    .accept(APPLICATION_JSON)
-                                    .header(AUTHORIZATION, TOKEN)
-                    );
-
-                    //then
-                    actions.andDo(print())
-                            .andExpect(status().isBadRequest())
-                            .andExpect(jsonPath("$.data[0].field").value("position"))
-                            .andExpect(jsonPath("$.data[0].value").value(wrongPosition))
-                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
-                }),
                 dynamicTest("content 가 null 이면 검증에 실패한다.", ()-> {
                     //given
                     List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
-                            .position(1)
                             .questionAnswer("answer")
                             .description("description")
                             .selections(List.of("selection1", "selection2", "selection3"))
@@ -960,7 +904,6 @@ class VideoControllerTest extends ControllerTest {
                     String wrongContent = " ";
 
                     List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
-                            .position(1)
                             .content(wrongContent)
                             .questionAnswer("answer")
                             .description("description")
@@ -987,7 +930,6 @@ class VideoControllerTest extends ControllerTest {
                 dynamicTest("selection 이 null 이라도 생성할 수 있다.", ()-> {
                     //given
                     List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
-                            .position(1)
                             .content("content")
                             .questionAnswer("answer")
                             .description("description")
@@ -1010,7 +952,6 @@ class VideoControllerTest extends ControllerTest {
                 dynamicTest("selection 이 null 이 아니라 빈 배열이면 검증에 실패한다.", ()-> {
                     //given
                     List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
-                            .position(1)
                             .content("content")
                             .questionAnswer("answer")
                             .description("description")
@@ -1038,7 +979,6 @@ class VideoControllerTest extends ControllerTest {
                     List<String> wrongSelection = List.of("selection1", "selection2", "selection3", "selection4", "selection5");
 
                     List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
-                            .position(1)
                             .content("content")
                             .questionAnswer("answer")
                             .description("description")
@@ -1066,7 +1006,6 @@ class VideoControllerTest extends ControllerTest {
                     List<String> wrongSelection = List.of(" ", "2");
 
                     List<QuestionCreateApiRequest> request = List.of(QuestionCreateApiRequest.builder()
-                            .position(1)
                             .content("content")
                             .questionAnswer("answer")
                             .description("description")
@@ -1951,7 +1890,6 @@ class VideoControllerTest extends ControllerTest {
 
         for(int i = 1; i <= count; i++) {
             QuestionCreateApiRequest request = QuestionCreateApiRequest.builder()
-                    .position(i)
                     .content("content" + i)
                     .questionAnswer("answer" + i)
                     .description("description" + i)

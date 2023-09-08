@@ -10,7 +10,6 @@ import java.util.List;
 @Builder
 @Getter
 public class QuestionCreateServiceRequest {
-    private int position;
     private String content;
     private String questionAnswer;
     private String description;
