@@ -25,7 +25,7 @@ class OrderRepositoryTest extends RepositoryTest {
 
     @Test
     @DisplayName("video 1, 2 를 장바구니에 담은 후 video 1, 3 을 주문하면 장바구니에 video 1 이 삭제되고, video 2 는 남아있다. (쿼리 1번)")
-    void deleteCartByMemberAndOrderId1() {
+    void deleteCartByMemberAndOrderId() {
         //given
         Member owner = createAndSaveMember();
         Channel channel = createAndSaveChannel(owner);
@@ -49,7 +49,7 @@ class OrderRepositoryTest extends RepositoryTest {
         em.clear();
 
         //when
-        Long deleteCount = orderRepository.deleteCartByMemberAndOrderId1(member.getMemberId(), order.getOrderId());
+        Long deleteCount = orderRepository.deleteCartByMemberAndOrderId(member.getMemberId(), order.getOrderId());
 
         //then
         assertThat(deleteCount).isEqualTo(1L);
@@ -58,44 +58,26 @@ class OrderRepositoryTest extends RepositoryTest {
         assertThat(cartRepository.findById(cart2.getCartId()).isPresent()).isTrue();
 
         assertThat(cartRepository.findAll().size()).isEqualTo(3);
-
     }
 
     @Test
-    @DisplayName("video 1, 2 를 장바구니에 담은 후 video 1, 3 을 주문하면 장바구니에 video 1 이 삭제되고, video 2 는 남아있다. (쿼리 2번)")
-    void deleteCartByMemberAndOrderId2() {
+    @DisplayName("memberId 로 구매한 Video 를 조회한다.")
+    void findPurchasedVideosByMemberId() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
+        Member owner = createMemberWithChannel();
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
 
-        Member member = createAndSaveMember();
-        Member otherMember = createAndSaveMember();
-
-        Video video1 = createAndSaveVideo(channel);
-        Video video2 = createAndSaveVideo(channel);
-        Video video3 = createAndSaveVideo(channel);
-
-        Cart cart1 = createAndSaveCart(member, video1);
-        Cart cart2 = createAndSaveCart(member, video2); // 장바구니에 1, 2 추가
-        Cart otherCart1 = createAndSaveCart(otherMember, video1);
-        Cart otherCart2 = createAndSaveCart(otherMember, video3);
-
-
-        Order order = createAndSaveOrder(member, List.of(video1, video3));// 주문에 1, 3 추가 (결제 x)
-
-        em.flush();
-        em.clear();
+        Member loginMember = createAndSaveMember();
+        createAndSaveOrderComplete(loginMember, List.of(video1));
 
         //when
-        Long deleteCount = orderRepository.deleteCartByMemberAndOrderId2(member.getMemberId(), order.getOrderId());
+        List<Video> purchasedVideos = orderRepository.findPurchasedVideosByMemberId(loginMember.getMemberId());
 
         //then
-        assertThat(deleteCount).isEqualTo(1L);
+        assertThat(purchasedVideos.size()).isEqualTo(1);
+        assertThat(purchasedVideos.get(0).getVideoId()).isEqualTo(video1.getVideoId());
 
-        assertThat(cartRepository.findById(cart1.getCartId()).isPresent()).isFalse();
-        assertThat(cartRepository.findById(cart2.getCartId()).isPresent()).isTrue();
-
-        assertThat(cartRepository.findAll().size()).isEqualTo(3);
     }
 
     @Test
@@ -119,11 +101,12 @@ class OrderRepositoryTest extends RepositoryTest {
         em.clear();
 
         //when
-        Order findOrder = orderRepository.findByIdWithVideos(order.getOrderId()).orElseThrow();
+        Order findOrder = orderRepository.findByIdWithVideos(member.getMemberId(), order.getOrderId()).orElseThrow();
 
         //then
         assertThat(findOrder.getOrderId()).isEqualTo(order.getOrderId());
         assertThat(Hibernate.isInitialized(findOrder.getOrderVideos())).isTrue();
+        assertThat(Hibernate.isInitialized(findOrder.getMember())).isTrue();
         for (OrderVideo orderVideo : findOrder.getOrderVideos()) {
             assertThat(Hibernate.isInitialized(orderVideo.getVideo())).isTrue();
         }
@@ -154,7 +137,7 @@ class OrderRepositoryTest extends RepositoryTest {
         em.clear();
 
         //when
-        List<Video> watchVideos = orderRepository.findWatchVideosAfterPurchaseById(order.getOrderId());
+        List<Video> watchVideos = orderRepository.findWatchVideosAfterPurchaseById(order);
 
         //then
         assertThat(watchVideos).hasSize(2)
@@ -187,7 +170,7 @@ class OrderRepositoryTest extends RepositoryTest {
         em.clear();
 
         //when
-        Boolean isWatch = orderRepository.findWatchVideoAfterPurchaseByVideoId(order.getOrderId(), video1.getVideoId());
+        Boolean isWatch = orderRepository.checkIfWatchAfterPurchase(order, video1.getVideoId());
 
         //then
         assertThat(isWatch).isTrue();
@@ -218,7 +201,7 @@ class OrderRepositoryTest extends RepositoryTest {
         em.clear();
 
         //when (3번은 시청하지 않음)
-        Boolean isWatch = orderRepository.findWatchVideoAfterPurchaseByVideoId(order.getOrderId(), video3.getVideoId());
+        Boolean isWatch = orderRepository.checkIfWatchAfterPurchase(order, video3.getVideoId());
 
         //then
         assertThat(isWatch).isFalse();

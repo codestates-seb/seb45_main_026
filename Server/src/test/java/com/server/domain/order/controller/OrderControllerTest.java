@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.server.global.testhelper.RestDocsUtil.singleResponseFields;
@@ -99,7 +100,7 @@ class OrderControllerTest extends ControllerTest {
                 "결제 결과")
         );
 
-        given(orderService.requestFinalPayment(anyLong(), anyString(), anyString(), anyInt())).willReturn(serviceResponse);
+        given(orderService.requestFinalPayment(anyLong(), anyString(), anyString(), anyInt(), any(LocalDateTime.class))).willReturn(serviceResponse);
 
         //when
         ResultActions actions = mockMvc.perform(
@@ -173,8 +174,9 @@ class OrderControllerTest extends ControllerTest {
         Long videoId = 1L;
 
         CancelServiceResponse serviceResponse = CancelServiceResponse.builder()
-                .requestAmount(5000)
-                .totalCancelAmount(4500)
+                .totalRequest(5000)
+                .totalCancelAmount(4000)
+                .totalCancelReward(500)
                 .usedReward(500)
                 .build();
 
@@ -206,9 +208,10 @@ class OrderControllerTest extends ControllerTest {
                 ),
                 singleResponseFields(
                         fieldWithPath("data").description("비디오 취소 결과"),
-                        fieldWithPath("data.requestAmount").description("취소 요청 금액"),
-                        fieldWithPath("data.totalCancelAmount").description("총 취소 금액"),
-                        fieldWithPath("data.usedReward").description("사용된 리워드(리워드에 사용되어 취소못한 금액)")
+                        fieldWithPath("data.totalRequest").description("취소 요청 금액"),
+                        fieldWithPath("data.totalCancelAmount").description("취소된 결제 금액"),
+                        fieldWithPath("data.totalCancelReward").description("취소된 리워드"),
+                        fieldWithPath("data.usedReward").description("사용된 리워드 환불때문에 취소못한 금액")
                 )
         ));
 

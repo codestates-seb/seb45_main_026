@@ -145,6 +145,26 @@ public abstract class ServiceTest {
         return video;
     }
 
+    protected Video createAndSaveVideo(Channel channel, int price) {
+        Video video = Video.builder()
+                .videoName("title")
+                .description("description")
+                .thumbnailFile("thumbnailFile")
+                .videoFile("videoFile")
+                .view(0)
+                .star(0.0F)
+                .price(price)
+                .videoCategories(new ArrayList<>())
+                .videoStatus(VideoStatus.CREATED)
+                .channel(channel)
+                .questions(new ArrayList<>())
+                .build();
+
+        videoRepository.save(video);
+
+        return video;
+    }
+
     protected Video createAndSaveVideoUploading(Channel channel) {
         Video video = Video.builder()
                 .videoName("title")
@@ -178,7 +198,7 @@ public abstract class ServiceTest {
                 .build();
 
         Order order = Order.createOrder(member, List.of(video), 0);
-        order.completeOrder(LocalDateTime.now());
+        order.completeOrder(LocalDateTime.now(), "paymentKey");
 
         videoRepository.save(video);
         orderRepository.save(order);
@@ -210,7 +230,7 @@ public abstract class ServiceTest {
 
     protected Order createAndSaveOrderWithPurchaseComplete(Member member, List<Video> video, int reward) {
         Order order = Order.createOrder(member, video, reward);
-        order.completeOrder(LocalDateTime.now());
+        order.completeOrder(LocalDateTime.now(), "paymentKey");
         orderRepository.save(order);
 
         return order;

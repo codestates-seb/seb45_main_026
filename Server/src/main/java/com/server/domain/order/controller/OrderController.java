@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/orders")
@@ -43,7 +44,14 @@ public class OrderController {
             @RequestParam Integer amount,
             @LoginId Long loginMemberId) {
 
-        PaymentServiceResponse serviceResponse = orderService.requestFinalPayment(loginMemberId, paymentKey, orderId, amount);
+        LocalDateTime orderCompletedDate = LocalDateTime.now();
+
+        PaymentServiceResponse serviceResponse = orderService.requestFinalPayment(
+                loginMemberId,
+                paymentKey,
+                orderId,
+                amount,
+                orderCompletedDate);
 
         PaymentApiResponse response = PaymentApiResponse.of(serviceResponse);
 
