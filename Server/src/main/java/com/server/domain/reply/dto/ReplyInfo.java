@@ -42,7 +42,6 @@ public class ReplyInfo {
                 .createdDate(reply.getCreatedDate())
                 .build();
     }
-
     public static Page<ReplyInfo> of(Page<Reply> replies) {
         return replies.map(reply -> {
             Member member2 = reply.getMember();
@@ -62,8 +61,8 @@ public class ReplyInfo {
                     reply.getCreatedDate()
             );
         });
-    }
 
+    }
 
 
 }

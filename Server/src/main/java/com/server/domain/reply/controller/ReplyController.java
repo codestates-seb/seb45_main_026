@@ -41,7 +41,7 @@ public class ReplyController {
             @PathVariable("reply-id") @Positive(message = "{validation.positive}") Long replyId,
             @LoginId Long loginMemberId) {
 
-        ReplyInfo reply = replyService.getReply(replyId, loginMemberId);
+        ReplyInfo reply = replyService.getReply(replyId);
 
         return ResponseEntity.ok(ApiSingleResponse.ok(reply, "댓글 단건 조회 성공"));
     }

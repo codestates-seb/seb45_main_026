@@ -1,13 +1,13 @@
 package com.server.domain.video.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.server.domain.answer.entity.AnswerStatus;
 import com.server.domain.question.service.dto.response.QuestionResponse;
 import com.server.domain.reply.controller.convert.ReplySort;
+import com.server.domain.reply.dto.CreateReply;
 import com.server.domain.reply.dto.MemberInfo;
 import com.server.domain.reply.dto.ReplyCreateControllerApi;
-import com.server.domain.reply.dto.ReplyCreateServiceApi;
 import com.server.domain.reply.dto.ReplyInfo;
+import com.server.domain.reply.entity.Reply;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
@@ -694,12 +694,12 @@ class VideoControllerTest extends ControllerTest {
         //given
         Long createdReplyId = 1L;
 
-        ReplyCreateControllerApi request = ReplyCreateControllerApi.builder()
+        CreateReply request = CreateReply.builder()
                         .content("댓글 내용")
                         .star(4)
                         .build();
 
-        given(replyService.createReply(anyLong(), anyLong(), any(ReplyCreateServiceApi.class))).willReturn(createdReplyId);
+        given(replyService.createReply(anyLong(), anyLong(), any(CreateReply.class))).willReturn(createdReplyId);
 
         //when
         ResultActions actions = mockMvc.perform(

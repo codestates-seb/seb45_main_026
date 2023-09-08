@@ -29,8 +29,8 @@ public class ReplyCreateControllerApi {
     }
 
 
-    public ReplyCreateServiceApi toService() {
-        return ReplyCreateServiceApi.builder()
+    public CreateReply toService() {
+        return CreateReply.builder()
                 .content(content)
                 .star(star)
                 .build();

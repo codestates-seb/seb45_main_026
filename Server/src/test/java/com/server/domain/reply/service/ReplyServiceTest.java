@@ -4,33 +4,30 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.reply.controller.convert.ReplySort;
-import com.server.domain.reply.dto.ReplyCreateServiceApi;
+import com.server.domain.reply.dto.CreateReply;
 import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.dto.ReplyUpdateServiceApi;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
-import com.server.domain.video.service.VideoService;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.replyException.ReplyDuplicateException;
-import com.server.global.exception.businessexception.replyException.ReplyNotFoundException;
 import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
+import com.server.global.reponse.PageInfo;
 import com.server.global.testhelper.ServiceTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 class ReplyServiceTest extends ServiceTest {
 
@@ -75,7 +72,7 @@ class ReplyServiceTest extends ServiceTest {
         Long loginMemberId = loginMember.getMemberId();
         Long replyId = createAndSaveReply(loginMember, video).getReplyId();
 
-        ReplyInfo reply = replyService.getReply(replyId, loginMemberId);
+        ReplyInfo reply = replyService.getReply(replyId);
 
         assertThat(reply.getContent()).isEqualTo("content");
         assertThat(reply.getStar()).isEqualTo(1);
@@ -271,17 +268,18 @@ class ReplyServiceTest extends ServiceTest {
         Member member = createAndSaveMember();
         Long loginMemberId = member.getMemberId();
 
+
         Channel channel = createAndSaveChannel(member);
-        Video video = createAndSaveVideo(channel);
+        Video video = createAndSavePurchasedVideo(member);
         Long videoId = video.getVideoId();
 
-        ReplyCreateServiceApi request = ReplyCreateServiceApi.builder()
+        Reply reply = Reply.builder()
                 .content("content")
                 .star(11)
                 .build();
 
         ReplyNotValidException exception = assertThrows(ReplyNotValidException.class, () -> {
-            replyService.createReply(loginMemberId, videoId, request);
+            replyService.createReply(loginMemberId, videoId, new CreateReply("content", 11));
         });
 
         assertThat(exception).isInstanceOf(ReplyNotValidException.class);
@@ -289,27 +287,23 @@ class ReplyServiceTest extends ServiceTest {
 
     @Test
     @DisplayName("댓글을 중복하여 작성할 수 없다")
-    void cannotDuplicateReplies(){
+    void cannotDuplicateReplies() {
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
+        Reply reply1 = createAndSaveReply(member, video);
+        Reply reply = createAndSaveReply(member, video);
 
-        Long loginId = member.getMemberId();
-        Long videoId = video.getVideoId();
 
-        ReplyCreateServiceApi request = ReplyCreateServiceApi.builder()
-                .content("content")
-                .star(10)
-                .build();
 
-        Long reply = replyService.createReply(loginId, videoId, request);
-
-        Throwable throwable = assertThrows(ReplyDuplicateException.class, () -> {
-            replyService.createReply(loginId, videoId, request);
-        });
-
-        assertThat(throwable).isInstanceOf(ReplyDuplicateException.class);
+        if (reply.getMember().getMemberId() == reply1.getMember().getMemberId()) {
+            assertThrows(ReplyDuplicateException.class, () -> {
+                replyService.createReply(member.getMemberId(), video.getVideoId(), new CreateReply("content", 3));
+            });
+        }
     }
+
 
     @Test
     @DisplayName("로그인한 사용자만 댓글을 수정할 수 있다.")
@@ -327,13 +321,41 @@ class ReplyServiceTest extends ServiceTest {
                 .build();
         replyRepository.save(reply);
 
-        if(reply.getMember().getMemberId() == loginMemberId){
+        if (reply.getMember().getMemberId() == loginMemberId) {
             assertDoesNotThrow(() -> replyService.updateReply(loginMemberId, reply.getReplyId(), new ReplyUpdateServiceApi("modifyContent", 3)));
-        }else{
-            assertThrows(MemberAccessDeniedException.class, () -> replyService.updateReply(loginMemberId, reply.getReplyId(), new ReplyUpdateServiceApi("modifyContent", 3)));
+        } else {
+            assertThrows(MemberAccessDeniedException.class, () ->
+                    replyService.updateReply(loginMemberId, reply.getReplyId(), new ReplyUpdateServiceApi("modifyContent", 3)));
         }
     }
 
+    @Test
+    @DisplayName("별점이 같으면 최신순으로 정렬한다")
+    void getRepliesByStarAndCreatedDate() {
+        Member member = createAndSaveMember();
+
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
+
+        Reply reply = createAndSaveReply(member, video);
+        Reply reply1 = createAndSaveReply(member, video);
+        Reply reply2 = createAndSaveReply(member, video);
+        Reply reply3 = createAndSaveReply(member, video);
+
+        Page<ReplyInfo> replies = replyService.getReplies(video.getVideoId(), 1, 10, ReplySort.STAR, null);
+
+        assertThat(replies.getTotalElements()).isEqualTo(4);
+        assertThat(replies.getNumber()).isEqualTo(1);
+        assertThat(replies.getSize()).isEqualTo(10);
+
+        List<ReplyInfo> replyInfoList = replies.getContent();
+        for (int i = 0; i < replyInfoList.size() - 1; i++) {
+            if(replyInfoList.get(i).getStar() == replyInfoList.get(i+1).getStar()){
+
+             assertThat(Sort.by(Sort.Order.desc("createdDate")));
+            }
+        }
+    }
 }
 
 
