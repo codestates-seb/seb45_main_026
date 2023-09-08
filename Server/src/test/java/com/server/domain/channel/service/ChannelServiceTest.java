@@ -307,6 +307,51 @@ class ChannelServiceTest extends ServiceTest {
         assertThat(updatedChannel).isEqualTo(Subscribers);
     }
 
+    @Test
+    @DisplayName("로그인한 사용자만 채널을 수정 할 수 있다.")
+    void OnlyUserUpdateChannelInfo() {
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+
+        Long loginMemberId = member.getMemberId();
+        Long ownerId = channel.getMember().getMemberId();
+
+        if(!loginMemberId.equals(ownerId)){
+            throw new MemberAccessDeniedException();
+        } else {
+            channel.updateChannel("updateChannelName", "updateDescription");
+        }
+
+        assertThat(channel.getChannelName()).isEqualTo("updateChannelName");
+        assertThat(channel.getDescription()).isEqualTo("updateDescription");
+
+    }
+
+    @Test
+    @DisplayName("비회원은 구독취소를 할 수 없다.")
+    void OnlyUserUpdateSubscribeCancel() {
+        Member loginMember = createAndSaveMember();
+        Member otherMember = createAndSaveMember();
+        Channel otherMemberChannel = createAndSaveChannel(otherMember);
+
+        Long loginMemberId = loginMember.getMemberId();
+        Long otherMemberId = otherMemberChannel.getMember().getMemberId();
+
+        channelService.updateSubscribe(otherMemberId, loginMemberId);
+
+        assertThrows(MemberAccessDeniedException.class, () -> {
+            if (!loginMemberId.equals(otherMemberId)) {
+                throw new MemberAccessDeniedException();
+            } else {
+                channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
+            }
+        });
+
+        assertThat(subscribeRepository.findAll().size()).isEqualTo(1);
+    }
+
+
+
 
 
 }

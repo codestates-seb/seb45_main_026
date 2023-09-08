@@ -22,9 +22,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Transactional
 @Service
 public class ReplyService {
 
@@ -41,6 +43,7 @@ public class ReplyService {
         this.videoRepository = videoRepository;
     }
 
+    @Transactional(readOnly = true)
     public Page<ReplyInfo> getReplies(Long videoId, int page, int size, ReplySort replySort, Integer star) {
         Sort sort = Sort.by(Sort.Direction.DESC, replySort.getSort());
         PageRequest pageRequest = PageRequest.of(page, size, sort);
@@ -95,6 +98,7 @@ public class ReplyService {
         reply.updateReply(request.getContent(), request.getStar());
     }
 
+    @Transactional(readOnly = true)
     public ReplyInfo getReply(Long replyId, Long loginMemberId) {
 
         Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
