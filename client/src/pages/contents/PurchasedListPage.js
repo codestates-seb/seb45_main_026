@@ -64,8 +64,7 @@ export default function PurchasedListPage() {
             .then((res) => setChannelList(res.data.data))
             .catch((err) => console.log(err));
       }
-    },[isList])
-    console.log(channelList);
+    },[isList,filterState])
     return (
       <PageContainer isDark={isDark}>
         <PurchasedListContainer>
