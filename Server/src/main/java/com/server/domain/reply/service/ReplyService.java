@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Transactional
 @Service
@@ -65,25 +66,19 @@ public class ReplyService {
 
         Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException());
 
-        List<Reply> allReplies = replyRepository.findAll();
+        Long loginMember = member.getMemberId();
+        memberRepository.findById(loginMember);
 
-        for (Reply reply : allReplies) {
-            if (reply.getMember().equals(member) && reply.getVideo().equals(video)
-                    && reply.getContent().equals(request.getContent())) {
-                throw new ReplyDuplicateException();
-            }
-        }
-
-        ReplyCreateResponse response = ReplyCreateResponse.builder()
+        Reply reply = Reply.builder()
                 .content(request.getContent())
                 .star(request.getStar())
                 .member(member)
                 .video(video)
                 .build();
 
-        Reply savedReply = replyRepository.save(response.toEntity());
+        return replyRepository.save(reply).getReplyId();
 
-        return savedReply.getReplyId();
+
     }
 
 
