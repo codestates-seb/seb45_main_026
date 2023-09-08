@@ -23,6 +23,27 @@ export const getUserInfoService = async (authorization) => {
         }
     }
 }
+//채널정보 조회
+export const getUserChannelInfoService = async (authorization, memberId) => {
+    try {
+        const response = await axios.get(
+            `${ROOT_URL}/channels/${memberId}`,
+            {
+                headers: {
+                    Authorization: authorization
+                }
+            }
+        )
+        return {
+            status: 'success',
+            data: response.data.data
+        }
+    } catch (err) {
+        return {
+            status: 'error',
+        }
+    }
+}
 //프로필 변경 step1 : 프로필 등록 presignedUrl 받기
 export const getUploadProfileImgUrlService = async (
     authorization, 
@@ -111,6 +132,30 @@ export const updateNicknameService = async (authorization, nickname) => {
         return {
             status: 'error',
             data: err.message
+        }
+    }
+}
+//채널 정보 수정
+export const updateChannelInfoService = async (authorization, memberId, channelName, channelDescription) => {
+    try {
+        await axios.patch(
+            `${ROOT_URL}/channels/${memberId}`,
+            {
+                channelName: channelName,
+                description: channelDescription,
+            },
+            {
+                headers: {
+                    Authorization: authorization
+                }
+            }
+        );
+        return {
+            status: 'success'
+        }
+    } catch(err) {
+        return {
+            status: 'error'
         }
     }
 }

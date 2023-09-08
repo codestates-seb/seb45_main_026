@@ -17,6 +17,8 @@ const HomeBody = styled.div`
     flex-direction: column;
     align-items: center;
     background-color: ${ props=>props.isDark ? 'rgba(255,255,255,0.15)' : globalTokens.White.value };
+    border-radius: 0 0 ${globalTokens.RegularRadius.value}px ${globalTokens.RegularRadius.value}px;
+
 `
 export const HomeTitle = styled(Heading5Typo)`
     margin-left: ${globalTokens.Spacing28.value}px;

@@ -13,6 +13,7 @@ export const SettingContainer = styled.div`
     justify-content: center;
     align-items: center;
     background-color: ${ props=>props.isDark ? 'rgba(255,255,255,0.15)' : globalTokens.White.value };
+    border-radius: 0 0 ${globalTokens.RegularRadius.value}px ${globalTokens.RegularRadius.value}px;
 `
 export const SettingTitle2 = styled(HomeTitle)`
     padding-left: 0;
