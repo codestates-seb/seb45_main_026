@@ -1,0 +1,48 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Member]]
+= 장바구니/결제/리워드 목록 조회 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 장바구니(찜 목록) 조회
+=== HTTP Request
+include::{snippets}/member/getcarts/http-request.adoc[]
+==== Request Header
+include::{snippets}/member/getcarts/request-headers.adoc[]
+==== Request Parameter
+include::{snippets}/member/getcarts/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/member/getcarts/http-response.adoc[]
+==== Response Fields
+include::{snippets}/member/getcarts/response-fields.adoc[]
+
+== 결제 목록 조회
+=== HTTP Request
+include::{snippets}/member/getorders/http-request.adoc[]
+==== Request Header
+include::{snippets}/member/getorders/request-headers.adoc[]
+==== Request Parameter
+include::{snippets}/member/getorders/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/member/getorders/http-response.adoc[]
+==== Response Fields
+include::{snippets}/member/getorders/response-fields.adoc[]
+
+== 리워드 목록 조회
+=== HTTP Request
+include::{snippets}/member/getrewards/http-request.adoc[]
+==== Request Header
+include::{snippets}/member/getrewards/request-headers.adoc[]
+==== Request Parameter
+include::{snippets}/member/getrewards/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/member/getrewards/http-response.adoc[]
+==== Response Fields
+include::{snippets}/member/getrewards/response-fields.adoc[]

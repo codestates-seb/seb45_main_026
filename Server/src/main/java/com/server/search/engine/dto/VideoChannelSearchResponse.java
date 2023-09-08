@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.video.entity.Video;
+import com.server.search.repository.dto.VideoSearchResult;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -12,8 +13,6 @@ import lombok.Getter;
 @Builder
 @Getter
 public class VideoChannelSearchResponse {
-	@Builder.Default
-	private List<Video> videos = new ArrayList<>();
-	@Builder.Default
-	private List<Channel> channels = new ArrayList<>();
+	private List<VideoSearchResponse> videos;
+	private List<ChannelSearchResponse> channels;
 }

@@ -1,0 +1,22 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Member]]
+= 비디오/채널 통합 검색 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 통합 검색
+=== HTTP Request
+include::{snippets}/search/search/http-request.adoc[]
+==== Request Header
+include::{snippets}/search/search/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/search/search/http-response.adoc[]
+==== Response Fields
+include::{snippets}/search/search/response-fields.adoc[]

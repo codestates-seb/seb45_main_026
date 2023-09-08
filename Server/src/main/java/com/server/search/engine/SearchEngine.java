@@ -5,11 +5,9 @@ import java.util.List;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.video.entity.Video;
 import com.server.search.engine.dto.VideoChannelSearchResponse;
+import com.server.search.repository.dto.ChannelSearchResult;
+import com.server.search.repository.dto.VideoSearchResult;
 
 public interface SearchEngine {
-	List<Video> searchVideos(String keyword);
-
-	List<Channel> searchChannels(String keyword);
-
-	VideoChannelSearchResponse searchVideosAndChannels(String keyword);
+	VideoChannelSearchResponse searchVideosAndChannels(String keyword, int limit);
 }
