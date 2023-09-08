@@ -71,7 +71,7 @@ public class ReplyService {
 
         Member member = memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
 
-        Reply newReply = Reply.createReply(member, video, reply.getContent(), reply.getStar());
+        Reply newReply = new Reply(reply.getStar(), reply.getContent(), member, video);
 
         return replyRepository.save(newReply).getReplyId();
     }

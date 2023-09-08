@@ -34,13 +34,11 @@ public class Reply extends BaseEntity implements Rewardable {
     @JoinColumn(name = "video_id")
     private Video video;
 
-    public static Reply createReply(Member member, Video video, String content, Integer star) {
-        Reply reply = new Reply();
-        reply.member = member;
-        reply.video = video;
-        reply.content = content;
-        reply.star = star;
-        return reply;
+    public Reply(Integer star, String content, Member member, Video video) {
+        this.star = star;
+        this.content = content;
+        this.member = member;
+        this.video = video;
     }
 
     public void updateReply(String content, Integer star) {

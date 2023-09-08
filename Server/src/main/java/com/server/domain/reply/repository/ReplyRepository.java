@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +24,7 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
 
     @Query("select r from Reply r where r.member.memberId = :memberId and r.video.videoId = :videoId")
-    List<Reply> findAllByMemberIdAndVideoId(Long memberId, Long videoId);
+    List<Reply> findAllByMemberIdAndVideoId(@Param("memberId")Long memberId, @Param("videoId")Long videoId);
 
 
 

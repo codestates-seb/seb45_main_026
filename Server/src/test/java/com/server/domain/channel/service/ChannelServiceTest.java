@@ -104,11 +104,14 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("memberId를 통해 Channel을 조회한다.")
     void getChannel(){
+        //given
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
 
+        //when
         ChannelInfo channelInfo = channelService.getChannel(member.getMemberId(), member.getMemberId());
 
+        //then
         assertThat(channelInfo.getMemberId()).isEqualTo(member.getMemberId());
         assertThat(channelInfo.getChannelName()).isEqualTo(channel.getChannelName());
         assertThat(channelInfo.getIsSubscribed()).isFalse();
@@ -125,9 +128,11 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("Channel을 조회할 때 존재하지 않으면 ChannelNotFoundException이 발생한다.")
     void getChannelNotFoundException(){
+        //given
         Member loginMemberId = createAndSaveMember();
         Channel channel = createAndSaveChannel(loginMemberId);
 
+        //then
         assertThatThrownBy(() -> channelService.getChannel(channel.getMember().getMemberId()+99L, loginMemberId.getMemberId()))
                 .isInstanceOf(ChannelNotFoundException.class);
     }
@@ -135,6 +140,7 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("ChannelName과 ChannelDescription을 받아서 Channel정보를 수정한다.")
     void updateChannel(){
+        //given
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
 
@@ -148,8 +154,10 @@ class ChannelServiceTest extends ServiceTest {
                 .description(updateDescription)
                 .build();
 
+        //when
         channelService.updateChannelInfo(member.getMemberId(), member.getMemberId(), channelUpdate);
 
+        //then
         assertThat(channel.getChannelName()).isEqualTo(updateChannelName);
         assertThat(channel.getDescription()).isEqualTo(updateDescription);
     }
@@ -157,24 +165,27 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("Channel을 수정할 때 해당 채널이 존재하지 않으면 ChannelNotFoundException이 발생한다.")
     void updateChannelNotFoundException(){
+        //given
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
-
 
         String updateChannelName = "updateChannelName";
         String updateDescription = "updateDescription";
 
+        //when
         ChannelUpdate channelUpdate = ChannelUpdate.builder()
                 .channelName(updateChannelName)
                 .description(updateDescription)
                 .build();
 
+        //then
         assertThatThrownBy(() -> channelService.updateChannelInfo(member.getMemberId(), channel.getMember().getMemberId()+999L, channelUpdate));
     }
 
     @Test
     @DisplayName("Channel을 수정할 때 해당 채널의 주인이 아니면 MemberAccessDeniedException이 발생한다.")
     void updateChannelMemberAccessDeniedException(){
+        //given
         Member member = createAndSaveMember();
 
         String updateChannelName = "updateChannelName";
@@ -185,6 +196,7 @@ class ChannelServiceTest extends ServiceTest {
                 .description(updateDescription)
                 .build();
 
+        //then
         assertThatThrownBy(() -> channelService.updateChannelInfo(member.getMemberId()+99L, member.getMemberId(), channelUpdate))
                 .isInstanceOf(MemberAccessDeniedException.class);
     }
@@ -193,11 +205,14 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("Channel이 구독중이지 않으면 구독한다.")
     void updateSubscribe(){
+        //given
         Member loginMember = createAndSaveMember();
         Channel channel = createAndSaveChannel(loginMember);
 
+        //when
         boolean subscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
 
+        //then
         assertTrue(subscribe);
         assertThat(subscribeRepository.findAll().size()).isEqualTo(1);
     }
@@ -205,13 +220,16 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("Channel이 구독중이면 구독해지한다.")
     void updateSubscribeCancel() {
+        //given
         Member loginMember = createAndSaveMember();
         Channel channel = createAndSaveChannel(loginMember);
 
+        //when
         boolean initialSubscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
 
         boolean unsubscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
 
+        //then
         assertThat(initialSubscribe).isTrue();
         assertFalse(unsubscribe);
         assertThat(subscribeRepository.findAll().size()).isEqualTo(0);
@@ -220,11 +238,14 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("비로그인 사용자가 채널을 조회하면 구독여부는 나오지 않는다")
     void getChannelNotLogin(){
+        //given
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
 
+        //when
         ChannelInfo channelInfo = channelService.getChannel(member.getMemberId(), null);
 
+        //then
         assertThat(channelInfo.getMemberId()).isEqualTo(channel.getMember().getMemberId());
         assertThat(channelInfo.getChannelName()).isEqualTo(channel.getChannelName());
         assertThat(channelInfo.getIsSubscribed()).isFalse();
@@ -241,12 +262,15 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("로그인한 멤버가 타 유저의 채널을 구독하면 True가 나온다")
     void subscribeToOtherUserChannelReturnsTrue() {
+        //given
         Member loginMember = createAndSaveMember();
         Member otherMember = createAndSaveMember();
         Channel otherMemberChannel = createAndSaveChannel(otherMember);
 
+        //when
         boolean isSubscribed = channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
 
+        //then
         assertThat(subscribeRepository.findAll().size()).isEqualTo(1);
 
         assertTrue(isSubscribed);
@@ -255,13 +279,16 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("로그인한 멤버가 타유저의 채널을 구독해지하면 False가 나온다")
     void updateSubscribeFalse() {
+        //given
         Member loginMember = createAndSaveMember();
         Member otherMember = createAndSaveMember();
         Channel otherMemberChannel = createAndSaveChannel(otherMember);
 
+        //when
         boolean isSubscribed = channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
         boolean unsubscribe = channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
 
+        //then
         assertThat(isSubscribed).isTrue();
         assertThat(subscribeRepository.findAll().size()).isEqualTo(0);
         assertFalse(unsubscribe);
@@ -270,10 +297,12 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("채널이 존재하지 않으면 ChannelNotFoundException이 발생한다.")
     void updateSubscribeChannelNotFoundException(){
+        //given
         Member loginMember = createAndSaveMember();
         Member otherMember = createAndSaveMember();
         Channel otherMemberChannel = createAndSaveChannel(otherMember);
 
+        //then
         assertThatThrownBy(() -> channelService.updateSubscribe(loginMember.getMemberId()+999L, otherMemberChannel.getMember().getMemberId()))
                 .isInstanceOf(ChannelNotFoundException.class);
     }
@@ -281,28 +310,33 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("채널을 구독하면 구독자 수가 1 증가한다.")
     void updateSubscribeIncreaseSubscribers(){
+        //given
         Member loginMember = createAndSaveMember();
         Member otherMember = createAndSaveMember();
         Channel otherMemberChannel = createAndSaveChannel(otherMember);
 
+        //when
         channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
 
+        //then
         Channel channel = channelRepository.findById(otherMemberChannel.getChannelId()).get();
-
         assertThat(channel.getSubscribers()).isEqualTo(1);
     }
 
     @Test
     @DisplayName("타유저의 채널을 구독해지하면 구독자 수가 1 감소한다.")
     void updateSubscribeDecreaseSubscribers() {
+        //given
         Member loginMember = createAndSaveMember();
         Member otherMember = createAndSaveMember();
         Channel otherMemberChannel = createAndSaveChannel(otherMember);
         Long Subscribers = otherMemberChannel.getMember().getMemberId();
 
+        //when
         channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
         channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
 
+        //then
         Long updatedChannel = otherMemberChannel.getMember().getMemberId();
         assertThat(updatedChannel).isEqualTo(Subscribers);
     }
@@ -310,18 +344,21 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("로그인한 사용자만 채널을 수정 할 수 있다.")
     void OnlyUserUpdateChannelInfo() {
+        //given
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
 
         Long loginMemberId = member.getMemberId();
         Long ownerId = channel.getMember().getMemberId();
 
+        //when
         if(!loginMemberId.equals(ownerId)){
             throw new MemberAccessDeniedException();
         } else {
             channel.updateChannel("updateChannelName", "updateDescription");
         }
 
+        //then
         assertThat(channel.getChannelName()).isEqualTo("updateChannelName");
         assertThat(channel.getDescription()).isEqualTo("updateDescription");
 
@@ -330,6 +367,7 @@ class ChannelServiceTest extends ServiceTest {
     @Test
     @DisplayName("비회원은 구독취소를 할 수 없다.")
     void OnlyUserUpdateSubscribeCancel() {
+        //given
         Member loginMember = createAndSaveMember();
         Member otherMember = createAndSaveMember();
         Channel otherMemberChannel = createAndSaveChannel(otherMember);
@@ -339,6 +377,7 @@ class ChannelServiceTest extends ServiceTest {
 
         channelService.updateSubscribe(otherMemberId, loginMemberId);
 
+        //when&then
         assertThrows(MemberAccessDeniedException.class, () -> {
             if (!loginMemberId.equals(otherMemberId)) {
                 throw new MemberAccessDeniedException();
