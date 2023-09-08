@@ -1,5 +1,8 @@
 import { styled } from "styled-components";
 import tokens from '../../styles/tokens.json'
+import { InputButton, InputContainer, InputWithButtonContainer } from "./Inputs";
+import { useSelector } from "react-redux";
+import { BodyTextTypo } from "../typographys/Typographys";
 
 const globalTokens = tokens.global;
 
@@ -15,3 +18,53 @@ export const RegularTextArea = styled.textarea`
         color: ${(props)=>props.isDark? globalTokens.LightGray.value : globalTokens.Gray.value};
     }
 `
+
+export const Textarea = ({
+    marginTop, marginBottom, marginLeft, marginRight,
+    label, labelDirection, name, type, placeholder, width,
+    register, required, maxLength, minLength, pattern, validateFunc,
+    isButton, buttonTitle, handleButtonClick, onChange, disabled
+}) => {
+    const isDark = useSelector(state=>state.uiSetting.isDark);
+
+    return (
+        <InputContainer
+            labelDirection={labelDirection}
+            marginTop={marginTop}
+            marginBottom={marginBottom}
+            marginLeft={marginLeft}
+            marginRight={marginRight}>
+            { label &&
+                <BodyTextTypo isDark={isDark}>
+                    {label}
+                </BodyTextTypo>
+            }
+            <InputWithButtonContainer>
+            <RegularTextArea
+                isDark={isDark}
+                width={
+                    width? `${width}`
+                        : isButton? '200px'
+                        : '300px'
+                }
+                placeholder={placeholder}
+                {...register(name, { 
+                    required: required,
+                    maxLength: maxLength,
+                    minLength: minLength,
+                    pattern: pattern,
+                    validate: validateFunc })}
+                onChange={onChange}
+                disabled={disabled?disabled:false}/>
+            { isButton &&
+                <InputButton
+                    type='button'
+                    isDark={isDark}
+                    onClick={handleButtonClick}>
+                    {buttonTitle}
+                </InputButton>
+            }
+            </InputWithButtonContainer>
+        </InputContainer>
+    )
+}

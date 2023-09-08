@@ -10,16 +10,18 @@ import { BodyTextTypo, Heading5Typo, SmallTextTypo } from "../../atoms/typograph
 const globalTokens = tokens.global;
 
 const ComponentBody = styled.li`
-    width: 100%;
-    height: 200px;
+    width: 95%;
+    min-width: 600px;
     display: flex;
     flex-direction: row;
+    align-items: center;
     border-radius: ${globalTokens.RegularRadius.value}px;
+    margin: ${globalTokens.Spacing4.value}px 0;
 `
 const ThumbnailContainer = styled.div`
-    width: 300px;
-    min-width: 300px;
-    height: 200px;
+    width: 250px;
+    min-width: 250px;
+    height: 170px;
     border-radius: ${globalTokens.RegularRadius.value}px;
     background-color: ${globalTokens.White.value};
     display: flex;
@@ -38,7 +40,7 @@ const Thumbnail = styled.img`
 `
 const ItemInfors = styled.div`
     flex-grow: 1;
-    height: 200px;
+    height: 170px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -48,8 +50,6 @@ const ItemInfors = styled.div`
 `
 const Title = styled(Heading5Typo)`
     width: 100%;
-    height: 60px;
-    font-size: ${globalTokens.Heading5.value}px;
     padding: ${globalTokens.Spacing4.value}px;
     &:hover{
       cursor: pointer;
