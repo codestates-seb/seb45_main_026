@@ -77,7 +77,7 @@ public class MemberResponseConverter {
 			return PlaylistsResponse.builder()
 				.videoId(video.getVideoId())
 				.videoName(video.getVideoName())
-				.thumbnailFile(
+				.thumbnailUrl(
 					getThumbnailUrl(memberId, video.getThumbnailFile())
 				)
 				.star(video.getStar())

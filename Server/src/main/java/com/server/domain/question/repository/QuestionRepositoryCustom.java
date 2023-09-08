@@ -13,4 +13,6 @@ public interface QuestionRepositoryCustom {
     List<QuestionData> findQuestionDatasWithMemberAnswerByVideoId(Long MemberId, Long videoId);
 
     Optional<Video> findVideoByQuestionId(Long questionId);
+
+    Optional<Video> findVideoWIthMemberAndQuestions(Long videoId);
 }

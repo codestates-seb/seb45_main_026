@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.MessageSource;
@@ -70,6 +71,8 @@ import com.server.domain.video.service.VideoService;
 import com.server.global.common.CommonController;
 import com.server.module.email.service.MailService;
 import com.server.module.s3.service.AwsService;
+import com.server.search.controller.SearchController;
+import com.server.search.engine.SearchEngine;
 
 @MockBean(JpaMetamodelMappingContext.class)
 @WebMvcTest({
@@ -82,7 +85,8 @@ import com.server.module.s3.service.AwsService;
 	ReplyController.class,
 	VideoController.class,
 	AnnouncementController.class,
-	CategoryController.class
+	CategoryController.class,
+	SearchController.class
 })
 @ExtendWith({RestDocumentationExtension.class})
 @ActiveProfiles("local")
@@ -112,6 +116,9 @@ public class ControllerTest {
 	protected AnnouncementService announcementService;
 	@MockBean
 	protected CategoryService categoryService;
+	@MockBean
+	@Qualifier("mysql")
+	protected SearchEngine searchEngine;
 
 	// 컨트롤러 테스트에 필요한 것들
 	@Autowired

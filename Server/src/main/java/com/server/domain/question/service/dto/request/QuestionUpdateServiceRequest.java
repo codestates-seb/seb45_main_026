@@ -13,8 +13,6 @@ public class QuestionUpdateServiceRequest {
 
     private Long questionId;
 
-    private Integer position;
-
     private String content;
 
     private String questionAnswer;
