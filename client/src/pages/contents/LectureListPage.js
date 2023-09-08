@@ -71,6 +71,7 @@ const VerticalItemContainer = styled.ul`
 
 const LectureListPage = () => {
   const isDark = useSelector(state=>state.uiSetting.isDark);
+  const tokens = useSelector(state=>state.loginInfo.accessToken);
   const [lectures, setLectures] = useState([]);
   const filterState = useSelector((state) => state.filterSlice.filter);
   const isHorizon = useSelector((state) => state.filterSlice.isHorizon);
@@ -103,7 +104,7 @@ const LectureListPage = () => {
       )
       .then((res) => setLectures(res.data.data))
       .catch((err) => console.log(err));
-  }, [filterState])
+  }, [filterState,tokens])
   
   return (
     <PageContainer isDark={isDark}>

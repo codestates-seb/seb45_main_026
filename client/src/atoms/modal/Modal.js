@@ -110,10 +110,11 @@ export const AlertModal = ({
             isDark={isDark}
             onClick={()=>{ isBackdropClickClose && setIsModalOpen(false) }}>
                 <ModalContainer isDark={isDark} onClick={(e)=>{e.stopPropagation();}}>
-                    <ModalContent>{content}</ModalContent>
+                    <ModalContent isDark={isDark}>{content}</ModalContent>
                     <ModalButtonContainer>
                         <ModalPositiveButton 
                             type='button'
+                            isDark={isDark}
                             onClick={handleButtonClick}>
                                 {buttonTitle}
                         </ModalPositiveButton>
