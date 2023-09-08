@@ -44,29 +44,25 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("page, size, sort, category, memberId, subscribe 를 받아서 비디오 리스트를 반환한다.")
     Collection<DynamicTest> getVideos() {
         //given
-        Member owner1 = createAndSaveMember();
-        Channel channel1 = createAndSaveChannel(owner1);
+        Member owner1 = createMemberWithChannel();
 
-        Member owner2 = createAndSaveMember();
-        Channel channel2 = createAndSaveChannel(owner2);
+        Member owner2 = createMemberWithChannel();
 
         Member loginMember = createAndSaveMember(); // 로그인한 회원
 
-        createAndSaveSubscribe(loginMember, channel1); // loginMember 가 owner1 의 channel1 을 구독
+        createAndSaveSubscribe(loginMember, owner1.getChannel()); // loginMember 가 owner1 의 channel1 을 구독
 
-        Video video1 = createAndSaveVideo(channel1);
-        Video video2 = createAndSaveVideo(channel1);
-        Video video3 = createAndSaveVideo(channel1);
-        Video video4 = createAndSaveVideo(channel1);
-        Video video5 = createAndSaveVideo(channel2);
-        Video video6 = createAndSaveVideo(channel2);
+        Video video1 = createAndSaveVideo(owner1.getChannel());
+        Video video2 = createAndSaveVideo(owner1.getChannel());
+        Video video3 = createAndSaveVideo(owner1.getChannel());
+        Video video4 = createAndSaveVideo(owner1.getChannel());
+        Video video5 = createAndSaveVideo(owner2.getChannel());
+        Video video6 = createAndSaveVideo(owner2.getChannel());
 
         Category category1 = createAndSaveCategory("java");
         Category category2 = createAndSaveCategory("spring");
 
-        createAndSaveVideoCategory(video1, category1); // video1 은 java, spring 카테고리
-        createAndSaveVideoCategory(video1, category2);
-
+        createAndSaveVideoCategory(video1, category1, category2); // video1 은 java, spring 카테고리
         createAndSaveVideoCategory(video2, category1); // video2 는 java 카테고리
         createAndSaveVideoCategory(video3, category2); // video3 는 spring 카테고리
         createAndSaveVideoCategory(video4, category1); // video4 는 java 카테고리
