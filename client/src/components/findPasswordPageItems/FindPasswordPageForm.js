@@ -80,7 +80,6 @@ export const FindPasswordPageForm = () => {
     
     return (
         <>
-        
         <FindPasswordFormContainer onSubmit={handleSubmit(onSubmit)}>
             <Input 
                 type='text'

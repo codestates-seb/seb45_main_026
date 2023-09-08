@@ -3,8 +3,10 @@ import { PageContainer } from '../../atoms/layouts/PageContainer';
 import { useSelector } from 'react-redux';
 import { styled } from 'styled-components';
 import { LoginContainer, LoginTitle } from '../../components/loginPageItems/Login';
-import LoginFormLogo from '../../components/loginPageItems/LoginLogo';
-import tokens from '../../styles/tokens.json'
+import { LoginFormLogoContainer, LoginLogoImg, LoginLogoTitle } from '../../components/loginPageItems/LoginLogo';
+import lightLogo from '../../assets/images/logos/lightLogo.png';
+import logo from '../../assets/images/logos/logo.png';
+import tokens from '../../styles/tokens.json';
 import SignupForm from '../../components/SignupPageItems/SignupForm';
 
 const globalTokens = tokens.global;
@@ -20,10 +22,27 @@ export const SignupPageContainer = styled(PageContainer)`
 export const SignupContainer = styled(LoginContainer)`
     height: 750px;
 `
-export const SignupFormLogo = styled(LoginFormLogo)`
+export const SignupFormLogoContainer = styled(LoginFormLogoContainer)`
+`
+export const SignupLogoTitle = styled(LoginLogoTitle)`
+    left: 85px;
+`
+export const SignupLogoImg = styled(LoginLogoImg)`
+    right: 80px;
 `
 export const SignupTitle = styled(LoginTitle)`
 `
+
+export const SignupFormLogo = () => {
+    const isDark = useSelector(state=>state.uiSetting.isDark);
+
+    return (
+        <SignupFormLogoContainer isDark={isDark}>
+            <SignupLogoTitle isDark={isDark}>IT Prometheus</SignupLogoTitle>
+            <SignupLogoImg src={isDark?lightLogo:logo}/>
+        </SignupFormLogoContainer>
+    )
+}
 
 export const SignupPage = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);

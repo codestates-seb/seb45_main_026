@@ -9,7 +9,11 @@ const LoginInfoSlice = createSlice({
       nickname: "", 
       grade: "", 
       imgUrl: "", 
-      reward: "" 
+      reward: "",
+    },
+    channelInfo: {
+      channelName: "",
+      description: "",
     },
     oAuthProvider: "", //google, github, kakao
     accessToken: {
@@ -26,6 +30,9 @@ const LoginInfoSlice = createSlice({
     },
     setLoginInfo: (state, action) => {
       state.loginInfo = action.payload;
+    },
+    setChannelInfo: (state, action) => {
+      state.channelInfo = action.payload;
     },
     setToken: (state, action) => {
       state.accessToken = action.payload;
@@ -49,6 +56,7 @@ export default LoginInfoSlice;
 export const { 
   setIsLogin,
   setLoginInfo,
+  setChannelInfo,
   setToken,
   setProvider,
   setMyid,

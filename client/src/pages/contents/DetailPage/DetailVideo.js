@@ -1,31 +1,60 @@
 import { styled } from "styled-components";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import SubscribeBtn from "../../../components/DetailPage/SubscribeBtn";
 import {
   RegularRedButton,
   RegularNavyButton,
 } from "../../../atoms/buttons/Buttons";
-import { useDispatch, useSelector } from "react-redux";
 import { setPrev } from "../../../redux/createSlice/VideoInfoSlice";
-import { Link } from "react-router-dom";
 
 const DetailVideo = () => {
+  const { videoId } = useParams();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const videoDatas = useSelector((state) => state.videoInfo.data);
+  const myId = useSelector((state) => state.loginInfo.myid);
+  const token = useSelector((state) => state.loginInfo.accessToken);
+
+  const handleCartNav = () => {
+    return axios
+      .patch(`https://api.itprometheus.net/videos/${videoId}/carts`, null, {
+        headers: { Authorization: token.authorization },
+      })
+      .then((res) => {
+        if (res.data.data) {
+          navigate("/carts");
+        } else {
+          handleCartNav();
+        }
+      })
+      .catch((err) => console.log(err));
+  };
 
   return (
     <VideoContainer>
       <VideoHeader>
-        강의를 다 들었다면?
-        <Link to="/videos/1/problems">
-          <HeaderBtn>문제 풀러가기 →</HeaderBtn>
-        </Link>
+        {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
+          <>
+            강의를 다 들었다면?
+            <Link to={`/videos/${videoId}/problems`}>
+              <HeaderBtn>문제 풀러가기 →</HeaderBtn>
+            </Link>
+          </>
+        ) : (
+          <>
+            강의를 듣고 싶다면?
+            <HeaderBtn onClick={handleCartNav}>구매하러 가기 →</HeaderBtn>
+          </>
+        )}
       </VideoHeader>
 
-      {videoDatas.isPurchased ? (
+      {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
         <VideoWindow
           src={videoDatas.videoUrl}
           controls
-          loop
+          loop={false}
           muted
           autoPlay={false}
         />
