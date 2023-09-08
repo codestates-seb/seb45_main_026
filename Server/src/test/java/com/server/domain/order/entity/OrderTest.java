@@ -397,20 +397,140 @@ class OrderTest {
 
         int useReward = 1500;
 
-        Order order = createOrderCancel(member, List.of(video1, video2), useReward);
-
-        OrderVideo orderVideo = getOrderVideo(order, video1);
-
-        //when
-        Order.Refund refund = order.cancelVideoOrder(orderVideo);
-
-        //then
-        assertThat(refund.getRefundAmount()).isEqualTo(500);
-        assertThat(refund.getRefundReward()).isEqualTo(500);
+        Order order = createOrderComplete(member, List.of(video1, video2), useReward);
 
         return List.of(
-                dynamicTest("", () -> {
+                dynamicTest("video1 을 취소한다.", () -> {
+                    //given
+                    OrderVideo orderVideo1 = getOrderVideo(order, video1);
 
+                    int currentMemberReward = member.getReward();
+
+                    //when
+                    Order.Refund refund = order.cancelVideoOrder(orderVideo1);
+
+                    //then
+                    assertAll("취소되는 금액, 리워드 확인",
+                            () -> assertThat(refund.getRefundAmount()).isEqualTo(500),
+                            () -> assertThat(refund.getRefundReward()).isEqualTo(500)
+                    );
+
+                    assertAll("orderVideo 취소 확인",
+                            () -> assertThat(orderVideo1.getOrderStatus()).isEqualTo(OrderStatus.CANCELED)
+                    );
+
+                    assertAll("멤버 리워드 확인",
+                            () -> assertThat(member.getReward()).isEqualTo(currentMemberReward + 500)
+                    );
+                }),
+                dynamicTest("video2 를 취소한다.", ()-> {
+                    //given
+                    OrderVideo orderVideo2 = getOrderVideo(order, video2);
+
+                    int currentMemberReward = member.getReward();
+
+                    //when
+                    Order.Refund refund = order.cancelVideoOrder(orderVideo2);
+
+                    //then
+                    assertAll("취소되는 금액, 리워드 확인",
+                            () -> assertThat(refund.getRefundAmount()).isEqualTo(0),
+                            () -> assertThat(refund.getRefundReward()).isEqualTo(1000)
+                    );
+
+                    assertAll("멤버 리워드 확인",
+                            () -> assertThat(member.getReward()).isEqualTo(currentMemberReward + 1000)
+                    );
+
+                    assertAll("orderVideo 취소 확인",
+                            () -> assertThat(orderVideo2.getOrderStatus()).isEqualTo(OrderStatus.CANCELED)
+                    );
+
+                    assertAll("order 취소 확인",
+                            () -> assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELED),
+                            () -> assertThat(order.getRemainRefundAmount()).isEqualTo(0),
+                            () -> assertThat(order.getRemainRefundReward()).isEqualTo(0)
+                    );
+                })
+        );
+    }
+
+    @TestFactory
+    @DisplayName("환불할 reward 가 부족한 상황일 때 결제 금액 혹은 리워드에서 차감하여 member 에 추가한다.")
+    Collection<DynamicTest> convertAmountToReward() {
+        //given
+        Member member = createMember();
+        Video video1 = createVideo(1000);
+        Video video2 = createVideo(1000);
+
+        int useReward = 1000;
+
+        Order order = createOrderComplete(member, List.of(video1, video2), useReward);
+
+        return List.of(
+                dynamicTest("500원을 리워드에서 차감해서 member reward 로 추가한다.", () -> {
+                    //given
+                    int currentMemberReward = member.getReward();
+                    int convertAmount = 500;
+                    int orderRemainRefundReward = order.getRemainRefundReward();
+
+                    //when
+                    order.convertAmountToReward(convertAmount);
+
+                    //then
+                    assertAll("멤버 리워드 확인",
+                            () -> assertThat(member.getReward()).isEqualTo(currentMemberReward + convertAmount)
+                    );
+
+                    assertAll("order 리워드 확인",
+                            () -> assertThat(order.getRemainRefundReward()).isEqualTo(orderRemainRefundReward - convertAmount)
+                    );
+                }),
+                dynamicTest("700원을 차감하면 500원은 리워드에서, 200원은 금액에서 차감한 후 member reward 로 추가한다.", ()-> {
+                    //given
+                    int currentMemberReward = member.getReward();
+                    int convertAmount = 700;
+                    int orderRemainRefundAmount = order.getRemainRefundAmount();
+                    int orderRemainRefundReward = order.getRemainRefundReward();
+
+                    //when
+                    order.convertAmountToReward(convertAmount);
+
+                    //then
+                    assertAll("멤버 리워드 확인",
+                            () -> assertThat(member.getReward()).isEqualTo(currentMemberReward + convertAmount)
+                    );
+
+                    assertAll("order 리워드 확인",
+                            () -> assertThat(order.getRemainRefundReward()).isEqualTo(orderRemainRefundReward - 500),
+                            () -> assertThat(order.getRemainRefundAmount()).isEqualTo(orderRemainRefundAmount - (convertAmount - 500))
+                    );
+                }),
+                dynamicTest("800원을 주문 금액에서 차감한 후 member reward 로 추가한다.", ()-> {
+                    //given
+                    int currentMemberReward = member.getReward();
+                    int convertAmount = 800;
+                    int orderRemainRefundAmount = order.getRemainRefundAmount();
+
+                    //when
+                    order.convertAmountToReward(convertAmount);
+
+                    //then
+                    assertAll("멤버 리워드 확인",
+                            () -> assertThat(member.getReward()).isEqualTo(currentMemberReward + convertAmount)
+                    );
+
+                    assertAll("order 리워드 확인",
+                            () -> assertThat(order.getRemainRefundAmount()).isEqualTo(orderRemainRefundAmount - convertAmount)
+                    );
+                }),
+                dynamicTest("주문 금액에서 차감 시 금액이 부족하면 RewardNotEnoughException 이 발생한다.", ()-> {
+                    //given
+                    int convertAmount = 500;
+
+                    //when & then
+                    assertThatThrownBy(() -> order.convertAmountToReward(convertAmount))
+                            .isInstanceOf(RewardNotEnoughException.class);
                 })
         );
     }
