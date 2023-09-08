@@ -8,7 +8,7 @@ import lombok.Getter;
 @Builder
 @Getter
 @AllArgsConstructor
-public class ReplyCreateServiceApi {
+public class CreateReply {
     private String content;
     private Integer star;
 

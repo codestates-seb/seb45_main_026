@@ -101,7 +101,7 @@ class ReplyControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(response, "댓글 단건 조회 성공"));
 
-        given(replyService.getReply(anyLong(), anyLong())).willReturn(response);
+        given(replyService.getReply(anyLong())).willReturn(response);
 
         //when
         ResultActions actions = mockMvc.perform(get(BASE_URL + "/{reply-id}", replyId)

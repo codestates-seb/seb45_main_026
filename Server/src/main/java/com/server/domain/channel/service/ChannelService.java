@@ -116,7 +116,7 @@ public class ChannelService {
     private void subscribe(Long memberId, Long loginMemberId) {
 
         Member loginMember = memberRepository.findById(loginMemberId)
-                .orElseThrow(() -> new MemberNotFoundException()); //(이 부분을 빼면  .member(loginMember) 여기가 에러남)
+                .orElseThrow(() -> new MemberNotFoundException());
 
         Channel channel = existChannel(memberId);
 
@@ -130,7 +130,7 @@ public class ChannelService {
         subscribeRepository.save(subscribe);
     }
 
-    private void unsubscribe(Long memberId, Long loginMemberId) { //이 부분 코드를 더 간결하게 못하겟음 수정할거 다 빼면 테스트코드 에러남
+    private void unsubscribe(Long memberId, Long loginMemberId) {
 
         Channel channel = existChannel(memberId);
 
