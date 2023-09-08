@@ -4,10 +4,16 @@ const UploadModal = ({
   setModal,
   isProblem,
   handleChangeContent,
-  handleSubmitProblem,
+  handleCreateProblem,
+  initProblem,
 }) => {
   return (
-    <ModalBackground onClick={() => setModal(false)}>
+    <ModalBackground
+      onClick={() => {
+        setModal(false);
+        initProblem();
+      }}
+    >
       <ProblemModal
         onClick={(e) => {
           e.stopPropagation();
@@ -19,17 +25,29 @@ const UploadModal = ({
             id="ProblemTitle"
             type="text"
             placeholder="문제의 지문을 입력해주세요."
+            onChange={(e) => handleChangeContent(e)}
+            value={isProblem.content}
           />
         </ProblemTitle>
         <ProblemContent>
           <ProblemLists>
             {[1, 2, 3, 4].map((el) => (
               <ProblemList>
-                <CheckNumber type="checkbox" />
+                <CheckNumber
+                  id="questionAnswer"
+                  type="checkbox"
+                  onChange={(e) => {
+                    handleChangeContent(e, el);
+                  }}
+                  checked={isProblem.questionAnswer.includes(el)}
+                />
                 <ListLabel>{el}번 문항</ListLabel>
                 <ListInput
+                  id="selections"
                   type="text"
                   placeholder={`${el}번 문항을 입력해주세요.`}
+                  onChange={(e) => handleChangeContent(e, el)}
+                  value={isProblem.selections[el - 1]}
                 />
               </ProblemList>
             ))}
@@ -39,14 +57,26 @@ const UploadModal = ({
                 id="ProblemDiscribe"
                 type="text"
                 placeholder="해설을 입력해 주세요."
+                onChange={(e) => handleChangeContent(e)}
+                value={isProblem.description}
               />
             </ProblemList>
           </ProblemLists>
         </ProblemContent>
         <SubmitBtn
-          onClick={(e) => {
-            handleSubmitProblem(e);
+          onClick={() => {
+            if (!isProblem.content) {
+              return alert("지문을 입력해 주세요.");
+            }
+            if (!isProblem.questionAnswer) {
+              return alert("정답을 체크해 주세요.");
+            }
+            if (!isProblem.selections.length) {
+              return alert("선택지들을 입력해 주세요.");
+            }
+            handleCreateProblem();
             setModal(false);
+            initProblem();
           }}
         >
           문제 추가

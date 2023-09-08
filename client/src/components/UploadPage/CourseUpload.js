@@ -146,7 +146,11 @@ const CourseUpload = () => {
           setVideoUpload(false);
           alert("성공적으로 강의가 등록 되었습니다.");
           if (window.confirm("강의 문제를 업로드 하시겠습니까?")) {
-            navigate("/upload/problem");
+            navigate(
+              `videos/${parseInt(
+                "/videos/49".split("/").slice(-1)[0]
+              )}/problems/upload`
+            );
           } else {
             navigate("/lecture");
           }
@@ -158,9 +162,10 @@ const CourseUpload = () => {
   useMemo(() => {
     handleImgUpload();
     handleVideoUpload();
+    setTimeout(() => {
+      handleDetailPost();
+    }, 500);
   }, [presignedUrl]);
-
-  useMemo(() => handleDetailPost(), [imageUpload, videoUpload]);
 
   return (
     <CourseBox>
