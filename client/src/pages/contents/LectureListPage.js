@@ -9,42 +9,52 @@ import VerticalItem from "../../components/contentListItems/VerticalItem";
 import { setLocation } from "../../redux/createSlice/UISettingSlice";
 import axios from "axios";
 import { resetToInitialState,setIsHorizon } from "../../redux/createSlice/FilterSlice";
+import { Heading5Typo } from '../../atoms/typographys/Typographys';
+import list from '../../assets/images/icons/listItem/list.svg'
+import grid from '../../assets/images/icons/listItem/grid.svg'
+import { HomeTitle } from '../../components/contentListItems/ChannelHome';
 
 const globalTokens = tokens.global;
 
 const LectureMainContainer = styled(MainContainer)`
   min-width: 600px;
   min-height: 700px;
-  background-color: ${globalTokens.White.value};
+  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
   border: none;
-  gap: ${globalTokens.Spacing28.value}px;
-  padding: ${globalTokens.Spacing8.value}px;
+  gap: ${globalTokens.Spacing12.value}px;
+  margin-top: ${globalTokens.Spacing40.value}px;
+  margin-bottom: ${globalTokens.Spacing40.value}px;
+  padding: ${globalTokens.Spacing20.value}px;
+  border-radius: ${globalTokens.BigRadius.value}px;
 `;
-const ListTitle = styled.h2`
-  height: 30px;
+const ListTitle = styled(HomeTitle)`
   width: 100%;
   font-size: ${globalTokens.Heading5.value}px;
   font-weight: ${globalTokens.Bold.value};
   padding-left: ${globalTokens.Spacing28.value}px;
   margin-top: ${globalTokens.Spacing20.value}px;
+  margin: ${globalTokens.Spacing8.value}px;
 `;
 const FilterContainer = styled.div`
   width: 100%;
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
+  align-items: start;
   padding: 0 ${globalTokens.Spacing16.value}px;
 `;
 const StructureButton = styled.button`
-  width: 48px;
-  height: 48px;
-  background-color: ${(props) => (props.isHorizon ? "white" : "black")};
-  border: 1px solid ${(props) => (props.isHorizon ? "black" : "white")};
+  width: 35px;
+  height: 35px;
+  background-image: ${(props) => (props.isHorizon ? `url(${list})` : `url(${grid})` )};
+  background-size: contain;
   border-radius: ${globalTokens.RegularRadius.value}px;
 `;
 const HorizonItemContainer = styled.ul`
   width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: ${globalTokens.Spacing16.value}px;
   margin-bottom: ${globalTokens.Spacing28.value}px;
 `;
@@ -93,8 +103,8 @@ const LectureListPage = () => {
   
   return (
     <PageContainer isDark={isDark}>
-      <LectureMainContainer>
-        <ListTitle>강의 목록</ListTitle>
+      <LectureMainContainer isDark={isDark}>
+        <ListTitle isDark={isDark}>강의 목록</ListTitle>
         <FilterContainer>
           <CategoryFilter />
           <StructureButton
@@ -105,13 +115,13 @@ const LectureListPage = () => {
         {isHorizon ? (
           <HorizonItemContainer>
             {lectures.map((el) => (
-              <HorizonItem key={el.videoId} lecture={el} channel={el.channel} />
+              <HorizonItem key={el.videoId} lecture={el} channel={el.channel} isDark={isDark}/>
             ))}
           </HorizonItemContainer>
         ) : (
           <VerticalItemContainer>
             {lectures.map((el) => (
-              <VerticalItem key={el.videoId} lecture={el} channel={el.channel} />
+              <VerticalItem key={el.videoId} lecture={el} channel={el.channel} isDark={isDark}/>
             ))}
           </VerticalItemContainer>
         )}

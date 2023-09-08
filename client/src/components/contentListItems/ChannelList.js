@@ -16,7 +16,8 @@ const ListBody = styled.div`
     padding: ${globalTokens.Spacing20.value}px;
     display: flex;
     flex-direction: column;
-    background-color: ${globalTokens.White.value};
+    background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
+    border-radius: 0 0 ${globalTokens.RegularRadius.value}px ${globalTokens.RegularRadius.value}px;
     gap: ${globalTokens.Spacing24.value}px;
 `; 
 const ListContainer = styled.ul`
@@ -27,6 +28,7 @@ const ListContainer = styled.ul`
     margin-bottom: ${globalTokens.Spacing24.value}px;
 `
 export default function ChannelList({ channelInfor, accessToken, userId }) {
+  const isDark = useSelector(state=>state.uiSetting.isDark);
   const filterState = useSelector((state) => state.filterSlice.filter);
   const dispatch = useDispatch();
   const [lectures, setLectures] = useState([]);
@@ -55,7 +57,7 @@ export default function ChannelList({ channelInfor, accessToken, userId }) {
       .catch((err) => console.log(err));
   }, [filterState]);
   return (
-    <ListBody>
+    <ListBody isDark={isDark}>
       <CategoryFilter />
       <ListContainer>
         {lectures.map((el) => (

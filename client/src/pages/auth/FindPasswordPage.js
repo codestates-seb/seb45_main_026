@@ -7,6 +7,7 @@ import LoginFormLogo from '../../components/loginPageItems/LoginLogo';
 import tokens from '../../styles/tokens.json';
 import FindPasswordPageForm from '../../components/findPasswordPageItems/FindPasswordPageForm';
 import { BodyTextTypo } from '../../atoms/typographys/Typographys';
+import { SignupFormLogo } from './SignupPage';
 
 const globalTokens = tokens.global;
 
@@ -22,8 +23,6 @@ export const FindPasswordContainer = styled(LoginContainer)`
     height: 400px;
     min-width: 300px;
 `
-export const FindPasswordLogo = styled(LoginFormLogo)`
-`
 export const FindPasswordTitle = styled(LoginTitle)`
     margin: ${globalTokens.Spacing8.value}px ${globalTokens.Spacing4.value}px;
 `
@@ -38,7 +37,7 @@ const FindPasswordPage = () => {
     return (
         <FindPasswordPageContainer isDark={isDark}>
             <FindPasswordContainer isDark={isDark}>
-                <FindPasswordLogo isDark={isDark}/>
+                <SignupFormLogo/>
                 <FindPasswordTitle isDark={isDark}>비밀번호 찾기</FindPasswordTitle>
                 <FindPasswordSubTitle isDark={isDark}>가입하신 이메일을 인증한 뒤,<br/>새로운 비밀번호로 변경합니다.</FindPasswordSubTitle>
                 <FindPasswordPageForm/>

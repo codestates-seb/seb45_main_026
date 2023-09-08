@@ -113,6 +113,7 @@ export const AlertModal = ({
                     <ModalContent>{content}</ModalContent>
                     <ModalButtonContainer>
                         <ModalPositiveButton 
+                            type='button'
                             onClick={handleButtonClick}>
                                 {buttonTitle}
                         </ModalPositiveButton>

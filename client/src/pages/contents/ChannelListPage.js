@@ -23,9 +23,10 @@ const ListTitle = styled.h2`
 
 export default function ChannelListPage() {
     const isDark = useSelector((state) => state.uiSetting.isDark);
+
     return (
         <PageContainer isDark={isDark}>
-            <ChannelListContainer>
+            <ChannelListContainer isDark={isDark}>
                 <ListTitle>채널 목록</ListTitle>
             </ChannelListContainer>
         </PageContainer>

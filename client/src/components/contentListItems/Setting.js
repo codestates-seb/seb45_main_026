@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import tokens from '../../styles/tokens.json';
 import { Input, InputErrorTypo } from '../../atoms/inputs/Inputs';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteUserInfoService, updateNicknameService, updatePasswordService } from '../../services/userInfoService';
-import { setIsLogin, setLoginInfo, setMyid, setProvider, setToken } from '../../redux/createSlice/LoginInfoSlice';
+import { deleteUserInfoService, updateChannelInfoService, updateNicknameService, updatePasswordService } from '../../services/userInfoService';
+import { setChannelInfo, setIsLogin, setLoginInfo, setMyid, setProvider, setToken } from '../../redux/createSlice/LoginInfoSlice';
 import { NegativeTextButton, PositiveTextButton, } from '../../atoms/buttons/Buttons';
 import { SettingContainer, SettingTitle, SettingTitle2, UserInfoContainer, ExtraButtonContainer  } from './Setting.style';
 import { AlertModal, ConfirmModal } from '../../atoms/modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import ImageInput from '../../atoms/inputs/ImageInput';
+import { Textarea } from '../../atoms/inputs/TextAreas';
 
 const globalTokens = tokens.global;
 
@@ -17,15 +18,21 @@ const Setting = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const loginUserInfo = useSelector(state=>state.loginInfo.loginInfo);
+    const myid = useSelector(state=>state.loginInfo.myid);
+    const channelInfo = useSelector(state=>state.loginInfo.channelInfo);
     const accessToken = useSelector(state=>state.loginInfo.accessToken);
     const isDark= useSelector(state=>state.uiSetting.isDark);
     const [ isDeleteUserConfirmModalOpen, setIsDeleteUserConfirmModalOpen ] = useState(false);
     const [ isDeleteUserAlertModalOpen, setIsDeleteUserAlertModalOpen ] = useState(false);
     const [ is닉네임변경성공팝업, setIs닉네임변경성공팝업 ] = useState(false);
     const [ is닉네임변경실패팝업, setIs닉네임변경실패팝업 ] = useState(false);
+    const [ is채널명변경성공팝업, setIs채널명변경성공팝업 ] = useState(false);
+    const [ is채널명변경실패팝업, setIs채널명변경실패팝업 ] = useState(false);
+    const [ is채널설명변경성공팝업, setIs채널설명변경성공팝업 ] = useState(false);
+    const [ is채널설명변경실패팝업, setIs채널설명변경실패팝업 ] = useState(false);
     const [ is비밀번호변경성공팝업, setIs비밀번호변경성공팝업 ] = useState(false);
     const [ is비밀번호변경실패팝업, setIs비밀번호변경실패팝업 ] = useState(false);
-
+    
     const {
         register,
         watch, 
@@ -35,8 +42,12 @@ const Setting = () => {
             defaultValues: {
                 email: loginUserInfo.email,
                 nickname: loginUserInfo.nickname,
+                channelName: channelInfo.channelName,
+                channelDescription: channelInfo.description,
               }
-        });
+    });
+
+    
     
     //닉네임 변경 버튼 누르면 동작함
     const handleNicknameUpdateClick = async () => {
@@ -55,6 +66,52 @@ const Setting = () => {
             } else {
                 setIs닉네임변경실패팝업(true);
                 return;
+            }
+        }
+    }
+    //채널명 변경 버튼을 누르면 동작함
+    const handleChannelNameUpdateClick = async () => {
+        const isValid = await trigger('channelName');
+        const newChannelName = watch('channelName');
+
+        if(isValid) {
+            const response = await updateChannelInfoService(
+                accessToken.authorization, 
+                myid,
+                newChannelName,
+                channelInfo.description
+            );
+            if(response.status==='success') {
+                dispatch(setChannelInfo({
+                    ...channelInfo,
+                    channelName: newChannelName
+                }))
+                setIs채널명변경성공팝업(true);
+            } else {
+                setIs채널명변경실패팝업(true);
+            }
+        }
+    }
+    //채널설명 변경 버튼을 누르면 동작함
+    const handleChannelDescriptionUpdateClick = async () => {
+        const isValid = await trigger('channelDescription');
+        const newChannelDescription = watch('channelDescription');
+
+        if(isValid) {
+            const response = await updateChannelInfoService(
+                accessToken.authorization, 
+                myid,
+                channelInfo.channelName,
+                newChannelDescription
+            );
+            if(response.status==='success'){
+                dispatch(setChannelInfo({
+                    ...channelInfo,
+                    description: newChannelDescription
+                }));
+                setIs채널설명변경성공팝업(true);
+            } else{
+                setIs채널설명변경실패팝업(true);
             }
         }
     }
@@ -155,6 +212,39 @@ const Setting = () => {
                 content='기존에 사용하던 닉네임이거나, 사용할 수 없는 닉네임입니다.'
                 buttonTitle='확인'
                 handleButtonClick={()=>{ setIs닉네임변경실패팝업(false) }}/>
+            {/* 채널명 변경 성공 팝업 */}
+            <AlertModal
+                isModalOpen={is채널명변경성공팝업}
+                setIsModalOpen={setIs채널명변경성공팝업}
+                isBackdropClickClose={true}
+                content='채널명이 변경되었습니다!'
+                buttonTitle='확인'
+                handleButtonClick={()=>{ setIs채널명변경성공팝업(false) }}/>
+            {/* 채널명 변경 실패 팝업 */}
+            <AlertModal
+                isModalOpen={is채널명변경실패팝업}
+                setIsModalOpen={setIs채널명변경실패팝업}
+                isBackdropClickClose={true}
+                content='채널 이름은 한글, 영문, 숫자만 가능합니다.'
+                buttonTitle='확인'
+                handleButtonClick={()=>{ setIs채널명변경실패팝업(false) }}
+                />
+            {/* 채널 설명 변경 성공 팝업 */}
+            <AlertModal
+                isModalOpen={is채널설명변경성공팝업}
+                setIsModalOpen={setIs채널설명변경성공팝업}
+                isBackdropClickClose={true}
+                content='채널 설명이 변경되었습니다!'
+                buttonTitle='확인'
+                handleButtonClick={()=>{ setIs채널설명변경성공팝업(false) }}/>
+            {/* 채널 설명 변경 실패 팝업 */}
+            <AlertModal 
+                isModalOpen={is채널설명변경실패팝업}
+                setIsModalOpen={setIs채널설명변경실패팝업}
+                isBackdropClickClose={true}
+                content='채널 설명 변경에 실패했습니다.'
+                buttonTitle='확인'
+                handleButtonClick={()=>{ setIs채널설명변경성공팝업(false) }}/>
             {/* 비밀번호 변경 성공 팝업 */}
             <AlertModal 
                 isModalOpen={is비밀번호변경성공팝업}
@@ -210,6 +300,36 @@ const Setting = () => {
                         && <InputErrorTypo isDark={isDark} width='50vw'>한글, 영문자, 숫자만 입력 가능합니다.</InputErrorTypo> }
                     { errors.nickname && errors.nickname.type==='validate'
                         && <InputErrorTypo isDark={isDark} width='50vw'>기존에 사용하던 닉네임입니다.</InputErrorTypo> }
+                    <SettingTitle isDark={isDark}>채널 정보</SettingTitle>
+                    <Input
+                        marginTop={globalTokens.Spacing8.value}
+                        label='채널명'
+                        type='text'
+                        width='50vw'
+                        name='channelName'
+                        placeholder='채널명을 입력해 주세요.'
+                        register={register}
+                        required={true}
+                        maxLength={20}
+                        isButton={true}
+                        buttonTitle='변경하기'
+                        handleButtonClick={handleChannelNameUpdateClick}/>
+                    <Textarea
+                        marginTop={globalTokens.Spacing8.value}
+                        label='채널 설명'
+                        width='50vw'
+                        name='channelDescription'
+                        placeholder='채널 설명을 입력해 주세요.'
+                        register={register}
+                        required={true}
+                        maxLength={200}
+                        isButton={true}
+                        buttonTitle='변경하기'
+                        handleButtonClick={handleChannelDescriptionUpdateClick}/>
+                    {
+                        errors.channelDescription && errors.channelDescription.type==='required'
+                            && <InputErrorTypo isDark={isDark} width='50vw'>채널 설명을 입력해 주세요.</InputErrorTypo>
+                    }
                     <SettingTitle isDark={isDark}>비밀번호 변경하기</SettingTitle>
                     <Input
                         marginTop={globalTokens.Spacing8.value}

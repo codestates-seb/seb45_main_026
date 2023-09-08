@@ -19,6 +19,7 @@ export const InputContainer = styled.div`
 export const InputWithButtonContainer = styled.div`
     display: flex;
     flex-direction: row;
+    align-items: center;
 `
 export const RegularInput = styled.input`
     width: ${ (props)=>props.width };
@@ -46,6 +47,7 @@ export const RegularInput = styled.input`
 export const InputButton = styled(RegularButton)`
     margin-left: ${globalTokens.Spacing4.value}px;
     padding: ${globalTokens.Spacing4.value}px;
+    height: 40px;
 `
 export const InputErrorTypo = styled(SmallTextTypo)`
     width: ${props=>props.width?props.width:'95%'};
