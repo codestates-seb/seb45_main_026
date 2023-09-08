@@ -91,6 +91,10 @@ const LectureListPage = () => {
             ? `&category=${filterState.category.value}`
             : ""
         }${
+          filterState.isSubscribed.value
+            ? `&subscribe=${filterState.isSubscribed.value}`
+            : ""
+        }${
           filterState.isFree.value ? `&free=${filterState.isFree.value}` : ""
         }`,
         {
@@ -106,12 +110,12 @@ const LectureListPage = () => {
       <LectureMainContainer isDark={isDark}>
         <ListTitle isDark={isDark}>강의 목록</ListTitle>
         <FilterContainer>
-          <CategoryFilter />
+          <CategoryFilter filterNum="filters1"/>
           <StructureButton
             isHorizon={isHorizon}
             onClick={()=>dispatch(setIsHorizon(!isHorizon))}
           />
-        </FilterContainer>
+        </FilterContainer >
         {isHorizon ? (
           <HorizonItemContainer>
             {lectures.map((el) => (

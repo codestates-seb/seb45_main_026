@@ -118,7 +118,7 @@ export default function PurchasedItem({channel,setChannelList}) {
                 if (!isOpen) {
                     setChannelList(prev => prev.map((el) => {
                         if (el.memberId === memberId) {
-                            return {...el,videos:res.data.data}
+                            return {...el,list:res.data.data}
                         } else {
                             return el
                         }
@@ -126,7 +126,7 @@ export default function PurchasedItem({channel,setChannelList}) {
                 } else {
                     setChannelList(prev => prev.map((el) => {
                         if (el.memberId === memberId) {
-                            return {...el,videos:[]}
+                            return {...el,list:[]}
                         } else {
                             return el
                         }
@@ -156,7 +156,7 @@ export default function PurchasedItem({channel,setChannelList}) {
         </TopContainer>
         <ContentContainer>
           <HorizonItemContainer >
-            {channel.videos!==[]?channel.videos.map(el=><HorizonItem key={el.videoId} lecture={el} channel={channel} />):<></>}
+            {channel.videos!==[]?channel.list.map(el=><HorizonItem key={el.videoId} lecture={el} channel={channel} />):<></>}
           </HorizonItemContainer>
         </ContentContainer>
       </ItemBody>

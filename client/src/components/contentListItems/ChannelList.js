@@ -58,7 +58,7 @@ export default function ChannelList({ channelInfor, accessToken, userId }) {
   }, [filterState]);
   return (
     <ListBody isDark={isDark}>
-      <CategoryFilter />
+      <CategoryFilter filterNum="filters2" />
       <ListContainer>
         {lectures.map((el) => (
           <HorizonItem lecture={el} channel={channelInfor} />
