@@ -14,7 +14,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/orders")
@@ -38,12 +41,26 @@ public class OrderController {
 
     @GetMapping("/success")
     public ResponseEntity<ApiSingleResponse<PaymentApiResponse>> success(
-            @RequestParam String paymentKey,
-            @RequestParam String orderId,
-            @RequestParam Integer amount,
+            @RequestParam(name = "payment-key")
+            @NotBlank(message = "{validation.order.paymentKey}")
+            String paymentKey,
+            @RequestParam(name = "order-id")
+            @NotBlank(message = "{validation.order.orderId}")
+            String orderId,
+            @RequestParam
+            @Positive(message = "{validation.positive}")
+            @NotNull(message = "{validation.order.amount}")
+            Integer amount,
             @LoginId Long loginMemberId) {
 
-        PaymentServiceResponse serviceResponse = orderService.requestFinalPayment(loginMemberId, paymentKey, orderId, amount);
+        LocalDateTime orderCompletedDate = LocalDateTime.now();
+
+        PaymentServiceResponse serviceResponse = orderService.requestFinalPayment(
+                loginMemberId,
+                paymentKey,
+                orderId,
+                amount,
+                orderCompletedDate);
 
         PaymentApiResponse response = PaymentApiResponse.of(serviceResponse);
 
@@ -51,18 +68,20 @@ public class OrderController {
     }
 
     @DeleteMapping("/{order-id}")
-    public ResponseEntity<Void> cancelOrder(
-            @PathVariable("order-id") String orderId,
+    public ResponseEntity<ApiSingleResponse<VideoCancelApiResponse>> cancelOrder(
+            @PathVariable("order-id") @NotBlank(message = "{validation.order.orderId}") String orderId,
             @LoginId Long loginMemberId) {
 
-        orderService.cancelOrder(loginMemberId, orderId);
+        CancelServiceResponse serviceResponse = orderService.cancelOrder(loginMemberId, orderId);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(
+                ApiSingleResponse.ok(VideoCancelApiResponse.of(serviceResponse),
+                        "주문 취소 결과"));
     }
 
     @DeleteMapping("/{order-id}/videos/{video-id}")
     public ResponseEntity<ApiSingleResponse<VideoCancelApiResponse>> cancelVideo(
-            @PathVariable("order-id") String orderId,
+            @PathVariable("order-id") @NotBlank(message = "{validation.order.orderId}") String orderId,
             @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
             @LoginId Long loginMemberId) {
 
