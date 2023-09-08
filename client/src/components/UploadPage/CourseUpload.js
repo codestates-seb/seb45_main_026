@@ -159,12 +159,10 @@ const CourseUpload = () => {
     }
   };
 
-  useMemo(() => {
-    handleImgUpload();
-    handleVideoUpload();
-    setTimeout(() => {
-      handleDetailPost();
-    }, 500);
+  useMemo(async () => {
+    const imgLoad = await handleImgUpload();
+    const videoLoad = await handleVideoUpload();
+    const postLoad = await handleDetailPost();
   }, [presignedUrl]);
 
   return (
@@ -237,7 +235,7 @@ const CourseUpload = () => {
               )}
             </ChooseImageBtn>
             <SubDescribe>
-              썸네일 이미지는 png, jpg, jpeg만 등록이 가능합니다.
+              썸네일 이미지는 png, jpg, jpeg 확장자만 등록이 가능합니다.
             </SubDescribe>
             <SubDescribe>권장 이미지 크기 : 291px &times; 212px</SubDescribe>
           </ColBox>
