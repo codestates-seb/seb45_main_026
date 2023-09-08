@@ -1,10 +1,12 @@
 import React,{useEffect, useState} from "react";
 import { styled } from "styled-components";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import { PageContainer,MainContainer } from "../../atoms/layouts/PageContainer";
 import tokens from "../../styles/tokens.json";
 import CategoryFilter from "../../components/filters/CategoryFilter";
 import PurchasedItem from "../../components/contentListItems/PurchasedItem";
+import HorizonItem from "../../components/contentListItems/HorizonItem";
+import { setIsList } from "../../redux/createSlice/FilterSlice";
 import axios from "axios";
 
 const globalTokens = tokens.global;
@@ -26,12 +28,32 @@ const ListTitle = styled.h2`
     padding-left: ${globalTokens.Spacing8.value}px;
     margin-top: ${globalTokens.Spacing20.value}px;
 `
+const SwitchButton = styled.button`
+    width: 100px;
+    height: 50px;
+    border: 1px black solid;
+    border-radius: ${globalTokens.RegularRadius.value}px;
+`
 
 export default function PurchasedListPage() {
     const isDark = useSelector((state) => state.uiSetting.isDark);
     const accessToken = useSelector((state) => state.loginInfo.accessToken);
-    const [chnnelList,setChannelList]=useState([])
+    const isList = useSelector((state) => state.filterSlice.isList);
+    const filterState = useSelector((state) => state.filterSlice.filter);
+    const dispatch = useDispatch();
+    const [channelList, setChannelList] = useState([]);
+    const [videolList,setVideoList]=useState([])
+    
     useEffect(() => {
+      if (isList) {
+        axios.get(
+          `https://api.itprometheus.net/members/playlists?page=1&size=16&sort=${filterState.sortBy.value}`,
+          {
+            headers: { Authorization: accessToken.authorization },
+          }
+        ).then((res) => setVideoList(res.data.data))
+        .catch(err=>console.log(err))
+      } else if(!isList){
         axios
           .get(
             "https://api.itprometheus.net/members/playlists/channels?page=1&size=16",
@@ -39,24 +61,30 @@ export default function PurchasedListPage() {
               headers: { Authorization: accessToken.authorization },
             }
           )
-            .then((res) => setChannelList(res.data.data.map(el => {
-            return {...el, videos: []}
-        })))
+            .then((res) => setChannelList(res.data.data))
             .catch((err) => console.log(err));
-    },[])
-
+      }
+    },[isList])
+    console.log(channelList);
     return (
       <PageContainer isDark={isDark}>
         <PurchasedListContainer>
           <ListTitle>구매한 강의 목록</ListTitle>
-          <CategoryFilter />
-          {chnnelList.map((el) => (
-            <PurchasedItem
-              key={el.memberId}
-              channel={el}
-              setChannelList={setChannelList}
-            />
-          ))}
+          <SwitchButton onClick={() => dispatch(setIsList(!isList))}>
+            {isList ? "채널별 보기" : "목록으로 보기"}
+          </SwitchButton>
+          {isList ? <CategoryFilter filterNum="filters3" /> : <></>}
+          {isList
+            ? videolList.map((el) => (
+                <HorizonItem lecture={el} channel={el.channel} />
+              ))
+            : channelList.map((el) => (
+                <PurchasedItem
+                  key={el.memberId}
+                  channel={el}
+                  setChannelList={setChannelList}
+                />
+              ))}
         </PurchasedListContainer>
       </PageContainer>
     );

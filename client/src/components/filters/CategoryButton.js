@@ -57,7 +57,7 @@ export default function CategoryButton({filter}) {
   
     return (
       <ButtonContainer>
-        <FilterButton onClick={clickHandler} name={filter.name} ref={obj[`${filter.name}Ref`]}>{filterState.text}</FilterButton>
+        <FilterButton onClick={clickHandler} name={filter.name} ref={obj[`${filter.name}Ref`]}>{filterState.value!==filter.initialValue?filterState.text:filter.initialText}</FilterButton>
         {openDropdown===filter.name ? <FilterDropdown options={filter.options} actionName={filter.actionName} /> : <></>}
       </ButtonContainer>
     );

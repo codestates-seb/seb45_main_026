@@ -2,6 +2,7 @@ import React,{useEffect} from "react";
 import { styled } from "styled-components";
 import tokens from "../../styles/tokens.json";
 import NoticeItem from "./NoticeItem";
+import NoticeSubmit from "./NoticeSubmit";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { HomeTitle } from './ChannelHome';
@@ -33,6 +34,7 @@ const ItemContainer = styled.div`
     gap: ${globalTokens.Spacing28.value}px;
 `
 
+
 export default function ChannelNotice() {
     const isDark = useSelector(state=>state.uiSetting.isDark);
     const accessToken = useSelector(state=>state.loginInfo.accessToken);
@@ -44,6 +46,7 @@ export default function ChannelNotice() {
     return (
         <NoticeBody isDark={isDark}>
             <NoticeTitle isDark={isDark}>커뮤니티</NoticeTitle>
+            <NoticeSubmit/>
             <ItemContainer>
                 <NoticeItem/>
                 <NoticeItem/>

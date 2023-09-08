@@ -92,7 +92,7 @@ export default function ChannelPage() {
             <ImgContainer>
               <ProfileImg
                 src={
-                  channelInfor.imageUrl ? channelInfor.imageUrl : frofileGray
+                  channelInfor.imageUrl ? `${channelInfor.imageUrl}?${new Date().getTime()}` : frofileGray
                 }
               />
             </ImgContainer>
