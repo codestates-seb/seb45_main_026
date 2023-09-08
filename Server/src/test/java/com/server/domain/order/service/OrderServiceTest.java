@@ -847,13 +847,4 @@ class OrderServiceTest extends ServiceTest {
                 any(Class.class)
         )).willReturn(new ResponseEntity<>("", HttpStatus.BAD_REQUEST));
     }
-
-
-    private Cart createAndSaveCart(Member member, Video video) {
-        Cart cart = Cart.createCart(member, video, video.getPrice());
-
-        cartRepository.save(cart);
-
-        return cart;
-    }
 }

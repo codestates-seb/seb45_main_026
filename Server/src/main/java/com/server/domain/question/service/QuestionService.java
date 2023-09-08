@@ -75,17 +75,28 @@ public class QuestionService {
                                       Long videoId,
                                       List<QuestionCreateServiceRequest> requests) {
 
-        Video video = verifedVideo(loginMemberId, videoId);
+        Video video = checkVideoModifyingAuthority(loginMemberId, videoId);
 
-        return requests.stream()
-                .map(request -> createQuestion(video, request))
+        List<Question> createdQuestions = createQuestions(video, requests);
+
+        return createdQuestions.stream()
                 .map(Question::getQuestionId)
-                        .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
-    private Question createQuestion(Video video, QuestionCreateServiceRequest request) {
+    private List<Question> createQuestions(Video video, List<QuestionCreateServiceRequest> requests) {
+
+        int questionStartPosition = video.getQuestions().size() + 1;
+        int questionLastPosition = questionStartPosition + requests.size();
+
+        return IntStream.range(questionStartPosition, questionLastPosition)
+                .mapToObj(index -> createQuestion(video, requests.get(index - questionStartPosition), index))
+                .collect(Collectors.toList());
+    }
+
+    private Question createQuestion(Video video, QuestionCreateServiceRequest request, int position) {
         Question question = Question.createQuestion(
-                request.getPosition(),
+                position,
                 request.getContent(),
                 request.getQuestionAnswer(),
                 request.getDescription(),
@@ -98,12 +109,9 @@ public class QuestionService {
     @Transactional
     public void updateQuestion(Long loginMemberId, QuestionUpdateServiceRequest request) {
 
-        checkQuestionModifyingAuthority(loginMemberId, request.getQuestionId());
-
-        Question question = verifiedQuestion(request.getQuestionId());
+        Question question = checkQuestionModifyingAuthority(loginMemberId, request.getQuestionId());
 
         question.update(
-                request.getPosition(),
                 request.getContent(),
                 request.getQuestionAnswer(),
                 request.getDescription(),
@@ -114,7 +122,9 @@ public class QuestionService {
     @Transactional
     public void deleteQuestion(Long loginMemberId, Long questionId) {
 
-        checkQuestionModifyingAuthority(loginMemberId, questionId);
+        Question question = checkQuestionModifyingAuthority(loginMemberId, questionId);
+
+        question.sortExceptThis();
 
         questionRepository.deleteById(questionId);
     }
@@ -263,13 +273,18 @@ public class QuestionService {
         if(!isPurchased) throw new VideoNotPurchasedException();
     }
 
-    private void checkQuestionModifyingAuthority(Long loginMemberId, Long questionId) {
+    private Question checkQuestionModifyingAuthority(Long loginMemberId, Long questionId) {
 
         Video video = questionRepository.findVideoByQuestionId(questionId)
                 .orElseThrow(QuestionNotFoundException::new);
 
         if(!video.isOwnedBy(loginMemberId))
             throw new VideoAccessDeniedException();
+
+        return video.getQuestions().stream()
+                .filter(question -> question.getQuestionId().equals(questionId))
+                .findFirst()
+                .orElseThrow(QuestionNotFoundException::new);
     }
 
     private QuestionData getQuestionData(Long loginMemberId, Long questionId) {
@@ -282,11 +297,11 @@ public class QuestionService {
         return datas.stream().sorted(comparingInt(QuestionData::getPosition)).collect(Collectors.toList());
     }
 
-    private Video verifedVideo(Long loginMemberId, Long videoId) {
-        Video video = videoRepository.findVideoWithMember(videoId)
+    private Video checkVideoModifyingAuthority(Long loginMemberId, Long videoId) {
+        Video video = questionRepository.findVideoWIthMemberAndQuestions(videoId)
                 .orElseThrow(VideoNotFoundException::new);
 
-        if(!video.getChannel().getMember().getMemberId().equals(loginMemberId))
+        if(!video.getMemberId().equals(loginMemberId))
             throw new VideoAccessDeniedException();
 
         return video;

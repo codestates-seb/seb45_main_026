@@ -141,7 +141,7 @@ public class MemberServiceTest extends ServiceTest {
 			Video video = createAndSaveVideo(channel);
 
 			videos.add(video);
-			carts.add(createAndSaveCartWithVideo(user, video));
+			carts.add(createAndSaveCart(user, video));
 			Thread.sleep(50);
 		}
 

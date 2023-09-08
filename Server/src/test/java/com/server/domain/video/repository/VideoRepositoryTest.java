@@ -872,6 +872,23 @@ class VideoRepositoryTest extends RepositoryTest {
                 .contains(video1.getVideoId(), video2.getVideoId());
     }
 
+    @Test
+    @DisplayName("videoId 로 탈퇴한 멤버의 video 도 조회할 수 있다.")
+    void findVideoDetailIncludeWithdrawal() {
+        //given
+        Video video = Video.createVideo(null, "videoName", 1000, "description");
+        em.persist(video);
+
+        em.flush();
+        em.clear();
+
+        //when
+        Video findVideo = videoRepository.findVideoDetailIncludeWithdrawal(video.getVideoId()).orElseThrow();
+
+        //then
+        assertThat(findVideo.getVideoId()).isEqualTo(video.getVideoId());
+    }
+
     private Cart createAndSaveCart(Member member, Video video) {
         Cart cart = Cart.createCart(member, video, video.getPrice());
         em.persist(cart);
@@ -879,11 +896,12 @@ class VideoRepositoryTest extends RepositoryTest {
     }
 
     private void createAndSaveReply(Member member, Video video) {
-        Reply reply = new Reply();
-        reply.setMember(member);
-        reply.setVideo(video);
-        reply.setContent("reply");
-        reply.setStar(5);
+        Reply reply = Reply.builder()
+                .member(member)
+                .video(video)
+                .content("reply")
+                .star(5)
+                .build();
 
         em.persist(reply);
     }

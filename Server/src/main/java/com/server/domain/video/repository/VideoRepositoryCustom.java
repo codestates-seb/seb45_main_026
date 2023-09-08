@@ -14,6 +14,8 @@ public interface VideoRepositoryCustom {
 
     Optional<Video> findVideoDetail(Long videoId);
 
+    Optional<Video> findVideoDetailIncludeWithdrawal(Long videoId);
+
     Boolean isPurchased(Long memberId, Long videoId);
 
     Boolean isReplied(Long memberId, Long videoId);

@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.BDDAssertions.tuple;
+import static org.junit.jupiter.api.DynamicTest.*;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 class QuestionServiceTest extends ServiceTest {
@@ -206,25 +207,46 @@ class QuestionServiceTest extends ServiceTest {
                 .isInstanceOf(VideoNotFoundException.class);
     }
 
-    @Test
-    @DisplayName("position, content, questionAnswer, description, selections 을 리스트로 입력받아 Question 을 생성한다.")
-    void createQuestions() {
+    @TestFactory
+    @DisplayName("content, questionAnswer, description, selections 을 리스트로 입력받아 Question 을 생성한다.")
+    Collection<DynamicTest> createQuestions() {
         //given
         Member owner = createMemberWithChannel();
         Video video = createAndSaveVideo(owner.getChannel());
 
         List<QuestionCreateServiceRequest> requests = getQuestionCreateServiceRequests();
 
-        //when
-        List<Long> questions = questionService.createQuestions(owner.getMemberId(), video.getVideoId(), requests);
+        return List.of(
+                dynamicTest("처음 question 을 생성하면 position 이 1번부터 들어간다.", () -> {
+                    //when
+                    List<Long> questions = questionService.createQuestions(owner.getMemberId(), video.getVideoId(), requests);
 
-        //then
-        assertThat(questionRepository.findAllById(questions)).hasSize(2)
-                .extracting("position", "content", "questionAnswer", "description")
-                .containsExactlyInAnyOrder(
-                        tuple(1, "content1", "1", "description1"),
-                        tuple(2, "content2", "2", "description2")
-                );
+                    //then
+                    assertThat(questionRepository.findAllById(questions)).hasSize(2)
+                            .extracting("position", "content", "questionAnswer", "description")
+                            .containsExactlyInAnyOrder(
+                                    tuple(1, "content1", "1", "description1"),
+                                    tuple(2, "content2", "2", "description2")
+                            );
+
+                    em.flush();
+                    em.clear();
+                }),
+                dynamicTest("이후 question 을 생성하면 position 이 이전 position 의 마지막부터 들어간다.", ()-> {
+                    //when
+                    List<Long> questions = questionService.createQuestions(owner.getMemberId(), video.getVideoId(), requests);
+
+                    //then
+                    assertThat(questionRepository.findAllById(questions)).hasSize(2)
+                            .extracting("position", "content", "questionAnswer", "description")
+                            .containsExactlyInAnyOrder(
+                                    tuple(3, "content1", "1", "description1"),
+                                    tuple(4, "content2", "2", "description2")
+                            );
+                })
+
+
+        );
     }
 
     @Test
@@ -267,12 +289,14 @@ class QuestionServiceTest extends ServiceTest {
 
         QuestionUpdateServiceRequest request = QuestionUpdateServiceRequest.builder()
                 .questionId(question.getQuestionId())
-                .position(6)
                 .content("update content")
                 .questionAnswer("10")
                 .description("update description")
                 .selections(List.of("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"))
                 .build();
+
+        em.flush();
+        em.clear();
 
         //when
         questionService.updateQuestion(owner.getMemberId(), request);
@@ -280,7 +304,6 @@ class QuestionServiceTest extends ServiceTest {
         //then
         Question updatedQuestion = questionRepository.findById(question.getQuestionId()).orElseThrow();
 
-        assertThat(updatedQuestion.getPosition()).isEqualTo(request.getPosition());
         assertThat(updatedQuestion.getContent()).isEqualTo(request.getContent());
         assertThat(updatedQuestion.getQuestionAnswer()).isEqualTo(request.getQuestionAnswer());
         assertThat(updatedQuestion.getDescription()).isEqualTo(request.getDescription());
@@ -301,7 +324,6 @@ class QuestionServiceTest extends ServiceTest {
 
         QuestionUpdateServiceRequest request = QuestionUpdateServiceRequest.builder()
                 .questionId(question.getQuestionId())
-                .position(6)
                 .content("update content")
                 .questionAnswer("10")
                 .description("update description")
@@ -324,7 +346,6 @@ class QuestionServiceTest extends ServiceTest {
 
         QuestionUpdateServiceRequest request = QuestionUpdateServiceRequest.builder()
                 .questionId(question.getQuestionId() + 999L) // 존재하지 않는 questionId
-                .position(6)
                 .content("update content")
                 .questionAnswer("10")
                 .description("update description")
@@ -345,11 +366,35 @@ class QuestionServiceTest extends ServiceTest {
         Video video = createAndSaveVideo(owner.getChannel());
         Question question = createAndSaveQuestion(video);
 
+        em.flush();
+        em.clear();
+
         //when
         questionService.deleteQuestion(owner.getMemberId(), question.getQuestionId());
 
         //then
         assertThat(questionRepository.findById(question.getQuestionId())).isEmpty();
+    }
+
+    @Test
+    @DisplayName("해당 video 의 Question 삭제 시 나머지 Question 의 position 이 정렬된다.")
+    void deleteQuestionSort() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+        List<Question> questions = createAndSaveQuestions(video, 5);
+        Question deleteQuestion = questions.get(2);
+
+        em.flush();
+        em.clear();
+
+        //when
+        questionService.deleteQuestion(owner.getMemberId(), deleteQuestion.getQuestionId());
+
+        //then
+        assertThat(questionRepository.findAll())
+                .extracting("position")
+                .containsExactly(1, 2, 3, 4);
     }
 
     @Test
@@ -669,7 +714,7 @@ class QuestionServiceTest extends ServiceTest {
         createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0); // member 가 구매
 
         return List.of(
-                DynamicTest.dynamicTest("첫 번째 문제만 맞추고 reward 를 적립받는다.", () -> {
+                dynamicTest("첫 번째 문제만 맞추고 reward 를 적립받는다.", () -> {
                     //given
                     int currentReward = member.getReward();
 
@@ -683,7 +728,7 @@ class QuestionServiceTest extends ServiceTest {
                     //then
                     assertThat(member.getReward()).isEqualTo(currentReward + questions.get(0).getRewardPoint());
                 }),
-                DynamicTest.dynamicTest("두 번째 문제만 맞추고 reward 를 적립받는다.", () -> {
+                dynamicTest("두 번째 문제만 맞추고 reward 를 적립받는다.", () -> {
                     //given
                     int currentReward = member.getReward();
 
@@ -698,7 +743,7 @@ class QuestionServiceTest extends ServiceTest {
                     //then
                     assertThat(member.getReward()).isEqualTo(currentReward + questions.get(0).getRewardPoint());
                 }),
-                DynamicTest.dynamicTest("첫 번째 문제만 다시 맞춰도 reward 를 적립받지 못한다.", () -> {
+                dynamicTest("첫 번째 문제만 다시 맞춰도 reward 를 적립받지 못한다.", () -> {
                     //given
                     int currentReward = member.getReward();
 
@@ -712,7 +757,7 @@ class QuestionServiceTest extends ServiceTest {
                     //then
                     assertThat(member.getReward()).isEqualTo(currentReward);
                 }),
-                DynamicTest.dynamicTest("두 번째 문제만 다시 맞춰도 reward 를 적립받지 못한다.", () -> {
+                dynamicTest("두 번째 문제만 다시 맞춰도 reward 를 적립받지 못한다.", () -> {
                     //given
                     int currentReward = member.getReward();
 
@@ -727,7 +772,7 @@ class QuestionServiceTest extends ServiceTest {
                     //then
                     assertThat(member.getReward()).isEqualTo(currentReward);
                 }),
-                DynamicTest.dynamicTest("세 번째, 네 번째, 다섯 번째 문제를 맞추고 reward 를 적립받는다..", () -> {
+                dynamicTest("세 번째, 네 번째, 다섯 번째 문제를 맞추고 reward 를 적립받는다..", () -> {
                     //given
                     int currentReward = member.getReward();
 
@@ -831,6 +876,25 @@ class QuestionServiceTest extends ServiceTest {
         return questions;
     }
 
+    private List<Question> createAndSaveQuestions(Video video, int count) {
+
+        List<Question> questions = new ArrayList<>();
+
+        for (int i = 1; i <= count; i++) {
+            questions.add(Question.builder()
+                    .position(i)
+                    .content("content" + i)
+                    .questionAnswer(String.valueOf(i))
+                    .selections(List.of("1", "2", "3", "4", "5"))
+                    .video(video)
+                    .build());
+        }
+
+        questionRepository.saveAll(questions);
+
+        return questions;
+    }
+
     private Question createAndSaveQuestion(Video video, String answer) {
 
         Question question = Question.builder()
@@ -849,14 +913,12 @@ class QuestionServiceTest extends ServiceTest {
     private List<QuestionCreateServiceRequest> getQuestionCreateServiceRequests() {
         return List.of(
                 QuestionCreateServiceRequest.builder()
-                        .position(1)
                         .content("content1")
                         .questionAnswer("1")
                         .description("description1")
                         .selections(List.of("1", "2", "3", "4", "5"))
                         .build(),
                 QuestionCreateServiceRequest.builder()
-                        .position(2)
                         .content("content2")
                         .questionAnswer("2")
                         .description("description2")

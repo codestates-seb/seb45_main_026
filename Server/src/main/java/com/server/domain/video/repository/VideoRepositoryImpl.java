@@ -63,6 +63,20 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
     }
 
     @Override
+    public Optional<Video> findVideoDetailIncludeWithdrawal(Long videoId) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(video)
+                        .leftJoin(video.channel, channel).fetchJoin()
+                        .leftJoin(channel.member, member).fetchJoin()
+                        .leftJoin(video.videoCategories, videoCategory).fetchJoin()
+                        .leftJoin(videoCategory.category, category).fetchJoin()
+                        .where(video.videoId.eq(videoId))
+                        .fetchOne()
+        );
+    }
+
+    @Override
     public Boolean isPurchased(Long memberId, Long videoId) {
         Long result = queryFactory.select(video.videoId)
                 .from(member)

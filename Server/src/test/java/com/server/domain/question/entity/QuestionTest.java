@@ -47,7 +47,6 @@ class QuestionTest {
         //given
         Question question = Question.builder().build();
 
-        int position = 1;
         String content = "content";
         String questionAnswer = "questionAnswer";
         String description = "description";
@@ -56,11 +55,10 @@ class QuestionTest {
         return List.of(
                 dynamicTest("필드값을 수정한다.", ()-> {
                     //when
-                    question.update(position, content, questionAnswer, description, selections);
+                    question.update(content, questionAnswer, description, selections);
 
                     //then
                     assertAll(
-                            () -> assertThat(question.getPosition()).isEqualTo(position),
                             () -> assertThat(question.getContent()).isEqualTo(content),
                             () -> assertThat(question.getQuestionAnswer()).isEqualTo(questionAnswer),
                             () -> assertThat(question.getDescription()).isEqualTo(description),
@@ -70,11 +68,10 @@ class QuestionTest {
                 }),
                 dynamicTest("null 값이 들어오면 수정하지 않는다.", ()-> {
                     //when
-                    question.update(null, null, null, null, null);
+                    question.update(null, null, null, null);
 
                     //then
                     assertAll(
-                            () -> assertThat(question.getPosition()).isEqualTo(position),
                             () -> assertThat(question.getContent()).isEqualTo(content),
                             () -> assertThat(question.getQuestionAnswer()).isEqualTo(questionAnswer),
                             () -> assertThat(question.getDescription()).isEqualTo(description),

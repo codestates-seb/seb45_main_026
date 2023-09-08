@@ -116,6 +116,8 @@ public class VideoController {
                                           @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
                                           @LoginId Long loginMemberId) {
 
+        videoService.watch(loginMemberId, videoId);
+
         VideoDetailResponse video = videoService.getVideo(loginMemberId, videoId);
 
         return ResponseEntity.ok(ApiSingleResponse.ok(video, "비디오 조회 성공"));
@@ -191,10 +193,11 @@ public class VideoController {
             @RequestParam(defaultValue = "created-date") ReplySort sort,
             @RequestParam(required = false) @Positive(message = "{validation.positive}") Integer star) {
 
-        Page<ReplyInfo> replies = videoService.getReplies(videoId, page, size, sort);
+        Page<ReplyInfo> replies = replyService.getReplies(videoId, page - 1, size, sort, star);
 
         return ResponseEntity.ok(ApiPageResponse.ok(replies, "댓글 조회 성공"));
     }
+
 
     @PostMapping("/{video-id}/replies")
     public ResponseEntity<ApiSingleResponse<Void>> createReply(
@@ -202,7 +205,7 @@ public class VideoController {
             @RequestBody @Valid ReplyCreateControllerApi request,
             @LoginId Long loginMemberId) {
 
-        Long replyId = videoService.createReply(loginMemberId, videoId, request.toService());
+        Long replyId = replyService.createReply(loginMemberId, videoId, request.toService());
 
         URI uri = URI.create("/replies/" + replyId);
 

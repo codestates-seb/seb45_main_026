@@ -136,8 +136,9 @@ class VideoTest {
     }
 
     private Reply createReply(int star) {
-        Reply reply = new Reply();
-        reply.setStar(star);
+        Reply reply = Reply.builder()
+                .star(star)
+                .build();
 
         return reply;
     }

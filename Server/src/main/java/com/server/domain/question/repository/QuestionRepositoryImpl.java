@@ -112,6 +112,18 @@ public class QuestionRepositoryImpl implements QuestionRepositoryCustom{
         );
     }
 
+    @Override
+    public Optional<Video> findVideoWIthMemberAndQuestions(Long videoId) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(video)
+                        .leftJoin(video.questions, question).fetchJoin()
+                        .join(video.channel, channel).fetchJoin()
+                        .join(channel.member, member).fetchJoin()
+                        .where(video.videoId.eq(videoId))
+                        .fetchOne()
+        );
+    }
 
 
 }

@@ -13,22 +13,17 @@ import com.server.global.exception.businessexception.memberexception.MemberAcces
 import com.server.global.testhelper.ServiceTest;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
 
 class ChannelServiceTest extends ServiceTest {
 
@@ -117,7 +112,7 @@ class ChannelServiceTest extends ServiceTest {
         Video video2 = createAndSaveVideo(owner.getChannel());
 
         Member loginMember = createMemberWithChannel(); // 로그인한 회원
-        createAndSaveCartWithVideo(loginMember, video1); // 장바구니에 담기
+        createAndSaveCart(loginMember, video1); // 장바구니에 담기
 
         em.flush();
         em.clear();
@@ -309,6 +304,7 @@ class ChannelServiceTest extends ServiceTest {
         boolean subscribe = channelService.updateSubscribe(loginMember.getMemberId(), channel.getMember().getMemberId());
 
         assertTrue(subscribe);
+        assertThat(subscribeRepository.findAll().size()).isEqualTo(1);
     }
 
     @Test
@@ -323,6 +319,7 @@ class ChannelServiceTest extends ServiceTest {
 
         assertThat(initialSubscribe).isTrue();
         assertFalse(unsubscribe);
+        assertThat(subscribeRepository.findAll().size()).isEqualTo(0);
     }
 
     @Test
@@ -415,9 +412,48 @@ class ChannelServiceTest extends ServiceTest {
         assertThat(updatedChannel).isEqualTo(Subscribers);
     }
 
+    @Test
+    @DisplayName("로그인한 사용자만 채널을 수정 할 수 있다.")
+    void OnlyUserUpdateChannelInfo() {
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
 
+        Long loginMemberId = member.getMemberId();
+        Long ownerId = channel.getMember().getMemberId();
 
+        if(!loginMemberId.equals(ownerId)){
+            throw new MemberAccessDeniedException();
+        } else {
+            channel.updateChannel("updateChannelName", "updateDescription");
+        }
 
+        assertThat(channel.getChannelName()).isEqualTo("updateChannelName");
+        assertThat(channel.getDescription()).isEqualTo("updateDescription");
+
+    }
+
+    @Test
+    @DisplayName("비회원은 구독취소를 할 수 없다.")
+    void OnlyUserUpdateSubscribeCancel() {
+        Member loginMember = createAndSaveMember();
+        Member otherMember = createAndSaveMember();
+        Channel otherMemberChannel = createAndSaveChannel(otherMember);
+
+        Long loginMemberId = loginMember.getMemberId();
+        Long otherMemberId = otherMemberChannel.getMember().getMemberId();
+
+        channelService.updateSubscribe(otherMemberId, loginMemberId);
+
+        assertThrows(MemberAccessDeniedException.class, () -> {
+            if (!loginMemberId.equals(otherMemberId)) {
+                throw new MemberAccessDeniedException();
+            } else {
+                channelService.updateSubscribe(otherMemberChannel.getMember().getMemberId(), loginMember.getMemberId());
+            }
+        });
+
+        assertThat(subscribeRepository.findAll().size()).isEqualTo(1);
+    }
 
 
 
