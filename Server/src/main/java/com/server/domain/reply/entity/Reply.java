@@ -35,10 +35,6 @@ public class Reply extends BaseEntity implements Rewardable {
     private Video video;
 
 
-    public void setReplyId(Long replyId) {
-        this.replyId = replyId;
-    }
-
     public void setStar(int star) {
         this.star = star;
     }
@@ -54,12 +50,6 @@ public class Reply extends BaseEntity implements Rewardable {
     public void setVideo(Video video) {
         this.video = video;
     }
-
-
-    public Long setReplyId() {
-        return replyId;
-    }
-
 
     public void updateReply(String content, Integer star) {
         this.content = content;
