@@ -1,15 +1,19 @@
 import { styled } from "styled-components";
 import { useEffect } from "react";
-import { PageContainer } from "../../atoms/layouts/PageContainer";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import { PageContainer } from "../../atoms/layouts/PageContainer";
 import { setProblems } from "../../redux/createSlice/ProblemSlice";
 import SelectNum from "../../components/CartPage/ProblemPage/SelectNum";
 import ProblemBox from "../../components/CartPage/ProblemPage/ProblemBox";
-import { useDispatch, useSelector } from "react-redux";
 
 const ProblemPage = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { videoId } = useParams();
+  const myId = useSelector((state) => state.loginInfo.myid);
+  const videoDatas = useSelector((state) => state.videoInfo.data);
   const token = useSelector((state) => state.loginInfo.accessToken);
   const setting = useSelector((state) => state.problemSlice.setting);
   const problemsData = useSelector((state) => state.problemSlice.data);
@@ -17,7 +21,7 @@ const ProblemPage = () => {
 
   useEffect(() => {
     axios
-      .get("https://api.itprometheus.net/videos/2/questions", {
+      .get(`https://api.itprometheus.net/videos/${videoId}/questions`, {
         headers: { Authorization: token.authorization },
       })
       .then((res) => {
@@ -31,16 +35,38 @@ const ProblemPage = () => {
     <PageContainer>
       <ProblemContainer>
         <HeaderBox>
-          <Link to="/videos/1">
+          <Link to={`/videos/${videoId}`}>
             <LectureBtn>← 강의로 돌아가기</LectureBtn>
           </Link>
           <ProblemHeader>문제</ProblemHeader>
         </HeaderBox>
         <BodyBox>
-          <SelectNum />
-          {filtered.map((el) => (
-            <ProblemBox key={el.questionId} el={el} />
-          ))}
+          {problemsData.length ? (
+            <>
+              <SelectNum />
+              {filtered.map((el) => (
+                <ProblemBox key={el.questionId} el={el} />
+              ))}
+            </>
+          ) : (
+            <ListEmptyBox>
+              <ListEmptyGuide>현재 등록된 강의 문제가 없습니다.</ListEmptyGuide>
+              {myId === videoDatas.channel.memberId && (
+                <>
+                  <ListEmptyGuide>
+                    이용자들을 위해 강의 문제들을 추가해 주세요.
+                  </ListEmptyGuide>
+                  <UploadNavBtn
+                    onClick={() =>
+                      navigate(`/videos/${videoId}/problems/upload`)
+                    }
+                  >
+                    강의 문제 추가하기
+                  </UploadNavBtn>
+                </>
+              )}
+            </ListEmptyBox>
+          )}
         </BodyBox>
       </ProblemContainer>
     </PageContainer>
@@ -48,6 +74,35 @@ const ProblemPage = () => {
 };
 
 export default ProblemPage;
+
+export const ListEmptyBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 150px 0px;
+  min-height: 600px;
+`;
+
+export const ListEmptyGuide = styled.span`
+  width: 100%;
+  max-width: 500px;
+  margin: 5px 0px;
+  text-align: center;
+  color: gray;
+  font-weight: 600;
+`;
+
+export const UploadNavBtn = styled.button`
+  width: 100%;
+  max-width: 400px;
+  height: 45px;
+  margin: 20px 0px;
+  border-radius: 8px;
+  background-color: rgb(255, 200, 200);
+  font-weight: 600;
+  font-size: 16px;
+`;
 
 export const ProblemContainer = styled.section`
   width: 100%;
@@ -65,6 +120,7 @@ export const HeaderBox = styled.div`
   width: 100%;
   max-width: 800px;
   padding: 20px;
+  /* border:1px solid black; */
 `;
 
 export const LectureBtn = styled.button`

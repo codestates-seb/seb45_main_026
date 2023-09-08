@@ -1,11 +1,8 @@
 import { styled } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setAnswer,
-  setDetail,
-  setPage,
-} from "../../../redux/createSlice/ProblemSlice";
+import { setPage } from "../../../redux/createSlice/ProblemSlice";
 import axios from "axios";
+import { useState } from "react";
 
 const ProblemBox = ({ el }) => {
   const dispatch = useDispatch();
@@ -13,19 +10,24 @@ const ProblemBox = ({ el }) => {
   const problemsData = useSelector((state) => state.problemSlice.data);
   const setting = useSelector((state) => state.problemSlice.setting);
 
+  const [isConfirm, setConfirm] = useState(false);
+  const [isDisable, setDisable] = useState(false);
+  const [isAnswer, setAnswer] = useState("");
+  const [isTrue, setTrue] = useState(null);
+
   const handleSubmit = (questionId) => {
-    if (setting.isDetail) {
-      return;
-    }
     return axios
       .post(
         `https://api.itprometheus.net/questions/${questionId}/answers`,
-        { myAnswer: setting.answers.answer },
+        { myAnswer: isAnswer },
         { headers: { Authorization: token.authorization } }
       )
       .then((res) => {
-        console.log(res);
-        dispatch(setDetail(true));
+        if (res.data.code === 200) {
+          setConfirm(!isConfirm);
+          setTrue(res.data.data);
+          setDisable(true);
+        }
       })
       .catch((err) => console.log(err));
   };
@@ -35,35 +37,24 @@ const ProblemBox = ({ el }) => {
       <ProblemTitle>
         <ProblemContent>{el.content}</ProblemContent>
       </ProblemTitle>
-
       <ProblemLists>
         {el.choice ? (
           el.selections.map((li, idx) => (
             <ProblemList
               key={idx}
               isTrue={
-                parseInt(el.questionAnswer) === idx + 1 &&
-                parseInt(el.myAnswer) !== ""
+                (isDisable && isTrue && isAnswer === idx + 1) ||
+                (isDisable && el.questionAnswer === "answer" + (idx + 1))
               }
-              isFalse={
-                parseInt(el.myAnswer) === idx + 1 &&
-                parseInt(el.myAnswer) !== parseInt(el.questionAnswer) &&
-                parseInt(el.myAnswer) !== ""
-              }
+              isFalse={isDisable && !isTrue && isAnswer === idx + 1}
             >
               <ContentNum
                 type="checkbox"
-                checked={
-                  idx + 1 === setting.answers.answer ||
-                  idx + 1 === parseInt(el.myAnswer)
-                }
+                checked={isAnswer === idx + 1}
                 onChange={() => {
-                  if (el.myAnswer === "") {
-                    dispatch(
-                      setAnswer({ questionId: el.questionId, answer: idx + 1 })
-                    );
-                  }
+                  setAnswer(idx + 1);
                 }}
+                disabled={isDisable}
               />
               <ListContent>
                 {idx + 1}. {li}
@@ -72,22 +63,14 @@ const ProblemBox = ({ el }) => {
           ))
         ) : (
           <ProblemInputBox>
-            정답{" "}
+            정답
             <ProblemInput
-              isTrue={el.myAnswer === el.questionAnswer && el.myAnswer !== ""}
-              isFalse={el.myAnswer !== el.questionAnswer && el.myAnswer !== ""}
-              value={setting.answers.answer || el.myAnswer}
-              onChange={(e) => {
-                if (el.myAnswer === "") {
-                  dispatch(
-                    setAnswer({
-                      questionId: el.questionId,
-                      answer: e.target.value,
-                    })
-                  );
-                }
-              }}
+              isTrue={isDisable && isTrue && isAnswer}
+              isFalse={isDisable && !isTrue && isAnswer}
+              value={!isDisable ? isAnswer : el.questionAnswer}
+              onChange={(e) => setAnswer(e.target.value)}
               placeholder="단답형으로 입력해주세요."
+              disabled={isDisable}
             />
           </ProblemInputBox>
         )}
@@ -103,18 +86,18 @@ const ProblemBox = ({ el }) => {
             이전
           </PrevBtn>
         )}
-
         <ConfirmBtn
-          isOpened={el.myAnswer !== "" || setting.isDetail}
+          isOpened={isConfirm}
           onClick={() => {
-            if (el.myAnswer === "") {
+            if (!isAnswer) {
+              alert("정답을 입력해주세요.");
+            } else {
               handleSubmit(el.questionId);
             }
           }}
         >
-          정답 확인
+          {!isConfirm ? "정답 확인" : "해설 닫기"}
         </ConfirmBtn>
-
         {setting.isPage !== problemsData.length && (
           <NextBtn
             onClick={() => {
@@ -126,7 +109,7 @@ const ProblemBox = ({ el }) => {
         )}
       </BtnBox>
 
-      {(el.myAnswer !== "" || setting.isDetail) && (
+      {isConfirm && (
         <DiscBox>
           <DiscName>해설</DiscName>
           <DiscContent>{el.description}</DiscContent>

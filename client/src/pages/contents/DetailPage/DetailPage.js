@@ -1,8 +1,8 @@
+import { styled } from "styled-components";
+import axios from "axios";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import { styled } from "styled-components";
 import { PageContainer } from "../../../atoms/layouts/PageContainer";
 import DetailVideo from "./DetailVideo";
 import DetailReview from "./DetailReview";
@@ -10,12 +10,10 @@ import DetailContent from "./DetailContent";
 import { setVideoInfo } from "../../../redux/createSlice/VideoInfoSlice";
 
 const DetailPage = () => {
+  const { videoId } = useParams();
   const dispatch = useDispatch();
   const isDark = useSelector((state) => state.uiSetting.isDark); // 나중에 리펙토링으로 삭제
   const token = useSelector((state) => state.loginInfo.accessToken);
-  const { videoId } = useParams();
-  // const { videoId } = useParams(); // 강의 번호를 알아야함.
-  // console.log(videoId)
 
   useEffect(() => {
     axios
@@ -23,6 +21,7 @@ const DetailPage = () => {
         headers: { Authorization: token.authorization },
       })
       .then((res) => {
+        // console.log(res.data.data)
         dispatch(setVideoInfo(res.data.data));
       })
       .catch((err) => console.log(err));

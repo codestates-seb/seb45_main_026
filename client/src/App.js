@@ -125,8 +125,8 @@ function App() {
         <Route path="/channels/:userId" element={<ChannelPage/>} />
         <Route path="/carts" element={<CartPage />} />
         <Route path="/upload/course" element={<CourseUploadPage />} />
-        <Route path="/upload/problem" element={<ProblemUploadPage />} />
-        <Route path="/videos/1/problems" element={<ProblemPage />} />
+        <Route path="/videos/:videoId/problems/upload" element={<ProblemUploadPage />} />
+        <Route path="/videos/:videoId/problems" element={<ProblemPage />} />
         <Route path="/purchased" element={<PurchasedListPage />} />
         <Route path="/channellist" element={<ChannelListPage />} />
       </Routes>
