@@ -14,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -41,15 +42,11 @@ public class OrderController {
 
     @GetMapping("/success")
     public ResponseEntity<ApiSingleResponse<PaymentApiResponse>> success(
-            @RequestParam(name = "payment-key")
-            @NotBlank(message = "{validation.order.paymentKey}")
+            @RequestParam(name = "payment-key") @NotBlank(message = "{validation.order.paymentKey}")
             String paymentKey,
-            @RequestParam(name = "order-id")
-            @NotBlank(message = "{validation.order.orderId}")
+            @RequestParam(name = "order-id") @NotBlank(message = "{validation.order.orderId}")
             String orderId,
-            @RequestParam
-            @Positive(message = "{validation.positive}")
-            @NotNull(message = "{validation.order.amount}")
+            @RequestParam @Min(value = 0, message = "{validation.order.amount.min}")
             Integer amount,
             @LoginId Long loginMemberId) {
 

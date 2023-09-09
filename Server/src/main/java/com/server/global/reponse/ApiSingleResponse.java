@@ -21,6 +21,7 @@ import com.server.global.exception.businessexception.BusinessException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 
 @Getter
 @AllArgsConstructor
@@ -74,6 +75,19 @@ public class ApiSingleResponse<T> {
 			HttpStatus.BAD_REQUEST.value(),
 			HttpStatus.BAD_REQUEST.name(),
 			"입력 값을 확인해주세요."
+		);
+	}
+
+	public static ApiSingleResponse<List<ErrorResponse>> fail(MissingServletRequestParameterException exception) {
+		return new ApiSingleResponse<>(
+				List.of(ErrorResponse.of(
+						exception.getParameterName(),
+						"null",
+						String.format("%s 값은 필수입니다.", exception.getParameterName())
+				)),
+				HttpStatus.BAD_REQUEST.value(),
+				HttpStatus.BAD_REQUEST.name(),
+				"입력 값을 확인해주세요."
 		);
 	}
 
@@ -132,6 +146,10 @@ public class ApiSingleResponse<T> {
 
 		private static String getInValidValue(ConstraintViolation<?> violation) {
 			return Optional.ofNullable(violation.getInvalidValue()).orElse("null").toString();
+		}
+
+		public static ErrorResponse of(String field, String value, String reason) {
+			return new ErrorResponse(field, value, reason);
 		}
 
 	}
