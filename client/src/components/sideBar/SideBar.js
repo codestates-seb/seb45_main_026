@@ -1,6 +1,6 @@
 import React from 'react';
 import { styled } from 'styled-components';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { BodyTextTypo } from '../../atoms/typographys/Typographys'
 import profileGray from '../../assets/images/icons/profile/profileGray.svg'
 import help from '../../assets/images/icons/sideBar/help.svg';
@@ -18,6 +18,7 @@ import writeWhite from '../../assets/images/icons/sideBar/writeWhite.svg';
 import tokens from '../../styles/tokens.json'
 import { setIsLogin, setLoginInfo, setMyid, setProvider, setToken } from '../../redux/createSlice/LoginInfoSlice';
 import { useNavigate } from 'react-router-dom';
+import { useLogout } from '../../hooks/useLogout';
 
 const globalTokens = tokens.global;
 
@@ -70,7 +71,7 @@ export const DivisionLine = styled.div`
 `
 
 export const SideBar = () => {
-    const dispatch = useDispatch();
+    const logoutHook = useLogout();
     const isDark = useSelector(state=>state.uiSetting.isDark);
     const isSideBar = useSelector(state=>state.uiSetting.isSideBar);
     const userId = useSelector(state=>state.loginInfo.myid);
@@ -80,11 +81,7 @@ export const SideBar = () => {
         navigate(`/channels/${userId}`);
     }
     const handleLogoutClick = () => {
-        dispatch(setToken({ authorization: '', refresh: '' }));
-        dispatch(setLoginInfo({ email: '', nickname: '' }));
-        dispatch(setProvider(''));
-        dispatch(setMyid(''));
-        dispatch(setIsLogin(false));
+        logoutHook();
         navigate('/');
     }
     const handleHelpClick = () => {

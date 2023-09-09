@@ -23,8 +23,6 @@ import {
   setIsLogin,
   setLoginInfo,
   setMyid,
-  setProvider,
-  setToken,
 } from "./redux/createSlice/LoginInfoSlice";
 import FindPasswordPage from "./pages/auth/FindPasswordPage";
 import PurchasedListPage from "./pages/contents/PurchasedListPage";
@@ -32,12 +30,15 @@ import UpdatePasswordPage from "./pages/auth/UpdatePasswordPage";
 import ChannelListPage from "./pages/contents/ChannelListPage";
 import { AlertModal } from './atoms/modal/Modal';
 import ProblemUploadPage from "./pages/contents/ProblemUploadPage";
-import { getNewAuthorizationService } from "./services/authServices";
+import { useLogout } from "./hooks/useLogout";
+import { useToken } from "./hooks/useToken";
 
 function App() {
   const dispatch = useDispatch();
   const tokens = useSelector((state) => state.loginInfo.accessToken);
   const myid = useSelector((state)=>state.loginInfo.myid);
+  const refreshToken = useToken();
+  const logout = useLogout();
   const [ is로그인실패모달, setIs로그인실패모달 ] = useState(false);
 
   const handleResize = () => {
@@ -48,15 +49,11 @@ function App() {
     window.addEventListener("resize", handleResize);
   }, []);
 
-  //웹을 실행했을 때 저장된 토큰이 있으면 토큰을 가지고 프로필 조회를 한다.
-  //authorization이 만료되었으면 refresh 토큰을 통해서 authorization 토큰을 갱신한다.
-  //authorization 갱신에 성공하면 다시 프로필 조회를 한다.
-  //authorization 갱신에도 실패하면 강제 로그아웃 한다.
   useEffect(() => {
-    if (!(tokens.authorization === "")) {     
+    if (!(tokens.authorization === "")) {
       getUserInfoService(tokens.authorization).then((res) => {
-        //토큰이 유효하면 회원 정보를 dispatch 후, isLogin을 true로 설정한다.
         if (res.status === 'success') {
+          //유저 정보 조회에 성공 -> 유저 정보 dispatch
           dispatch(setMyid(res.data.memberId));
           dispatch(
             setLoginInfo({
@@ -67,44 +64,11 @@ function App() {
               reward: res.data.reward
             }));
           dispatch(setIsLogin(true));
-        } else if(res.data==='만료된 토큰입니다.'){ //토큰 만료 에러인 경우
-        //프로필정보 조회 API, 토큰 재발급 API를 모두 실패하면 로그아웃 처리한다. 
-            //토큰 refresh 요청
-            getNewAuthorizationService(tokens.refresh).then((res)=>{
-              if(res.status==='success') { //토큰 재발급 성공
-                dispatch(setToken({
-                  ...tokens,
-                  authorization: res.data
-                }));
-              } else { //토큰 재발급 실패
-                //로그아웃 처리 로직
-                dispatch(setMyid(''));
-                dispatch(setLoginInfo({
-                email: "",
-                nickname: "",
-                grade: "",
-                imgUrl: "",
-                reward: "" 
-              }));
-              dispatch(setChannelInfo({
-                channelName: "",
-                description: "",
-              }))
-                dispatch(setProvider(''));
-                dispatch(setIsLogin(false));
-              }
-            })
-         } else { //토큰 만료 에러가 아닌 경우
-          dispatch(setMyid(''));
-          dispatch(setLoginInfo({
-            email: "",
-            nickname: "",
-            grade: "",
-            imgUrl: "",
-            reward: "" 
-          }));
-          dispatch(setProvider(''));
-          dispatch(setIsLogin(false));
+        } else if(res.data==='만료된 토큰입니다.'){ 
+          //토큰 만료 에러인 경우 토큰 재발급 실행
+            refreshToken();
+         } else { //토큰 만료 에러가 아닌데 어쨋든 에러남
+          logout();
         }
       });
     }
