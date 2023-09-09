@@ -21,8 +21,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Transactional
 @Service
 public class ReplyService {
@@ -55,42 +53,30 @@ public class ReplyService {
         } else { //(별점 필터링 x)
             return replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
         }
-
-
     }
 
     public Long createReply(Long loginMemberId, Long videoId, CreateReply reply) {
 
-        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException());
+        Member member = findMember(loginMemberId);
+        Video video = findVideo(videoId);
+
         validateReply(loginMemberId, video, reply);
+        existReplies(loginMemberId, videoId);
+        evaluateStar(reply.getStar());
 
-        List<Reply> existReplies = replyRepository.findAllByMemberIdAndVideoId(loginMemberId, videoId);
-        if (!existReplies.isEmpty()) {
-            throw new ReplyDuplicateException();
-        }
+        Reply replies = Reply.builder()
+                .star(reply.getStar())
+                .content(reply.getContent())
+                .member(member)
+                .video(video)
+                .build();
 
-        Member member = memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberNotFoundException());
-
-        Reply newReply = new Reply(reply.getStar(), reply.getContent(), member, video);
-
-        return replyRepository.save(newReply).getReplyId();
-    }
-
-    private void validateReply(Long loginMemberId, Video video, CreateReply request) {
-        Boolean isPurchased = memberRepository.checkMemberPurchaseVideo(loginMemberId, video.getVideoId());
-        if (!isPurchased) {
-            throw new VideoNotPurchasedException();
-        }
-
-        Integer star = request.getStar();
-        if (star < 1 || star > 10) {
-            throw new ReplyNotValidException();
-        }
+        return replyRepository.save(replies).getReplyId();
     }
 
     public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi request) {
 
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
 
             if (!reply.getMember().getMemberId().equals(loginMemberId)) {
                 throw new MemberAccessDeniedException();
@@ -102,20 +88,48 @@ public class ReplyService {
     @Transactional(readOnly = true)
     public ReplyInfo getReply(Long replyId) {
 
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
 
         return ReplyInfo.of(reply);
     }
 
     public void deleteReply(Long replyId, Long loginMemberId) {
 
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
 
         if (!reply.getMember().getMemberId().equals(loginMemberId)) {
             throw new MemberAccessDeniedException();
         }
 
         replyRepository.deleteById(replyId);
+    }
+
+    private void existReplies(Long loginMemberId, Long videoId) {
+        if (!replyRepository.findAllByMemberIdAndVideoId(loginMemberId, videoId).isEmpty()) {
+            throw new ReplyDuplicateException();
+        }
+        replyRepository.findAllByMemberIdAndVideoId(loginMemberId, videoId);
+    }
+
+    private void validateReply(Long loginMemberId, Video video, CreateReply request) {
+        Boolean isPurchased = memberRepository.checkMemberPurchaseVideo(loginMemberId, video.getVideoId());
+        if (!isPurchased) {
+            throw new VideoNotPurchasedException();
+        }
+    }
+
+    private void evaluateStar(Integer star) {
+        if (star < 1 || star > 10) {
+            throw new ReplyNotValidException();
+        }
+    }
+
+   private Video findVideo(Long videoId) {
+        return videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
+    }
+
+    private Member findMember(Long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
     }
 }
 

@@ -1,6 +1,7 @@
 package com.server.domain.reply.entity;
 
 import com.server.domain.member.entity.Member;
+import com.server.domain.reply.dto.CreateReply;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
