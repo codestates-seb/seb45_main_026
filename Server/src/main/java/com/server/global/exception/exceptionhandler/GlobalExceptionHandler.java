@@ -15,6 +15,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -36,6 +37,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiSingleResponse<List<ApiSingleResponse.ErrorResponse>>> handleConstraintViolationException(
             ConstraintViolationException e) {
+
+        return ResponseEntity.badRequest().body(ApiSingleResponse.fail(e));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public  ResponseEntity<ApiSingleResponse<List<ApiSingleResponse.ErrorResponse>>> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
 
         return ResponseEntity.badRequest().body(ApiSingleResponse.fail(e));
     }
@@ -80,8 +87,8 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(ApiSingleResponse.fail(e), e.getHttpStatus());
     }
-
     //잘못된 메서드 요청
+
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ApiSingleResponse<String>> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
 
