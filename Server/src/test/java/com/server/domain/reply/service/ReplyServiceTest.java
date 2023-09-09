@@ -13,6 +13,8 @@ import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.replyException.ReplyDuplicateException;
 import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
+import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
+import com.server.global.exception.businessexception.videoexception.VideoNotPurchasedException;
 import com.server.global.reponse.PageInfo;
 import com.server.global.testhelper.ServiceTest;
 import org.junit.jupiter.api.DisplayName;
@@ -381,12 +383,83 @@ class ReplyServiceTest extends ServiceTest {
 
         List<ReplyInfo> replyInfoList = replies.getContent();
         for (int i = 0; i < replyInfoList.size() - 1; i++) {
-            if(replyInfoList.get(i).getStar() == replyInfoList.get(i+1).getStar()){
+            if(replyInfoList.get(i).getStar().equals(replyInfoList.get(i+1).getStar())){
 
              assertThat(Sort.by(Sort.Order.desc("createdDate")));
             }
         }
     }
+
+    @Test
+    @DisplayName("비디오를 구매한 사람만 댓글을 남길 수 있다")
+    void purchaseVideoOnly() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
+
+        //when
+        Reply reply = Reply.builder()
+                .content("content")
+                .star(0)
+                .member(member)
+                .video(video)
+                .build();
+        replyRepository.save(reply);
+
+        //then
+        assertThat(reply.getMember().getMemberId()).isEqualTo(member.getMemberId());
+    }
+
+    @Test
+    @DisplayName("비디오를 구매하지않은 사용자는 댓글을 남길 수 없다")
+    void notPurchaseVideo() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
+
+        //when
+        Reply reply = Reply.builder()
+                .content("content")
+                .star(0)
+                .member(member)
+                .video(video)
+                .build();
+        replyRepository.save(reply);
+
+        //then
+        assertThrows(VideoNotPurchasedException.class, () -> {
+            replyService.createReply(member.getMemberId(), video.getVideoId(), new CreateReply("content", 0));
+        });
+    }
+
+    @Test
+    @DisplayName("비디오를 찾지 못하면 VideoNotFoundException이 발생한다")
+    void getRepliesWithVideoNotFound() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
+
+        //when
+        Reply reply = Reply.builder()
+                .content("content")
+                .star(0)
+                .member(member)
+                .video(video)
+                .build();
+        replyRepository.save(reply);
+
+        //then
+        assertThrows(VideoNotFoundException.class, () -> {
+            replyService.createReply(member.getMemberId(), 100L, new CreateReply("content", 0));
+        });
+    }
+
+
 }
 
 
