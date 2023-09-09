@@ -125,6 +125,14 @@ public abstract class ServiceTest {
         return channel;
     }
 
+    protected Channel createAndSaveChannelWithSubscriber(Member member, int subscriber) {
+        Channel channel = Channel.builder().channelName("channelName").subscribers(subscriber).build();
+        channel.setMember(member);
+        channelRepository.save(channel);
+
+        return channel;
+    }
+
     protected Video createAndSaveVideo(Channel channel) {
         Video video = Video.builder()
                 .videoName("title")

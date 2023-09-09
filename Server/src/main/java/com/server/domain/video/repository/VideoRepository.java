@@ -1,8 +1,11 @@
 package com.server.domain.video.repository;
 
+import com.server.domain.channel.entity.Channel;
 import com.server.domain.video.entity.Video;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -11,6 +14,10 @@ import javax.persistence.Tuple;
 public interface VideoRepository extends JpaRepository<Video, Long>, VideoRepositoryCustom {
 
     List<Video> findAllByVideoIdIn(List<Long> videoIds);
+
+    @Modifying
+    @Query("UPDATE Video v SET v.channel = null WHERE v.channel = :channel")
+    void disconnectVideosFromChannel(@Param("channel") Channel channel);
 
     @Query(value = "select v.video_id, v.thumbnail_file, v.video_name, c.member_id " +
         "from video v join channel c on v.channel_id = c.channel_id " +

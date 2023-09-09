@@ -5,13 +5,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,11 +36,13 @@ import com.server.domain.question.entity.Question;
 import com.server.domain.reward.entity.RewardType;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
+import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberNotUpdatedException;
 import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
+import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import com.server.global.testhelper.ServiceTest;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
@@ -285,15 +290,73 @@ public class MemberServiceTest extends ServiceTest {
 		);
 	}
 
-	@Test
+	@TestFactory
 	@DisplayName("로그인한 사용자의 ID에 맞는 회원 테이블을 삭제한다.")
-	void deleteMember() {
-		Member member = createAndSaveMember();
-		Long id = member.getMemberId();
+	Collection<DynamicTest> deleteMember() {
+		//given
+		Member user = createAndSaveMember();
+		Long userId = user.getMemberId();
+		Channel userChannel = createAndSaveChannel(user);
+		Video userVideo1 = createAndSaveVideo(userChannel);
+		Video userVideo2 = createAndSaveVideo(userChannel);
+		Video userVideo3 = createAndSaveVideo(userChannel);
 
-		memberService.deleteMember(id);
+		Member member1 = createAndSaveMember();
+		Channel channel1 = createAndSaveChannelWithSubscriber(member1, 10);
+		Member member2 = createAndSaveMember();
+		Channel channel2 = createAndSaveChannelWithSubscriber(member2, 100);
+		Member member3 = createAndSaveMember();
+		Channel channel3 = createAndSaveChannelWithSubscriber(member3, 1000);
 
-		assertThrows(MemberNotFoundException.class, () -> memberRepository.findById(id).orElseThrow(MemberNotFoundException::new));
+		createAndSaveSubscribe(user, channel1);
+		createAndSaveSubscribe(user, channel2);
+		createAndSaveSubscribe(user, channel3);
+
+		em.flush();
+		em.clear();
+
+		//when
+		memberService.deleteMember(userId);
+
+		em.flush();
+		em.clear();
+
+		//then
+		return List.of(
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원의 엔티티가 존재하지 않는지 검증한다",
+				() -> {
+					assertThrows(MemberNotFoundException.class,
+						() -> memberRepository.findById(userId).orElseThrow(MemberNotFoundException::new));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원의 채널이 같이 삭제되는지 검증한다",
+				() -> {
+					assertThrows(ChannelNotFoundException.class,
+						() -> channelRepository.findById(userChannel.getChannelId()).orElseThrow(ChannelNotFoundException::new));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원이 업로드한 비디오가 같이 삭제되지 않는지 검증한다.",
+				() -> {
+					assertThat(videoRepository.findById(userVideo1.getVideoId()).orElseThrow().getChannel())
+						.isNull();
+					assertThat(videoRepository.findById(userVideo2.getVideoId()).orElseThrow().getChannel())
+						.isNull();
+					assertThat(videoRepository.findById(userVideo3.getVideoId()).orElseThrow().getChannel())
+						.isNull();
+				}
+			),
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원이 구독하던 채널의 구독자수가 감소했는지 검증한다",
+				() -> {
+					assertThat(channelRepository.findById(channel1.getChannelId()).orElseThrow().getSubscribers()).isEqualTo(9);
+					assertThat(channelRepository.findById(channel2.getChannelId()).orElseThrow().getSubscribers()).isEqualTo(99);
+					assertThat(channelRepository.findById(channel3.getChannelId()).orElseThrow().getSubscribers()).isEqualTo(999);
+				}
+			)
+		);
 	}
 
 	@Test

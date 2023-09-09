@@ -61,15 +61,15 @@ public class Member extends BaseEntity {
 	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
 	private Channel channel;
 
-	@OneToMany(mappedBy = "member")
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
 	@Builder.Default
 	private List<Answer> answers = new ArrayList<>();
 
-	@OneToMany(mappedBy = "member")
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
 	@Builder.Default
 	private List<Cart> carts = new ArrayList<>();
 
-	@OneToMany(mappedBy = "member")
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
 	@Builder.Default
 	private List<Watch> watches = new ArrayList<>();
 

@@ -12,13 +12,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
+import com.server.global.reponse.ApiPageResponse;
 import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.mockito.Mockito;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpHeaders;
@@ -1108,5 +1112,163 @@ public class MemberControllerTest extends ControllerTest {
 						)
 					)
 			);
+	}
+
+	@TestFactory
+	@DisplayName("리워드 목록 조회 Validation 테스트")
+	Collection<DynamicTest> getRewardsValidation() throws Exception {
+		//given
+		List<RewardsResponse> responses = List.of(
+			RewardsResponse.builder()
+				.questionId(1L)
+				.videoId(418L)
+				.rewardType(RewardType.QUIZ)
+				.rewardPoint(5)
+				.createdDate(LocalDateTime.now())
+				.build()
+		);
+
+		PageImpl<RewardsResponse> pages = new PageImpl<>(responses);
+
+		String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pages));
+
+		given(memberService.getRewards(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(pages);
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"페이지와 사이즈 파라미터 값을 보내지 않아도 기본값으로 조회가 된다",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/rewards")
+							.header(AUTHORIZATION, TOKEN)
+							.accept(APPLICATION_JSON)
+					);
+
+					//then
+					actions
+						.andDo(print())
+						.andExpect(status().isOk())
+						.andExpect(content().string(apiResponse));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"페이지가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/rewards")
+							.header(AUTHORIZATION, TOKEN)
+							.param("page", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("page"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"사이즈가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/rewards")
+							.header(AUTHORIZATION, TOKEN)
+							.param("size", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("size"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("구독 목록 조회 Validation 테스트")
+	Collection<DynamicTest> getSubscribeValidation() throws Exception {
+		//given
+		List<SubscribesResponse> responses = List.of(
+			SubscribesResponse.builder()
+				.memberId(23L)
+				.channelName("vlog channel")
+				.subscribes(1004)
+				.imageUrl("https://d2ouhv9pc4idoe.cloudfront.net/images/test")
+				.build()
+		);
+
+		PageImpl<SubscribesResponse> page = new PageImpl<>(responses);
+
+		String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(page));
+
+		given(memberService.getSubscribes(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
+
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"페이지와 사이즈 파라미터 값을 보내지 않아도 기본값으로 조회가 된다",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/subscribes")
+							.header(AUTHORIZATION, TOKEN)
+							.accept(APPLICATION_JSON)
+					);
+
+					//then
+					actions
+						.andDo(print())
+						.andExpect(status().isOk())
+						.andExpect(content().string(apiResponse));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"페이지가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/subscribes")
+							.header(AUTHORIZATION, TOKEN)
+							.param("page", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("page"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"사이즈가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/subscribes")
+							.header(AUTHORIZATION, TOKEN)
+							.param("size", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("size"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			)
+		);
 	}
 }
