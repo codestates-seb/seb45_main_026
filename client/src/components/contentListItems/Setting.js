@@ -11,6 +11,8 @@ import { AlertModal, ConfirmModal } from '../../atoms/modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import ImageInput from '../../atoms/inputs/ImageInput';
 import { Textarea } from '../../atoms/inputs/TextAreas';
+import { useLogout } from '../../hooks/useLogout';
+import { useToken } from '../../hooks/useToken';
 
 const globalTokens = tokens.global;
 
@@ -46,8 +48,6 @@ const Setting = () => {
                 channelDescription: channelInfo.description,
               }
     });
-
-    
     
     //닉네임 변경 버튼 누르면 동작함
     const handleNicknameUpdateClick = async () => {
