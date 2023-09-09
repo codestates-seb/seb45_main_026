@@ -4,12 +4,18 @@ import CartEmpty from "../../../components/CartPage/CartEmpty";
 import { useDispatch, useSelector } from "react-redux";
 import { setChecked } from "../../../redux/createSlice/CartsSlice";
 import axios from "axios";
+import tokens from '../../../styles/tokens.json';
+import { BodyTextTypo } from "../../../atoms/typographys/Typographys";
+import { NegativeTextButton, RegularButton } from "../../../atoms/buttons/Buttons";
+
+const globalTokens = tokens.global;
 
 const CartLeft = () => {
   const dispatch = useDispatch();
   const cartsData = useSelector((state) => state.cartSlice.data);
   const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
   const token = useSelector((state) => state.loginInfo.accessToken);
+  const isDark = useSelector((state)=>state.uiSetting.isDark);
   const headers = {
     Authorization: token.authorization,
   };
@@ -33,19 +39,19 @@ const CartLeft = () => {
   };
 
   return (
-    <CartItems>
-      <CartHeader>
+    <CartItems isDark={isDark}>
+      <CartHeader isDark={isDark}>
         <WholeCheck>
           <CheckedBtn
             type="checkbox"
             checked={checkedItems.length === cartsData.length}
             onChange={(e) => handleAllCheck(e.target.checked)}
           />
-          <Checklabel>
+          <Checklabel isDark={isDark}>
             전체선택 {checkedItems.length}/{cartsData.length}
           </Checklabel>
         </WholeCheck>
-        <RemoveBtn onClick={handlePatchItemList}>&times; 선택 삭제</RemoveBtn>
+        <RemoveBtn isDark={isDark} onClick={handlePatchItemList}>&times; 선택 삭제</RemoveBtn>
       </CartHeader>
       <CartLists isScroll={cartsData.length}>
         {cartsData.length ? (
@@ -54,9 +60,9 @@ const CartLeft = () => {
           <CartEmpty />
         )}
       </CartLists>
-      <CartCautions>
+      <CartCautions isDark={isDark}>
         장바구니 상품 안내
-        <CartCaution>
+        <CartCaution isDark={isDark}>
           장바구니에 담은 상품은 최대 20개까지 보관됩니다.
         </CartCaution>
       </CartCautions>
@@ -72,10 +78,10 @@ export const CartItems = styled.div`
   min-height: 750px;
   margin: 20px 0px;
   padding: 0px 10px;
-  border: 1px solid rgb(236, 236, 236);
+  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
   border-radius: 8px;
   position: relative;
-  background-color: white;
+  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
 `;
 
 export const CartHeader = styled.div`
@@ -84,7 +90,7 @@ export const CartHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 15px 15px 10px 15px;
-  border-bottom: 2px solid rgb(236, 236, 236);
+  border-bottom: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
 `;
 
 export const WholeCheck = styled.div`
@@ -100,16 +106,15 @@ export const CheckedBtn = styled.input`
   accent-color: rgb(255, 90, 90);
 `;
 
-export const Checklabel = styled.label`
+export const Checklabel = styled(BodyTextTypo)`
   width: 300px;
   height: 30px;
   margin-left: 10px;
   padding-top: 2px;
 `;
 
-export const RemoveBtn = styled.button`
+export const RemoveBtn = styled(NegativeTextButton)`
   border-radius: 8px;
-  background-color: rgb(255, 200, 200);
   width: 100px;
   height: 35px;
   font-size: 14px;
@@ -130,13 +135,15 @@ export const CartCautions = styled.ul`
   bottom: 2%;
   left: 2%;
   padding-left: 15px;
-  font-size: 14px;
-  font-weight: bold;
+  font-size: ${globalTokens.BodyText.value};
+  font-weight: ${globalTokens.Bold.value};
+  color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value}
 `;
 
 export const CartCaution = styled.li`
-  margin: 10px 0px;
+  margin: ${globalTokens.Spacing4.value}px 0px;
   padding-left: 10px;
-  color: gray;
+  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+  font-size: ${globalTokens.BodyText.value}px;
   font-weight: normal;
 `;

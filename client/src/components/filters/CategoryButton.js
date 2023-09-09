@@ -21,6 +21,7 @@ const FilterButton = styled(RoundButton)`
     color: ${props=>props.isDark?globalTokens.White:globalTokens.Black.value};
     &:hover {
       background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.15)'};
+      color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
     }
 `
 

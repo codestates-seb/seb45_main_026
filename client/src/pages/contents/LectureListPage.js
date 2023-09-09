@@ -77,6 +77,7 @@ const LectureListPage = () => {
   const isHorizon = useSelector((state) => state.filterSlice.isHorizon);
   const accessToken = useSelector(state=>state.loginInfo.accessToken);
   const dispatch = useDispatch();
+  
   useEffect(() => {
     return () => {
       dispatch(resetToInitialState());

@@ -17,4 +17,5 @@ export const LoginFormInputContainer = styled.div`
 export const LoginButton = styled(BigButton)`
     margin: ${globalTokens.Spacing8.value}px;
     width: 250px;
+    font-size: ${globalTokens.BodyText.value}px;
 `

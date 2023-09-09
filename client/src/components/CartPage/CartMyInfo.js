@@ -1,25 +1,30 @@
 import { styled } from "styled-components";
 import { useSelector } from "react-redux";
+import { BodyTextTypo } from '../../atoms/typographys/Typographys'
+import tokens from '../../styles/tokens.json';
+
+const globalTokens = tokens.global;
 
 const CartMyInfo = () => {
+  const isDark = useSelector(state=>state.uiSetting.isDark);
   const myCartInfo = useSelector((state) => state.cartSlice.myCartInfo);
 
   return (
-    <CartInfo>
-      <InfoTitle>
-        <Info>구매자 정보</Info>
+    <CartInfo isDark={isDark}>
+      <InfoTitle isDark={isDark}>
+        <Info isDark={isDark}>구매자 정보</Info>
       </InfoTitle>
-      <InfoBox>
-        <InfoSubtitle>이름</InfoSubtitle>
-        <InfoContnent>{myCartInfo.nickname}</InfoContnent>
+      <InfoBox isDark={isDark}>
+        <InfoSubtitle isDark={isDark}>이름</InfoSubtitle>
+        <InfoContnent isDark={isDark}>{myCartInfo.nickname}</InfoContnent>
       </InfoBox>
       <InfoBox>
-        <InfoSubtitle>이메일</InfoSubtitle>
-        <InfoContnent>{myCartInfo.email}</InfoContnent>
+        <InfoSubtitle isDark={isDark}>이메일</InfoSubtitle>
+        <InfoContnent isDark={isDark}>{myCartInfo.email}</InfoContnent>
       </InfoBox>
       <InfoBox>
-        <InfoSubtitle>등급</InfoSubtitle>
-        <InfoContnent>{myCartInfo.grade}</InfoContnent>
+        <InfoSubtitle isDark={isDark}>등급</InfoSubtitle>
+        <InfoContnent isDark={isDark}>{myCartInfo.grade}</InfoContnent>
       </InfoBox>
     </CartInfo>
   );
@@ -31,9 +36,9 @@ export const CartInfo = styled.form`
   width: 100%;
   padding: 20px;
   margin: 15px 0px;
-  border: 1px solid rgb(236, 236, 236);
+  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};;
   border-radius: 10px;
-  background-color: white;
+  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
 
   display: flex;
   flex-direction: column;
@@ -45,23 +50,27 @@ export const InfoTitle = styled.div`
   flex-direction: row;
   justify-content: space-between;
   padding-bottom: 10px;
-  border-bottom: 2px solid rgb(236, 236, 236);
+  border-bottom: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
   font-weight: bold;
 `;
 
-export const Info = styled.span``;
+export const Info = styled(BodyTextTypo)`
+
+`;
 
 export const InfoBox = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: start;
   align-items: center;
-
   margin-top: 10px;
-  color: gray;
+  color: ${props=>props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;
 
-export const InfoSubtitle = styled.span`
+export const InfoSubtitle = styled(BodyTextTypo)`
   width: 80px;
+  color: ${props=>props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;
-export const InfoContnent = styled.span``;
+export const InfoContnent = styled(BodyTextTypo)`
+  color: ${props=>props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
+`;

@@ -41,6 +41,7 @@ export const getUserChannelInfoService = async (authorization, memberId) => {
     } catch (err) {
         return {
             status: 'error',
+            data: err.response.data.message
         }
     }
 }
