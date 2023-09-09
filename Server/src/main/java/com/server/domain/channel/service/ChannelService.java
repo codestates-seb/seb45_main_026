@@ -80,7 +80,6 @@ public class ChannelService {
         if (loginMemberId != ownerId) {
             throw new MemberAccessDeniedException();
         }
-
         Channel channel = existChannel(ownerId);
 
         channel.updateChannel(updateInfo.getChannelName(), updateInfo.getDescription());
@@ -163,11 +162,9 @@ public class ChannelService {
         channelRepository.save(channel);
     }
 
-
     private Boolean isSubscribed(Long loginMemberId, long memberId) {
 
         return memberRepository.checkMemberSubscribeChannel(loginMemberId, List.of(memberId)).get(0);
-
     }
 
     private List<Boolean> isPurchaseInOrder(Member loginMember, List<Video> videos) {
