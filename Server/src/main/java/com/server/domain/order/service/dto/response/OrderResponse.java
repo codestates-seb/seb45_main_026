@@ -16,7 +16,7 @@ public class OrderResponse {
     public static OrderResponse of(Order order){
         return OrderResponse.builder()
                 .orderId(order.getOrderId())
-                .totalAmount(order.getPrice())
+                .totalAmount(order.getTotalPayAmount())
                 .build();
     }
 }

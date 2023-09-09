@@ -9,15 +9,15 @@ import java.util.Optional;
 
 public interface OrderRepositoryCustom {
 
-    Long deleteCartByMemberAndOrderId1(Long memberId, String orderId);
+    Long deleteCartByMemberAndOrderId(Long memberId, String orderId);
 
-    Long deleteCartByMemberAndOrderId2(Long memberId, String orderId);
+    List<Video> findPurchasedVideosByMemberId(Long memberId);
 
-    Optional<Order> findByIdWithVideos(String orderId);
+    Optional<Order> findByIdWithVideos(Long memberId, String orderId);
 
-    List<Video> findWatchVideosAfterPurchaseById(String orderId);
+    List<Video> findWatchVideosAfterPurchaseById(Order order);
 
-    Boolean findWatchVideoAfterPurchaseByVideoId(String orderId, Long videoId);
+    Boolean checkIfWatchAfterPurchase(Order order, Long videoId);
 
     Optional<OrderVideo> findOrderVideoByVideoId(String orderId, Long videoId);
 }

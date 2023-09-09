@@ -190,8 +190,8 @@ public abstract class RepositoryTest {
 
     protected Order createAndSaveOrderComplete(Member member, List<Video> video) {
 
-        Order order = Order.createOrder(member, video, 500);
-        order.completeOrder(LocalDateTime.now());
+        Order order = Order.createOrder(member, video, 0);
+        order.completeOrder(LocalDateTime.now(), "paymentKey");
         em.persist(order);
 
         return order;
