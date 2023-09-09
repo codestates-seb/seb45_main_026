@@ -458,8 +458,6 @@ class ReplyServiceTest extends ServiceTest {
             replyService.createReply(member.getMemberId(), 100L, new CreateReply("content", 0));
         });
     }
-
-
 }
 
 
