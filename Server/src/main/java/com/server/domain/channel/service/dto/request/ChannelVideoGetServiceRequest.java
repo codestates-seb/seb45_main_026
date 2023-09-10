@@ -12,7 +12,6 @@ import org.springframework.data.domain.PageRequest;
 public class ChannelVideoGetServiceRequest {
 
     private Long memberId;
-    private Long loginMemberId;
     private int page;
     private int size;
     private String categoryName;

@@ -585,13 +585,11 @@ class VideoRepositoryTest extends RepositoryTest {
 
     @TestFactory
     @DisplayName("memberId 로 해당 채널의 video 목록을 조회한다.")
-    Collection<DynamicTest> findChannelVideoByCategoryPaging() {
+    Collection<DynamicTest> findChannelVideoByCond() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
+        Member owner = createMemberWithChannel();
 
-        Member otherMember = createAndSaveMember();
-        Channel otherChannel = createAndSaveChannel(otherMember);
+        Member otherOwner = createMemberWithChannel();
 
         Member loginMember = createMemberWithChannel();
 
@@ -599,16 +597,16 @@ class VideoRepositoryTest extends RepositoryTest {
         Category category1 = createAndSaveCategory("java");
         Category category2 = createAndSaveCategory("spring");
 
-        Video video1 = createAndSaveVideo(channel);
-        Video video2 = createAndSaveVideo(channel, 1); // 조회수 1
-        Video video3 = createAndSaveVideo(channel, 5.0F); // 별점 5
-        Video video4 = createAndSaveFreeVideo(channel);
-        Video video5 = createAndSaveVideo(channel);
-        Video video6 = createAndSaveVideo(channel);
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel(), 1); // 조회수 1
+        Video video3 = createAndSaveVideo(owner.getChannel(), 5.0F); // 별점 5
+        Video video4 = createAndSaveFreeVideo(owner.getChannel());
+        Video video5 = createAndSaveVideo(owner.getChannel());
+        Video video6 = createAndSaveVideo(owner.getChannel());
         createAndSaveOrderComplete(loginMember, List.of(video4, video5, video6)); // member 가 video4, video5, video6 구매
 
         for(int i = 1; i <= 100; i++) {
-            Video otherVideo = createAndSaveVideo(otherChannel);// otherMember 의 video
+            Video otherVideo = createAndSaveVideo(otherOwner.getChannel());// otherMember 의 video
             createAndSaveVideoCategory(otherVideo, category1, category2);
         }
         createAndSaveVideoCategory(video1, category1, category2); // video1 은 java, spring 카테고리
@@ -776,7 +774,7 @@ class VideoRepositoryTest extends RepositoryTest {
                 dynamicTest("other 채널의 비디오를 페이징으로 조회한다. 총 개수가 100개로 나오고, 최신순으로 조회된다.", () -> {
                     //given
                     ChannelVideoGetDataRequest request = new ChannelVideoGetDataRequest(
-                            otherMember.getMemberId(),
+                            otherOwner.getMemberId(),
                             loginMember.getMemberId(),
                             null,
                             pageRequest,
