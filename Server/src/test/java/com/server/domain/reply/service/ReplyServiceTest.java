@@ -10,6 +10,7 @@ import com.server.domain.reply.dto.ReplyUpdateServiceApi;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.replyException.ReplyDuplicateException;
 import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
@@ -30,6 +31,9 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import org.junit.jupiter.api.Test;
 
 class ReplyServiceTest extends ServiceTest {
 
@@ -134,7 +138,7 @@ class ReplyServiceTest extends ServiceTest {
         Page<ReplyInfo> replies = replyService.getReplies(video.getVideoId(), 8, 10, ReplySort.CREATED_DATE, null);
 
         //then
-        Page<ReplyInfo> replies2 = replyRepository.findAllByVideoIdPaging(video.getVideoId(), PageRequest.of(8, 10, Sort.by(Sort.Order.asc("createdDate"))));
+        Page<Reply> replies2 = replyRepository.findAllByVideoIdPaging(video.getVideoId(), PageRequest.of(8, 10, Sort.by(Sort.Order.asc("createdDate"))));
 
         assertThat(replies.getTotalElements()).isEqualTo(replies2.getTotalElements());
         assertThat(replies.getNumber()).isEqualTo(replies2.getNumber());
@@ -143,25 +147,18 @@ class ReplyServiceTest extends ServiceTest {
 
     @Test
     @DisplayName("댓글을 작성한다.")
-    void createReply(){
+    void createReply() {
         //given
         Member member = createAndSaveMember();
 
         Channel channel = createAndSaveChannel(member);
-        Video video = createAndSaveVideo(channel);
+        Video video = createAndSavePurchasedVideo(member);
 
         //when
-        Reply reply = Reply.builder()
-                .content("description")
-                .star(0)
-                .member(member)
-                .video(video)
-                .build();
-
-        replyRepository.save(reply);
+        replyService.createReply(member.getMemberId(), video.getVideoId(), new CreateReply("description", 3));
 
         //then
-        assertEquals(replyRepository.findById(reply.getReplyId()).get().getContent(), "description");
+        assertThat(replyRepository.findAll().size()).isEqualTo(1);
     }
 
     @Test
@@ -219,32 +216,36 @@ class ReplyServiceTest extends ServiceTest {
     void getRepliesByCreatedDate() {
         //given
         Member member = createAndSaveMember();
+        memberRepository.save(member);
 
         Channel channel = createAndSaveChannel(member);
-        Video video = createAndSaveVideo(channel);
+        Video video = createAndSavePurchasedVideo(member);
+
+        List<Reply> replies = new ArrayList<>();
 
         //when
-        for (int i = 0; i < 10; i++) {
+        for (int i = 1; i <= 10; i++) {
             Reply reply = Reply.builder()
                     .content("content" + i)
                     .star(i)
                     .member(member)
                     .video(video)
                     .build();
-            replyRepository.save(reply);
+            replies.add(replyRepository.save(reply));
         }
 
-        Page<ReplyInfo> replies = replyService.getReplies(video.getVideoId(), 1, 10, ReplySort.CREATED_DATE, null);
+        Page<ReplyInfo> repliesPage = replyService.getReplies(video.getVideoId(), 1, 10, ReplySort.CREATED_DATE, null);
 
         //then
-        assertThat(replies.getTotalElements()).isEqualTo(10);
-        assertThat(replies.getNumber()).isEqualTo(1);
-        assertThat(replies.getSize()).isEqualTo(10);
-
-        List<ReplyInfo> replyInfoList = replies.getContent();
-        for (int i = 0; i < replyInfoList.size() - 1; i++) { //마지막까지
-            assertThat(replyInfoList.get(i).getCreatedDate()).isEqualTo(replyInfoList.get(i + 1).getCreatedDate());
+        // 최신순으로 조회되었는지 확인하는 코드
+        List<ReplyInfo> replyInfoList = repliesPage.getContent();
+        for (int i = 0; i < replyInfoList.size() - 1; i++) {
+            assertThat(replyInfoList.get(i).getCreatedDate()).isAfter(replyInfoList.get(i + 1).getCreatedDate());
         }
+
+        assertThat(repliesPage.getTotalElements()).isEqualTo(10);
+        assertThat(repliesPage.getNumber()).isEqualTo(1);
+        assertThat(repliesPage.getSize()).isEqualTo(10);
     }
 
     @Test
@@ -253,16 +254,16 @@ class ReplyServiceTest extends ServiceTest {
         //given
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
-        Video video = createAndSaveVideo(channel);
+        Video video = createAndSavePurchasedVideo(member);
 
-        Long loginId = member.getMemberId();
+        em.flush();
+        em.clear();
 
         //when
-        Reply reply = createAndSaveReply(member, video);
-        Long replyId = reply.getMember().getMemberId();
+        Long reply = replyService.createReply(member.getMemberId(),video.getVideoId(), new CreateReply("content", 9));
 
         //then
-        assertThat(replyId).isEqualTo(loginId);
+        assertThat(reply).isNotNull();
 
     }
 
@@ -290,7 +291,7 @@ class ReplyServiceTest extends ServiceTest {
 
     @Test
     @DisplayName("별점을 초과해서 부여할 수 없다")
-    void notExceedStar(){
+    void notExceedStar() {
         //given
         Member member = createAndSaveMember();
         Long loginMemberId = member.getMemberId();
@@ -383,9 +384,9 @@ class ReplyServiceTest extends ServiceTest {
 
         List<ReplyInfo> replyInfoList = replies.getContent();
         for (int i = 0; i < replyInfoList.size() - 1; i++) {
-            if(replyInfoList.get(i).getStar().equals(replyInfoList.get(i+1).getStar())){
+            if (replyInfoList.get(i).getStar().equals(replyInfoList.get(i + 1).getStar())) {
 
-             assertThat(Sort.by(Sort.Order.desc("createdDate")));
+                assertThat(Sort.by(Sort.Order.desc("createdDate")));
             }
         }
     }
@@ -400,38 +401,30 @@ class ReplyServiceTest extends ServiceTest {
         createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
 
         //when
-        Reply reply = Reply.builder()
-                .content("content")
-                .star(0)
-                .member(member)
-                .video(video)
-                .build();
-        replyRepository.save(reply);
+        replyService.createReply(member.getMemberId(), video.getVideoId(), new CreateReply("content", 9));
 
         //then
-        assertThat(reply.getMember().getMemberId()).isEqualTo(member.getMemberId());
+        assertThat(replyRepository.findAll().size()).isEqualTo(1);
     }
 
     @Test
     @DisplayName("비디오를 구매하지않은 사용자는 댓글을 남길 수 없다")
     void notPurchaseVideo() {
-        //given
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
 
+        Long loginMemberId = member.getMemberId();
+        Long videoId = video.getVideoId();
+
         //when
-        Reply reply = Reply.builder()
-                .content("content")
-                .star(0)
-                .member(member)
-                .video(video)
-                .build();
-        replyRepository.save(reply);
+        VideoNotPurchasedException exception = assertThrows(VideoNotPurchasedException.class, () -> {
+            replyService.createReply(member.getMemberId(), video.getVideoId(), new CreateReply("content", 9));
+        });
 
         //then
         assertThrows(VideoNotPurchasedException.class, () -> {
-            replyService.createReply(member.getMemberId(), video.getVideoId(), new CreateReply("content", 0));
+            replyService.createReply(loginMemberId, videoId, new CreateReply("content", 5));
         });
     }
 
@@ -444,20 +437,12 @@ class ReplyServiceTest extends ServiceTest {
         Video video = createAndSaveVideo(channel);
         createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
 
-        //when
-        Reply reply = Reply.builder()
-                .content("content")
-                .star(0)
-                .member(member)
-                .video(video)
-                .build();
-        replyRepository.save(reply);
-
-        //then
+        // When, Then
         assertThrows(VideoNotFoundException.class, () -> {
-            replyService.createReply(member.getMemberId(), 100L, new CreateReply("content", 0));
+            replyService.createReply(member.getMemberId(), 999999999999L, new CreateReply("content", 1));
         });
+
+        List<Reply> replies = replyRepository.findAllByMemberIdAndVideoId(member.getMemberId(), video.getVideoId());
+        assertThat(replies, empty());
     }
 }
-
-

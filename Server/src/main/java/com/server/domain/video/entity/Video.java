@@ -105,10 +105,18 @@ public class Video extends BaseEntity implements Rewardable {
         this.view++;
     }
 
-    public void calculateStar(){
-        double average = this.replies.stream().mapToDouble(Reply::getStar).average().orElse(0);
+    public void calculateStar() {
+        if (this.replies != null && !this.replies.isEmpty()) {
+            double average = this.replies.stream()
+                    .filter(reply -> reply.getStar() != null) // Filter out replies with null stars
+                    .mapToDouble(Reply::getStar)
+                    .average()
+                    .orElse(0);
 
-        this.star = (float) (Math.round(average * 10.0) / 10.0);
+            this.star = (float) (Math.round(average * 10.0) / 10.0);
+        } else {
+            this.star = 0.0f; // Set a default value when there are no replies or all stars are null
+        }
     }
 
     public void updateCategory(List<Category> categories) {
