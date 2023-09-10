@@ -1,4 +1,4 @@
-package com.server.auth;
+package com.server.auth.controller;
 
 import static com.server.auth.util.AuthConstant.*;
 import static com.server.global.testhelper.ControllerTest.*;
