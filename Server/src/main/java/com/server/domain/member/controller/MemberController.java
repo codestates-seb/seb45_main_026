@@ -1,11 +1,14 @@
 package com.server.domain.member.controller;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -34,6 +37,7 @@ import com.server.module.s3.service.dto.FileType;
 
 @RestController
 @RequestMapping("/members")
+@Validated
 public class MemberController {
 
 	private final MemberService memberService;
@@ -53,8 +57,8 @@ public class MemberController {
 	}
 
 	@GetMapping("/rewards")
-	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(@RequestParam(value = "page", defaultValue = "1") int page,
-																		@RequestParam(value = "size", defaultValue = "16") int size,
+	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+																		@RequestParam(value = "size", defaultValue = "16") @Positive(message = "{validation.positive}") int size,
 																		@LoginId Long loginId) {
 
 		Page<RewardsResponse> responses = memberService.getRewards(loginId, page, size);
@@ -63,8 +67,8 @@ public class MemberController {
 	}
 
 	@GetMapping("/subscribes")
-	public ResponseEntity<ApiPageResponse<SubscribesResponse>> getSubscribes(@RequestParam(value = "page", defaultValue = "1") int page,
-																			@RequestParam(value = "size", defaultValue = "16") int size,
+	public ResponseEntity<ApiPageResponse<SubscribesResponse>> getSubscribes(@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+																			@RequestParam(value = "size", defaultValue = "16") @Positive(message = "{validation.positive}") int size,
 																			@LoginId Long loginId) {
 
 		Page<SubscribesResponse> responses = memberService.getSubscribes(loginId, page, size);
@@ -74,8 +78,8 @@ public class MemberController {
 
 	@GetMapping("/carts")
 	public ResponseEntity<ApiPageResponse<CartsResponse>> getCarts(@LoginId Long loginId,
-																	@RequestParam(value = "page", defaultValue = "1") int page,
-																	@RequestParam(value = "size", defaultValue = "20") int size) {
+																	@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+																	@RequestParam(value = "size", defaultValue = "20") @Positive(message = "{validation.positive}") int size) {
 
 		Page<CartsResponse> responses = memberService.getCarts(loginId, page, size);
 
@@ -84,9 +88,9 @@ public class MemberController {
 
 	@GetMapping("/orders")
 	public ResponseEntity<ApiPageResponse<OrdersResponse>> getOrders(@LoginId Long loginId,
-													@RequestParam(value = "page", defaultValue = "1") int page,
-													@RequestParam(value = "size", defaultValue = "4") int size,
-													@RequestParam(value = "month", defaultValue = "1") int month) {
+													@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+													@RequestParam(value = "size", defaultValue = "4") @Positive(message = "{validation.positive}") int size,
+													@RequestParam(value = "month", defaultValue = "1") @Min(value = 1, message = "{validation.member.month.min}") @Max(value = 12, message = "{validation.member.month.max}") int month) {
 
 		Page<OrdersResponse> responses = memberService.getOrders(loginId, page, size, month);
 
@@ -127,7 +131,7 @@ public class MemberController {
 	public ResponseEntity<ApiPageResponse<WatchsResponse>> getWatchs(@LoginId Long loginId,
 																	@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
 																	@RequestParam(value = "size", defaultValue = "16") @Positive(message = "{validation.positive}") int size,
-																	@RequestParam(value = "day", defaultValue = "30") @Positive(message = "{validation.positive}") int day) {
+																	@RequestParam(value = "day", defaultValue = "30") @Min(value = 1, message = "{validation.member.day.min}") @Max(value = 30, message = "{validation.member.day.max}")  int day) {
 
 		Page<WatchsResponse> responses = memberService.getWatchs(loginId, page, size, day);
 
@@ -143,7 +147,7 @@ public class MemberController {
 
 	@PatchMapping("/image")
 	public ResponseEntity<Void> updateImage(@LoginId Long loginId,
-														@RequestBody @Valid MemberApiRequest.Image request) {
+											@RequestBody @Valid MemberApiRequest.Image request) {
 
 		memberService.updateImage(loginId, request.getImageName());
 

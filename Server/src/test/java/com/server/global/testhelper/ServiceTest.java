@@ -35,7 +35,7 @@ import com.server.domain.watch.repository.WatchRepository;
 import com.server.module.email.service.MailService;
 import com.server.module.redis.service.RedisService;
 
-import org.mockito.Mock;
+import com.server.module.s3.service.AwsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -74,6 +74,7 @@ public abstract class ServiceTest {
     @MockBean protected RedisService redisService;
     @MockBean protected RestTemplate restTemplate;
     @MockBean protected MailService mailService;
+    @MockBean protected AwsService awsService;
 
     protected Member createAndSaveMember() {
         Member member = Member.builder()
@@ -117,6 +118,14 @@ public abstract class ServiceTest {
 
     protected Channel createAndSaveChannelWithName(Member member, String channelName) {
         Channel channel = Channel.createChannel(channelName);
+        channel.setMember(member);
+        channelRepository.save(channel);
+
+        return channel;
+    }
+
+    protected Channel createAndSaveChannelWithSubscriber(Member member, int subscriber) {
+        Channel channel = Channel.builder().channelName("channelName").subscribers(subscriber).build();
         channel.setMember(member);
         channelRepository.save(channel);
 
@@ -280,6 +289,19 @@ public abstract class ServiceTest {
         return reply;
     }
 
+    protected Reply createAndSaveReply5Star(Member member, Video video) {
+        Reply reply = Reply.builder()
+            .content("content")
+            .star(5)
+            .member(member)
+            .video(video)
+            .build();
+
+        replyRepository.save(reply);
+
+        return reply;
+    }
+
     protected Reward createAndSaveVideoReward(Member member, Video video) {
 
         Reward reward = Reward.createReward(RewardType.VIDEO,
@@ -309,7 +331,7 @@ public abstract class ServiceTest {
         return reward;
     }
 
-    protected Cart createAndSaveCartWithVideo(Member member, Video video) {
+    protected Cart createAndSaveCart(Member member, Video video) {
         Cart cart = Cart.createCart(member, video, video.getPrice());
 
         return cartRepository.save(cart);

@@ -207,6 +207,84 @@
          );
      }
 
+     @Test
+     @DisplayName("path 를 통해 해당 이미지 파일이 존재하는지 확인한다. 존재하면 true 를 반환한다.")
+     void isExistFileImageTrue() {
+         //given
+         String imageName = "test";
+
+         //when
+         boolean isExist = awsService.isExistFile(mockMemberId, imageName, FileType.PROFILE_IMAGE);
+
+         //then
+         assertThat(isExist).isTrue();
+     }
+
+     @Test
+     @DisplayName("path 를 통해 해당 이미지 파일이 존재하는지 확인한다. 존재하지 않으면 false 를 반환한다.")
+     void isExistFileImageFalse() {
+         //given
+         String imageName = "testNoExist";
+
+         //when
+         boolean isExist = awsService.isExistFile(mockMemberId, imageName, FileType.PROFILE_IMAGE);
+
+         //then
+         assertThat(isExist).isFalse();
+     }
+
+     @Test
+     @DisplayName("path 를 통해 해당 썸네일 파일이 존재하는지 확인한다. 존재하면 true 를 반환한다.")
+     void isExistFileThumbnailTrue() {
+         //given
+         String thumbnailName = mockVideoId + "/testthumbnail";
+
+         //when
+         boolean isExist = awsService.isExistFile(mockMemberId, thumbnailName, FileType.THUMBNAIL);
+
+         //then
+         assertThat(isExist).isTrue();
+     }
+
+     @Test
+     @DisplayName("path 를 통해 해당 썸네일 파일이 존재하는지 확인한다. 존재하지 않으면 false 를 반환한다.")
+     void isExistFileThumbnailFalse() {
+         //given
+         String thumbnailName = mockVideoId + "/testthumbnailNotExist";
+
+         //when
+         boolean isExist = awsService.isExistFile(mockMemberId, thumbnailName, FileType.THUMBNAIL);
+
+         //then
+         assertThat(isExist).isFalse();
+     }
+
+     @Test
+     @DisplayName("path 를 통해 해당 비디오 파일이 존재하는지 확인한다. 존재하면 true 를 반환한다.")
+     void isExistFileVideoTrue() {
+         //given
+         String videoName = mockVideoId + "/test";
+
+         //when
+         boolean isExist = awsService.isExistFile(mockMemberId, videoName, FileType.VIDEO);
+
+         //then
+         assertThat(isExist).isTrue();
+     }
+
+     @Test
+     @DisplayName("path 를 통해 해당 비디오 파일이 존재하는지 확인한다. 존재하지 않으면 false 를 반환한다.")
+     void isExistFileVideoFalse() {
+         //given
+         String videoName = mockVideoId + "/testNotExist";
+
+         //when
+         boolean isExist = awsService.isExistFile(mockMemberId, videoName, FileType.VIDEO);
+
+         //then
+         assertThat(isExist).isFalse();
+     }
+
      private ResponseEntity<byte[]> getResponseEntity(String url) throws UnsupportedEncodingException {
          return restTemplate.getForEntity(
                  URLDecoder.decode(url, UTF_8),

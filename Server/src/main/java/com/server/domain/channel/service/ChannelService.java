@@ -137,20 +137,15 @@ public class ChannelService {
     @Transactional(readOnly = true)
     public Page<ChannelVideoResponse> getChannelVideos(Long loginMemberId, ChannelVideoGetServiceRequest request) {
 
-        Member member = verifiedMemberOrNull(loginMemberId);
+        Member loginMember = verifiedMemberOrNull(loginMemberId);
 
         Page<Video> videos = videoRepository.findChannelVideoByCond(request.toDataRequest(loginMemberId));
 
-        List<Boolean> isPurchaseInOrder = isPurchaseInOrder(member, videos.getContent());
-
-        List<String> thumbnailUrlsInOrder = getThumbnailUrlsInOrder(videos.getContent());
-
-        List<Long> videoIdsInCart = getVideoIdsInCart(member, videos.getContent());
-
         return ChannelVideoResponse.of(videos,
-                isPurchaseInOrder,
-                thumbnailUrlsInOrder,
-                videoIdsInCart);
+                isPurchase(loginMember, videos),
+                getThumbnailUrls(videos),
+                getVideoIdsInCart(loginMember, videos)
+        );
     }
 
     private Member verifiedMemberOrNull(Long loginMemberId) {
@@ -169,24 +164,28 @@ public class ChannelService {
         return memberRepository.checkMemberSubscribeChannel(loginMemberId, List.of(memberId)).get(0);
     }
 
-    private List<Boolean> isPurchaseInOrder(Member loginMember, List<Video> videos) {
+    private List<Boolean> isPurchase(Member loginMember, Page<Video> videos) {
 
         if(loginMember == null) {
-            return IntStream.range(0, videos.size())
-                    .mapToObj(i -> false)
-                    .collect(Collectors.toList());
+            return createBooleans(videos.getContent().size(), false);
         }
 
-        List<Long> videoIds = videos.stream()
+        List<Long> videoIds = videos.getContent().stream()
                 .map(Video::getVideoId)
                 .collect(Collectors.toList());
 
         return memberRepository.checkMemberPurchaseVideos(loginMember.getMemberId(), videoIds);
     }
 
-    private List<String> getThumbnailUrlsInOrder(List<Video> videos) {
+    private List<Boolean> createBooleans(int size, boolean value) {
+        return IntStream.range(0, size)
+                .mapToObj(i -> value)
+                .collect(Collectors.toList());
+    }
 
-        return videos.stream()
+    private List<String> getThumbnailUrls(Page<Video> videos) {
+
+        return videos.getContent().stream()
                 .map(this::getThumbnailUrl)
                 .collect(Collectors.toList());
     }
@@ -195,13 +194,13 @@ public class ChannelService {
         return awsService.getFileUrl(video.getMemberId(), video.getThumbnailFile(), FileType.THUMBNAIL);
     }
 
-    private List<Long> getVideoIdsInCart(Member loginMember, List<Video> videos) {
+    private List<Long> getVideoIdsInCart(Member loginMember, Page<Video> videos) {
 
         if(loginMember == null) {
             return Collections.emptyList();
         }
 
-        List<Long> videoIds = videos.stream()
+        List<Long> videoIds = videos.getContent().stream()
                 .map(Video::getVideoId)
                 .collect(Collectors.toList());
 

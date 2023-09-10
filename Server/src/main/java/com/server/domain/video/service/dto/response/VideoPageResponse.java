@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @Getter
@@ -31,7 +32,7 @@ public class VideoPageResponse {
             Page<Video> videos,
             List<Boolean> isPurchaseInOrder,
             List<Boolean> isSubscribeInOrder,
-            List<String[]> urlsInOrder,
+            List<Map<String, String>> urlsInOrder,
             List<Long> videoIdsInCart) {
         return videos.map(video
                 -> of(video,
@@ -45,12 +46,12 @@ public class VideoPageResponse {
     private static VideoPageResponse of(Video video,
                                         boolean isPurchased,
                                         boolean isSubscribed,
-                                        String[] urls,
+                                        Map<String, String> urls,
                                         boolean isInCart) {
         return VideoPageResponse.builder()
                 .videoId(video.getVideoId())
                 .videoName(video.getVideoName())
-                .thumbnailUrl(urls[0])
+                .thumbnailUrl(urls.get("thumbnailUrl"))
                 .views(video.getView())
                 .price(video.getPrice())
                 .star(video.getStar())
@@ -58,7 +59,7 @@ public class VideoPageResponse {
                 .isInCart(isInCart)
                 .description(video.getDescription())
                 .categories(VideoCategoryResponse.of(video.getVideoCategories()))
-                .channel(VideoChannelResponse.of(video.getChannel(), isSubscribed, urls[1]))
+                .channel(VideoChannelResponse.of(video.getChannel(), isSubscribed, urls.get("imageUrl")))
                 .createdDate(video.getCreatedDate())
                 .build();
     }

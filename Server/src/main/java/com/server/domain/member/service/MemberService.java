@@ -1,33 +1,41 @@
 package com.server.domain.member.service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.persistence.EntityNotFoundException;
-import javax.persistence.OptimisticLockException;
-import javax.persistence.PersistenceException;
-import javax.persistence.TransactionRequiredException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.Tuple;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
+import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
-import com.server.domain.member.service.dto.response.*;
+import com.server.domain.member.service.dto.response.CartsResponse;
+import com.server.domain.member.service.dto.response.OrdersResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
+import com.server.domain.member.service.dto.response.PlaylistsResponse;
+import com.server.domain.member.service.dto.response.ProfileResponse;
+import com.server.domain.member.service.dto.response.RewardsResponse;
+import com.server.domain.member.service.dto.response.SubscribesResponse;
+import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.member.util.MemberResponseConverter;
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.repository.OrderRepository;
+import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.Reward;
+import com.server.domain.reward.repository.NewRewardRepository;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.watch.entity.Watch;
-import com.server.global.exception.businessexception.databaseexception.DataAccessFailedException;
-import com.server.global.exception.businessexception.databaseexception.DataConstraintViolationException;
-import com.server.global.exception.businessexception.databaseexception.IllegalDataArgException;
-import com.server.global.exception.businessexception.databaseexception.TxRequiredException;
-import com.server.global.exception.businessexception.databaseexception.TxSystemException;
-import com.server.global.exception.businessexception.databaseexception.UnknownDatabaseException;
-import com.server.global.exception.businessexception.databaseexception.VersionControllException;
 import com.server.global.exception.businessexception.mailexception.MailCertificationException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
@@ -37,30 +45,30 @@ import com.server.module.redis.service.RedisService;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionSystemException;
-import org.springframework.transaction.annotation.Transactional;
-
 @Service
 @Transactional(readOnly = true)
 public class MemberService {
 
 	private final MemberRepository memberRepository;
+	private final ChannelRepository channelRepository;
+	private final VideoRepository videoRepository;
+	private final OrderRepository orderRepository;
+	private final NewRewardRepository newRewardRepository;
 	private final ChannelService channelService;
 	private final AwsService awsService;
 	private final PasswordEncoder passwordEncoder;
 	private final MemberResponseConverter converter;
 	private final RedisService redisService;
 
-	public MemberService(MemberRepository memberRepository, ChannelService channelService, AwsService awsService,
-		PasswordEncoder passwordEncoder, MemberResponseConverter converter, RedisService redisService) {
+	public MemberService(MemberRepository memberRepository, ChannelRepository channelRepository,
+		VideoRepository videoRepository, OrderRepository orderRepository, NewRewardRepository newRewardRepository,
+		ChannelService channelService, AwsService awsService, PasswordEncoder passwordEncoder,
+		MemberResponseConverter converter, RedisService redisService) {
 		this.memberRepository = memberRepository;
+		this.channelRepository = channelRepository;
+		this.videoRepository = videoRepository;
+		this.orderRepository = orderRepository;
+		this.newRewardRepository = newRewardRepository;
 		this.channelService = channelService;
 		this.awsService = awsService;
 		this.passwordEncoder = passwordEncoder;
@@ -100,6 +108,19 @@ public class MemberService {
 
 		return RewardsResponse.convert(rewards);
 	}
+
+	// public Page<RewardsResponse> getNewRewards(Long loginId, int page, int size) {
+	// 	Member member = validateMember(loginId);
+	//
+	// 	Pageable pageable = PageRequest.of(page - 1, size);
+	//
+	// 	Page<NewReward> rewards = newRewardRepository.findRewardsByMember(member, pageable);
+	//
+	// 	return null;
+	//
+	// 	// Page<Reward> rewards = memberRepository.findRewardsByMemberId(member.getMemberId(), pageable);
+	// 	// return RewardsResponse.convert(rewards);
+	// }
 
 	public Page<SubscribesResponse> getSubscribes(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
@@ -175,14 +196,14 @@ public class MemberService {
 
 		validatePassword(request.getPrevPassword(), password);
 
-		member.setPassword(newPassword);
+		member.updatePassword(newPassword);
 	}
 
 	@Transactional
 	public void updateNickname(MemberServiceRequest.Nickname request, Long loginId) {
 		Member member = validateMember(loginId);
 
-		member.setNickname(request.getNickname());
+		member.updateNickname(request.getNickname());
 	}
 
 	@Transactional
@@ -195,7 +216,19 @@ public class MemberService {
 	@Transactional
 	public void deleteMember(Long loginId) {
 		Member member = validateMember(loginId);
+
+		channelRepository.decreaseSubscribersByMember(member);
+		videoRepository.disconnectVideosFromChannel(member.getChannel());
+		orderRepository.disconnectOrdersFromMember(member);
+		List<Reply> memberReplies = member.getReplies();
 		memberRepository.delete(member);
+
+		List<Long> videoIdsToUpdate = memberReplies.stream()
+			.map(reply -> reply.getVideo().getVideoId())
+			.distinct()
+			.collect(Collectors.toList());
+
+		videoRepository.updateVideoRatings(videoIdsToUpdate);
 	}
 
 	@Transactional

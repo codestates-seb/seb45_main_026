@@ -12,13 +12,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
+import com.server.global.reponse.ApiPageResponse;
 import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.mockito.Mockito;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpHeaders;
@@ -1108,5 +1112,1053 @@ public class MemberControllerTest extends ControllerTest {
 						)
 					)
 			);
+	}
+
+	@TestFactory
+	@DisplayName("리워드 목록 조회 Validation 테스트")
+	Collection<DynamicTest> getRewardsValidation() throws Exception {
+		//given
+		List<RewardsResponse> responses = List.of(
+			RewardsResponse.builder()
+				.questionId(1L)
+				.videoId(418L)
+				.rewardType(RewardType.QUIZ)
+				.rewardPoint(5)
+				.createdDate(LocalDateTime.now())
+				.build()
+		);
+
+		PageImpl<RewardsResponse> pages = new PageImpl<>(responses);
+
+		String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pages));
+
+		given(memberService.getRewards(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(pages);
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"페이지와 사이즈 파라미터 값을 보내지 않아도 기본값으로 조회가 된다",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/rewards")
+							.header(AUTHORIZATION, TOKEN)
+							.accept(APPLICATION_JSON)
+					);
+
+					//then
+					actions
+						.andDo(print())
+						.andExpect(status().isOk())
+						.andExpect(content().string(apiResponse));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"페이지가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/rewards")
+							.header(AUTHORIZATION, TOKEN)
+							.param("page", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("page"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"사이즈가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/rewards")
+							.header(AUTHORIZATION, TOKEN)
+							.param("size", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("size"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("구독 목록 조회 Validation 테스트")
+	Collection<DynamicTest> getSubscribesValidation() throws Exception {
+		//given
+		List<SubscribesResponse> responses = List.of(
+			SubscribesResponse.builder()
+				.memberId(23L)
+				.channelName("vlog channel")
+				.subscribes(1004)
+				.imageUrl("https://d2ouhv9pc4idoe.cloudfront.net/images/test")
+				.build()
+		);
+
+		PageImpl<SubscribesResponse> page = new PageImpl<>(responses);
+
+		String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(page));
+
+		given(memberService.getSubscribes(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
+
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"페이지와 사이즈 파라미터 값을 보내지 않아도 기본값으로 조회가 된다",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/subscribes")
+							.header(AUTHORIZATION, TOKEN)
+							.accept(APPLICATION_JSON)
+					);
+
+					//then
+					actions
+						.andDo(print())
+						.andExpect(status().isOk())
+						.andExpect(content().string(apiResponse));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"페이지가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/subscribes")
+							.header(AUTHORIZATION, TOKEN)
+							.param("page", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("page"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"사이즈가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/subscribes")
+							.header(AUTHORIZATION, TOKEN)
+							.param("size", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("size"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("장바구니 목록 조회 Validation 테스트")
+	Collection<DynamicTest> getCartsValidation() throws Exception {
+		//given
+		List<CartsResponse> responses = List.of(
+			CartsResponse.builder()
+				.videoId(151L)
+				.videoName("리눅스 만드는 법")
+				.thumbnailUrl("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
+				.views(333)
+				.createdDate(LocalDateTime.now())
+				.price(100000)
+				.channel(CartsResponse.Channel.builder()
+					.memberId(3L)
+					.channelName("Linus Torvalds")
+					.subscribes(8391)
+					.imageUrl("https://d2ouhv9pc4idoe.cloudfront.net/images/test")
+					.build())
+				.build()
+		);
+
+		PageImpl<CartsResponse> page = new PageImpl<>(responses);
+
+		String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(page));
+
+		given(memberService.getCarts(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"페이지와 사이즈 파라미터 값을 보내지 않아도 기본값으로 조회가 된다",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/carts")
+							.header(AUTHORIZATION, TOKEN)
+							.accept(APPLICATION_JSON)
+					);
+
+					//then
+					actions
+						.andDo(print())
+						.andExpect(status().isOk())
+						.andExpect(content().string(apiResponse));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"페이지가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/carts")
+							.header(AUTHORIZATION, TOKEN)
+							.param("page", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("page"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"사이즈가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/carts")
+							.header(AUTHORIZATION, TOKEN)
+							.param("size", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("size"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("주문 목록 조회 Validation 테스트")
+	Collection<DynamicTest> getOrdersValidation() throws Exception {
+		//given
+		List<OrdersResponse> responses = List.of(
+			OrdersResponse.builder()
+				.orderId("aBzd031dpf414")
+				.reward(300)
+				.orderCount(4)
+				.orderStatus(OrderStatus.ORDERED)
+				.createdDate(LocalDateTime.now())
+				.orderVideos(
+					List.of(
+						OrdersResponse.OrderVideo.builder()
+							.videoId(1L)
+							.videoName("구매한 영상명1")
+							.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
+							.channelName("영상 업로드 채널")
+							.price(10000)
+							.build()
+					)
+				)
+				.build()
+		);
+
+		PageImpl<OrdersResponse> page = new PageImpl<>(responses);
+
+		String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(page));
+
+		given(memberService.getOrders(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"페이지와 사이즈, 조회할 기간(월) 파라미터 값을 보내지 않아도 기본값으로 조회가 된다",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/orders")
+							.header(AUTHORIZATION, TOKEN)
+							.accept(APPLICATION_JSON)
+					);
+
+					//then
+					actions
+						.andDo(print())
+						.andExpect(status().isOk())
+						.andExpect(content().string(apiResponse));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"페이지가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/orders")
+							.header(AUTHORIZATION, TOKEN)
+							.param("page", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("page"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"사이즈가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/orders")
+							.header(AUTHORIZATION, TOKEN)
+							.param("size", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("size"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"조회할 기간(월)이 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/orders")
+							.header(AUTHORIZATION, TOKEN)
+							.param("month", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("month"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("최소 1개월 이상 부터 조회 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"조회할 기간(월)이 12개월 초과인 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/orders")
+							.header(AUTHORIZATION, TOKEN)
+							.param("month", "13")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("month"))
+						.andExpect(jsonPath("$.data[0].value").value(13))
+						.andExpect(jsonPath("$.data[0].reason").value("최대 12개월 까지 조회 가능합니다."));
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("구매한 강의 보관함 조회 Validation 테스트")
+	Collection<DynamicTest> getPlaylistsValidation() throws Exception {
+		//given
+		List<PlaylistsResponse> responses = List.of(
+			PlaylistsResponse.builder()
+				.videoId(321L)
+				.videoName("가볍게 배우는 알고리즘")
+				.thumbnailUrl("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
+				.star(4.7f)
+				.modifiedDate(LocalDateTime.now())
+				.channel(
+					PlaylistsResponse.Channel.builder()
+						.memberId(23L)
+						.channelName("알고리즘 채널")
+						.imageUrl("https://d2ouhv9pc4idoe.cloudfront.net/777/test")
+						.build()
+				)
+				.build()
+		);
+
+		PageImpl<PlaylistsResponse> page = new PageImpl<>(responses);
+
+		String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(page));
+
+		given(memberService.getPlaylists(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString())).willReturn(page);
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"페이지와 사이즈 파라미터 값을 보내지 않아도 기본값으로 조회가 된다",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/playlists")
+							.header(AUTHORIZATION, TOKEN)
+							.accept(APPLICATION_JSON)
+					);
+
+					//then
+					actions
+						.andDo(print())
+						.andExpect(status().isOk())
+						.andExpect(content().string(apiResponse));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"페이지가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/playlists")
+							.header(AUTHORIZATION, TOKEN)
+							.param("page", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("page"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"사이즈가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/playlists")
+							.header(AUTHORIZATION, TOKEN)
+							.param("size", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("size"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"정렬 조건에 정확한 값이 들어오지 않은 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/playlists")
+							.header(AUTHORIZATION, TOKEN)
+							.param("sort", "안되는 enum 값")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.message").value("요청 값의 타입이 잘못되었습니다. 잘못된 값 : 안되는 enum 값"));
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("구매한 강의 보관함 조회(채널별) Validation 테스트")
+	Collection<DynamicTest> getPlaylistChannelsValidation() throws Exception {
+		//given
+		List<PlaylistChannelResponse> responses = List.of(
+			PlaylistChannelResponse.builder()
+				.memberId(1L)
+				.channelName("채널명1")
+				.imageUrl("www.profileImageUrl.com")
+				.videoCount(4L)
+				.subscribers(10)
+				.isSubscribed(true)
+				.build()
+		);
+
+		PageImpl<PlaylistChannelResponse> page = new PageImpl<>(responses);
+
+		String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(page));
+
+		given(memberService.getChannelForPlaylist(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"페이지와 사이즈 파라미터 값을 보내지 않아도 기본값으로 조회가 된다",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/playlists/channels")
+							.header(AUTHORIZATION, TOKEN)
+							.accept(APPLICATION_JSON)
+					);
+
+					//then
+					actions
+						.andDo(print())
+						.andExpect(status().isOk())
+						.andExpect(content().string(apiResponse));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"페이지가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/playlists/channels")
+							.header(AUTHORIZATION, TOKEN)
+							.param("page", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("page"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"사이즈가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/playlists/channels")
+							.header(AUTHORIZATION, TOKEN)
+							.param("size", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("size"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("구매한 강의 보관함 조회(채널별 상세) Validation 테스트")
+	Collection<DynamicTest> getPlaylistChannelDetailsValidation() throws Exception {
+		//given
+		List<PlaylistChannelDetailsResponse> responses = List.of(
+			PlaylistChannelDetailsResponse.builder().build()
+		);
+
+		PageImpl<PlaylistChannelDetailsResponse> page = new PageImpl<>(responses);
+
+		given(memberService.getChannelDetailsForPlaylist(Mockito.anyLong(), Mockito.anyLong())).willReturn(page);
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"조회할 채널의 사용자의 id가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/playlists/channels/details")
+							.header(AUTHORIZATION, TOKEN)
+							.param("member-id", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					//then
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("memberId"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("시청 기록 조회 Validation 테스트")
+	Collection<DynamicTest> getWatchsValidation() throws Exception {
+		//given
+		PageImpl<WatchsResponse> page = new PageImpl<>(List.of(
+			WatchsResponse.builder().build()
+		));
+
+		String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(page));
+
+		given(memberService.getWatchs(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"페이지와 사이즈, 조회할 기간(일) 파라미터 값을 보내지 않아도 기본값으로 조회가 된다",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/watchs")
+							.header(AUTHORIZATION, TOKEN)
+							.accept(APPLICATION_JSON)
+					);
+
+					//then
+					actions
+						.andDo(print())
+						.andExpect(status().isOk())
+						.andExpect(content().string(apiResponse));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"페이지가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/watchs")
+							.header(AUTHORIZATION, TOKEN)
+							.param("page", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("page"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"사이즈가 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/watchs")
+							.header(AUTHORIZATION, TOKEN)
+							.param("size", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("size"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"조회할 기간(일)이 양수가 아닌 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/watchs")
+							.header(AUTHORIZATION, TOKEN)
+							.param("day", "0")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("day"))
+						.andExpect(jsonPath("$.data[0].value").value(0))
+						.andExpect(jsonPath("$.data[0].reason").value("최소 1일 이상 부터 조회 가능합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"조회할 기간(일)이 31일 초과인 경우",
+				() -> {
+					//when
+					ResultActions actions = mockMvc.perform(
+						get("/members/watchs")
+							.header(AUTHORIZATION, TOKEN)
+							.param("day", "31")
+							.accept(APPLICATION_JSON)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("day"))
+						.andExpect(jsonPath("$.data[0].value").value(31))
+						.andExpect(jsonPath("$.data[0].reason").value("최대 30일 까지 조회 가능합니다."));
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("닉네임 변경 Validation 테스트")
+	Collection<DynamicTest> updateNicknameValidation() throws Exception {
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"변경할 닉네임을 입력하지 않은 경우",
+				() -> {
+					//given
+					MemberApiRequest.Nickname nickname = new MemberApiRequest.Nickname();
+
+					String content = objectMapper.writeValueAsString(nickname);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("nickname"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("한글/숫자/영어를 선택하여 사용한 1 ~ 20자를 입력하세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"변경할 닉네임의 길이가 한 글자 미만인 경우",
+				() -> {
+					//given
+					MemberApiRequest.Nickname nickname = new MemberApiRequest.Nickname("");
+
+					String content = objectMapper.writeValueAsString(nickname);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("nickname"))
+						.andExpect(jsonPath("$.data[0].value").value(""))
+						.andExpect(jsonPath("$.data[0].reason").value("한글/숫자/영어를 선택하여 사용한 1 ~ 20자를 입력하세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"변경할 닉네임의 길이가 21 글자 이상인 경우",
+				() -> {
+					//given
+					MemberApiRequest.Nickname nickname = new MemberApiRequest.Nickname("가나다라마바사아자차카타파하가나다라마바사아자");
+
+					String content = objectMapper.writeValueAsString(nickname);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("nickname"))
+						.andExpect(jsonPath("$.data[0].value").value("가나다라마바사아자차카타파하가나다라마바사아자"))
+						.andExpect(jsonPath("$.data[0].reason").value("한글/숫자/영어를 선택하여 사용한 1 ~ 20자를 입력하세요."));
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("프로필 이미지 변경 Validation 테스트")
+	Collection<DynamicTest> updateImageValidation() throws Exception {
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"이미지 파일명을 입력하지 않은 경우",
+				() -> {
+					//given
+					MemberApiRequest.Image image = new MemberApiRequest.Image();
+					image.setImageType(ImageType.PNG);
+
+					String content = objectMapper.writeValueAsString(image);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/image")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("imageName"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("이미지 이름은 필수입니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"이미지 확장자 타입을 입력하지 않은 경우",
+				() -> {
+					//given
+					MemberApiRequest.Image image = new MemberApiRequest.Image();
+					image.setImageName("imageName");
+
+					String content = objectMapper.writeValueAsString(image);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/image")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("imageType"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("jpg, jpeg, png 확장자만 지원합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"잘못된 이미지 확장자 타입인 경우",
+				() -> {
+					//given
+					String content = "{\"imageName\":\"imageName\",\"imageType\":\"PPP\"}";
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/image")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("imageType"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("jpg, jpeg, png 확장자만 지원합니다."));
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("비밀번호 변경 Validation 테스트")
+	Collection<DynamicTest> updatePasswordValidation() throws Exception {
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"이전 비밀번호를 입력하지 않은 경우",
+				() -> {
+					//given
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setNewPassword("abcd1234!");
+
+					String content = objectMapper.writeValueAsString(password);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("prevPassword"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"변경할 비밀번호를 입력하지 않은 경우",
+				() -> {
+					//given
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setPrevPassword("abcd1234!");
+
+					String content = objectMapper.writeValueAsString(password);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("newPassword"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"비밀번호의 길이가 8글자 이하인 경우",
+				() -> {
+					//given
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setPrevPassword("abcd1234!");
+					password.setNewPassword("abcd123!");
+
+					String content = objectMapper.writeValueAsString(password);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("newPassword"))
+						.andExpect(jsonPath("$.data[0].value").value("abcd123!"))
+						.andExpect(jsonPath("$.data[0].reason").value("허용된 글자 수는 9자에서 20자 입니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"비밀번호의 길이가 21글자 이상인 경우",
+				() -> {
+					//given
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setPrevPassword("abcd1234!");
+					password.setNewPassword("abcdefghijklmnopqrs1!");
+
+					String content = objectMapper.writeValueAsString(password);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("newPassword"))
+						.andExpect(jsonPath("$.data[0].value").value("abcdefghijklmnopqrs1!"))
+						.andExpect(jsonPath("$.data[0].reason").value("허용된 글자 수는 9자에서 20자 입니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"특수문자가 포함되지 않은 경우",
+				() -> {
+					//given
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setPrevPassword("abcd1234!");
+					password.setNewPassword("abcde12345");
+
+					String content = objectMapper.writeValueAsString(password);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("newPassword"))
+						.andExpect(jsonPath("$.data[0].value").value("abcde12345"))
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"숫자가 포함되지 않은 경우",
+				() -> {
+					//given
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setPrevPassword("abcd1234!");
+					password.setNewPassword("abcdefgh!");
+
+					String content = objectMapper.writeValueAsString(password);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("newPassword"))
+						.andExpect(jsonPath("$.data[0].value").value("abcdefgh!"))
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"영어가 포함되지 않은 경우",
+				() -> {
+					//given
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setPrevPassword("abcd1234!");
+					password.setNewPassword("12345678!");
+
+					String content = objectMapper.writeValueAsString(password);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("newPassword"))
+						.andExpect(jsonPath("$.data[0].value").value("12345678!"))
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
+				}
+			)
+		);
 	}
 }
