@@ -21,7 +21,6 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 public class Channel extends BaseEntity {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long channelId;
 
@@ -37,7 +36,7 @@ public class Channel extends BaseEntity {
     private int subscribers;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "channel_id")
     private Member member;
 
     @OneToMany(mappedBy = "channel")
@@ -46,10 +45,18 @@ public class Channel extends BaseEntity {
     @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL)
     private List<Announcement> announcements = new ArrayList<>();
 
+
     public static Channel createChannel(String memberNickname) {
         return Channel.builder()
-                .channelName(memberNickname)
-                .build();
+            .channelName(memberNickname)
+            .build();
+    }
+
+    @PrePersist
+    public void generateId() {
+        if (channelId == null) {
+            channelId = member.getMemberId();
+        }
     }
 
     public void updateChannel(String channelName, String description){
@@ -73,9 +80,5 @@ public class Channel extends BaseEntity {
     public void decreaseSubscribers() {
         this.subscribers--;
     }
-
-
-
-
 
 }
