@@ -15,6 +15,8 @@ import com.server.global.exception.businessexception.replyException.ReplyNotFoun
 import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import com.server.global.exception.businessexception.videoexception.VideoNotPurchasedException;
+import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,12 +30,18 @@ public class ReplyService {
     private final ReplyRepository replyRepository;
     private final MemberRepository memberRepository;
     private final VideoRepository videoRepository;
+    private final AwsService awsService;
 
 
-    public ReplyService(ReplyRepository replyRepository, MemberRepository memberRepository, VideoRepository videoRepository) {
+    public ReplyService(ReplyRepository replyRepository,
+                        MemberRepository memberRepository,
+                        VideoRepository videoRepository,
+                        AwsService awsService) {
+
         this.replyRepository = replyRepository;
         this.memberRepository = memberRepository;
         this.videoRepository = videoRepository;
+        this.awsService = awsService;
     }
 
     @Transactional(readOnly = true)
@@ -57,21 +65,22 @@ public class ReplyService {
 
     public Long createReply(Long loginMemberId, Long videoId, CreateReply reply) {
 
-        Member member = findMember(loginMemberId);
+        Member findLoginMember = findMember(loginMemberId);
         Video video = findVideo(videoId);
 
         validateReply(loginMemberId, video, reply);
         existReplies(loginMemberId, videoId);
         evaluateStar(reply.getStar());
 
-        Reply replies = Reply.builder()
-                .star(reply.getStar())
-                .content(reply.getContent())
-                .member(member)
-                .video(video)
-                .build();
+        String content = reply.getContent();
+        Integer star = reply.getStar();
 
-        return replyRepository.save(replies).getReplyId();
+        Reply newReply = Reply.builder()
+                .content(content)
+            		.star(star)
+            		.build();
+
+        return replyRepository.save(newReply).getReplyId();
     }
 
     public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi request) {
@@ -90,7 +99,17 @@ public class ReplyService {
 
         Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
 
-        return ReplyInfo.of(reply);
+        return ReplyInfo.builder()
+                .replyId(reply.getReplyId())
+                .content(reply.getContent())
+                .star(reply.getStar())
+                .member(MemberInfo.of(reply.getMember().getMemberId(),
+                        reply.getMember().getNickname(),
+                        awsService.getFileUrl(reply.getMember().getMemberId(),
+                                reply.getMember().getImageFile(),
+                                FileType.PROFILE_IMAGE)))
+                .createdDate(reply.getCreatedDate())
+                .build();
     }
 
     public void deleteReply(Long replyId, Long loginMemberId) {

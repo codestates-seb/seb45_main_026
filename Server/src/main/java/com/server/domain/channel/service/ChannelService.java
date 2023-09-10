@@ -63,7 +63,9 @@ public class ChannelService {
                     .description(channel.getDescription())
                     .subscribers(channel.getSubscribers())
                     .isSubscribed(false)
-                    .imageUrl(awsService.getFileUrl(channel.getMember().getMemberId(), channel.getMember().getImageFile(), FileType.PROFILE_IMAGE))
+                    .imageUrl(awsService.getFileUrl(channel.getMember().getMemberId(),
+                            channel.getMember().getImageFile(),
+                            FileType.PROFILE_IMAGE))
                     .createdDate(channel.getCreatedDate())
                     .build();
         }
