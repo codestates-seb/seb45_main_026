@@ -6,7 +6,6 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.category.repository.CategoryRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
-import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.VideoRepository;
@@ -44,18 +43,16 @@ public class VideoService {
     private final CategoryRepository categoryRepository;
     private final CartRepository cartRepository;
     private final AwsService awsService;
-    private final ReplyRepository replyRepository;
 
     public VideoService(VideoRepository videoRepository, MemberRepository memberRepository,
                         WatchRepository watchRepository, CategoryRepository categoryRepository,
-                        CartRepository cartRepository, AwsService awsService, ReplyRepository replyRepository) {
+                        CartRepository cartRepository, AwsService awsService) {
         this.videoRepository = videoRepository;
         this.memberRepository = memberRepository;
         this.watchRepository = watchRepository;
         this.categoryRepository = categoryRepository;
         this.cartRepository = cartRepository;
         this.awsService = awsService;
-        this.replyRepository = replyRepository;
     }
 
     public Page<VideoPageResponse> getVideos(Long loginMemberId, VideoGetServiceRequest request) {
@@ -139,6 +136,8 @@ public class VideoService {
                 request.getDescription(),
                 verifiedCategories(request.getCategories())
         );
+
+        checkIfVideoUploaded(loginMemberId, video);
 
         return video.getVideoId();
     }
@@ -292,6 +291,19 @@ public class VideoService {
                 .collect(Collectors.toList());
 
         return videoRepository.findVideoIdInCart(member.getMemberId(), videoIds);
+    }
+
+    private void checkIfVideoUploaded(Long loginMemberId, Video video) {
+        boolean existVideo = awsService.isExistFile(loginMemberId, video.getVideoFile(), FileType.VIDEO);
+        boolean existThumbnail = awsService.isExistFile(loginMemberId, video.getThumbnailFile(), FileType.THUMBNAIL);
+
+        if(!existVideo) {
+            throw new VideoNotUploadedException(video.getVideoName());
+        }
+
+        if(!existThumbnail) {
+            throw new ThumbnailNotUploadedException(video.getVideoName());
+        }
     }
 
     private Member verifiedMemberOrNull(Long loginMemberId) {

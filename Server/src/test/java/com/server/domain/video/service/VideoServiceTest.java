@@ -17,6 +17,7 @@ import com.server.domain.video.service.dto.response.VideoPageResponse;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.videoexception.*;
 import com.server.global.testhelper.ServiceTest;
+import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
@@ -31,7 +32,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.DynamicTest.*;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
 
 class VideoServiceTest extends ServiceTest {
 
@@ -167,7 +169,7 @@ class VideoServiceTest extends ServiceTest {
         //given
         Member owner = createMemberWithChannel();
 
-        Member loginMember = createAndSaveMember(); // 로그인한 회원
+        Member loginMember = createMemberWithChannel(); // 로그인한 회원
         Long anonymousMemberId = -1L; // 비회원
 
         createAndSaveSubscribe(loginMember, owner.getChannel()); // loginMember 가 owner1 의 channel1 을 구독
@@ -182,6 +184,8 @@ class VideoServiceTest extends ServiceTest {
 
         em.flush();
         em.clear();
+
+        setFileGetUrlSuccess();
 
         return List.of(
                 dynamicTest("비회원이 비디오 세부정보를 조회한다. 구독여부, 댓글여부, 구매여부는 모두 false 이다.", () -> {
@@ -277,14 +281,11 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("구매하지 않은 사용자가 closed 된 비디오를 조회하면 VideoClosedException 이 발생한다.")
     void getVideoVideoClosedException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Member loginMember = createAndSaveMember(); // 로그인한 회원
-        Channel loginMemberChannel = createAndSaveChannel(loginMember);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         video.close();
+
+        Member loginMember = createMemberWithChannel(); // 로그인한 회원
 
         Category category1 = createAndSaveCategory("java");
         Category category2 = createAndSaveCategory("spring");
@@ -304,14 +305,11 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("video 를 구매한 사용자는 closed 된 비디오를 조회할 수 있다.")
     void getClosedVideoWhenPurchased() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Member loginMember = createAndSaveMember(); // 로그인한 회원
-        Channel loginMemberChannel = createAndSaveChannel(loginMember);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         video.close();
+
+        Member loginMember = createMemberWithChannel(); // 로그인한 회원
 
         createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video), 0); // video 를 구매한 사용자
 
@@ -370,13 +368,15 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("비디오를 생성한다.")
     Collection<DynamicTest> createVideo() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
+        Member owner = createMemberWithChannel();
 
         Category category1 = createAndSaveCategory("category1");
         Category category2 = createAndSaveCategory("category2");
 
         String videoName = "test";
+
+        setFileGetUrlSuccess();
+        setVideoUploadSuccess();
 
         return List.of(
                 dynamicTest("imageType, fileName 을 받아서 파일을 저장할 수 있는 url 을 반환한다.", ()-> {
@@ -431,13 +431,14 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("비디오를 생성 시 최초 요청한 videoName 으로 요청하지 않으면 예외가 발생한다.")
     Collection<DynamicTest> createVideoException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
+        Member owner = createMemberWithChannel();
 
         Category category1 = createAndSaveCategory("category1");
         Category category2 = createAndSaveCategory("category2");
 
         String videoName = "test";
+
+        setFileGetUrlSuccess();
 
         return List.of(
                 dynamicTest("동일한 videoName 으로 요청하지 않으면 VideoNotFoundException 이 발생한다.", ()-> {
@@ -492,7 +493,7 @@ class VideoServiceTest extends ServiceTest {
         Member owner = createMemberWithChannel();
         Video video = createAndSaveVideo(owner.getChannel()); // 이미 생성된 비디오
 
-        Category category1 = createAndSaveCategory("category1");
+        createAndSaveCategory("category1");
 
         VideoCreateServiceRequest request = VideoCreateServiceRequest.builder()
                 .videoName(video.getVideoName())
@@ -528,6 +529,60 @@ class VideoServiceTest extends ServiceTest {
         //when & then
         assertThatThrownBy(() -> videoService.createVideo(otherMember.getMemberId(), request))
                 .isInstanceOf(VideoNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("비디오 생성 시 비디오가 아직 업로드 되지 않았으면 VideoNotUploadedException 이 발생한다.")
+    void createVideoVideoNotUploadedExceptionWithVideo() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = Video.createVideo(owner.getChannel(), "test", 1000, "test");
+        videoRepository.save(video);
+
+        createAndSaveCategory("category1");
+
+        VideoCreateServiceRequest request = VideoCreateServiceRequest.builder()
+                .videoName(video.getVideoName())
+                .price(1000)
+                .description("test")
+                .categories(List.of("category1"))
+                .build();
+
+        given(awsService.isExistFile(anyLong(), anyString(), eq(FileType.THUMBNAIL)))
+                .willReturn(true);
+        given(awsService.isExistFile(anyLong(), anyString(), eq(FileType.VIDEO)))
+                .willReturn(false);
+
+        //when & then
+        assertThatThrownBy(() -> videoService.createVideo(owner.getMemberId(), request))
+                .isInstanceOf(VideoNotUploadedException.class);
+    }
+
+    @Test
+    @DisplayName("비디오 생성 시 썸네일이 아직 업로드 되지 않았으면 ThumbnailNotUploadedException 이 발생한다.")
+    void createVideoVideoNotUploadedExceptionWithThumbnail() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = Video.createVideo(owner.getChannel(), "test", 1000, "test");
+        videoRepository.save(video);
+
+        createAndSaveCategory("category1");
+
+        VideoCreateServiceRequest request = VideoCreateServiceRequest.builder()
+                .videoName(video.getVideoName())
+                .price(1000)
+                .description("test")
+                .categories(List.of("category1"))
+                .build();
+
+        given(awsService.isExistFile(anyLong(), anyString(), eq(FileType.THUMBNAIL)))
+                .willReturn(false);
+        given(awsService.isExistFile(anyLong(), anyString(), eq(FileType.VIDEO)))
+                .willReturn(true);
+
+        //when & then
+        assertThatThrownBy(() -> videoService.createVideo(owner.getMemberId(), request))
+                .isInstanceOf(ThumbnailNotUploadedException.class);
     }
 
     @Test
@@ -756,8 +811,7 @@ class VideoServiceTest extends ServiceTest {
         Video video2 = createAndSaveVideo(owner.getChannel());
         Video video3 = createAndSaveVideo(owner.getChannel());
 
-        Member loginMember = createAndSaveMember();
-        Channel loginMemberChannel = createAndSaveChannel(loginMember);
+        Member loginMember = createMemberWithChannel();
 
         Cart cart1 = createAndSaveCart(loginMember, video1);
         Cart cart2 = createAndSaveCart(loginMember, video2);
@@ -784,8 +838,7 @@ class VideoServiceTest extends ServiceTest {
         Video video3 = createAndSaveVideo(owner.getChannel());
         Video video4 = createAndSaveVideo(owner.getChannel());
 
-        Member loginMember = createAndSaveMember();
-        Channel loginMemberChannel = createAndSaveChannel(loginMember);
+        Member loginMember = createMemberWithChannel();
 
         Cart cart1 = createAndSaveCart(loginMember, video1);
         Cart cart2 = createAndSaveCart(loginMember, video2);
@@ -847,5 +900,15 @@ class VideoServiceTest extends ServiceTest {
         //then (삭제가 되지 않았는지 확인)
         assertThat(videoRepository.findById(video.getVideoId()).isEmpty()).isFalse();
 
+    }
+
+    void setVideoUploadSuccess() {
+        given(awsService.isExistFile(anyLong(), anyString(), any(FileType.class))).willReturn(true);
+    }
+
+    void setFileGetUrlSuccess() {
+        given(awsService.getFileUrl(anyLong(), anyString(), any(FileType.class))).willReturn("https://test.com");
+        given(awsService.getUploadVideoUrl(anyLong(), anyString())).willReturn("https://test.com");
+        given(awsService.getImageUploadUrl(anyLong(), anyString(), any(FileType.class), any(ImageType.class))).willReturn("https://test.com");
     }
 }
