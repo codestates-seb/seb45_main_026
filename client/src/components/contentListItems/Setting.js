@@ -61,6 +61,7 @@ const Setting = () => {
                     description: newDescription!==null?newDescription:"",
                 }));
             } else if (response.data==='만료된 토큰입니다.') {
+                console.log(response.data);
                 //토큰 만료 에러인 경우 토큰 재발급 실행
                 refreshToken();
             } else {
