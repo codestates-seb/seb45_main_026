@@ -54,7 +54,7 @@ public class Member extends BaseEntity {
 
 	private int reward;
 
-	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "member")
 	@Builder.Default
 	private List<Order> orders = new ArrayList<>();
 
