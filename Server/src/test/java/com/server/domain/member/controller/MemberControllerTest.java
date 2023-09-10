@@ -489,7 +489,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistsResponse.builder()
 				.videoId(321L)
 				.videoName("가볍게 배우는 알고리즘")
-				.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
+				.thumbnailUrl("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 				.star(4.7f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -503,7 +503,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistsResponse.builder()
 				.videoId(2218L)
 				.videoName("더 가볍게 배우는 알고리즘")
-				.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
+				.thumbnailUrl("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 				.star(3.4f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -517,7 +517,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistsResponse.builder()
 				.videoId(7831L)
 				.videoName("많이 가볍게 배우는 알고리즘")
-				.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
+				.thumbnailUrl("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 				.star(2.9f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -531,7 +531,7 @@ public class MemberControllerTest extends ControllerTest {
 			PlaylistsResponse.builder()
 				.videoId(321L)
 				.videoName("진짜 가볍게 배우는 알고리즘")
-				.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
+				.thumbnailUrl("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 				.star(1.8f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -564,7 +564,7 @@ public class MemberControllerTest extends ControllerTest {
 			fieldWithPath("data[]").description("구매한 강의 목록"),
 			fieldWithPath("data[].videoId").description("구매한 영상 ID"),
 			fieldWithPath("data[].videoName").description("구매한 영상명"),
-			fieldWithPath("data[].thumbnailFile").description("영상의 썸네일 이미지 주소"),
+			fieldWithPath("data[].thumbnailUrl").description("영상의 썸네일 이미지 주소"),
 			fieldWithPath("data[].star").description("영상 평균 별점"),
 			fieldWithPath("data[].modifiedDate").description("영상 업데이트 날짜"),
 			fieldWithPath("data[].channel").description("영상 업로더의 채널 정보"),

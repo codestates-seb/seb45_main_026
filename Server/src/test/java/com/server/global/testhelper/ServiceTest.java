@@ -23,7 +23,6 @@ import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.RewardType;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.reward.repository.NewRewardRepository;
-import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.reward.service.RewardService;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.subscribe.repository.SubscribeRepository;
@@ -67,7 +66,6 @@ public abstract class ServiceTest {
     @Autowired protected ReplyRepository replyRepository;
     @Autowired protected AnnouncementRepository announcementRepository;
     @Autowired protected CartRepository cartRepository;
-    @Autowired protected RewardRepository rewardRepository;
     @Autowired protected NewRewardRepository newRewardRepository;
     @Autowired protected EntityManager em;
     @Autowired private RewardService rewardService;
@@ -144,6 +142,26 @@ public abstract class ServiceTest {
         return video;
     }
 
+    protected Video createAndSaveVideo(Channel channel, int price) {
+        Video video = Video.builder()
+                .videoName("title")
+                .description("description")
+                .thumbnailFile("thumbnailFile")
+                .videoFile("videoFile")
+                .view(0)
+                .star(0.0F)
+                .price(price)
+                .videoCategories(new ArrayList<>())
+                .videoStatus(VideoStatus.CREATED)
+                .channel(channel)
+                .questions(new ArrayList<>())
+                .build();
+
+        videoRepository.save(video);
+
+        return video;
+    }
+
     protected Video createAndSaveVideoUploading(Channel channel) {
         Video video = Video.builder()
                 .videoName("title")
@@ -177,7 +195,7 @@ public abstract class ServiceTest {
                 .build();
 
         Order order = Order.createOrder(member, List.of(video), 0);
-        order.completeOrder(LocalDateTime.now());
+        order.completeOrder(LocalDateTime.now(), "paymentKey");
 
         videoRepository.save(video);
         orderRepository.save(order);
@@ -209,7 +227,7 @@ public abstract class ServiceTest {
 
     protected Order createAndSaveOrderWithPurchaseComplete(Member member, List<Video> video, int reward) {
         Order order = Order.createOrder(member, video, reward);
-        order.completeOrder(LocalDateTime.now());
+        order.completeOrder(LocalDateTime.now(), "paymentKey");
         orderRepository.save(order);
 
         return order;

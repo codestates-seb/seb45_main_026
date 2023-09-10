@@ -6,10 +6,6 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.category.repository.CategoryRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
-import com.server.domain.reply.controller.convert.ReplySort;
-import com.server.domain.reply.dto.ReplyCreateServiceApi;
-import com.server.domain.reply.dto.ReplyInfo;
-import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
@@ -24,16 +20,12 @@ import com.server.domain.video.service.dto.response.VideoPageResponse;
 import com.server.domain.watch.entity.Watch;
 import com.server.domain.watch.repository.WatchRepository;
 import com.server.global.exception.businessexception.categoryexception.CategoryNotFoundException;
-import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
-import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
 import com.server.global.exception.businessexception.videoexception.*;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -431,34 +423,5 @@ public class VideoService {
     private boolean deleteCart(Cart cart) {
         cartRepository.delete(cart);
         return false;
-    }
-
-    public Page<ReplyInfo> getReplies(Long videoId, int page, int size, ReplySort replySort) {
-
-        Sort sort = Sort.by(Sort.Direction.DESC, replySort.getSort());
-
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
-
-        return replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
-    }
-
-    public Long createReply(Long loginMemberId, Long videoId, ReplyCreateServiceApi response) {
-
-        memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberAccessDeniedException());
-
-        Integer star = response.getStar();
-
-        if (star < 1 || star > 5) {
-            throw new ReplyNotValidException();
-        }
-
-        videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException());
-
-        Reply reply = Reply.builder()
-                .content(response.getContent())
-                .star(response.getStar())
-                .build();
-
-        return replyRepository.save(reply).getReplyId();
     }
 }

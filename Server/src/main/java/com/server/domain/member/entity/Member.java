@@ -143,6 +143,10 @@ public class Member extends BaseEntity {
 		checkEnoughReward(reward);
 	}
 
+	public boolean hasEnoughReward(int reward) {
+		return this.reward - reward >= 0;
+	}
+
 	private void checkEnoughReward(int reward) {
 		if(this.reward - reward < 0) throw new RewardNotEnoughException();
 	}

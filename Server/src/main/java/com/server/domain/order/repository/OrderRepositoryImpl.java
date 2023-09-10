@@ -3,6 +3,7 @@ package com.server.domain.order.repository;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.order.entity.QOrderVideo;
 import com.server.domain.video.entity.QVideo;
@@ -29,7 +30,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
     }
 
     @Override
-    public Long deleteCartByMemberAndOrderId1(Long memberId, String orderId) {
+    public Long deleteCartByMemberAndOrderId(Long memberId, String orderId) {
 
         return queryFactory.delete(cart)
                 .where(cart.video.orderVideos.any().order.orderId.eq(orderId)
@@ -37,64 +38,55 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                 ).execute();
     }
 
-    public Long deleteCartByMemberAndOrderId2(Long memberId, String orderId) {
-
-        List<Long> deleteCartIds = queryFactory.select(cart.cartId)
-                .from(cart)
-                .join(cart.member, member)
-                .join(cart.video, video)
+    @Override
+    public List<Video> findPurchasedVideosByMemberId(Long memberId) {
+        return queryFactory.selectFrom(video)
                 .join(video.orderVideos, orderVideo)
-                .where(orderVideo.order.orderId.eq(orderId))
-                .where(member.memberId.eq(memberId))
-                .fetch();
-
-        return queryFactory.delete(cart)
-                .where(cart.cartId.in(deleteCartIds))
-                .execute();
+                .join(orderVideo.order, order)
+                .where(order.member.memberId.eq(memberId)
+                        .and(orderVideo.orderStatus.in(OrderStatus.COMPLETED, OrderStatus.ORDERED))
+                ).fetch();
     }
 
     @Override
-    public Optional<Order> findByIdWithVideos(String orderId) {
+    public Optional<Order> findByIdWithVideos(Long memberId, String orderId) {
 
         return Optional.ofNullable(
                 queryFactory.selectFrom(order)
+                        .join(order.member, member).fetchJoin()
                         .join(order.orderVideos, orderVideo).fetchJoin()
                         .join(orderVideo.video, video).fetchJoin()
                         .where(order.orderId.eq(orderId)).fetchOne()
         );
     }
 
-    public List<Video> findWatchVideosAfterPurchaseById(String orderId) {
+    public List<Video> findWatchVideosAfterPurchaseById(Order checkOrder) {
 
-        JPAQuery<Video> orderVideos = queryFactory.select(video)
+        List<Long> orderVideoIds = queryFactory.select(video.videoId)
                 .from(order)
                 .join(order.orderVideos, orderVideo)
                 .join(orderVideo.video, video)
-                .where(order.orderId.eq(orderId));
-
-        List<Video> watchVideos = queryFactory.select(video)
-                .from(order)
-                .join(order.member, member)
-                .join(member.watches, watch)
-                .join(watch.video, video)
-                .where(order.orderId.eq(orderId)
-                        .and(watch.video.in(orderVideos))
-                        .and(watch.modifiedDate.after(order.completedDate))
+                .where(order.orderId.eq(checkOrder.getOrderId())
                 ).fetch();
 
-        return watchVideos;
+        return queryFactory
+                .selectFrom(video)
+                .join(video.watches, watch)
+                .join(watch.member, member)
+                .where(video.videoId.in(orderVideoIds),
+                        watch.modifiedDate.after(checkOrder.getCompletedDate())
+                ).fetch();
     }
 
-    public Boolean findWatchVideoAfterPurchaseByVideoId(String orderId, Long videoId) {
+    public Boolean checkIfWatchAfterPurchase(Order checkOrder, Long videoId) {
 
-        Video watchVideo = queryFactory.select(video)
-                .from(order)
-                .join(member).on(member.memberId.eq(order.member.memberId))
-                .join(watch).on(watch.member.memberId.eq(member.memberId))
-                .join(video).on(video.videoId.eq(watch.video.videoId))
-                .where(watch.modifiedDate.after(order.completedDate))
-                .where(order.orderId.eq(orderId))
-                .where(video.videoId.eq(videoId)).fetchOne();
+        Video watchVideo = queryFactory
+                .selectFrom(video)
+                .join(video.watches, watch)
+                .join(watch.member, member)
+                .where(video.videoId.eq(videoId),
+                        watch.modifiedDate.after(checkOrder.getCompletedDate())
+                ).fetchOne();
 
         return watchVideo != null;
     }

@@ -3,10 +3,7 @@ package com.server.domain.reply.service;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.reply.controller.convert.ReplySort;
-import com.server.domain.reply.dto.ReplyCreateResponse;
-import com.server.domain.reply.dto.ReplyCreateServiceApi;
-import com.server.domain.reply.dto.ReplyInfo;
-import com.server.domain.reply.dto.ReplyUpdateServiceApi;
+import com.server.domain.reply.dto.*;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
@@ -17,14 +14,14 @@ import com.server.global.exception.businessexception.replyException.ReplyDuplica
 import com.server.global.exception.businessexception.replyException.ReplyNotFoundException;
 import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
+import com.server.global.exception.businessexception.videoexception.VideoNotPurchasedException;
 import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Transactional
 @Service
@@ -33,19 +30,30 @@ public class ReplyService {
     private final ReplyRepository replyRepository;
     private final MemberRepository memberRepository;
     private final VideoRepository videoRepository;
+    private final AwsService awsService;
 
 
+    public ReplyService(ReplyRepository replyRepository,
+                        MemberRepository memberRepository,
+                        VideoRepository videoRepository,
+                        AwsService awsService) {
 
-
-    public ReplyService(ReplyRepository replyRepository, MemberRepository memberRepository, VideoRepository videoRepository) {
         this.replyRepository = replyRepository;
         this.memberRepository = memberRepository;
         this.videoRepository = videoRepository;
+        this.awsService = awsService;
     }
 
     @Transactional(readOnly = true)
     public Page<ReplyInfo> getReplies(Long videoId, int page, int size, ReplySort replySort, Integer star) {
-        Sort sort = Sort.by(Sort.Direction.DESC, replySort.getSort());
+        Sort sort;
+
+        if (replySort == ReplySort.STAR) {
+            sort = Sort.by(Sort.Direction.DESC, "star").and(Sort.by(Sort.Direction.DESC, "createdDate"));
+        } else {
+            sort = Sort.by(Sort.Direction.DESC, "createdDate");
+        }
+
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         if (star != null) { //(별점 필터링 o)
@@ -55,41 +63,29 @@ public class ReplyService {
         }
     }
 
-    public Long createReply(Long loginMemberId, Long videoId, ReplyCreateServiceApi request) {
-        Member member = memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberAccessDeniedException());
-        Integer star = request.getStar();
+    public Long createReply(Long loginMemberId, Long videoId, CreateReply reply) {
 
-        if (star < 1 || star > 10) {
-            throw new ReplyNotValidException();
-        }
+        Member findLoginMember = findMember(loginMemberId);
+        Video video = findVideo(videoId);
 
-        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException());
+        validateReply(loginMemberId, video, reply);
+        existReplies(loginMemberId, videoId);
+        evaluateStar(reply.getStar());
 
-        List<Reply> allReplies = replyRepository.findAll();
+        String content = reply.getContent();
+        Integer star = reply.getStar();
 
-        for (Reply reply : allReplies) {
-            if (reply.getMember().equals(member) && reply.getVideo().equals(video)
-                    && reply.getContent().equals(request.getContent())) {
-                throw new ReplyDuplicateException();
-            }
-        }
+        Reply newReply = Reply.builder()
+                .content(content)
+            		.star(star)
+            		.build();
 
-        ReplyCreateResponse response = ReplyCreateResponse.builder()
-                .content(request.getContent())
-                .star(request.getStar())
-                .member(member)
-                .video(video)
-                .build();
-
-        Reply savedReply = replyRepository.save(response.toEntity());
-
-        return savedReply.getReplyId();
+        return replyRepository.save(newReply).getReplyId();
     }
-
 
     public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi request) {
 
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
 
             if (!reply.getMember().getMemberId().equals(loginMemberId)) {
                 throw new MemberAccessDeniedException();
@@ -99,22 +95,60 @@ public class ReplyService {
     }
 
     @Transactional(readOnly = true)
-    public ReplyInfo getReply(Long replyId, Long loginMemberId) {
+    public ReplyInfo getReply(Long replyId) {
 
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
 
-        return ReplyInfo.of(reply);
+        return ReplyInfo.builder()
+                .replyId(reply.getReplyId())
+                .content(reply.getContent())
+                .star(reply.getStar())
+                .member(MemberInfo.of(reply.getMember().getMemberId(),
+                        reply.getMember().getNickname(),
+                        awsService.getFileUrl(reply.getMember().getMemberId(),
+                        reply.getMember().getImageFile(),
+                       FileType.PROFILE_IMAGE)))
+                .createdDate(reply.getCreatedDate())
+                .build();
     }
 
     public void deleteReply(Long replyId, Long loginMemberId) {
 
-        Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new ReplyNotFoundException());
+        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
 
         if (!reply.getMember().getMemberId().equals(loginMemberId)) {
             throw new MemberAccessDeniedException();
         }
 
         replyRepository.deleteById(replyId);
+    }
+
+    private void existReplies(Long loginMemberId, Long videoId) {
+        if (!replyRepository.findAllByMemberIdAndVideoId(loginMemberId, videoId).isEmpty()) {
+            throw new ReplyDuplicateException();
+        }
+        replyRepository.findAllByMemberIdAndVideoId(loginMemberId, videoId);
+    }
+
+    private void validateReply(Long loginMemberId, Video video, CreateReply request) {
+        Boolean isPurchased = memberRepository.checkMemberPurchaseVideo(loginMemberId, video.getVideoId());
+        if (!isPurchased) {
+            throw new VideoNotPurchasedException();
+        }
+    }
+
+    private void evaluateStar(Integer star) {
+        if (star < 1 || star > 10) {
+            throw new ReplyNotValidException();
+        }
+    }
+
+   private Video findVideo(Long videoId) {
+        return videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
+    }
+
+    private Member findMember(Long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
     }
 }
 

@@ -63,7 +63,7 @@ class MemberRepositoryTest extends RepositoryTest {
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
         Order order = createAndSaveOrder(member, List.of(video));
-        order.completeOrder(LocalDateTime.now());
+        order.completeOrder(LocalDateTime.now(), "paymentKey");
         em.persist(order);
 
         em.flush();

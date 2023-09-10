@@ -11,8 +11,6 @@ import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.NewReward;
-import com.server.domain.reward.entity.Reward;
-import com.server.domain.reward.entity.RewardType;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
@@ -190,8 +188,8 @@ public abstract class RepositoryTest {
 
     protected Order createAndSaveOrderComplete(Member member, List<Video> video) {
 
-        Order order = Order.createOrder(member, video, 500);
-        order.completeOrder(LocalDateTime.now());
+        Order order = Order.createOrder(member, video, 0);
+        order.completeOrder(LocalDateTime.now(), "paymentKey");
         em.persist(order);
 
         return order;
@@ -226,25 +224,6 @@ public abstract class RepositoryTest {
                 .build();
 
         em.persist(subscribe);
-    }
-
-
-    protected Reward createAndSaveVideoReward(Member member, Video video) {
-
-        Reward reward = Reward.createReward(RewardType.VIDEO, 10, member, video);
-
-        em.persist(reward);
-
-        return reward;
-    }
-
-    protected Reward createAndSaveQuestionReward(Member member, Question question) {
-
-        Reward reward = Reward.createReward(RewardType.QUIZ, 10, member, question);
-
-        em.persist(reward);
-
-        return reward;
     }
 
     protected NewReward createAndSaveReward(Member member, Rewardable rewardable) {

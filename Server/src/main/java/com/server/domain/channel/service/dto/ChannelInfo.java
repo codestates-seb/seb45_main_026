@@ -18,10 +18,7 @@ public class ChannelInfo {
     private String description;
     private String imageUrl;
     private LocalDateTime createdDate;
-
     public static ChannelInfo of(Channel channel, Boolean isSubscribed, String imageUrl) {
-
-//            String imageUrl = awsService.getFileUrl(channel.getMember().getMemberId(), member.getImageFile(), FileType.PROFILE_IMAGE);
 
                  return ChannelInfo.builder()
                             .memberId(channel.getMember().getMemberId())
@@ -32,8 +29,5 @@ public class ChannelInfo {
                             .imageUrl(imageUrl)
                             .createdDate(channel.getCreatedDate())
                             .build();
-
-
-
         }
     }
