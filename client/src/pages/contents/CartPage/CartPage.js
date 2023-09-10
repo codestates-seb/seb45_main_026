@@ -7,6 +7,11 @@ import { PageContainer } from "../../../atoms/layouts/PageContainer";
 import { setCarts } from "../../../redux/createSlice/CartsSlice";
 import CartLeft from "./CartLeft";
 import CartRight from "./CartRight";
+import { Heading5Typo } from '../../../atoms/typographys/Typographys';
+import { HomeTitle } from '../../../components/contentListItems/ChannelHome';
+import tokens from '../../../styles/tokens.json';
+
+const globalTokens = tokens.global;
 
 const CartPage = () => {
   const dispatch = useDispatch();
@@ -48,13 +53,10 @@ export const CartContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: start;
+  margin-top: ${globalTokens.Spacing40.value}px;
 `;
 
-export const CartTitle = styled.h2`
-  width: 100%;
-  text-align: start;
-  padding: 50px 4%;
-  color: ${(props) => (props.isDark ? "white" : "black")};
+export const CartTitle = styled(HomeTitle)`
 `;
 
 export const CartContent = styled.div`

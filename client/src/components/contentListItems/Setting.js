@@ -3,7 +3,7 @@ import tokens from '../../styles/tokens.json';
 import { Input, InputErrorTypo } from '../../atoms/inputs/Inputs';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteUserInfoService, updateChannelInfoService, updateNicknameService, updatePasswordService } from '../../services/userInfoService';
+import { deleteUserInfoService, getUserChannelInfoService, updateChannelInfoService, updateNicknameService, updatePasswordService } from '../../services/userInfoService';
 import { setChannelInfo, setIsLogin, setLoginInfo, setMyid, setProvider, setToken } from '../../redux/createSlice/LoginInfoSlice';
 import { NegativeTextButton, PositiveTextButton, } from '../../atoms/buttons/Buttons';
 import { SettingContainer, SettingTitle, SettingTitle2, UserInfoContainer, ExtraButtonContainer  } from './Setting.style';
@@ -19,6 +19,8 @@ const globalTokens = tokens.global;
 const Setting = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const refreshToken = useToken();
+    const logout = useLogout();
     const loginUserInfo = useSelector(state=>state.loginInfo.loginInfo);
     const myid = useSelector(state=>state.loginInfo.myid);
     const channelInfo = useSelector(state=>state.loginInfo.channelInfo);
@@ -48,6 +50,26 @@ const Setting = () => {
                 channelDescription: channelInfo.description,
               }
     });
+
+    useEffect(()=>{
+        getUserChannelInfoService(accessToken.authorization, myid).then((response)=>{
+            if(response.status==='success') {
+                const newChannelName = response.data.channelName;
+                const newDescription = response.data.description;
+                dispatch(setChannelInfo({
+                    channelName: newChannelName!==null?newChannelName:"",
+                    description: newDescription!==null?newDescription:"",
+                }));
+            } else if (response.data==='만료된 토큰입니다.') {
+                console.log(response.data);
+                //토큰 만료 에러인 경우 토큰 재발급 실행
+                refreshToken();
+            } else {
+                logout();
+                navigate('/');
+            }
+        })
+    },[accessToken])
     
     //닉네임 변경 버튼 누르면 동작함
     const handleNicknameUpdateClick = async () => {

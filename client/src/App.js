@@ -17,9 +17,8 @@ import SignupPage from "./pages/auth/SignupPage";
 import "./App.css";
 import ProblemPage from "./pages/contents/ProblemPage";
 import LectureListPage from "./pages/contents/LectureListPage";
-import { getUserChannelInfoService, getUserInfoService } from "./services/userInfoService";
+import {  getUserInfoService } from "./services/userInfoService";
 import {
-  setChannelInfo,
   setIsLogin,
   setLoginInfo,
   setMyid,
@@ -36,7 +35,6 @@ import { useToken } from "./hooks/useToken";
 function App() {
   const dispatch = useDispatch();
   const tokens = useSelector((state) => state.loginInfo.accessToken);
-  const myid = useSelector((state)=>state.loginInfo.myid);
   const refreshToken = useToken();
   const logout = useLogout();
   const [ is로그인실패모달, setIs로그인실패모달 ] = useState(false);
@@ -73,21 +71,6 @@ function App() {
       });
     }
   },[tokens]);
-
-  useEffect(()=>{
-    getUserChannelInfoService(tokens.authorization, myid).then((response)=>{
-      if(response.status==='success') {
-          const newChannelName = response.data.channelName;
-          const newDescription = response.data.description;
-          dispatch(setChannelInfo({
-            channelName: newChannelName!==null?newChannelName:"",
-            description: newDescription!==null?newDescription:"",
-          }))
-      } else {
-
-      }
-  })
-  },[myid])
 
   return (
     <BrowserRouter>

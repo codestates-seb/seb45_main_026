@@ -9,11 +9,10 @@ import VerticalItem from "../../components/contentListItems/VerticalItem";
 import { setLocation } from "../../redux/createSlice/UISettingSlice";
 import axios from "axios";
 import { resetToInitialState,setIsHorizon } from "../../redux/createSlice/FilterSlice";
-import { Heading5Typo } from '../../atoms/typographys/Typographys';
 import list from '../../assets/images/icons/listItem/list.svg'
 import grid from '../../assets/images/icons/listItem/grid.svg'
 import { HomeTitle } from '../../components/contentListItems/ChannelHome';
-
+import { useToken } from '../../hooks/useToken';
 const globalTokens = tokens.global;
 
 const LectureMainContainer = styled(MainContainer)`
@@ -70,6 +69,7 @@ const VerticalItemContainer = styled.ul`
 `
 
 const LectureListPage = () => {
+  const refreshToken = useToken();
   const isDark = useSelector(state=>state.uiSetting.isDark);
   const tokens = useSelector(state=>state.loginInfo.accessToken);
   const [lectures, setLectures] = useState([]);
@@ -77,6 +77,7 @@ const LectureListPage = () => {
   const isHorizon = useSelector((state) => state.filterSlice.isHorizon);
   const accessToken = useSelector(state=>state.loginInfo.accessToken);
   const dispatch = useDispatch();
+  
   useEffect(() => {
     return () => {
       dispatch(resetToInitialState());
@@ -103,7 +104,15 @@ const LectureListPage = () => {
         }
       )
       .then((res) => setLectures(res.data.data))
-      .catch((err) => console.log(err));
+      .catch((err) => 
+        {
+          if(err.response.data.message==='만료된 토큰입니다.') {
+            refreshToken();
+          } else {
+            console.log(err);
+          }
+        }
+      );
   }, [filterState,tokens])
   
   return (
