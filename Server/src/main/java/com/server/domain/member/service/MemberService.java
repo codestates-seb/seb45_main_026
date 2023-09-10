@@ -18,7 +18,9 @@ import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.*;
 import com.server.domain.member.util.MemberResponseConverter;
 import com.server.domain.order.entity.Order;
+import com.server.domain.reward.entity.NewReward;
 import com.server.domain.reward.entity.Reward;
+import com.server.domain.reward.repository.NewRewardRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.exception.businessexception.databaseexception.DataAccessFailedException;
@@ -52,15 +54,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
 	private final MemberRepository memberRepository;
+	private final NewRewardRepository newRewardRepository;
 	private final ChannelService channelService;
 	private final AwsService awsService;
 	private final PasswordEncoder passwordEncoder;
 	private final MemberResponseConverter converter;
 	private final RedisService redisService;
 
-	public MemberService(MemberRepository memberRepository, ChannelService channelService, AwsService awsService,
-		PasswordEncoder passwordEncoder, MemberResponseConverter converter, RedisService redisService) {
+	public MemberService(MemberRepository memberRepository, NewRewardRepository newRewardRepository,
+		ChannelService channelService, AwsService awsService, PasswordEncoder passwordEncoder,
+		MemberResponseConverter converter, RedisService redisService) {
 		this.memberRepository = memberRepository;
+		this.newRewardRepository = newRewardRepository;
 		this.channelService = channelService;
 		this.awsService = awsService;
 		this.passwordEncoder = passwordEncoder;
@@ -100,6 +105,19 @@ public class MemberService {
 
 		return RewardsResponse.convert(rewards);
 	}
+
+	// public Page<RewardsResponse> getNewRewards(Long loginId, int page, int size) {
+	// 	Member member = validateMember(loginId);
+	//
+	// 	Pageable pageable = PageRequest.of(page - 1, size);
+	//
+	// 	Page<NewReward> rewards = newRewardRepository.findRewardsByMember(member, pageable);
+	//
+	// 	return null;
+	//
+	// 	// Page<Reward> rewards = memberRepository.findRewardsByMemberId(member.getMemberId(), pageable);
+	// 	// return RewardsResponse.convert(rewards);
+	// }
 
 	public Page<SubscribesResponse> getSubscribes(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);

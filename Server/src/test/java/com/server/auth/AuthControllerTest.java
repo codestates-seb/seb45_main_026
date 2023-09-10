@@ -112,6 +112,8 @@ public class AuthControllerTest {
 	@DisplayName("로컬 로그인 성공 테스트")
 	void localLogin() throws Exception {
 		//given
+		Member member = createMember("test@email.com", "qwer1234!");
+
 		AuthApiRequest.Login login = new AuthApiRequest.Login("test@email.com", "qwer1234!");
 
 		String content = objectMapper.writeValueAsString(login);
