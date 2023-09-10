@@ -288,6 +288,19 @@ public abstract class ServiceTest {
         return reply;
     }
 
+    protected Reply createAndSaveReply5Star(Member member, Video video) {
+        Reply reply = Reply.builder()
+            .content("content")
+            .star(5)
+            .member(member)
+            .video(video)
+            .build();
+
+        replyRepository.save(reply);
+
+        return reply;
+    }
+
     protected Reward createAndSaveVideoReward(Member member, Video video) {
 
         Reward reward = Reward.createReward(RewardType.VIDEO,

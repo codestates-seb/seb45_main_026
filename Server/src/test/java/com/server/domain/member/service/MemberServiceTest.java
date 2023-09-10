@@ -33,6 +33,7 @@ import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
+import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.RewardType;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
@@ -42,6 +43,7 @@ import com.server.global.exception.businessexception.memberexception.MemberDupli
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberNotUpdatedException;
 import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
+import com.server.global.exception.businessexception.orderexception.OrderNotFoundException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import com.server.global.testhelper.ServiceTest;
 import com.server.module.s3.service.AwsService;
@@ -300,11 +302,17 @@ public class MemberServiceTest extends ServiceTest {
 		Video userVideo1 = createAndSaveVideo(userChannel);
 		Video userVideo2 = createAndSaveVideo(userChannel);
 		Video userVideo3 = createAndSaveVideo(userChannel);
+		Order userOrder = createAndSaveOrder(user, List.of(userVideo1, userVideo2, userVideo3), 0);
 
 		Member member1 = createAndSaveMember();
 		Channel channel1 = createAndSaveChannelWithSubscriber(member1, 10);
+		Video channel1Video1 = createAndSaveVideo(channel1);
+		Video channel1Video2 = createAndSaveVideo(channel1);
+		Video channel1Video3 = createAndSaveVideo(channel1);
+
 		Member member2 = createAndSaveMember();
 		Channel channel2 = createAndSaveChannelWithSubscriber(member2, 100);
+
 		Member member3 = createAndSaveMember();
 		Channel channel3 = createAndSaveChannelWithSubscriber(member3, 1000);
 
@@ -312,14 +320,32 @@ public class MemberServiceTest extends ServiceTest {
 		createAndSaveSubscribe(user, channel2);
 		createAndSaveSubscribe(user, channel3);
 
+		Watch watch1 = createAndSaveWatch(user, channel1Video1);
+		Watch watch2 = createAndSaveWatch(user, channel1Video2);
+		Watch watch3 = createAndSaveWatch(user, channel1Video3);
+
+		Reply userReply1 = createAndSaveReply(user, channel1Video1);
+		Reply userReply2 = createAndSaveReply(user, channel1Video2);
+		Reply userReply3 = createAndSaveReply(user, channel1Video3);
+
+		Reply reply1 = createAndSaveReply5Star(member1, channel1Video1);
+		Reply reply2 = createAndSaveReply5Star(member2, channel1Video1);
+		Reply reply3 = createAndSaveReply5Star(member3, channel1Video1);
+
 		em.flush();
 		em.clear();
+
+		Float channel1Video1Star =
+			videoRepository.findById(channel1Video1.getVideoId()).orElseThrow().getStar();
 
 		//when
 		memberService.deleteMember(userId);
 
 		em.flush();
 		em.clear();
+
+		Float newChannel1Video1Star =
+			videoRepository.findById(channel1Video1.getVideoId()).orElseThrow().getStar();
 
 		//then
 		return List.of(
@@ -354,6 +380,63 @@ public class MemberServiceTest extends ServiceTest {
 					assertThat(channelRepository.findById(channel1.getChannelId()).orElseThrow().getSubscribers()).isEqualTo(9);
 					assertThat(channelRepository.findById(channel2.getChannelId()).orElseThrow().getSubscribers()).isEqualTo(99);
 					assertThat(channelRepository.findById(channel3.getChannelId()).orElseThrow().getSubscribers()).isEqualTo(999);
+				}
+			),
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원의 주문기록이 남아있는지 검증한다",
+				() -> {
+					assertDoesNotThrow(
+						() -> orderRepository.findById(userOrder.getOrderId()).orElseThrow(
+							OrderNotFoundException::new
+						)
+					);
+				}
+			),
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원의 시청기록이 지워졌는지 검증한다",
+				() -> {
+					assertThrows(
+						NullPointerException.class,
+						() -> watchRepository.findById(watch1.getWatchId()).orElseThrow(NullPointerException::new)
+					);
+					assertThrows(
+						NullPointerException.class,
+						() -> watchRepository.findById(watch2.getWatchId()).orElseThrow(NullPointerException::new)
+					);
+					assertThrows(
+						NullPointerException.class,
+						() -> watchRepository.findById(watch3.getWatchId()).orElseThrow(NullPointerException::new)
+					);
+				}
+			),
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원이 작성했던 강의평들이 지워지는지 검증한다",
+				() -> {
+					assertThrows(
+						NullPointerException.class,
+						() -> replyRepository.findById(userReply1.getReplyId()).orElseThrow(NullPointerException::new)
+					);
+					assertThrows(
+						NullPointerException.class,
+						() -> replyRepository.findById(userReply2.getReplyId()).orElseThrow(NullPointerException::new)
+					);
+					assertThrows(
+						NullPointerException.class,
+						() -> replyRepository.findById(userReply3.getReplyId()).orElseThrow(NullPointerException::new)
+					);
+				}
+			),
+			DynamicTest.dynamicTest(
+				"삭제된 강의평들의 영상의 별점이 다시 계산되는지 검증한다",
+				() -> {
+					assertThat(videoRepository.findById(channel1Video1.getVideoId())
+						.orElseThrow().getStar()).isEqualTo(5);
+					assertThat(videoRepository.findById(channel1Video1.getVideoId())
+						.orElseThrow().getReplies().size()).isEqualTo(3);
+					assertThat(videoRepository.findById(channel1Video2.getVideoId())
+						.orElseThrow().getStar()).isEqualTo(0);
+					assertThat(videoRepository.findById(channel1Video3.getVideoId())
+						.orElseThrow().getStar()).isEqualTo(0);
 				}
 			)
 		);

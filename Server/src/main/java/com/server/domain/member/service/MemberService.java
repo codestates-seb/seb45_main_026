@@ -1,5 +1,8 @@
 package com.server.domain.member.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +29,8 @@ import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.member.util.MemberResponseConverter;
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.repository.OrderRepository;
+import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
@@ -46,6 +51,7 @@ public class MemberService {
 	private final MemberRepository memberRepository;
 	private final ChannelRepository channelRepository;
 	private final VideoRepository videoRepository;
+	private final OrderRepository orderRepository;
 	private final ChannelService channelService;
 	private final AwsService awsService;
 	private final PasswordEncoder passwordEncoder;
@@ -53,11 +59,13 @@ public class MemberService {
 	private final RedisService redisService;
 
 	public MemberService(MemberRepository memberRepository, ChannelRepository channelRepository,
-		VideoRepository videoRepository, ChannelService channelService, AwsService awsService,
-		PasswordEncoder passwordEncoder, MemberResponseConverter converter, RedisService redisService) {
+		VideoRepository videoRepository, OrderRepository orderRepository, ChannelService channelService,
+		AwsService awsService, PasswordEncoder passwordEncoder, MemberResponseConverter converter,
+		RedisService redisService) {
 		this.memberRepository = memberRepository;
 		this.channelRepository = channelRepository;
 		this.videoRepository = videoRepository;
+		this.orderRepository = orderRepository;
 		this.channelService = channelService;
 		this.awsService = awsService;
 		this.passwordEncoder = passwordEncoder;
@@ -195,8 +203,16 @@ public class MemberService {
 
 		channelRepository.decreaseSubscribersByMember(member);
 		videoRepository.disconnectVideosFromChannel(member.getChannel());
-
+		orderRepository.disconnectOrdersFromMember(member);
+		List<Reply> memberReplies = member.getReplies();
 		memberRepository.delete(member);
+
+		List<Long> videoIdsToUpdate = memberReplies.stream()
+			.map(reply -> reply.getVideo().getVideoId())
+			.distinct()
+			.collect(Collectors.toList());
+
+		videoRepository.updateVideoRatings(videoIdsToUpdate);
 	}
 
 	@Transactional

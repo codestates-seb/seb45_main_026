@@ -90,7 +90,7 @@ public class MemberController {
 	public ResponseEntity<ApiPageResponse<OrdersResponse>> getOrders(@LoginId Long loginId,
 													@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
 													@RequestParam(value = "size", defaultValue = "4") @Positive(message = "{validation.positive}") int size,
-													@RequestParam(value = "month", defaultValue = "1") @Min(1) @Max(12) int month) {
+													@RequestParam(value = "month", defaultValue = "1") @Min(value = 1, message = "{validation.member.month.min}") @Max(value = 12, message = "{validation.member.month.max}") int month) {
 
 		Page<OrdersResponse> responses = memberService.getOrders(loginId, page, size, month);
 
@@ -131,7 +131,7 @@ public class MemberController {
 	public ResponseEntity<ApiPageResponse<WatchsResponse>> getWatchs(@LoginId Long loginId,
 																	@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
 																	@RequestParam(value = "size", defaultValue = "16") @Positive(message = "{validation.positive}") int size,
-																	@RequestParam(value = "day", defaultValue = "30") @Positive(message = "{validation.positive}") int day) {
+																	@RequestParam(value = "day", defaultValue = "30") @Min(value = 1, message = "{validation.member.day.min}") @Max(value = 30, message = "{validation.member.day.max}")  int day) {
 
 		Page<WatchsResponse> responses = memberService.getWatchs(loginId, page, size, day);
 
@@ -147,7 +147,7 @@ public class MemberController {
 
 	@PatchMapping("/image")
 	public ResponseEntity<Void> updateImage(@LoginId Long loginId,
-														@RequestBody @Valid MemberApiRequest.Image request) {
+											@RequestBody @Valid MemberApiRequest.Image request) {
 
 		memberService.updateImage(loginId, request.getImageName());
 
