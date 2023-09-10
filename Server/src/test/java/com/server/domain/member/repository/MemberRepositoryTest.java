@@ -169,25 +169,22 @@ class MemberRepositoryTest extends RepositoryTest {
     @DisplayName("회원의 특정 채널 구독 여부를 리스트 형태로 조회한다.")
     void checkMemberSubscribeChannel() {
         //given
-        Member member1 = createAndSaveMember();
-        Member member2 = createAndSaveMember();
-        Member member3 = createAndSaveMember();
-        Channel channel1 = createAndSaveChannel(member1);
-        Channel channel2 = createAndSaveChannel(member2);
-        Channel channel3 = createAndSaveChannel(member3);
+        Member owner1 = createMemberWithChannel();
+        Member owner2 = createMemberWithChannel();
+        Member owner3 = createMemberWithChannel();
 
-        Member member = createAndSaveMember(); // member1  은 channel1, 2 를 구독
-        createAndSaveSubscribe(member, channel1);
-        createAndSaveSubscribe(member, channel2);
+        Member loginMember = createAndSaveMember(); // member1  은 channel1, 2 를 구독
+        createAndSaveSubscribe(loginMember, owner1.getChannel());
+        createAndSaveSubscribe(loginMember, owner2.getChannel());
 
         //구독을 확인할 memberId
-        List<Long> memberIds = List.of(member1.getMemberId(), member2.getMemberId(), member3.getMemberId());
+        List<Long> memberIds = List.of(owner1.getMemberId(), owner2.getMemberId(), owner3.getMemberId());
 
         em.flush();
         em.clear();
 
         //when
-        List<Boolean> isSubscribed = memberRepository.checkMemberSubscribeChannel(member.getMemberId(), memberIds);
+        List<Boolean> isSubscribed = memberRepository.checkMemberSubscribeChannel(loginMember.getMemberId(), memberIds);
 
         //then
         assertThat(isSubscribed).hasSize(3)

@@ -12,9 +12,7 @@ import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
 import software.amazon.awssdk.services.cloudfront.model.CustomSignerRequest;
 import software.amazon.awssdk.services.cloudfront.url.SignedUrl;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
@@ -106,6 +104,11 @@ public class AwsServiceImpl implements AwsService {
         deleteFile(fileType.s3Location(memberId, fileName));
     }
 
+    @Override
+    public boolean isExistFile(Long memberId, String fileName, FileType fileType) {
+        return isExistFile(fileType.s3Location(memberId, fileName));
+    }
+
     private void checkValidFile(String fileName) {
         if(fileName == null) {
             throw new S3FileNotVaildException();
@@ -191,6 +194,24 @@ public class AwsServiceImpl implements AwsService {
         DeleteObjectResponse deleteObjectResponse = s3Client.deleteObject(deleteObjectRequest);
 
         check204Response(deleteObjectResponse);
+    }
+
+    private boolean isExistFile(String location) {
+
+        String bucketName = location.split("/")[0];
+        String path = location.substring(location.indexOf("/") + 1);
+
+        HeadObjectRequest objectRequest = HeadObjectRequest.builder()
+                .bucket(bucketName)
+                .key(path)
+                .build();
+
+        try {
+            s3Client.headObject(objectRequest);
+            return true;
+        } catch (NoSuchKeyException e) {
+            return false;
+        }
     }
 
     private void check204Response(DeleteObjectResponse deleteObjectResponse) {

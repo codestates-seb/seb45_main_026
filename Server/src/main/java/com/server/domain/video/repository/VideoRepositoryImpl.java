@@ -1,11 +1,10 @@
 package com.server.domain.video.repository;
 
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.server.domain.member.entity.QMember;
 import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
@@ -64,181 +63,46 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
     }
 
     @Override
-    public Page<Video> findAllByCond(VideoGetDataRequest request) {
-
-        QMember subscribedMember = new QMember("subscribedMember");
-
-        JPAQuery<Video> query = queryFactory
-                .selectFrom(video)
-                .distinct()
-                .join(video.channel, channel).fetchJoin()
-                .join(channel.member, member).fetchJoin()
-                .offset(request.getPageable().getOffset())
-                .limit(request.getPageable().getPageSize())
-                .orderBy(getSort(request.getSort()))
-                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(request.getFree())));
-
-        JPAQuery<Video> countQuery = queryFactory.selectFrom(video)
-                .distinct()
-                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(request.getFree())));
-
-        if (hasCategory(request.getCategoryName())) {
-            query
-                    .join(video.videoCategories, videoCategory)
-                    .join(videoCategory.category, category)
-                    .where(category.categoryName.eq(request.getCategoryName()));
-
-            countQuery
-                    .join(video.videoCategories, videoCategory)
-                    .join(videoCategory.category, category)
-                    .where(category.categoryName.eq(request.getCategoryName()));
-        }
-
-        if(request.isSubscribe()){
-
-            List<Long> channelIds = queryFactory // member 가 구독한 채널의 id
-                    .select(channel.channelId)
-                    .from(channel)
-                    .join(channel.subscribes, subscribe1)
-                    .join(subscribe1.member, subscribedMember)
-                    .where(subscribedMember.memberId.eq(request.getLoginMemberId()))
-                    .fetch();
-
-            query
-                    .join(video.channel, channel)
-                    .where(channel.channelId.in(channelIds));
-
-            countQuery
-                    .join(video.channel, channel)
-                    .where(channel.channelId.in(channelIds));
-        }
-
-        if(!request.isPurchased()) {
-
-                List<Long> videoIds = queryFactory // member 가 구매한 비디오의 id
-                        .select(video.videoId)
-                        .from(member)
-                        .join(member.orders, order)
-                        .join(order.orderVideos, orderVideo)
-                        .join(orderVideo.video, video)
-                        .where(orderVideo.orderStatus.eq(OrderStatus.COMPLETED))
-                        .where(member.memberId.eq(request.getLoginMemberId()))
-                        .fetch();
-
-                query
-                        .where(video.videoId.notIn(videoIds));
-
-                countQuery
-                        .where(video.videoId.notIn(videoIds));
-        }
-
-        return new PageImpl<>(query.fetch(), request.getPageable(), countQuery.fetchCount());
-    }
-
-    private OrderSpecifier[] getSort(String sort) {
-
-        List<OrderSpecifier<?>> orders = new ArrayList<>();
-        orders.add(getOrderSpecifier(sort));
-        orders.add(video.createdDate.desc());
-
-        return orders.toArray(new OrderSpecifier[0]);
-    }
-
-    private BooleanExpression searchFree(Boolean free) {
-
-        if(free == null) {
-            return null;
-        }
-
-        if(free) {
-            return video.price.eq(0);
-        }
-
-        return video.price.gt(0);
-    }
-
-    private boolean hasCategory(String categoryName) {
-        return categoryName != null;
+    public Optional<Video> findVideoDetailIncludeWithdrawal(Long videoId) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(video)
+                        .leftJoin(video.channel, channel).fetchJoin()
+                        .leftJoin(channel.member, member).fetchJoin()
+                        .leftJoin(video.videoCategories, videoCategory).fetchJoin()
+                        .leftJoin(videoCategory.category, category).fetchJoin()
+                        .where(video.videoId.eq(videoId))
+                        .fetchOne()
+        );
     }
 
     @Override
-    public List<Boolean> isPurchasedAndIsReplied(Long memberId, Long videoId) {
-
-        Tuple tuple = queryFactory.select(video.videoId, reply.replyId)
+    public Boolean isPurchased(Long memberId, Long videoId) {
+        Long result = queryFactory.select(video.videoId)
                 .from(member)
                 .join(member.orders, order)
                 .join(order.orderVideos, orderVideo)
                 .join(orderVideo.video, video)
-                .leftJoin(member.replies, reply).on(reply.video.videoId.eq(videoId))
-                .where(member.memberId.eq(memberId).and(video.videoId.eq(videoId))).fetchOne();
+                .where(member.memberId.eq(memberId)
+                        .and(video.videoId.eq(videoId)
+                                .and(orderVideo.orderStatus.eq(OrderStatus.COMPLETED))
+                        )
+                ).fetchOne();
 
-        List<Boolean> results = new ArrayList<>();
-
-        if(tuple == null) {
-            results.add(false); // 구매 여부
-            results.add(false); // 댓글 여부
-        } else {
-            results.add(tuple.get(video.videoId) != null);
-            results.add(tuple.get(reply.replyId) != null);
-        }
-
-        return results;
+        return result != null;
     }
 
     @Override
-    public Page<Video> findChannelVideoByCond(ChannelVideoGetDataRequest request) {
+    public Boolean isReplied(Long memberId, Long videoId) {
 
+        Long result = queryFactory.select(reply.replyId)
+                .from(member)
+                .join(member.replies, reply)
+                .where(member.memberId.eq(memberId)
+                        .and(reply.video.videoId.eq(videoId))
+                ).fetchOne();
 
-        JPAQuery<Video> query = queryFactory
-                .selectFrom(video)
-                .distinct()
-                .join(video.channel, channel).fetchJoin()
-                .join(channel.member, member).fetchJoin()
-                .offset(request.getPageable().getOffset())
-                .limit(request.getPageable().getPageSize())
-                .orderBy(getSort(request.getSort()))
-                .where(member.memberId.eq(request.getMemberId()))
-                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(request.getFree())));
-
-
-        JPAQuery<Video> countQuery = queryFactory.selectFrom(video)
-                .join(video.channel, channel)
-                .join(channel.member, member)
-                .where(member.memberId.eq(request.getMemberId()))
-                .where(video.videoStatus.eq(VideoStatus.CREATED).and(searchFree(request.getFree())));
-
-        if (hasCategory(request.getCategoryName())) {
-            query
-                    .join(video.videoCategories, videoCategory)
-                    .join(videoCategory.category, category)
-                    .where(category.categoryName.eq(request.getCategoryName()));
-
-            countQuery
-                    .join(video.videoCategories, videoCategory)
-                    .join(videoCategory.category, category)
-                    .where(category.categoryName.eq(request.getCategoryName()));
-        }
-
-        if(!request.isPurchased()) {
-
-            List<Long> videoIds = queryFactory // member 가 구매한 비디오의 id
-                    .select(video.videoId)
-                    .from(member)
-                    .join(member.orders, order)
-                    .join(order.orderVideos, orderVideo)
-                    .join(orderVideo.video, video)
-                    .where(orderVideo.orderStatus.eq(OrderStatus.COMPLETED))
-                    .where(member.memberId.eq(request.getLoginMemberId()))
-                    .fetch();
-
-            query
-                    .where(video.videoId.notIn(videoIds));
-
-            countQuery
-                    .where(video.videoId.notIn(videoIds));
-        }
-
-        return new PageImpl<>(query.fetch(), request.getPageable(), countQuery.fetchCount());
+        return result != null;
     }
 
     @Override
@@ -266,6 +130,103 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 ).fetch();
     }
 
+    @Override
+    public Page<Video> findAllByCond(VideoGetDataRequest request) {
+
+        JPAQuery<Video> query = queryFactory
+                .selectFrom(video)
+                .join(video.channel, channel).fetchJoin()
+                .join(channel.member, member).fetchJoin()
+                .distinct()
+                .offset(request.getPageable().getOffset())
+                .limit(request.getPageable().getPageSize())
+                .orderBy(getSort(request.getSort()))
+                .where(
+                        getCreateVideo(),
+                        freeOrPaid(request.getFree()),
+                        whetherIncludePurchased(request),
+                        whetherIncludeOnlySubscribed(request)
+                );
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(video.count())
+                .from(video)
+                .distinct()
+                .where(
+                        getCreateVideo(),
+                        freeOrPaid(request.getFree()),
+                        whetherIncludePurchased(request),
+                        whetherIncludeOnlySubscribed(request)
+                );
+
+        if (hasCategory(request.getCategoryName())) {
+            query
+                    .join(video.videoCategories, videoCategory)
+                    .join(videoCategory.category, category)
+                    .where(category.categoryName.eq(request.getCategoryName()));
+
+            countQuery
+                    .join(video.videoCategories, videoCategory)
+                    .join(videoCategory.category, category)
+                    .where(category.categoryName.eq(request.getCategoryName()));
+        }
+
+        return new PageImpl<>(query.fetch(), request.getPageable(), countQuery.fetchOne());
+    }
+
+    @Override
+    public Page<Video> findChannelVideoByCond(ChannelVideoGetDataRequest request) {
+
+        JPAQuery<Video> query = queryFactory
+                .selectFrom(video)
+                .distinct()
+                .join(video.channel, channel).fetchJoin()
+                .join(channel.member, member).fetchJoin() //채널 주인(request.getMemberId()) 의 비디오를 조회하기 위해 조인
+                .offset(request.getPageable().getOffset()) // 페이징 조건 1
+                .limit(request.getPageable().getPageSize()) // 페이징 조건 2
+                .orderBy(getSort(request.getSort())) // 정렬 조건
+                .where(
+                        videoOwnerIs(request.getMemberId()), // 채널 주인의 비디오만 조회
+                        getCreateVideo(), // 비디오 상태가 CREATED 인 것만 조회
+                        freeOrPaid(request.getFree()), // 무료 비디오인지 유료 비디오인지 선택
+                        whetherIncludePurchased(request) // 구매한 비디오를 포함할지 여부
+                );
+
+        JPAQuery<Long> countQuery = queryFactory.select(video.count()) // 쿼리문에 해당하는 count 쿼리
+                .from(video)
+                .join(video.channel, channel)
+                .join(channel.member, member)
+                .where(
+                        videoOwnerIs(request.getMemberId()),
+                        getCreateVideo(),
+                        freeOrPaid(request.getFree()),
+                        whetherIncludePurchased(request)
+                );
+
+        if (hasCategory(request.getCategoryName())) { // 카테고리가 존재하면
+            query // 카테고리에 해당하는 비디오만 조회 (카테고리 이름은 UNIQUE 인덱스로 포함함)
+                    .join(video.videoCategories, videoCategory)
+                    .join(videoCategory.category, category)
+                    .where(category.categoryName.eq(request.getCategoryName()));
+
+            countQuery
+                    .join(video.videoCategories, videoCategory)
+                    .join(videoCategory.category, category)
+                    .where(category.categoryName.eq(request.getCategoryName()));
+        }
+
+        return new PageImpl<>(query.fetch(), request.getPageable(), countQuery.fetchOne());
+    }
+
+    private OrderSpecifier[] getSort(String sort) {
+
+        List<OrderSpecifier<?>> orders = new ArrayList<>();
+        orders.add(getOrderSpecifier(sort));
+        orders.add(video.createdDate.desc());
+
+        return orders.toArray(new OrderSpecifier[0]);
+    }
+
     private OrderSpecifier<?> getOrderSpecifier(String sort) {
 
         if(sort == null || sort.equals("")) {
@@ -280,6 +241,87 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
             default:
                 return video.createdDate.desc();
         }
+    }
+
+    private boolean hasCategory(String categoryName) {
+        return categoryName != null;
+    }
+
+    private BooleanExpression videoOwnerIs(Long memberId) {
+        return member.memberId.eq(memberId);
+    }
+
+    private BooleanExpression getCreateVideo() {
+        return video.videoStatus.eq(VideoStatus.CREATED);
+    }
+
+    private BooleanExpression freeOrPaid(Boolean free) {
+
+        if(free == null) {
+            return null;
+        }
+
+        if(free) {
+            return video.price.eq(0);
+        }
+
+        return video.price.gt(0);
+    }
+
+    private Predicate whetherIncludePurchased(ChannelVideoGetDataRequest request) {
+
+        if(request.isPurchased()) {
+            return null;
+        }
+
+        List<Long> videoIds = getPurchasedVideoIds(request.getLoginMemberId());
+
+        return video.videoId.notIn(videoIds);
+    }
+
+    private Predicate whetherIncludePurchased(VideoGetDataRequest request) {
+
+        if(request.isPurchased()) {
+            return null;
+        }
+
+        List<Long> videoIds = getPurchasedVideoIds(request.getLoginMemberId());
+
+        return video.videoId.notIn(videoIds);
+    }
+
+    private Predicate whetherIncludeOnlySubscribed(VideoGetDataRequest request) {
+
+        if(!request.isSubscribe()) {
+            return null;
+        }
+
+        List<Long> channelIds = getSubscribeChannelIds(request.getLoginMemberId());
+
+        return video.channel.channelId.in(channelIds);
+    }
+
+    private List<Long> getSubscribeChannelIds(Long loginMemberId) {
+
+        return queryFactory // member 가 구독한 채널의 id
+                .select(channel.channelId)
+                .from(channel)
+                .join(channel.subscribes, subscribe1)
+                .join(subscribe1.member, member)
+                .where(member.memberId.eq(loginMemberId))
+                .fetch();
+    }
+
+    private List<Long> getPurchasedVideoIds(Long loginMemberId) {
+        return queryFactory
+                .select(video.videoId)
+                .from(member)
+                .join(member.orders, order)
+                .join(order.orderVideos, orderVideo)
+                .join(orderVideo.video, video)
+                .where(orderVideo.orderStatus.eq(OrderStatus.COMPLETED))
+                .where(member.memberId.eq(loginMemberId))
+                .fetch();
     }
 
 

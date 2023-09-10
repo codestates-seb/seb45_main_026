@@ -76,9 +76,10 @@ public class Video extends BaseEntity implements Rewardable {
     @OneToMany(mappedBy = "video")
     private List<OrderVideo> orderVideos = new ArrayList<>();
 
-    public static Video createVideo(Channel channel, String videoName, Integer price, String description, List<Category> categories) {
+    public static Video createVideo(Channel channel, String videoName, Integer price, String description) {
 
-        Video video = Video.builder()
+
+        return Video.builder()
                 .channel(channel)
                 .videoName(videoName)
                 .price(price)
@@ -88,13 +89,6 @@ public class Video extends BaseEntity implements Rewardable {
                 .star(0f)
                 .videoCategories(new ArrayList<>())
                 .build();
-
-        for (Category category : categories) {
-            VideoCategory videoCategory = VideoCategory.createVideoCategory(video, category);
-            video.addVideoCategory(videoCategory);
-        }
-
-        return video;
     }
 
     private void addVideoCategory(VideoCategory videoCategory) {
@@ -124,17 +118,11 @@ public class Video extends BaseEntity implements Rewardable {
         }
     }
 
-    public void updateVideo(String videoName, Integer price, String description) {
-        this.videoName = videoName == null ? this.videoName : videoName;
-        this.price = price == null ? this.price : price;
-        this.description = description == null ? this.description : description;
-    }
-
     public void updateVideo(String description) {
         this.description = description == null ? this.description : description;
     }
 
-    public void additionalCreateProcess(Integer price, String description) {
+    public void additionalCreateProcess(Integer price, String description, List<Category> categories) {
 
         checkIsUploading();
 
@@ -143,6 +131,12 @@ public class Video extends BaseEntity implements Rewardable {
         this.videoStatus = VideoStatus.CREATED;
         this.thumbnailFile = this.videoId + "/" + this.videoName;
         this.videoFile = this.videoId + "/" + this.videoName;
+
+        this.videoCategories.clear();
+        for (Category category : categories) {
+            VideoCategory videoCategory = VideoCategory.createVideoCategory(this, category);
+            this.addVideoCategory(videoCategory);
+        }
     }
 
     public int getRewardPoint(){

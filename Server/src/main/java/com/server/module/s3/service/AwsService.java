@@ -12,4 +12,6 @@ public interface AwsService {
     String getImageUploadUrl(Long memberId, String fileName, FileType fileType, ImageType imageType);
 
     void deleteFile(Long memberId, String fileName, FileType fileType);
+
+    boolean isExistFile(Long memberId, String fileName, FileType fileType);
 }
