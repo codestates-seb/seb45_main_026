@@ -106,8 +106,8 @@ public class ReplyService {
                 .member(MemberInfo.of(reply.getMember().getMemberId(),
                         reply.getMember().getNickname(),
                         awsService.getFileUrl(reply.getMember().getMemberId(),
-                                reply.getMember().getImageFile(),
-                                FileType.PROFILE_IMAGE)))
+                        reply.getMember().getImageFile(),
+                       FileType.PROFILE_IMAGE)))
                 .createdDate(reply.getCreatedDate())
                 .build();
     }
