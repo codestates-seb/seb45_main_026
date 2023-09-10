@@ -35,6 +35,7 @@ import com.server.domain.watch.repository.WatchRepository;
 import com.server.module.email.service.MailService;
 import com.server.module.redis.service.RedisService;
 
+import com.server.module.s3.service.AwsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -73,6 +74,7 @@ public abstract class ServiceTest {
     @MockBean protected RedisService redisService;
     @MockBean protected RestTemplate restTemplate;
     @MockBean protected MailService mailService;
+    @MockBean protected AwsService awsService;
 
     protected Member createAndSaveMember() {
         Member member = Member.builder()
