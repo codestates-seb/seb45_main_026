@@ -8,19 +8,23 @@ import PurchasedItem from "../../components/contentListItems/PurchasedItem";
 import HorizonItem from "../../components/contentListItems/HorizonItem";
 import { setIsList } from "../../redux/createSlice/FilterSlice";
 import axios from "axios";
+import { useToken } from "../../hooks/useToken";
+import { Heading5Typo } from "../../atoms/typographys/Typographys";
 
 const globalTokens = tokens.global;
 
 const PurchasedListContainer = styled(MainContainer)`
     min-width: 600px;
     min-height: 700px;
-    background-color: ${globalTokens.White.value};
+    background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
+    border-radius: ${globalTokens.RegularRadius.value}px;
     border: none;
     gap: ${globalTokens.Spacing28.value}px;
     align-items: start;
+    margin: ${globalTokens.Spacing40.value}px 0;
     padding: ${globalTokens.Spacing20.value}px;
 `
-const ListTitle = styled.h2`
+const ListTitle = styled(Heading5Typo)`
     height: 30px;
     width: 100%;
     font-size: ${globalTokens.Heading5.value}px;
@@ -41,6 +45,7 @@ export default function PurchasedListPage() {
     const isList = useSelector((state) => state.filterSlice.isList);
     const filterState = useSelector((state) => state.filterSlice.filter);
     const dispatch = useDispatch();
+    const refreshToken = useToken();
     const [channelList, setChannelList] = useState([]);
     const [videolList,setVideoList]=useState([])
     
@@ -62,14 +67,20 @@ export default function PurchasedListPage() {
             }
           )
             .then((res) => setChannelList(res.data.data))
-            .catch((err) => console.log(err));
+            .catch((err) => {
+              if(err.response.data.message==='만료된 토큰입니다.') {
+                refreshToken();
+              } else {
+                console.log(err);
+              }
+            });
       }
-    },[isList,filterState])
+    },[isList,filterState,accessToken])
     return (
       <PageContainer isDark={isDark}>
-        <PurchasedListContainer>
-          <ListTitle>구매한 강의 목록</ListTitle>
-          <SwitchButton onClick={() => dispatch(setIsList(!isList))}>
+        <PurchasedListContainer isDark={isDark}>
+          <ListTitle isDark={isDark}>구매한 강의 목록</ListTitle>
+          <SwitchButton isDark={isDark} onClick={() => dispatch(setIsList(!isList))}>
             {isList ? "채널별 보기" : "목록으로 보기"}
           </SwitchButton>
           {isList ? <CategoryFilter filterNum="filters3" /> : <></>}

@@ -12,6 +12,7 @@ import frofileGray from "../../assets/images/icons/profile/profileGray.svg"
 import Setting from '../../components/contentListItems/Setting';
 import { useParams } from "react-router";
 import { BodyTextTypo, Heading5Typo } from "../../atoms/typographys/Typographys";
+import { useToken } from "../../hooks/useToken";
 
 const globalTokens = tokens.global;
 
@@ -73,19 +74,28 @@ const ChannelDescription = styled.div`
 `
 
 export default function ChannelPage() {
+  const refreshToken = useToken();
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const accessToken = useSelector(state=>state.loginInfo.accessToken);
   const [navigate, setNavigate] = useState(0)
   const [channelInfor, setChannelInfor] = useState({})
   const { userId } = useParams();
+
   useEffect(() => {
     axios
       .get(`https://api.itprometheus.net/channels/${userId}`, {
         headers: { Authorization: accessToken.authorization },
       })
       .then((res) => setChannelInfor(res.data.data))
-      .catch((err) => console.log(err));
-  },[])
+      .catch((err) => {
+        if(err.response.data.message==='만료된 토큰입니다.') {
+          refreshToken();
+        } else {
+          console.log(err.response.data.message);
+        }
+      });
+  },[accessToken]);
+
     return (
       <PageContainer isDark={isDark}>
         <ChannelMainContainer>

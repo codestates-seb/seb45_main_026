@@ -5,6 +5,7 @@ import VerticalItem from "./VerticalItem";
 import axios from "axios";
 import { Heading5Typo } from '../../atoms/typographys/Typographys'
 import { useSelector } from "react-redux";
+import { useToken } from "../../hooks/useToken";
 
 const globalTokens = tokens.global;
 
@@ -41,6 +42,8 @@ export default function ChannelHome({ channelInfor, accessToken, userId }) {
     poular: [],
   });
   const isDark = useSelector(state=>state.uiSetting.isDark);
+  const refreshToken = useToken();
+  const tokens = useSelector(state=>state.loginInfo.accessToken);
   
   useEffect(() => {
     axios
@@ -51,7 +54,13 @@ export default function ChannelHome({ channelInfor, accessToken, userId }) {
         }
       )
       .then((res) => setLectures((prev) => ({ ...prev, free: res.data.data })))
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        if(err.response.data.message==='만료된 토큰입니다.') {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
     axios
       .get(
         `https://api.itprometheus.net/channels/${userId}/videos?page=1&size=4&sort=view`,
@@ -62,8 +71,14 @@ export default function ChannelHome({ channelInfor, accessToken, userId }) {
       .then((res) =>
         setLectures((prev) => ({ ...prev, poular: res.data.data }))
       )
-      .catch((err) => console.log(err));
-  }, []);
+      .catch((err) => {
+        if(err.response.data.message==='만료된 토큰입니다.') {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
+  }, [tokens]);
 
   return (
     <HomeBody isDark={isDark}>

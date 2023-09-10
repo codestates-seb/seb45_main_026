@@ -6,24 +6,31 @@ import CartMyInfo from "../../../components/CartPage/CartMyInfo";
 import CartPayInfo from "../../../components/CartPage/CartPayInfo";
 import { setMyInfo } from "../../../redux/createSlice/CartsSlice";
 import tokens from '../../../styles/tokens.json';
+import { useToken } from '../../../hooks/useToken';
 
 const globalTokens = tokens.global;
 
 const CartRight = () => {
+  const refreshToken = useToken();
   const isDark = useSelector(state=>state.uiSetting.isDark);
   const dispatch = useDispatch();
   const token = useSelector((state) => state.loginInfo.accessToken);
   const headers = {
     Authorization: token.authorization,
-    refresh: token.refresh,
   };
 
   useEffect(() => {
     axios
       .get(`https://api.itprometheus.net/members`, { headers })
       .then((res) => dispatch(setMyInfo(res.data.data)))
-      .catch((err) => console.log(err));
-  });
+      .catch((err) => {
+        if(err.response.data.message==='만료된 토큰입니다.') {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
+  },[token]);
 
   return (
     <CartSection>
