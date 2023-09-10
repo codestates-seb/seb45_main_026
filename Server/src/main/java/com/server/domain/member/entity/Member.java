@@ -81,11 +81,7 @@ public class Member extends BaseEntity {
 	@Builder.Default
 	private List<Subscribe> subscribes = new ArrayList<>();
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public void setPassword(String password) {
+	public void updatePassword(String password) {
 		if (password == null || password.equals(this.password)) {
 			throw new MemberNotUpdatedException();
 		}
@@ -93,7 +89,7 @@ public class Member extends BaseEntity {
 		this.password = password;
 	}
 
-	public void setNickname(String nickname) {
+	public void updateNickname(String nickname) {
 		if (nickname == null || nickname.equals(this.nickname)) {
 			throw new MemberNotUpdatedException();
 		}
@@ -133,10 +129,6 @@ public class Member extends BaseEntity {
 	public void minusReward(int reward) {
 		checkEnoughReward(reward);
 		this.reward -= reward;
-	}
-
-	public String getIdFromEmail() {
-		return this.email.substring(0, this.email.indexOf("@"));
 	}
   
 	public void checkReward(int reward) {

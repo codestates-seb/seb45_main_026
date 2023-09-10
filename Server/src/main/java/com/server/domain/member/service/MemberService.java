@@ -180,14 +180,14 @@ public class MemberService {
 
 		validatePassword(request.getPrevPassword(), password);
 
-		member.setPassword(newPassword);
+		member.updatePassword(newPassword);
 	}
 
 	@Transactional
 	public void updateNickname(MemberServiceRequest.Nickname request, Long loginId) {
 		Member member = validateMember(loginId);
 
-		member.setNickname(request.getNickname());
+		member.updateNickname(request.getNickname());
 	}
 
 	@Transactional
