@@ -16,14 +16,5 @@ public class ReplyCreateResponse {
     private Member member;
     private Video video;
 
-    public Reply toEntity() {
-        return Reply.builder()
-                .content(this.content)
-                .star(this.star)
-                .member(this.member)
-                .video(this.video)
-                .build();
-    }
-
 }
 

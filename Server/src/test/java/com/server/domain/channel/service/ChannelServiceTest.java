@@ -389,8 +389,27 @@ class ChannelServiceTest extends ServiceTest {
         assertThat(subscribeRepository.findAll().size()).isEqualTo(1);
     }
 
+    @Test
+    @DisplayName("로그인하지 않은 사용자는 -1이 반환된다")
+    void getChannelNotLoginMemberId() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
 
+        //when
+        ChannelInfo channelInfo = channelService.getChannel(member.getMemberId(), null);
 
-
-
+        //then
+        assertThat(channelInfo.getMemberId()).isEqualTo(channel.getMember().getMemberId());
+        assertThat(channelInfo.getChannelName()).isEqualTo(channel.getChannelName());
+        assertThat(channelInfo.getIsSubscribed()).isFalse();
+        assertThat(channelInfo.getDescription()).isEqualTo(channel.getDescription());
+        assertThat(channelInfo.getSubscribers()).isEqualTo(channel.getSubscribers());
+        assertThat(channelInfo.getImageUrl()).isEqualTo(awsService.getFileUrl(
+                channel.getMember().getMemberId(),
+                member.getImageFile(),
+                FileType.PROFILE_IMAGE
+        ));
+        assertThat(channelInfo.getCreatedDate()).isEqualTo(channel.getCreatedDate());
+    }
 }
