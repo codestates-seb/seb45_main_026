@@ -43,6 +43,7 @@ public class MemberApiRequest {
 	}
 
 	@Getter
+	@Setter
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Password {

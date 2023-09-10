@@ -2,6 +2,7 @@ package com.server.domain.member.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,7 +55,6 @@ public class MemberServiceTest extends ServiceTest {
 
 	@Autowired PasswordEncoder passwordEncoder;
 	@Autowired MemberService memberService;
-	@Autowired AwsService awsService;
 
 	@Test
 	@DisplayName("로그인한 회원의 프로필 조회가 성공적으로 되는지 검증한다.")
@@ -72,7 +73,9 @@ public class MemberServiceTest extends ServiceTest {
 
 		Long id = member.getMemberId();
 
-		String fileUrl = awsService.getFileUrl(id, member.getImageFile(), FileType.PROFILE_IMAGE);
+		String fileUrl = "www.imageUrl.com";
+
+		given(awsService.getFileUrl(Mockito.anyLong(), Mockito.anyString(), Mockito.any(FileType.class))).willReturn(fileUrl);
 
 		assertThat(memberService.getMember(id).getImageUrl()).isEqualTo(fileUrl);
 	}

@@ -1697,7 +1697,7 @@ public class MemberControllerTest extends ControllerTest {
 					actions
 						.andDo(print())
 						.andExpect(status().isBadRequest())
-						.andExpect(jsonPath("$.data[0].field").value("member-id"))
+						.andExpect(jsonPath("$.data[0].field").value("memberId"))
 						.andExpect(jsonPath("$.data[0].value").value(0))
 						.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
 				}
@@ -1975,18 +1975,18 @@ public class MemberControllerTest extends ControllerTest {
 	}
 
 	@TestFactory
-	@DisplayName("프로필 이미지 변경 Validation 테스트")
+	@DisplayName("비밀번호 변경 Validation 테스트")
 	Collection<DynamicTest> updatePasswordValidation() throws Exception {
 
 		return List.of(
 			DynamicTest.dynamicTest(
-				"이미지 파일명을 입력하지 않은 경우",
+				"이전 비밀번호를 입력하지 않은 경우",
 				() -> {
 					//given
-					MemberApiRequest.Image image = new MemberApiRequest.Image();
-					image.setImageType(ImageType.PNG);
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setNewPassword("abcd1234!");
 
-					String content = objectMapper.writeValueAsString(image);
+					String content = objectMapper.writeValueAsString(password);
 
 					//when
 					ResultActions actions = mockMvc.perform(
@@ -1999,19 +1999,19 @@ public class MemberControllerTest extends ControllerTest {
 					actions
 						.andDo(print())
 						.andExpect(status().isBadRequest())
-						.andExpect(jsonPath("$.data[0].field").value("imageName"))
+						.andExpect(jsonPath("$.data[0].field").value("prevPassword"))
 						.andExpect(jsonPath("$.data[0].value").value("null"))
-						.andExpect(jsonPath("$.data[0].reason").value("이미지 이름은 필수입니다."));
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
 				}
 			),
 			DynamicTest.dynamicTest(
-				"이미지 확장자 타입을 입력하지 않은 경우",
+				"변경할 비밀번호를 입력하지 않은 경우",
 				() -> {
 					//given
-					MemberApiRequest.Image image = new MemberApiRequest.Image();
-					image.setImageName("imageName");
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setPrevPassword("abcd1234!");
 
-					String content = objectMapper.writeValueAsString(image);
+					String content = objectMapper.writeValueAsString(password);
 
 					//when
 					ResultActions actions = mockMvc.perform(
@@ -2024,16 +2024,20 @@ public class MemberControllerTest extends ControllerTest {
 					actions
 						.andDo(print())
 						.andExpect(status().isBadRequest())
-						.andExpect(jsonPath("$.data[0].field").value("imageType"))
+						.andExpect(jsonPath("$.data[0].field").value("newPassword"))
 						.andExpect(jsonPath("$.data[0].value").value("null"))
-						.andExpect(jsonPath("$.data[0].reason").value("jpg, jpeg, png 확장자만 지원합니다."));
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
 				}
 			),
 			DynamicTest.dynamicTest(
-				"잘못된 이미지 확장자 타입인 경우",
+				"비밀번호의 길이가 8글자 이하인 경우",
 				() -> {
 					//given
-					String content = "{\"imageName\":\"imageName\",\"imageType\":\"PPP\"}";
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setPrevPassword("abcd1234!");
+					password.setNewPassword("abcd123!");
+
+					String content = objectMapper.writeValueAsString(password);
 
 					//when
 					ResultActions actions = mockMvc.perform(
@@ -2046,9 +2050,113 @@ public class MemberControllerTest extends ControllerTest {
 					actions
 						.andDo(print())
 						.andExpect(status().isBadRequest())
-						.andExpect(jsonPath("$.data[0].field").value("imageType"))
-						.andExpect(jsonPath("$.data[0].value").value("null"))
-						.andExpect(jsonPath("$.data[0].reason").value("jpg, jpeg, png 확장자만 지원합니다."));
+						.andExpect(jsonPath("$.data[0].field").value("newPassword"))
+						.andExpect(jsonPath("$.data[0].value").value("abcd123!"))
+						.andExpect(jsonPath("$.data[0].reason").value("허용된 글자 수는 9자에서 20자 입니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"비밀번호의 길이가 21글자 이상인 경우",
+				() -> {
+					//given
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setPrevPassword("abcd1234!");
+					password.setNewPassword("abcdefghijklmnopqrs1!");
+
+					String content = objectMapper.writeValueAsString(password);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("newPassword"))
+						.andExpect(jsonPath("$.data[0].value").value("abcdefghijklmnopqrs1!"))
+						.andExpect(jsonPath("$.data[0].reason").value("허용된 글자 수는 9자에서 20자 입니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"특수문자가 포함되지 않은 경우",
+				() -> {
+					//given
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setPrevPassword("abcd1234!");
+					password.setNewPassword("abcde12345");
+
+					String content = objectMapper.writeValueAsString(password);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("newPassword"))
+						.andExpect(jsonPath("$.data[0].value").value("abcde12345"))
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"숫자가 포함되지 않은 경우",
+				() -> {
+					//given
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setPrevPassword("abcd1234!");
+					password.setNewPassword("abcdefgh!");
+
+					String content = objectMapper.writeValueAsString(password);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("newPassword"))
+						.andExpect(jsonPath("$.data[0].value").value("abcdefgh!"))
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"영어가 포함되지 않은 경우",
+				() -> {
+					//given
+					MemberApiRequest.Password password = new MemberApiRequest.Password();
+					password.setPrevPassword("abcd1234!");
+					password.setNewPassword("12345678!");
+
+					String content = objectMapper.writeValueAsString(password);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.header(AUTHORIZATION, TOKEN)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("newPassword"))
+						.andExpect(jsonPath("$.data[0].value").value("12345678!"))
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
 				}
 			)
 		);
