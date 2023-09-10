@@ -32,6 +32,7 @@ import com.server.domain.order.entity.Order;
 import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.Reward;
+import com.server.domain.reward.repository.NewRewardRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.watch.entity.Watch;
@@ -52,6 +53,7 @@ public class MemberService {
 	private final ChannelRepository channelRepository;
 	private final VideoRepository videoRepository;
 	private final OrderRepository orderRepository;
+	private final NewRewardRepository newRewardRepository;
 	private final ChannelService channelService;
 	private final AwsService awsService;
 	private final PasswordEncoder passwordEncoder;
@@ -59,13 +61,14 @@ public class MemberService {
 	private final RedisService redisService;
 
 	public MemberService(MemberRepository memberRepository, ChannelRepository channelRepository,
-		VideoRepository videoRepository, OrderRepository orderRepository, ChannelService channelService,
-		AwsService awsService, PasswordEncoder passwordEncoder, MemberResponseConverter converter,
-		RedisService redisService) {
+		VideoRepository videoRepository, OrderRepository orderRepository, NewRewardRepository newRewardRepository,
+		ChannelService channelService, AwsService awsService, PasswordEncoder passwordEncoder,
+		MemberResponseConverter converter, RedisService redisService) {
 		this.memberRepository = memberRepository;
 		this.channelRepository = channelRepository;
 		this.videoRepository = videoRepository;
 		this.orderRepository = orderRepository;
+		this.newRewardRepository = newRewardRepository;
 		this.channelService = channelService;
 		this.awsService = awsService;
 		this.passwordEncoder = passwordEncoder;
@@ -105,6 +108,19 @@ public class MemberService {
 
 		return RewardsResponse.convert(rewards);
 	}
+
+	// public Page<RewardsResponse> getNewRewards(Long loginId, int page, int size) {
+	// 	Member member = validateMember(loginId);
+	//
+	// 	Pageable pageable = PageRequest.of(page - 1, size);
+	//
+	// 	Page<NewReward> rewards = newRewardRepository.findRewardsByMember(member, pageable);
+	//
+	// 	return null;
+	//
+	// 	// Page<Reward> rewards = memberRepository.findRewardsByMemberId(member.getMemberId(), pageable);
+	// 	// return RewardsResponse.convert(rewards);
+	// }
 
 	public Page<SubscribesResponse> getSubscribes(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);

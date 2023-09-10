@@ -2161,17 +2161,4 @@ public class MemberControllerTest extends ControllerTest {
 			)
 		);
 	}
-
-	// @TestFactory
-	// @DisplayName("Validation 테스트")
-	// Collection<DynamicTest> getValidation() throws Exception {
-	// 	return List.of(
-	// 		DynamicTest.dynamicTest(
-	// 			"",
-	// 			() -> {
-	//
-	// 			}
-	// 		)
-	// 	);
-	// }
 }
