@@ -19,20 +19,15 @@ public class ReplyInfo {
     private Integer star;
     private MemberInfo member;
     private LocalDateTime createdDate;
-
-
-
     public static ReplyInfo of(Reply reply) {
-        Member member2 = reply.getMember();
+        Member loginMember = reply.getMember();
         String imageUrl = reply.getMember().getImageFile();
 
-
         MemberInfo member = MemberInfo.builder()
-                .memberId(member2.getMemberId())
-                .nickname(member2.getNickname())
+                .memberId(loginMember.getMemberId())
+                .nickname(loginMember.getNickname())
                 .imageUrl(imageUrl)
                 .build();
-
 
         return ReplyInfo.builder()
                 .replyId(reply.getReplyId())
@@ -42,27 +37,4 @@ public class ReplyInfo {
                 .createdDate(reply.getCreatedDate())
                 .build();
     }
-    public static Page<ReplyInfo> of(Page<Reply> replies) {
-        return replies.map(reply -> {
-            Member member2 = reply.getMember();
-            String imageUrl = member2.getImageFile();
-
-            MemberInfo member = MemberInfo.builder()
-                    .memberId(member2.getMemberId())
-                    .nickname(member2.getNickname())
-                    .imageUrl(imageUrl)
-                    .build();
-
-            return new ReplyInfo(
-                    reply.getReplyId(),
-                    reply.getContent(),
-                    reply.getStar(),
-                    member,
-                    reply.getCreatedDate()
-            );
-        });
-
-    }
-
-
 }

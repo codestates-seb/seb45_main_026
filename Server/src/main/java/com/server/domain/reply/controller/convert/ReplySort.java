@@ -38,6 +38,4 @@ public enum ReplySort implements BaseEnum {
         }
         throw new TypeMismatchException(url, ReplySort.class);
     }
-
-
 }

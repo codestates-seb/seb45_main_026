@@ -17,6 +17,7 @@ import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.server.domain.channel.entity.QChannel.channel;
 import static com.server.domain.member.entity.QMember.*;
@@ -42,35 +43,28 @@ public class NewRewardRepositoryImpl implements NewRewardRepositoryCustom{
     @Override
     public List<NewReward> findByOrderId(String orderId) {
 
-        //방법 1
-        //leftjoin 으로 한번에 다 가져오는 방법 -> 미친 방법
-
-        //방법 2
-        //각각 하나하나 join 해서 총 쿼리 3번 보내는 방법 -> 최선인가..?
-        //todo : member FetchJoin 고민 -> 굳이 필요한가? 쿼리문을 복잡하게 하지말고 그냥 따로 쿼리를 날리는게 나을지도. 어차피 member 는 1개만 가져오면 되니까
-        List<ReplyReward> replyRewards = queryFactory.selectFrom(replyReward)
-                .join(replyReward.video, video)
-                .join(video.orderVideos, orderVideo)
+        List<Long> videoIds = queryFactory.select(video.videoId)
+                .from(orderVideo)
+                .join(orderVideo.video, video)
                 .join(orderVideo.order, order)
                 .where(order.orderId.eq(orderId)
                         .and(orderVideo.orderStatus.eq(OrderStatus.COMPLETED)))
+                .fetch();
+
+        List<ReplyReward> replyRewards = queryFactory.selectFrom(replyReward)
+                .join(replyReward.video, video)
+                .where(video.videoId.in(videoIds))
                 .fetch();
 
         List<QuestionReward> questionRewards = queryFactory.selectFrom(questionReward)
                 .join(questionReward.question, question)
                 .join(question.video, video)
-                .join(video.orderVideos, orderVideo)
-                .join(orderVideo.order, order)
-                .where(order.orderId.eq(orderId)
-                        .and(orderVideo.orderStatus.eq(OrderStatus.COMPLETED)))
+                .where(video.videoId.in(videoIds))
                 .fetch();
 
         List<VideoReward> videoRewards = queryFactory.selectFrom(videoReward)
                 .join(videoReward.video, video)
-                .join(video.orderVideos, orderVideo)
-                .join(orderVideo.order, order)
-                .where(order.orderId.eq(orderId)
-                        .and(orderVideo.orderStatus.eq(OrderStatus.COMPLETED)))
+                .where(video.videoId.in(videoIds))
                 .fetch();
 
         List<NewReward> rewards = new ArrayList<>();
@@ -84,25 +78,36 @@ public class NewRewardRepositoryImpl implements NewRewardRepositoryCustom{
     @Override
     public List<NewReward> findByMemberAndVideoId(Long memberId, Long videoId) {
 
-        QVideo rv = new QVideo("rv");
-        QVideo qv = new QVideo("qv");
-        QVideo vv = new QVideo("vv");
-
-        List<NewReward> rewards = queryFactory.selectFrom(newReward)
-                .join(newReward.member, member).fetchJoin()
-                .join(member.channel, channel).fetchJoin()
-                .leftJoin(replyReward).on(newReward.rewardId.eq(replyReward.rewardId))
-                .leftJoin(replyReward.video, rv)
-                .leftJoin(questionReward).on(newReward.rewardId.eq(questionReward.rewardId))
-                .leftJoin(questionReward.question, question)
-                .leftJoin(question.video, qv)
-                .leftJoin(videoReward).on(newReward.rewardId.eq(videoReward.rewardId))
-                .leftJoin(videoReward.video, vv)
-                .where(rv.videoId.eq(videoId).or(qv.videoId.eq(videoId)).or(vv.videoId.eq(videoId)))
-                .where(member.memberId.eq(memberId))
+        List<ReplyReward> replyRewards = queryFactory.selectFrom(replyReward)
+                .join(replyReward.member, member)
+                .join(replyReward.video, video)
+                .where(member.memberId.eq(memberId)
+                        .and(video.videoId.eq(videoId)))
                 .fetch();
 
-        return rewards;
+        List<QuestionReward> questionRewards = queryFactory.selectFrom(questionReward)
+                .join(questionReward.member, member)
+                .join(questionReward.question, question)
+                .join(question.video, video)
+                .where(member.memberId.eq(memberId)
+                        .and(video.videoId.eq(videoId)))
+                .fetch();
+
+        List<VideoReward> videoRewards = queryFactory.selectFrom(videoReward)
+                .join(videoReward.member, member)
+                .join(videoReward.video, video)
+                .where(member.memberId.eq(memberId)
+                        .and(video.videoId.eq(videoId)))
+                .fetch();
+
+        List<NewReward> rewards = new ArrayList<>();
+        rewards.addAll(replyRewards);
+        rewards.addAll(questionRewards);
+        rewards.addAll(videoRewards);
+
+        return rewards.stream()
+                .filter(reward -> !reward.isCanceled())
+                .collect(Collectors.toList());
     }
 
     @Override

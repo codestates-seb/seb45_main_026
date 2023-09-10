@@ -19,13 +19,6 @@ public class ReplyUpdateControllerApi {
     @Positive(message = "{validation.positive}")
     private Integer star;
 
-    public static ReplyUpdateServiceApi of(Reply reply) {
-        return ReplyUpdateServiceApi.builder()
-                .content(reply.getContent())
-                .star(reply.getStar())
-                .build();
-    }
-
     public ReplyUpdateServiceApi toService() {
         return ReplyUpdateServiceApi.builder()
                 .content(content)

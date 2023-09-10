@@ -5,6 +5,7 @@ import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
+import com.server.global.exception.businessexception.rewardexception.RewardNotValidException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -52,7 +53,7 @@ public abstract class NewReward extends BaseEntity {
 		} else if (entity instanceof Reply) {
 			return new ReplyReward(member, rewardPoint, ((Reply) entity).getVideo());
 		} else {
-			return null;
+			throw new RewardNotValidException();
 		}
 	}
 

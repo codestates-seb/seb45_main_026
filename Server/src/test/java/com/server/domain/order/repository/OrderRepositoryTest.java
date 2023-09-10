@@ -92,9 +92,6 @@ class OrderRepositoryTest extends RepositoryTest {
         Video video1 = createAndSaveVideo(channel);
         Video video2 = createAndSaveVideo(channel);
 
-        createAndSaveVideoReward(member, video1);
-        createAndSaveVideoReward(member, video2);
-
         Order order = createAndSaveOrder(member, List.of(video1, video2));// 주문에 1, 3 추가 (결제 x)
 
         em.flush();
