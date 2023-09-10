@@ -167,9 +167,7 @@ public class ChannelService {
     private List<Boolean> isPurchase(Member loginMember, Page<Video> videos) {
 
         if(loginMember == null) {
-            return IntStream.range(0, videos.getContent().size())
-                    .mapToObj(i -> false)
-                    .collect(Collectors.toList());
+            return createBooleans(videos.getContent().size(), false);
         }
 
         List<Long> videoIds = videos.getContent().stream()
@@ -177,6 +175,12 @@ public class ChannelService {
                 .collect(Collectors.toList());
 
         return memberRepository.checkMemberPurchaseVideos(loginMember.getMemberId(), videoIds);
+    }
+
+    private List<Boolean> createBooleans(int size, boolean value) {
+        return IntStream.range(0, size)
+                .mapToObj(i -> value)
+                .collect(Collectors.toList());
     }
 
     private List<String> getThumbnailUrls(Page<Video> videos) {

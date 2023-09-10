@@ -9,6 +9,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
+import com.server.domain.member.entity.QMember;
 import com.server.domain.member.repository.dto.MemberVideoData;
 import com.server.domain.member.repository.dto.QMemberVideoData;
 import com.server.domain.order.entity.Order;
@@ -84,10 +85,16 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     @Override
     public List<Boolean> checkMemberSubscribeChannel(Long memberId, List<Long> ownerMemberIds) {
 
+        QMember channelOwner = new QMember("channelOwner");
+        QMember loginMember = new QMember("loginMember");
+
         List<Long> memberSubcribeList = queryFactory
-                .select(subscribe1.channel.member.memberId)
-                .from(subscribe1)
-                .where(subscribe1.member.memberId.eq(memberId))
+                .select(channelOwner.memberId)
+                .from(channelOwner)
+                .join(channelOwner.channel, channel)
+                .join(channel.subscribes, subscribe1)
+                .join(subscribe1.member, loginMember)
+                .where(loginMember.memberId.eq(memberId))
                 .fetch();
 
         return ownerMemberIds.stream()

@@ -35,7 +35,6 @@ import com.server.domain.watch.repository.WatchRepository;
 import com.server.module.email.service.MailService;
 import com.server.module.redis.service.RedisService;
 
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -309,7 +308,7 @@ public abstract class ServiceTest {
         return reward;
     }
 
-    protected Cart createAndSaveCartWithVideo(Member member, Video video) {
+    protected Cart createAndSaveCart(Member member, Video video) {
         Cart cart = Cart.createCart(member, video, video.getPrice());
 
         return cartRepository.save(cart);

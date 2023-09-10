@@ -33,7 +33,8 @@ public class VideoDetailResponse {
     public static VideoDetailResponse of(Video video,
                                          Boolean subscribed,
                                          Map<String, String> urlMap,
-                                         Map<String, Boolean> isPurchasedAndIsReplied,
+                                         Boolean isPurchased,
+                                         Boolean isReplied,
                                          Boolean isInCart) {
         return VideoDetailResponse.builder()
                 .videoId(video.getVideoId())
@@ -45,8 +46,8 @@ public class VideoDetailResponse {
                 .star(video.getStar())
                 .price(video.getPrice())
                 .reward(video.getRewardPoint())
-                .isReplied(isPurchasedAndIsReplied.get("isReplied"))
-                .isPurchased(isPurchasedAndIsReplied.get("isPurchased"))
+                .isPurchased(isPurchased)
+                .isReplied(isReplied)
                 .isInCart(isInCart)
                 .categories(VideoCategoryResponse.of(video.getVideoCategories()))
                 .channel(VideoChannelResponse.of(video.getChannel(), subscribed, urlMap.get("imageUrl")))

@@ -116,6 +116,8 @@ public class VideoController {
                                           @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
                                           @LoginId Long loginMemberId) {
 
+        videoService.watch(loginMemberId, videoId);
+
         VideoDetailResponse video = videoService.getVideo(loginMemberId, videoId);
 
         return ResponseEntity.ok(ApiSingleResponse.ok(video, "비디오 조회 성공"));

@@ -31,8 +31,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.DynamicTest.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 class VideoServiceTest extends ServiceTest {
@@ -44,29 +42,25 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("page, size, sort, category, memberId, subscribe 를 받아서 비디오 리스트를 반환한다.")
     Collection<DynamicTest> getVideos() {
         //given
-        Member owner1 = createAndSaveMember();
-        Channel channel1 = createAndSaveChannel(owner1);
+        Member owner1 = createMemberWithChannel();
 
-        Member owner2 = createAndSaveMember();
-        Channel channel2 = createAndSaveChannel(owner2);
+        Member owner2 = createMemberWithChannel();
 
         Member loginMember = createAndSaveMember(); // 로그인한 회원
 
-        createAndSaveSubscribe(loginMember, channel1); // loginMember 가 owner1 의 channel1 을 구독
+        createAndSaveSubscribe(loginMember, owner1.getChannel()); // loginMember 가 owner1 의 channel1 을 구독
 
-        Video video1 = createAndSaveVideo(channel1);
-        Video video2 = createAndSaveVideo(channel1);
-        Video video3 = createAndSaveVideo(channel1);
-        Video video4 = createAndSaveVideo(channel1);
-        Video video5 = createAndSaveVideo(channel2);
-        Video video6 = createAndSaveVideo(channel2);
+        Video video1 = createAndSaveVideo(owner1.getChannel());
+        Video video2 = createAndSaveVideo(owner1.getChannel());
+        Video video3 = createAndSaveVideo(owner1.getChannel());
+        Video video4 = createAndSaveVideo(owner1.getChannel());
+        Video video5 = createAndSaveVideo(owner2.getChannel());
+        Video video6 = createAndSaveVideo(owner2.getChannel());
 
         Category category1 = createAndSaveCategory("java");
         Category category2 = createAndSaveCategory("spring");
 
-        createAndSaveVideoCategory(video1, category1); // video1 은 java, spring 카테고리
-        createAndSaveVideoCategory(video1, category2);
-
+        createAndSaveVideoCategory(video1, category1, category2); // video1 은 java, spring 카테고리
         createAndSaveVideoCategory(video2, category1); // video2 는 java 카테고리
         createAndSaveVideoCategory(video3, category2); // video3 는 spring 카테고리
         createAndSaveVideoCategory(video4, category1); // video4 는 java 카테고리
@@ -133,19 +127,52 @@ class VideoServiceTest extends ServiceTest {
         );
     }
 
+    @Test
+    @DisplayName("비디오 조회 시 장바구니에 담은 비디오는 isPurchased 가 true 로 나온다.")
+    void getVideosInCart() {
+        //given
+        Member owner1 = createMemberWithChannel();
+
+        Member loginMember = createAndSaveMember(); // 로그인한 회원
+
+        Video video1 = createAndSaveVideo(owner1.getChannel());
+        Video video2 = createAndSaveVideo(owner1.getChannel());
+
+        createAndSaveCart(loginMember, video1);
+
+        VideoGetServiceRequest request =
+                new VideoGetServiceRequest(loginMember.getMemberId(), 0, 10, null, null, false, null, true);
+
+        em.flush();
+        em.clear();
+
+        //when
+        Page<VideoPageResponse> videos = videoService.getVideos(loginMember.getMemberId(), request);
+
+        //then
+        assertThat(findVideos(videos, video1).getIsInCart()).isTrue();
+        assertThat(findVideos(videos, video2).getIsInCart()).isFalse();
+    }
+
+    private VideoPageResponse findVideos(Page<VideoPageResponse> videos, Video video1) {
+        return videos.getContent().stream()
+                .filter(video -> video.getVideoId().equals(video1.getVideoId()))
+                .findFirst()
+                .orElseThrow();
+    }
+
     @TestFactory
     @DisplayName("videoId 로 비디오의 세부정보를 조회한다.")
     Collection<DynamicTest> getVideo() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
+        Member owner = createMemberWithChannel();
 
         Member loginMember = createAndSaveMember(); // 로그인한 회원
         Long anonymousMemberId = -1L; // 비회원
 
-        createAndSaveSubscribe(loginMember, channel); // loginMember 가 owner1 의 channel1 을 구독
+        createAndSaveSubscribe(loginMember, owner.getChannel()); // loginMember 가 owner1 의 channel1 을 구독
 
-        Video video = createAndSaveVideo(channel);
+        Video video = createAndSaveVideo(owner.getChannel());
 
         Category category1 = createAndSaveCategory("java");
         Category category2 = createAndSaveCategory("spring");
@@ -168,7 +195,6 @@ class VideoServiceTest extends ServiceTest {
                     assertThat(response.getDescription()).isEqualTo(video.getDescription());
                     assertThat(response.getVideoUrl()).isNotNull();
                     assertThat(response.getThumbnailUrl()).isNotNull();
-                    assertThat(response.getViews()).isEqualTo(video.getView() + 1); // 조회수는 1 증가
                     assertThat(response.getStar()).isEqualTo(video.getStar());
                     assertThat(response.getPrice()).isEqualTo(video.getPrice());
                     assertThat(response.getReward()).isEqualTo(video.getPrice() / 100);
@@ -181,24 +207,14 @@ class VideoServiceTest extends ServiceTest {
 
                     //채널 정보
                     assertThat(response.getChannel().getMemberId()).isEqualTo(owner.getMemberId());
-                    assertThat(response.getChannel().getChannelName()).isEqualTo(channel.getChannelName());
+                    assertThat(response.getChannel().getChannelName()).isEqualTo(owner.getChannel().getChannelName());
                     assertThat(response.getChannel().getImageUrl()).isNotNull();
-                    assertThat(response.getChannel().getSubscribes()).isEqualTo(channel.getSubscribers());
-
-                    //Watch 정보 (익명이므로 watch 정보는 없어야 한다.)
-                    assertThat(watchRepository.findAll()).hasSize(0);
+                    assertThat(response.getChannel().getSubscribes()).isEqualTo(owner.getChannel().getSubscribers());
 
                     //로그인한 회원에 따라 달라지는 정보
                     assertThat(response.getChannel().getIsSubscribed()).isFalse();
                     assertThat(response.getIsPurchased()).isFalse();
                     assertThat(response.getIsReplied()).isFalse();
-                }),
-                dynamicTest("구독한 회원이 로그인을 하고 처음으로 조회를 하면 Watch 테이블이 생긴다.", ()-> {
-                    //when
-                    VideoDetailResponse response = videoService.getVideo(loginMember.getMemberId(), video.getVideoId());
-
-                    //then
-                    assertThat(watchRepository.findAll().get(0).getMember().getMemberId()).isEqualTo(loginMember.getMemberId());
                 }),
                 dynamicTest("구독한 회원이 로그인을 하고 조회를 하면 구독 여부가 true 가 된다.", ()-> {
                     //when
@@ -208,10 +224,6 @@ class VideoServiceTest extends ServiceTest {
                     assertThat(response.getChannel().getIsSubscribed()).isTrue();
                     assertThat(response.getIsPurchased()).isFalse();
                     assertThat(response.getIsReplied()).isFalse();
-
-                    //watch table 은 새로 만들어지지 않지만(1개로 고정) 조회수는 1 증가한다.
-                    assertThat(watchRepository.findAll()).hasSize(1);
-                    assertThat(response.getViews()).isEqualTo(video.getView() + 3);
                 }),
                 dynamicTest("구독한 회원이 video 를 구매하면 구매여부가 true 가 된다.", ()-> {
                     //given
@@ -314,6 +326,44 @@ class VideoServiceTest extends ServiceTest {
         //when & then
         assertThatNoException()
                 .isThrownBy(() -> videoService.getVideo(loginMember.getMemberId(), video.getVideoId()));
+    }
+
+    @TestFactory
+    @DisplayName("비디오를 조회하면 조회 수를 1 증가시킨다.")
+    Collection<DynamicTest> watch() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+        int currentViews = video.getView();
+
+        Member loginMember = createMemberWithChannel();
+
+        return List.of(
+                dynamicTest("익명의 사용자가 방문하면 조회 수는 증가지만 Watch 레코드를 만들어지지 않는다.", ()-> {
+                    //when
+                    videoService.watch(-1L, video.getVideoId());
+
+                    //then
+                    assertThat(video.getView()).isEqualTo(currentViews + 1);
+                }),
+                dynamicTest("로그인 사용자가 방문하면 조회 수가 증가하고 Watch 레코드가 생성된다.", ()-> {
+                    //when
+                    videoService.watch(loginMember.getMemberId(), video.getVideoId());
+
+                    //then
+                    assertThat(video.getView()).isEqualTo(currentViews + 2);
+                    assertThat(watchRepository.count()).isEqualTo(1);
+
+                }),
+                dynamicTest("로그인 사용자가 재방문하면 watch 레코드는 생성되지만 조회 수는 증가하지 않는다.", ()-> {
+                    //when
+                    videoService.watch(loginMember.getMemberId(), video.getVideoId());
+
+                    //then
+                    assertThat(video.getView()).isEqualTo(currentViews + 3);
+                    assertThat(watchRepository.count()).isEqualTo(1);
+                })
+        );
     }
 
     @TestFactory
@@ -457,6 +507,30 @@ class VideoServiceTest extends ServiceTest {
     }
 
     @Test
+    @DisplayName("비디오 생성 시 해당 멤버가 요청한 비디오 생성이 아니면 VideoNotFoundException 이 발생한다.")
+    void createVideoMemberNotFoundException() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = Video.createVideo(owner.getChannel(), "test", 1000, "test");
+        videoRepository.save(video);
+
+        createAndSaveCategory("category1");
+
+        Member otherMember = createMemberWithChannel();
+
+        VideoCreateServiceRequest request = VideoCreateServiceRequest.builder()
+                .videoName(video.getVideoName())
+                .price(1000)
+                .description("test")
+                .categories(List.of("category1"))
+                .build();
+
+        //when & then
+        assertThatThrownBy(() -> videoService.createVideo(otherMember.getMemberId(), request))
+                .isInstanceOf(VideoNotFoundException.class);
+    }
+
+    @Test
     @DisplayName("비디오 put url 요청 시 존재하지 않는 memberId 면 MemberNotFoundException 이 발생한다.")
     void getVideoCreateUrlMemberNotFoundException() {
         //given
@@ -530,11 +604,8 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("description 를 받아서 비디오를 수정한다.")
     void updateVideo() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
-
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
 
         VideoUpdateServiceRequest request = VideoUpdateServiceRequest.builder()
                 .videoId(video.getVideoId())
@@ -584,10 +655,8 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("video 수정 시 존재하지 않는 videoId 면 VideoNotFoundException 이 발생한다.")
     void updateVideoVideoNotFoundException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
 
         VideoUpdateServiceRequest request = VideoUpdateServiceRequest.builder()
                 .videoId(video.getVideoId() + 999L)
@@ -611,12 +680,10 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("장바구니에 video 를 추가/삭제한다.")
     Collection<DynamicTest> changeCart() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
 
-        Video video = createAndSaveVideo(channel);
-
-        Member loginMember = createAndSaveMember();
+        Member loginMember = createMemberWithChannel();
 
         return List.of(
                 dynamicTest("loginMember 의 장바구니에 video 를 추가한다.", ()-> {
@@ -640,10 +707,8 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("장바구니 추가 시 closed 된 video 면 VideoClosedException 이 발생한다.")
     void changeCartVideoClosedException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         video.close();
 
         Member loginMember = createAndSaveMember();
@@ -658,10 +723,8 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("장바구니 추가 시 없는 video 로 요청하면 VideoNotFoundException 이 발생한다.")
     void changeCartVideoNotFoundException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
 
         Member loginMember = createAndSaveMember();
 
@@ -674,10 +737,8 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("장바구니 추가 시 없는 memberId 로 요청하면 MemberNotFoundException 이 발생한다.")
     void changeCartMemberNotFoundException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
 
         Member loginMember = createAndSaveMember();
 
@@ -690,12 +751,10 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("장바구니에 추가된 video 를 videoIds 리스트를 통해 삭제할 수 있다.")
     void deleteCarts() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video1 = createAndSaveVideo(channel);
-        Video video2 = createAndSaveVideo(channel);
-        Video video3 = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
+        Video video3 = createAndSaveVideo(owner.getChannel());
 
         Member loginMember = createAndSaveMember();
         Channel loginMemberChannel = createAndSaveChannel(loginMember);
@@ -719,13 +778,11 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("장바구니에 추가된 video 를 videoIds 리스트를 통해 삭제할 수 있다. (videoIds 에 없는 videoId 는 무시한다.)")
     void deleteCartsNotInCart() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video1 = createAndSaveVideo(channel);
-        Video video2 = createAndSaveVideo(channel);
-        Video video3 = createAndSaveVideo(channel);
-        Video video4 = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
+        Video video3 = createAndSaveVideo(owner.getChannel());
+        Video video4 = createAndSaveVideo(owner.getChannel());
 
         Member loginMember = createAndSaveMember();
         Channel loginMemberChannel = createAndSaveChannel(loginMember);
@@ -745,19 +802,12 @@ class VideoServiceTest extends ServiceTest {
                 .extracting("cartId").containsExactly(cart3.getCartId());
     }
 
-    private Cart createAndSaveCart(Member member, Video video) {
-        Cart cart = Cart.createCart(member, video, video.getPrice());
-        cartRepository.save(cart);
-        return cart;
-    }
-
     @Test
     @DisplayName("video 소유자는 video 를 삭제할 수 있다. 삭제하면 video status 가 close 가 된다.")
     void deleteVideo() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
 
         //when
         videoService.deleteVideo(owner.getMemberId(), video.getVideoId());
@@ -770,10 +820,8 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("video 소유자가 아니면 video 삭제 시 VideoAccessDeniedException 이 발생한다.")
     void deleteVideoVideoAccessDeniedException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
 
         Member loginMember = createAndSaveMember(); // video 소유자가 아닌 다른 멤버
 
@@ -789,10 +837,8 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("video 삭제 시 존재하지 않는 videoId 면 VideoNotFoundException 이 발생한다.")
     void deleteVideoVideoNotFoundException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
 
         //when & then
         assertThatThrownBy(() -> videoService.deleteVideo(owner.getMemberId(), video.getVideoId() + 999L))
