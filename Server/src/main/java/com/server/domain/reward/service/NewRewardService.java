@@ -17,7 +17,7 @@ import java.util.List;
 @Service
 public class NewRewardService implements RewardService {
 
-	private NewRewardRepository newRewardRepository;
+	private final NewRewardRepository newRewardRepository;
 
 	public NewRewardService(NewRewardRepository newRewardRepository) {
 		this.newRewardRepository = newRewardRepository;
@@ -32,18 +32,57 @@ public class NewRewardService implements RewardService {
 		} else if (rewardable instanceof Reply) {
 			createReplyRewardIfNotPresent((Reply) rewardable, member);
 		}
-
 	}
 
-	private void createVideoReward(Video video, Member member) {
+	public void createQuestionRewardsIfNotPresent(List<Question> questions, Member member) {
 
-		NewReward reward = NewReward.createReward(
-				video.getRewardPoint(),
-				member,
-				video
-		);
+		List<QuestionReward> rewards = newRewardRepository.findByQuestionsAndMember(questions, member);
 
-		newRewardRepository.save(reward);
+		questions.stream()
+				.filter(question -> rewards.stream()
+						.noneMatch(reward -> reward.getQuestion().equals(question)))
+				.forEach(question -> createQuestionReward(question, member));
+	}
+
+	public void cancelOrderReward(Order order) {
+
+		Member member = order.getMember();
+
+		List<NewReward> rewards = newRewardRepository.findByOrderId(order.getOrderId());
+
+		int refundRewardPoint = calculateRefundRewardFrom(rewards);
+
+		if(!member.hasEnoughReward(refundRewardPoint)) {
+			order.convertAmountToReward(refundRewardPoint - member.getReward());
+		}
+
+		rewards.forEach(NewReward::cancelReward);
+	}
+
+	@Override
+	public void cancelVideoReward(OrderVideo orderVideo) {
+
+		Order order = orderVideo.getOrder();
+		Member member = order.getMember();
+		Video video = orderVideo.getVideo();
+
+		List<NewReward> rewards = newRewardRepository.findByMemberAndVideoId(
+				member.getMemberId(),
+				video.getVideoId());
+
+		int refundRewardPoint = calculateRefundRewardFrom(rewards);
+
+		if(!member.hasEnoughReward(refundRewardPoint)) {
+			order.convertAmountToReward(refundRewardPoint - member.getReward());
+		}
+
+		rewards.forEach(NewReward::cancelReward);
+	}
+
+	private int calculateRefundRewardFrom(List<NewReward> rewards) {
+		return rewards.stream()
+				.mapToInt(NewReward::getRewardPoint)
+				.sum();
 	}
 
 	private void createReplyRewardIfNotPresent(Reply reply, Member member) {
@@ -58,62 +97,15 @@ public class NewRewardService implements RewardService {
 				.orElseGet(() -> createQuestionReward(question, member));
 	}
 
-	public void createQuestionRewardsIfNotPresent(List<Question> questions, Member member) {
+	private void createVideoReward(Video video, Member member) {
 
-		List<QuestionReward> rewards = newRewardRepository.findByQuestionsAndMember(questions, member);
-
-		questions.stream()
-				.filter(question -> rewards.stream()
-						.noneMatch(reward -> reward.getQuestion().equals(question)))
-				.forEach(question -> createQuestionReward(question, member));
-	}
-
-	public void cancelReward(Order order) {
-
-		Member member = order.getMember();
-
-		List<NewReward> rewards = newRewardRepository.findByOrderId(order.getOrderId());
-
-		int refundRewardPoint = rewards.stream()
-				.mapToInt(NewReward::getRewardPoint)
-				.sum();
-
-		if(refundRewardPoint > member.getReward()) {
-			order.convertAmountToReward(refundRewardPoint - member.getReward());
-		}
-
-		rewards
-				.forEach(NewReward::cancelReward);
-	}
-
-	@Override
-	public void cancelVideoReward(OrderVideo orderVideo) {
-
-		Order order = orderVideo.getOrder();
-		Member member = order.getMember();
-		Video video = orderVideo.getVideo();
-
-		List<NewReward> rewards = newRewardRepository.findByMemberAndVideoId(
-				member.getMemberId(),
-				video.getVideoId());
-
-		int refundRewardPoint = rewards.stream()
-				.mapToInt(NewReward::getRewardPoint)
-				.sum();
-
-		if(refundRewardPoint > member.getReward()) {
-			order.convertAmountToReward(refundRewardPoint - member.getReward());
-		}
-
-		rewards.forEach(NewReward::cancelReward);
-	}
-
-	private ReplyReward createReplyReward(Reply reply, Member member) {
-		ReplyReward reward = (ReplyReward) NewReward.createReward(
-				reply.getRewardPoint(),
+		NewReward reward = NewReward.createReward(
+				video.getRewardPoint(),
 				member,
-				reply);
-		return newRewardRepository.save(reward);
+				video
+		);
+
+		newRewardRepository.save(reward);
 	}
 
 	private QuestionReward createQuestionReward(Question question, Member member) {
@@ -121,6 +113,16 @@ public class NewRewardService implements RewardService {
 				question.getRewardPoint(),
 				member,
 				question);
+
+		return newRewardRepository.save(reward);
+	}
+
+	private ReplyReward createReplyReward(Reply reply, Member member) {
+		ReplyReward reward = (ReplyReward) NewReward.createReward(
+				reply.getRewardPoint(),
+				member,
+				reply);
+
 		return newRewardRepository.save(reward);
 	}
 }

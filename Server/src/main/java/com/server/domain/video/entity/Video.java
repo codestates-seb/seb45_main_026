@@ -68,9 +68,6 @@ public class Video extends BaseEntity implements Rewardable {
     private List<Cart> carts = new ArrayList<>();
 
     @OneToMany(mappedBy = "video")
-    private List<Reward> rewards = new ArrayList<>();
-
-    @OneToMany(mappedBy = "video")
     private List<Question> questions = new ArrayList<>();
 
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)

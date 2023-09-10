@@ -3,7 +3,6 @@ package com.server.domain.order.service;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.order.entity.Order;
-import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
@@ -204,7 +203,7 @@ public class OrderService {
 
         checkIfWatchAny(order);
 
-        rewardService.cancelReward(order);
+        rewardService.cancelOrderReward(order);
 
         Order.Refund refund = order.cancelAllOrder();
 

@@ -7,15 +7,18 @@ import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reward.entity.*;
 import com.server.domain.video.entity.Video;
-import com.server.global.exception.businessexception.orderexception.RewardNotEnoughException;
 import com.server.global.testhelper.ServiceTest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.DynamicTest.*;
 
 class RewardServiceTest extends ServiceTest {
 
@@ -25,38 +28,52 @@ class RewardServiceTest extends ServiceTest {
     @DisplayName("비디오를 통해 리워드를 생성한다.")
     void createVideoReward() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
 
-        Video video = createAndSaveVideo(channel);
-
-        Member member = createAndSaveMember();
+        Member loginMember = createMemberWithChannel();
 
         //when
-        rewardService.createRewardIfNotPresent(video, member);
+        rewardService.createRewardIfNotPresent(video, loginMember);
 
         //then
         VideoReward reward = (VideoReward) newRewardRepository.findAll().get(0);
-        assertThat(reward.getMember()).isEqualTo(member);
+
+        assertThat(reward.getMember()).isEqualTo(loginMember);
         assertThat(reward.getVideo()).isEqualTo(video);
         assertThat(reward.getRewardType()).isEqualTo(RewardType.VIDEO);
         assertThat(reward.getRewardPoint()).isEqualTo(video.getRewardPoint());
     }
 
     @Test
+    @DisplayName("비디오를 통해 리워드를 생성하면 member 의 리워드가 추가된다.")
+    void createVideoRewardAddReward() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+
+        Member loginMember = createMemberWithChannel();
+        int beforeReward = loginMember.getReward();
+
+        //when
+        rewardService.createRewardIfNotPresent(video, loginMember);
+
+        //then
+        assertThat(loginMember.getReward()).isEqualTo(beforeReward + video.getRewardPoint());
+    }
+
+    @Test
     @DisplayName("문제를 통해 리워드를 생성한다.")
     void createQuestionRewardIfNotPresent() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         Question question = createAndSaveQuestion(video);
 
-        Member member = createAndSaveMember();
+        Member loginMember = createMemberWithChannel();
 
         //when
-        rewardService.createRewardIfNotPresent(question, member);
+        rewardService.createRewardIfNotPresent(question, loginMember);
 
         //then
         NewReward reward = newRewardRepository.findAll().get(0);
@@ -64,7 +81,7 @@ class RewardServiceTest extends ServiceTest {
         assertThat(reward instanceof QuestionReward).isTrue();
         QuestionReward questionReward = (QuestionReward) reward;
 
-        assertThat(questionReward.getMember()).isEqualTo(member);
+        assertThat(questionReward.getMember()).isEqualTo(loginMember);
         assertThat(questionReward.getVideo()).isEqualTo(video);
         assertThat(questionReward.getQuestion()).isEqualTo(question);
         assertThat(questionReward.getRewardType()).isEqualTo(RewardType.QUIZ);
@@ -72,19 +89,36 @@ class RewardServiceTest extends ServiceTest {
     }
 
     @Test
+    @DisplayName("문제를 통해 리워드를 생성하면 member 의 리워드가 추가된다.")
+    void createQuestionRewardIfNotPresentAddReward() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+        Question question = createAndSaveQuestion(video);
+
+        Member loginMember = createMemberWithChannel();
+        int beforeReward = loginMember.getReward();
+
+        //when
+        rewardService.createRewardIfNotPresent(question, loginMember);
+
+        //then
+        assertThat(loginMember.getReward()).isEqualTo(beforeReward + question.getRewardPoint());
+    }
+
+    @Test
     @DisplayName("문제를 통해 리워드를 생성할 때 이미 리워드가 존재하면 생성하지 않는다.")
     void createQuestionRewardIfPresent() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         Question question = createAndSaveQuestion(video);
 
-        Member member = createAndSaveMember();
-        Reward reward = createAndSaveQuestionReward(member, question);
+        Member loginMember = createAndSaveMember();
+        createAndSaveReward(loginMember, question); // 이미 리워드가 존재하는 상태
 
         //when
-        rewardService.createRewardIfNotPresent(question, member);
+        rewardService.createRewardIfNotPresent(question, loginMember);
 
         //then
         assertThat(newRewardRepository.findAll().size()).isEqualTo(1);
@@ -94,30 +128,28 @@ class RewardServiceTest extends ServiceTest {
     @DisplayName("문제를 통해 리워드를 생성할 때 이미 리워드가 존재하더라도 취소된 리워드면 생성한다.")
     void createQuestionRewardIfPresentButCanceled() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         Question question = createAndSaveQuestion(video);
 
-        Member member = createAndSaveMember();
-        NewReward reward = createAndSaveReward(member, question);
+        Member loginMember = createAndSaveMember();
+        NewReward reward = createAndSaveReward(loginMember, question);
         reward.cancelReward();
 
         //when
-        rewardService.createRewardIfNotPresent(question, member);
+        rewardService.createRewardIfNotPresent(question, loginMember);
 
         //then
         assertThat(newRewardRepository.findAll().size()).isEqualTo(2);
     }
 
+
     @Test
     @DisplayName("문제 리스트를 통해 리워드를 생성한다.")
     void createQuestionRewardsIfNotPresent() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         Question question1 = createAndSaveQuestion(video);
         Question question2 = createAndSaveQuestion(video);
         List<Question> questions = List.of(question1, question2);
@@ -136,51 +168,76 @@ class RewardServiceTest extends ServiceTest {
     }
 
     @Test
-    @DisplayName("문제 리스트를 통해 리워드를 생성할 때 이미 리워드가 존재하면 생성하지 않는다.")
-    void createQuestionRewardsIfPresent() {
+    @DisplayName("문제 리스트를 통해 리워드를 생성하면 member 의 리워드가 추가된다.")
+    void createQuestionRewardsIfNotPresentAddReward() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+        Question question1 = createAndSaveQuestion(video);
+        Question question2 = createAndSaveQuestion(video);
+        List<Question> questions = List.of(question1, question2);
 
-        Video video = createAndSaveVideo(channel);
+        Member member = createMemberWithChannel();
+        int beforeReward = member.getReward();
+
+        //when
+        rewardService.createQuestionRewardsIfNotPresent(questions, member);
+
+        //then
+        int totalReward = question1.getRewardPoint() + question2.getRewardPoint();
+
+        assertThat(member.getReward()).isEqualTo(beforeReward + totalReward);
+    }
+
+    @TestFactory
+    @DisplayName("문제 리스트를 통해 리워드를 생성할 때 이미 리워드가 존재하면 생성하지 않는다.")
+    Collection<DynamicTest> createQuestionRewardsIfPresent() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         Question question1 = createAndSaveQuestion(video);
         Question question2 = createAndSaveQuestion(video);
         List<Question> questions = List.of(question1, question2);
 
         Member member = createAndSaveMember();
 
-        NewReward reward1 = createAndSaveReward(member, question1);
-        NewReward reward2 = createAndSaveReward(member, question2);
+        return List.of(
+                dynamicTest("최초 생성 시 리워드가 생성된다.", ()-> {
+                    //when
+                    rewardService.createQuestionRewardsIfNotPresent(questions, member);
 
-        //when
-        rewardService.createQuestionRewardsIfNotPresent(questions, member);
+                    //then
+                    assertThat(newRewardRepository.findAll().size()).isEqualTo(2);
+                }),
+                dynamicTest("두번째 생성 요청 시 리워드가 생성되지 않는다.", ()-> {
+                    //when
+                    rewardService.createQuestionRewardsIfNotPresent(questions, member);
 
-        //then
-        assertThat(newRewardRepository.findAll().size()).isEqualTo(2);
+                    //then
+                    assertThat(newRewardRepository.findAll().size()).isEqualTo(2);
+                })
+        );
     }
 
     @Test
     @DisplayName("문제 리스트를 통해 리워드를 생성할 때 이미 리워드가 존재하지만 취소된 리워드면 추가로 생성한다.")
     void createQuestionRewardsIfPresentButCanceled() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         Question question1 = createAndSaveQuestion(video);
         Question question2 = createAndSaveQuestion(video);
         List<Question> questions = List.of(question1, question2);
 
-        Member member = createAndSaveMember();
-        Channel memberChannel = createAndSaveChannel(member);
+        Member loginMember = createMemberWithChannel();
 
-        NewReward reward1 = createAndSaveReward(member, question1);
+        NewReward reward1 = createAndSaveReward(loginMember, question1);
         reward1.cancelReward();
-        NewReward reward2 = createAndSaveReward(member, question2);
+        NewReward reward2 = createAndSaveReward(loginMember, question2);
         reward2.cancelReward();
 
         //when
-        rewardService.createQuestionRewardsIfNotPresent(questions, member);
+        rewardService.createQuestionRewardsIfNotPresent(questions, loginMember);
 
         //then
         assertThat(newRewardRepository.findAll().size()).isEqualTo(4);
@@ -190,71 +247,110 @@ class RewardServiceTest extends ServiceTest {
     @DisplayName("order 를 통해 리워드를 취소하고 member 의 reward 를 변경한다.")
     void cancelReward() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         Question question = createAndSaveQuestion(video);
 
-        Member member = createAndSaveMember();
-        Channel memberChannel = createAndSaveChannel(member);
+        Member loginMember = createMemberWithChannel();
 
-        NewReward reward1 = createAndSaveReward(member, video);
-        NewReward reward2 = createAndSaveReward(member, question);
+        NewReward reward1 = createAndSaveReward(loginMember, video);
+        NewReward reward2 = createAndSaveReward(loginMember, question);
 
-        Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 100);
-
-        int currentPoint = member.getReward();
+        Order order = createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video), 100);
 
         //when
-        rewardService.cancelReward(order);
+        rewardService.cancelOrderReward(order);
 
         //then
-        assertThat(member.getReward()).isEqualTo(currentPoint - video.getRewardPoint() - question.getRewardPoint());
         assertThat(reward1.isCanceled()).isTrue();
         assertThat(reward2.isCanceled()).isTrue();
+    }
+
+    @Test
+    @DisplayName("order 를 통해 리워드를 취소하면 member Reward 적립이 취소되어 감소한다.")
+    void cancelRewardMinusReward() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+        Question question = createAndSaveQuestion(video);
+
+        Member loginMember = createMemberWithChannel();
+
+        createAndSaveReward(loginMember, video);
+        createAndSaveReward(loginMember, question);
+
+        Order order = createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video), 100);
+
+        int currentPoint = loginMember.getReward();
+
+        //when
+        rewardService.cancelOrderReward(order);
+
+        //then
+        int totalCancelReward = video.getRewardPoint() + question.getRewardPoint();
+
+        assertThat(loginMember.getReward()).isEqualTo(currentPoint - totalCancelReward);
     }
 
     @Test
     @DisplayName("order 를 통해 리워드 취소 시 reward 가 부족하면 order 에서 차감해 사용한다.")
     void cancelRewardRewardNotEnoughException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         Question question = createAndSaveQuestion(video);
 
-        Member member = createAndSaveMember();
-        Channel memberChannel = createAndSaveChannel(member);
+        Member loginMember = createMemberWithChannel();
 
-        Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 100);
-        createAndSaveReward(member, video);
-        createAndSaveReward(member, question);
+        Order order = createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video), 100);
+        createAndSaveReward(loginMember, video);
+        createAndSaveReward(loginMember, question);
 
-        member.minusReward(member.getReward()); // 리워드를 0 으로 만든다.
+        loginMember.minusReward(loginMember.getReward()); // 리워드를 0 으로 만든다.
 
         int currentPoint = order.getRemainRefundReward();
 
         //when
-        rewardService.cancelReward(order);
+        rewardService.cancelOrderReward(order);
 
         //then
-        assertThat(order.getRemainRefundReward()).isEqualTo(currentPoint - video.getRewardPoint() - question.getRewardPoint());
+        int totalCancelReward = video.getRewardPoint() + question.getRewardPoint();
 
+        assertThat(order.getRemainRefundReward()).isEqualTo(currentPoint - totalCancelReward);
     }
 
     @Test
-    @DisplayName("orderVideo 를 통해 해당 비디오에 관련된 리워드를 취소하고 Member 에서 차감한다.")
+    @DisplayName("orderVideo 를 통해 해당 비디오에 관련된 리워드를 취소한다.")
     void cancelVideoReward() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         Question question = createAndSaveQuestion(video);
 
-        Member member = createAndSaveMember();
-        Channel memberChannel = createAndSaveChannel(member);
+        Member member = createMemberWithChannel();
+
+        Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
+        OrderVideo orderVideo = order.getOrderVideos().get(0);
+        NewReward reward1 = createAndSaveReward(member, video);
+        NewReward reward2 = createAndSaveReward(member, question);
+
+        //when
+        rewardService.cancelVideoReward(orderVideo);
+
+        //then
+        assertThat(reward1.isCanceled()).isTrue();
+        assertThat(reward2.isCanceled()).isTrue();
+    }
+
+    @Test
+    @DisplayName("orderVideo 를 통해 해당 비디오에 관련된 리워드를 취소하면 member 의 리워드가 감소한다.")
+    void cancelVideoRewardMinusReward() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+        Question question = createAndSaveQuestion(video);
+
+        Member member = createMemberWithChannel();
 
         Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
         OrderVideo orderVideo = order.getOrderVideos().get(0);
@@ -267,49 +363,98 @@ class RewardServiceTest extends ServiceTest {
         rewardService.cancelVideoReward(orderVideo);
 
         //then
-        assertThat(member.getReward())
-                .isEqualTo(currentPoint - video.getRewardPoint() - question.getRewardPoint());
+        int totalCancelReward = video.getRewardPoint() + question.getRewardPoint();
+
+        assertThat(member.getReward()).isEqualTo(currentPoint - totalCancelReward);
+    }
+
+    @Test
+    @DisplayName("orderVideo 를 통해 해당 비디오에 관련된 리워드를 취소할 때 이미 취소된 리워드가 있으면 해당 리워드는 제외한다.")
+    void cancelVideoRewardMinusRewardPartially() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+        Question question = createAndSaveQuestion(video);
+
+        Member loginMember = createMemberWithChannel();
+
+        Order order = createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video), 0);
+        OrderVideo orderVideo = order.getOrderVideos().get(0);
+        createAndSaveReward(loginMember, video);
+        NewReward canceledReward = createAndSaveReward(loginMember, question);
+        canceledReward.cancelReward(); // question 리워드는 이미 취소된 상태
+
+        int currentPoint = loginMember.getReward();
+
+        //when
+        rewardService.cancelVideoReward(orderVideo);
+
+        //then
+        assertThat(loginMember.getReward()).isEqualTo(currentPoint - video.getRewardPoint());
     }
 
     @Test
     @DisplayName("orderVideo 를 통해 비디오 리워드를 취소할 때 환불할 리워드가 부족하면 order 에서 차감해 사용한다.")
     void cancelVideoRewardEnoughInOrder() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         Question question = createAndSaveQuestion(video);
 
-        Member member = createAndSaveMember();
-        Channel memberChannel = createAndSaveChannel(member);
+        Member loginMember = createMemberWithChannel();
 
-        Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 100);
+        Order order = createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video), 100);
         OrderVideo orderVideo = order.getOrderVideos().get(0);
-        createAndSaveReward(member, video);
-        createAndSaveReward(member, question);
+        createAndSaveReward(loginMember, video);
+        createAndSaveReward(loginMember, question);
 
-        member.minusReward(member.getReward()); // 리워드 소멸
+        loginMember.minusReward(loginMember.getReward()); // 리워드 소멸
 
         //when
         rewardService.cancelVideoReward(orderVideo);
 
         //then
-        assertThat(order.getRemainRefundReward()).isEqualTo(100 - video.getRewardPoint() - question.getRewardPoint());
+        int totalCancelReward = video.getRewardPoint() + question.getRewardPoint();
+        assertThat(order.getRemainRefundReward()).isEqualTo(100 - totalCancelReward);
+    }
+
+    @Test
+    @DisplayName("orderVideo 를 통해 비디오 리워드를 취소할 때 환불할 리워드가 일부 부족하면 order 에서 일부 차감해 사용한다.")
+    void cancelVideoRewardEnoughInOrderPartially() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+        Question question = createAndSaveQuestion(video);
+
+        Member loginMember = createMemberWithChannel();
+
+        int orderReward = 100;
+        Order order = createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video), orderReward);
+        OrderVideo orderVideo = order.getOrderVideos().get(0);
+        createAndSaveReward(loginMember, video);
+        createAndSaveReward(loginMember, question);
+
+        loginMember.minusReward(loginMember.getReward() - 10); // 10원만 남기고 리워드 소멸
+        int beforeMemberReward = loginMember.getReward();
+
+        //when
+        rewardService.cancelVideoReward(orderVideo);
+
+        //then
+        int totalCancelReward = video.getRewardPoint() + question.getRewardPoint();
+        int totalLackReward = totalCancelReward - beforeMemberReward;
+        assertThat(order.getRemainRefundReward()).isEqualTo(orderReward - totalLackReward);
     }
 
     @Test
     @DisplayName("orderVideo 를 통해 비디오 리워드를 취소할 때 환불할 리워드가 order 에서도 부족하면 환불 금액에서 차감한다.")
     void cancelVideoRewardNotEnough() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         Question question = createAndSaveQuestion(video);
 
-        Member member = createAndSaveMember();
-        Channel memberChannel = createAndSaveChannel(member);
+        Member member = createMemberWithChannel();
 
         Order order = createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
         OrderVideo orderVideo = order.getOrderVideos().get(0);
@@ -323,6 +468,7 @@ class RewardServiceTest extends ServiceTest {
         rewardService.cancelVideoReward(orderVideo);
 
         //then
-        assertThat(order.getRemainRefundAmount()).isEqualTo(orderPrice - video.getRewardPoint() - question.getRewardPoint());
+        int totalCancelReward = video.getRewardPoint() + question.getRewardPoint();
+        assertThat(order.getRemainRefundAmount()).isEqualTo(orderPrice - totalCancelReward);
     }
 }
