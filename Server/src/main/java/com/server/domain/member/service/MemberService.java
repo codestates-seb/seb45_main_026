@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.CartsResponse;
+import com.server.domain.member.service.dto.response.NewRewardsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
@@ -31,6 +33,7 @@ import com.server.domain.member.util.MemberResponseConverter;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.reply.entity.Reply;
+import com.server.domain.reward.entity.NewReward;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.repository.NewRewardRepository;
 import com.server.domain.video.entity.Video;
@@ -109,18 +112,15 @@ public class MemberService {
 		return RewardsResponse.convert(rewards);
 	}
 
-	// public Page<RewardsResponse> getNewRewards(Long loginId, int page, int size) {
-	// 	Member member = validateMember(loginId);
-	//
-	// 	Pageable pageable = PageRequest.of(page - 1, size);
-	//
-	// 	Page<NewReward> rewards = newRewardRepository.findRewardsByMember(member, pageable);
-	//
-	// 	return null;
-	//
-	// 	// Page<Reward> rewards = memberRepository.findRewardsByMemberId(member.getMemberId(), pageable);
-	// 	// return RewardsResponse.convert(rewards);
-	// }
+	public Page<NewRewardsResponse> getNewRewards(Long loginId, int page, int size) {
+		Member member = validateMember(loginId);
+
+		Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.desc("createdDate")));
+
+		Page<NewReward> rewards = newRewardRepository.findRewardsByMember(member, pageable);
+
+		return NewRewardsResponse.convert(rewards);
+	}
 
 	public Page<SubscribesResponse> getSubscribes(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
