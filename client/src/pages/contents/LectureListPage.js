@@ -47,6 +47,7 @@ const StructureButton = styled.button`
   height: 35px;
   background-image: ${(props) => (props.isHorizon ? `url(${list})` : `url(${grid})` )};
   background-size: contain;
+  background-repeat: no-repeat;
   border-radius: ${globalTokens.RegularRadius.value}px;
 `;
 const HorizonItemContainer = styled.ul`

@@ -6,6 +6,7 @@ import HorizonItem from "./HorizonItem";
 import axios from "axios";
 import { useSelector,useDispatch } from "react-redux";
 import { resetToInitialState } from "../../redux/createSlice/FilterSlice";
+import { useToken } from '../../hooks/useToken';
 
 const globalTokens = tokens.global;
 
@@ -30,6 +31,8 @@ const ListContainer = styled.ul`
 export default function ChannelList({ channelInfor, accessToken, userId }) {
   const isDark = useSelector(state=>state.uiSetting.isDark);
   const filterState = useSelector((state) => state.filterSlice.filter);
+  const refreshToken = useToken();
+  const tokens = useSelector(state=>state.loginInfo.accessToken);
   const dispatch = useDispatch();
   const [lectures, setLectures] = useState([]);
   useEffect(() => {
@@ -54,8 +57,14 @@ export default function ChannelList({ channelInfor, accessToken, userId }) {
         }
       )
       .then((res) => setLectures(res.data.data))
-      .catch((err) => console.log(err));
-  }, [filterState]);
+      .catch((err) => {
+        if(err.response.data.message==='만료된 토큰입니다.') {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
+  }, [filterState, tokens]);
   return (
     <ListBody isDark={isDark}>
       <CategoryFilter filterNum="filters2" />

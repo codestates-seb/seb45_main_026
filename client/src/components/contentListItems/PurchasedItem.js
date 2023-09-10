@@ -7,6 +7,7 @@ import HorizonItem from "./HorizonItem";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useToken } from "../../hooks/useToken";
 
 const globalTokens = tokens.global;
 
@@ -102,7 +103,8 @@ const HorizonItemContainer = styled.ul`
 
 
 export default function PurchasedItem({channel,setChannelList}) {
-    const navigate=useNavigate()
+    const refreshToken = useToken();
+    const navigate=useNavigate();
     const [isOpen, setIsOpen] = useState(false)
     const accessToken = useSelector((state) => state.loginInfo.accessToken);
     const arccordionHandler = (memberId) => {
@@ -133,7 +135,13 @@ export default function PurchasedItem({channel,setChannelList}) {
                     }))
               }
           })
-          .catch((err) => console.log(err));
+          .catch((err) => {
+            if(err.response.data.message==='만료된 토큰입니다.') {
+              refreshToken(()=>{ arccordionHandler(channel.memberId) });
+            } else {
+              console.log(err);
+            }
+          });
     }
     return (
       <ItemBody>

@@ -10,10 +10,12 @@ import CartRight from "./CartRight";
 import { Heading5Typo } from '../../../atoms/typographys/Typographys';
 import { HomeTitle } from '../../../components/contentListItems/ChannelHome';
 import tokens from '../../../styles/tokens.json';
+import { useToken } from "../../../hooks/useToken";
 
 const globalTokens = tokens.global;
 
 const CartPage = () => {
+  const refreshToken = useToken();
   const dispatch = useDispatch();
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const cartsData = useSelector((state) => state.cartSlice.data);
@@ -27,8 +29,14 @@ const CartPage = () => {
       .then((res) => {
         dispatch(setCarts(res.data.data));
       })
-      .catch((err) => console.log(err));
-  }, [cartsData]);
+      .catch((err) => {
+        if(err.response.data.message==='만료된 토큰입니다.') {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
+  }, [tokens]);
 
   return (
     <PageContainer isDark={isDark}>

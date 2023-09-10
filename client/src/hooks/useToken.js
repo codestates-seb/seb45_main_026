@@ -3,7 +3,7 @@ import { getNewAuthorizationService } from "../services/authServices";
 import { setToken } from "../redux/createSlice/LoginInfoSlice";
 import { useLogout } from "./useLogout";
 
-export const useToken = () => {
+export const useToken = (callback=null) => {
     const dispatch = useDispatch();
     const tokens = useSelector(state=>state.loginInfo.accessToken);
     const logout = useLogout();
@@ -15,6 +15,7 @@ export const useToken = () => {
                     ...tokens,
                     authorization: res.data
                 }));
+                callback && callback(); //token dispatch후 실행 할 메소드
             } else {
                 logout();
             }
