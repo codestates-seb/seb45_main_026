@@ -23,7 +23,6 @@ import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.RewardType;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.reward.repository.NewRewardRepository;
-import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.reward.service.RewardService;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.subscribe.repository.SubscribeRepository;
@@ -68,7 +67,6 @@ public abstract class ServiceTest {
     @Autowired protected ReplyRepository replyRepository;
     @Autowired protected AnnouncementRepository announcementRepository;
     @Autowired protected CartRepository cartRepository;
-    @Autowired protected RewardRepository rewardRepository;
     @Autowired protected NewRewardRepository newRewardRepository;
     @Autowired protected EntityManager em;
     @Autowired private RewardService rewardService;
