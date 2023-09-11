@@ -2,23 +2,22 @@ package com.server.auth.controller;
 
 import static com.server.auth.util.AuthConstant.*;
 import static com.server.global.testhelper.ControllerTest.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -26,19 +25,18 @@ import javax.validation.metadata.BeanDescriptor;
 import javax.validation.metadata.ConstraintDescriptor;
 import javax.validation.metadata.PropertyDescriptor;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.MessageSource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.snippet.Attributes;
@@ -47,15 +45,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.auth.controller.dto.AuthApiRequest;
 import com.server.auth.jwt.service.CustomUserDetails;
@@ -63,12 +57,10 @@ import com.server.auth.jwt.service.JwtProvider;
 import com.server.auth.oauth.service.OAuthProvider;
 import com.server.auth.oauth.service.OAuthService;
 import com.server.auth.service.AuthService;
-import com.server.auth.service.dto.AuthServiceRequest;
 import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.MemberService;
-import com.server.global.testhelper.ControllerTest;
 import com.server.module.email.service.MailService;
 
 // @Import(AopConfiguration.class)
@@ -151,6 +143,152 @@ public class AuthControllerTest {
 		);
 	}
 
+	@TestFactory
+	@DisplayName("로컬 로그인 Validation 테스트")
+	Collection<DynamicTest> localLoginValidation() throws Exception {
+		//given
+		Member member = createMember("test@email.com", "qwer1234!");
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"이메일을 입력하지 않은 경우",
+				() -> {
+					AuthApiRequest.Login login = new AuthApiRequest.Login();
+					login.setPassword("qwer1234!");
+
+					String content = objectMapper.writeValueAsString(login);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/login")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.status").value("LOGIN-400"))
+						.andExpect(jsonPath("$.message").value("이메일을 입력해주세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"비밀번호를 입력하지 않은 경우",
+				() -> {
+					AuthApiRequest.Login login = new AuthApiRequest.Login();
+					login.setEmail("test@email.com");
+
+					String content = objectMapper.writeValueAsString(login);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/login")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.status").value("LOGIN-400"))
+						.andExpect(jsonPath("$.message").value("패스워드를 입력해주세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"이메일 형식이 잘못된 경우",
+				() -> {
+					AuthApiRequest.Login login = new AuthApiRequest.Login();
+					login.setEmail("testemail.com");
+					login.setPassword("qwer1234!");
+
+					String content = objectMapper.writeValueAsString(login);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/login")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.status").value("LOGIN-400"))
+						.andExpect(jsonPath("$.message").value("이메일 형식을 맞춰주세요. (example@email.com)"));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"패스워드 형식이 잘못된 경우",
+				() -> {
+					AuthApiRequest.Login login = new AuthApiRequest.Login();
+					login.setEmail("test@email.com");
+					login.setPassword("qwer12345");
+
+					String content = objectMapper.writeValueAsString(login);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/login")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.status").value("LOGIN-400"))
+						.andExpect(jsonPath("$.message").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"패스워드의 길이가 8글자 이하인 경우",
+				() -> {
+					AuthApiRequest.Login login = new AuthApiRequest.Login();
+					login.setEmail("test@email.com");
+					login.setPassword("qwer123!");
+
+					String content = objectMapper.writeValueAsString(login);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/login")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.status").value("LOGIN-400"))
+						.andExpect(jsonPath("$.message").value("패스워드의 길이는 최소 9자 최대 20자를 만족해야합니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"패스워드의 길이가 21글자 이상인 경우",
+				() -> {
+					AuthApiRequest.Login login = new AuthApiRequest.Login();
+					login.setEmail("test@email.com");
+					login.setPassword("qwerqwerqwer12341234!");
+
+					String content = objectMapper.writeValueAsString(login);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/login")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.status").value("LOGIN-400"))
+						.andExpect(jsonPath("$.message").value("패스워드의 길이는 최소 9자 최대 20자를 만족해야합니다."));
+				}
+			)
+		);
+	}
+
 	@Test
 	@DisplayName("OAuth2 로그인 성공 테스트")
 	void googleLogin() throws Exception {
@@ -197,6 +335,62 @@ public class AuthControllerTest {
 					)
 				)
 			);
+	}
+
+	@TestFactory
+	@DisplayName("OAuth2 로그인 Validation 테스트")
+	Collection<DynamicTest> googleLoginValidation() throws Exception {
+		//given
+		AuthApiRequest.Token token = new AuthApiRequest.Token("Bearer aaa.bbb.ccc", "Bearer ddd.eee.fff", 1L);
+
+		given(oAuthService.login(any(OAuthProvider.class), anyString())).willReturn(token);
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"코드가 Null인 경우",
+				() -> {
+					String code = null;
+
+					AuthApiRequest.OAuth oAuth = new AuthApiRequest.OAuth(OAuthProvider.GOOGLE, code);
+					String content = objectMapper.writeValueAsString(oAuth);
+
+					ResultActions actions = mockMvc.perform(
+						post("/auth/oauth")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("code"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("코드를 다시 확인해주세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"Provider가 Null인 경우",
+				() -> {
+					String code = "ABCDEFGHI1234567";
+
+					AuthApiRequest.OAuth oAuth = new AuthApiRequest.OAuth(null, code);
+					String content = objectMapper.writeValueAsString(oAuth);
+
+					ResultActions actions = mockMvc.perform(
+						post("/auth/oauth")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("provider"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("GOOGLE, KAKAO, GITHUB 로그인만 지원합니다."));
+				}
+			)
+		);
 	}
 
 	@Test
@@ -289,6 +483,58 @@ public class AuthControllerTest {
 			);
 	}
 
+	@TestFactory
+	@DisplayName("이메일 전송 성공 테스트")
+	Collection<DynamicTest> sendEmailValidation() throws Exception {
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"이메일이 null인 경우",
+				() -> {
+					//given
+					AuthApiRequest.Send send = new AuthApiRequest.Send(null);
+					String content = objectMapper.writeValueAsString(send);
+
+					//when
+					ResultActions signup = mockMvc.perform(
+						post("/auth/signup/email")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					signup
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("email"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("입력값을 다시 확인해주세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"이메일 형식이 잘못된 경우",
+				() -> {
+					//given
+					AuthApiRequest.Send send = new AuthApiRequest.Send("testemail.com");
+					String content = objectMapper.writeValueAsString(send);
+
+					//when
+					ResultActions signup = mockMvc.perform(
+						post("/auth/signup/email")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					signup
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("email"))
+						.andExpect(jsonPath("$.data[0].value").value("testemail.com"))
+						.andExpect(jsonPath("$.data[0].reason").value("이메일 형식을 맞춰주세요. (example@email.com)"));
+				}
+			)
+		);
+	}
+
 	@Test
 	@DisplayName("이메일 인증 성공 테스트")
 	void confirmEmail() throws Exception {
@@ -344,6 +590,66 @@ public class AuthControllerTest {
 					)
 				)
 			);
+	}
+
+	@TestFactory
+	@DisplayName("이메일 인증 Validation 테스트")
+	Collection<DynamicTest> confirmEmailValidation() throws Exception {
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"이메일 형식이 잘못된 경우",
+				() -> {
+					//given
+					AuthApiRequest.Confirm confirm = new AuthApiRequest.Confirm(
+						"confirmemail.com",
+						"code1234"
+					);
+
+					String content = objectMapper.writeValueAsString(confirm);
+
+					//when
+					ResultActions signup = mockMvc.perform(
+						post("/auth/signup/confirm")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					signup
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("email"))
+						.andExpect(jsonPath("$.data[0].value").value("confirmemail.com"))
+						.andExpect(jsonPath("$.data[0].reason").value("이메일 형식을 맞춰주세요. (example@email.com)"));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"이메일 형식이 잘못된 경우",
+				() -> {
+					//given
+					AuthApiRequest.Confirm confirm = new AuthApiRequest.Confirm(
+						"confirmemail.com",
+						"code1234"
+					);
+
+					String content = objectMapper.writeValueAsString(confirm);
+
+					//when
+					ResultActions signup = mockMvc.perform(
+						post("/auth/signup/confirm")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					signup
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("email"))
+						.andExpect(jsonPath("$.data[0].value").value("confirmemail.com"))
+						.andExpect(jsonPath("$.data[0].reason").value("이메일 형식을 맞춰주세요. (example@email.com)"));
+				}
+			)
+		);
 	}
 
 	@Test

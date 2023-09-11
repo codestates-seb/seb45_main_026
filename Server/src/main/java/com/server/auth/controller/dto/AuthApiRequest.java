@@ -1,5 +1,6 @@
 package com.server.auth.controller.dto;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -77,6 +78,7 @@ public class AuthApiRequest {
 	}
 
 	@Getter
+	@Setter
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class Login {
