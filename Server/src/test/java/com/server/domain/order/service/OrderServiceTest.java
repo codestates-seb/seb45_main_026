@@ -85,6 +85,47 @@ class OrderServiceTest extends ServiceTest {
     }
 
     @Test
+    @DisplayName("주문 시 총 결제 금액이 0원이면 바로 주문완료 처리된다.")
+    void createOrderFreeVideo() {
+        //given
+        Member owner = createMemberWithChannel();
+
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
+        int totalAmount = video1.getPrice() + video2.getPrice();
+
+        Member loginMember = createAndSaveMember();
+        loginMember.addReward(totalAmount); // 모든 값을 리워드로 사용하도록 충전
+
+        OrderCreateServiceRequest request = OrderCreateServiceRequest.builder()
+                .videoIds(List.of(video1.getVideoId(), video2.getVideoId()))
+                .reward(totalAmount) // 리워드로 모두 결제
+                .build();
+
+        //when
+        OrderResponse response = orderService.createOrder(loginMember.getMemberId(), request);
+
+        //then
+        Order order = orderRepository.findById(response.getOrderId()).orElseThrow();
+
+        assertAll("order 확인",
+                () -> assertThat(response.getOrderId()).isNotNull(),
+                () -> assertThat(response.getTotalAmount()).isEqualTo(0)
+        );
+
+        assertAll("order 정보 확인",
+                () -> assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.COMPLETED),
+                () -> assertThat(order.getTotalPayAmount()).isEqualTo(0),
+                () -> assertThat(order.getReward()).isEqualTo(totalAmount)
+        );
+
+        assertAll("orderVideo 정보 확인",
+                () -> assertThat(order.getOrderVideos().get(0).getOrderStatus()).isEqualTo(OrderStatus.COMPLETED),
+                () -> assertThat(order.getOrderVideos().get(1).getOrderStatus()).isEqualTo(OrderStatus.COMPLETED)
+        );
+    }
+
+    @Test
     @DisplayName("주문 시 closed 된 video 가 있으면 VideoClosedException 이 발생한다.")
     void createOrderVideoClosedException() {
         //given
