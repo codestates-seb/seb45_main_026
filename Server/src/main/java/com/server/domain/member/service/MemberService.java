@@ -3,9 +3,11 @@ package com.server.domain.member.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.server.domain.reward.entity.Reward;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,20 +21,19 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.CartsResponse;
+import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
-import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.member.util.MemberResponseConverter;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.reward.entity.Reward;
-import com.server.domain.reward.repository.NewRewardRepository;
+import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.watch.entity.Watch;
@@ -53,7 +54,7 @@ public class MemberService {
 	private final ChannelRepository channelRepository;
 	private final VideoRepository videoRepository;
 	private final OrderRepository orderRepository;
-	private final NewRewardRepository newRewardRepository;
+	private final RewardRepository rewardRepository;
 	private final ChannelService channelService;
 	private final AwsService awsService;
 	private final PasswordEncoder passwordEncoder;
@@ -61,14 +62,14 @@ public class MemberService {
 	private final RedisService redisService;
 
 	public MemberService(MemberRepository memberRepository, ChannelRepository channelRepository,
-		VideoRepository videoRepository, OrderRepository orderRepository, NewRewardRepository newRewardRepository,
+		VideoRepository videoRepository, OrderRepository orderRepository, RewardRepository rewardRepository,
 		ChannelService channelService, AwsService awsService, PasswordEncoder passwordEncoder,
 		MemberResponseConverter converter, RedisService redisService) {
 		this.memberRepository = memberRepository;
 		this.channelRepository = channelRepository;
 		this.videoRepository = videoRepository;
 		this.orderRepository = orderRepository;
-		this.newRewardRepository = newRewardRepository;
+		this.rewardRepository = rewardRepository;
 		this.channelService = channelService;
 		this.awsService = awsService;
 		this.passwordEncoder = passwordEncoder;
@@ -102,25 +103,12 @@ public class MemberService {
 	public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
 
-		Pageable pageable = PageRequest.of(page - 1, size);
+		Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.desc("createdDate")));
 
-		Page<Reward> rewards = memberRepository.findRewardsByMemberId(member.getMemberId(), pageable);
+		Page<Reward> rewards = rewardRepository.findRewardsByMember(member, pageable);
 
 		return RewardsResponse.convert(rewards);
 	}
-
-	// public Page<RewardsResponse> getNewRewards(Long loginId, int page, int size) {
-	// 	Member member = validateMember(loginId);
-	//
-	// 	Pageable pageable = PageRequest.of(page - 1, size);
-	//
-	// 	Page<NewReward> rewards = newRewardRepository.findRewardsByMember(member, pageable);
-	//
-	// 	return null;
-	//
-	// 	// Page<Reward> rewards = memberRepository.findRewardsByMemberId(member.getMemberId(), pageable);
-	// 	// return RewardsResponse.convert(rewards);
-	// }
 
 	public Page<SubscribesResponse> getSubscribes(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);

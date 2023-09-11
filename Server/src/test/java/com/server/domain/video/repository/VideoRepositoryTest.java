@@ -531,8 +531,6 @@ class VideoRepositoryTest extends RepositoryTest {
         Member owner = createMemberWithChannel();
         Member otherOwner = createMemberWithChannel();
 
-
-
         Category category1 = createAndSaveCategory("java");
         Category category2 = createAndSaveCategory("spring");
 

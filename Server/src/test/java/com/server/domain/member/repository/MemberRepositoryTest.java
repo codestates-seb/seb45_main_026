@@ -10,6 +10,8 @@ import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.dto.MemberVideoData;
 import com.server.domain.order.entity.Order;
+import com.server.domain.reward.entity.Reward;
+import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
@@ -24,12 +26,10 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.data.domain.Sort;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -53,6 +53,8 @@ class MemberRepositoryTest extends RepositoryTest {
     @Autowired MemberRepository memberRepository;
     @Autowired ChannelRepository channelRepository;
     @Autowired VideoRepository videoRepository;
+    @Autowired
+    RewardRepository rewardRepository;
     private JPAQueryFactory queryFactory;
 
     @Test
@@ -189,6 +191,32 @@ class MemberRepositoryTest extends RepositoryTest {
         //then
         assertThat(isSubscribed).hasSize(3)
             .containsExactly(true, true, false);
+    }
+
+    @Test
+    @DisplayName("회원의 리워드 목록을 조회한다.")
+    void findRewardsByMember() {
+        Member user = createAndSaveMember();
+
+        Member member1 = createAndSaveMember();
+        Channel channel1 = createAndSaveChannel(member1);
+
+        Video video1 = createAndSaveVideo(channel1);
+        createAndSaveReward(user, video1);
+
+        Video video2 = createAndSaveVideo(channel1);
+        createAndSaveReward(user, video2);
+
+        Video video3 = createAndSaveVideo(channel1);
+        createAndSaveReward(user, video3);
+
+        Page<Reward> newRewardPage =
+            rewardRepository.findRewardsByMember(
+                user,
+                PageRequest.of(0, 16, Sort.by(Sort.Order.desc("createdDate")))
+            );
+
+        assertThat(newRewardPage.getContent()).isSortedAccordingTo(Comparator.comparing(Reward::getCreatedDate).reversed());
     }
 
     @Test

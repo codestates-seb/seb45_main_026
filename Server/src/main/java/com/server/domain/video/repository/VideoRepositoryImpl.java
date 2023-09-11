@@ -110,10 +110,8 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
         return Optional.ofNullable(
                 queryFactory
                         .selectFrom(video)
-                        .join(video.channel, channel)
-                        .join(channel.member, member)
                         .where(video.videoName.eq(videoName))
-                        .where(member.memberId.eq(memberId))
+                        .where(video.channel.channelId.eq(memberId))
                         .fetchOne()
         );
     }
@@ -135,8 +133,6 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
 
         JPAQuery<Video> query = queryFactory
                 .selectFrom(video)
-                .join(video.channel, channel).fetchJoin()
-                .join(channel.member, member).fetchJoin()
                 .distinct()
                 .offset(request.getPageable().getOffset())
                 .limit(request.getPageable().getPageSize())
@@ -180,8 +176,6 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
         JPAQuery<Video> query = queryFactory
                 .selectFrom(video)
                 .distinct()
-                .join(video.channel, channel).fetchJoin()
-                .join(channel.member, member).fetchJoin() //채널 주인(request.getMemberId()) 의 비디오를 조회하기 위해 조인
                 .offset(request.getPageable().getOffset()) // 페이징 조건 1
                 .limit(request.getPageable().getPageSize()) // 페이징 조건 2
                 .orderBy(getSort(request.getSort())) // 정렬 조건
@@ -194,8 +188,6 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
 
         JPAQuery<Long> countQuery = queryFactory.select(video.count()) // 쿼리문에 해당하는 count 쿼리
                 .from(video)
-                .join(video.channel, channel)
-                .join(channel.member, member)
                 .where(
                         videoOwnerIs(request.getMemberId()),
                         getCreateVideo(),
@@ -248,7 +240,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
     }
 
     private BooleanExpression videoOwnerIs(Long memberId) {
-        return member.memberId.eq(memberId);
+        return video.channel.channelId.eq(memberId);
     }
 
     private BooleanExpression getCreateVideo() {

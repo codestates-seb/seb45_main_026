@@ -10,7 +10,7 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.reward.entity.NewReward;
+import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
@@ -226,9 +226,9 @@ public abstract class RepositoryTest {
         em.persist(subscribe);
     }
 
-    protected NewReward createAndSaveReward(Member member, Rewardable rewardable) {
+    protected Reward createAndSaveReward(Member member, Rewardable rewardable) {
 
-        NewReward reward = NewReward.createReward(10, member, rewardable);
+        Reward reward = Reward.createReward(10, member, rewardable);
 
         em.persist(reward);
 

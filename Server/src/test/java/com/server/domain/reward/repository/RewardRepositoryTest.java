@@ -1,12 +1,11 @@
 package com.server.domain.reward.repository;
 
-import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.reward.entity.NewReward;
+import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.QuestionReward;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.video.entity.Video;
@@ -20,10 +19,10 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class NewRewardRepositoryTest extends RepositoryTest {
+class RewardRepositoryTest extends RepositoryTest {
 
     @Autowired
-    NewRewardRepository newRewardRepository;
+    RewardRepository rewardRepository;
 
     @Test
     @DisplayName("주문번호로 reward 리스트를 찾는다.")
@@ -40,16 +39,16 @@ class NewRewardRepositoryTest extends RepositoryTest {
 
         Reply reply = createAndSaveReply(loginMember, video1);
 
-        NewReward reward1 = createAndSaveReward(loginMember, video1);
-        NewReward reward2 = createAndSaveReward(loginMember, question);
-        NewReward reward3 = createAndSaveReward(loginMember, video2);
-        NewReward reward4 = createAndSaveReward(loginMember, reply);
+        Reward reward1 = createAndSaveReward(loginMember, video1);
+        Reward reward2 = createAndSaveReward(loginMember, question);
+        Reward reward3 = createAndSaveReward(loginMember, video2);
+        Reward reward4 = createAndSaveReward(loginMember, reply);
 
         em.flush();
         em.clear();
 
         //when
-        List<NewReward> rewards = newRewardRepository.findByOrderId(order.getOrderId());
+        List<Reward> rewards = rewardRepository.findByOrderId(order.getOrderId());
 
         //then
         assertThat(rewards).hasSize(4)
@@ -78,16 +77,16 @@ class NewRewardRepositoryTest extends RepositoryTest {
 
         Reply reply = createAndSaveReply(loginMember, video1);
 
-        NewReward reward1 = createAndSaveReward(loginMember, video1);
-        NewReward reward2 = createAndSaveReward(loginMember, question);
-        NewReward reward3 = createAndSaveReward(loginMember, video2);
-        NewReward reward4 = createAndSaveReward(loginMember, reply);
+        Reward reward1 = createAndSaveReward(loginMember, video1);
+        Reward reward2 = createAndSaveReward(loginMember, question);
+        Reward reward3 = createAndSaveReward(loginMember, video2);
+        Reward reward4 = createAndSaveReward(loginMember, reply);
 
         em.flush();
         em.clear();
 
         //when
-        List<NewReward> rewards = newRewardRepository.findByOrderId(order.getOrderId());
+        List<Reward> rewards = rewardRepository.findByOrderId(order.getOrderId());
 
         //then
         assertThat(rewards).hasSize(3)
@@ -119,13 +118,13 @@ class NewRewardRepositoryTest extends RepositoryTest {
 
         createAndSaveOrderComplete(loginMember, List.of(video1, video2));
 
-        NewReward reward = createAndSaveReward(loginMember, question);
+        Reward reward = createAndSaveReward(loginMember, question);
 
         em.flush();
         em.clear();
 
         //when
-        NewReward findReward = newRewardRepository.findByQuestionAndMember(question, loginMember).orElseThrow();
+        Reward findReward = rewardRepository.findByQuestionAndMember(question, loginMember).orElseThrow();
 
         //then
         assertThat(findReward.getRewardId()).isEqualTo(reward.getRewardId());
@@ -143,14 +142,14 @@ class NewRewardRepositoryTest extends RepositoryTest {
 
         createAndSaveOrderComplete(loginMember, List.of(video));
 
-        NewReward reward = createAndSaveReward(loginMember, question);
+        Reward reward = createAndSaveReward(loginMember, question);
         reward.cancelReward();
 
         em.flush();
         em.clear();
 
         //when
-        Optional<QuestionReward> findReward = newRewardRepository.findByQuestionAndMember(question, loginMember);
+        Optional<QuestionReward> findReward = rewardRepository.findByQuestionAndMember(question, loginMember);
 
         //then
         assertThat(findReward.isPresent()).isFalse();
@@ -171,15 +170,15 @@ class NewRewardRepositoryTest extends RepositoryTest {
 
         createAndSaveOrderComplete(loginMember, List.of(video));
 
-        NewReward reward1 = createAndSaveReward(loginMember, question1);
-        NewReward reward2 = createAndSaveReward(loginMember, question2);
-        NewReward reward3 = createAndSaveReward(loginMember, question3);
+        Reward reward1 = createAndSaveReward(loginMember, question1);
+        Reward reward2 = createAndSaveReward(loginMember, question2);
+        Reward reward3 = createAndSaveReward(loginMember, question3);
 
         em.flush();
         em.clear();
 
         //when
-        List<QuestionReward> findRewards = newRewardRepository.findByQuestionsAndMember(questions, loginMember);
+        List<QuestionReward> findRewards = rewardRepository.findByQuestionsAndMember(questions, loginMember);
 
         //then
         assertThat(findRewards).hasSize(3)
@@ -202,18 +201,18 @@ class NewRewardRepositoryTest extends RepositoryTest {
 
         createAndSaveOrderComplete(member, List.of(video));
 
-        NewReward reward1 = createAndSaveReward(member, question1);
+        Reward reward1 = createAndSaveReward(member, question1);
         reward1.cancelReward();
-        NewReward reward2 = createAndSaveReward(member, question2);
+        Reward reward2 = createAndSaveReward(member, question2);
         reward2.cancelReward();
-        NewReward reward3 = createAndSaveReward(member, question3);
+        Reward reward3 = createAndSaveReward(member, question3);
         reward3.cancelReward();
 
         em.flush();
         em.clear();
 
         //when
-        List<QuestionReward> findRewards = newRewardRepository.findByQuestionsAndMember(questions, member);
+        List<QuestionReward> findRewards = rewardRepository.findByQuestionsAndMember(questions, member);
 
         //then
         assertThat(findRewards).isEmpty();
@@ -234,17 +233,17 @@ class NewRewardRepositoryTest extends RepositoryTest {
 
         createAndSaveOrderComplete(member, List.of(video1, video2));
 
-        NewReward reward1 = createAndSaveReward(member, video1);
-        NewReward reward2 = createAndSaveReward(member, question);
-        NewReward reward3 = createAndSaveReward(member, video2);
-        NewReward reward4 = createAndSaveReward(member, reply);
+        Reward reward1 = createAndSaveReward(member, video1);
+        Reward reward2 = createAndSaveReward(member, question);
+        Reward reward3 = createAndSaveReward(member, video2);
+        Reward reward4 = createAndSaveReward(member, reply);
 
 
         em.flush();
         em.clear();
 
         //when
-        List<NewReward> rewards = newRewardRepository.findByMemberAndVideoId(member.getMemberId(), video1.getVideoId());
+        List<Reward> rewards = rewardRepository.findByMemberAndVideoId(member.getMemberId(), video1.getVideoId());
 
         //then
         assertThat(rewards).hasSize(3)
@@ -271,10 +270,10 @@ class NewRewardRepositoryTest extends RepositoryTest {
 
         createAndSaveOrderComplete(member, List.of(video1, video2));
 
-        NewReward reward1 = createAndSaveReward(member, video1);
-        NewReward reward2 = createAndSaveReward(member, question);
-        NewReward reward3 = createAndSaveReward(member, video2);
-        NewReward reward4 = createAndSaveReward(member, reply);
+        Reward reward1 = createAndSaveReward(member, video1);
+        Reward reward2 = createAndSaveReward(member, question);
+        Reward reward3 = createAndSaveReward(member, video2);
+        Reward reward4 = createAndSaveReward(member, reply);
         reward4.cancelReward(); //취소된 리워드
 
 
@@ -282,7 +281,7 @@ class NewRewardRepositoryTest extends RepositoryTest {
         em.clear();
 
         //when
-        List<NewReward> rewards = newRewardRepository.findByMemberAndVideoId(member.getMemberId(), video1.getVideoId());
+        List<Reward> rewards = rewardRepository.findByMemberAndVideoId(member.getMemberId(), video1.getVideoId());
 
         //then
         assertThat(rewards).hasSize(2)
@@ -293,9 +292,9 @@ class NewRewardRepositoryTest extends RepositoryTest {
                 );
     }
 
-    protected NewReward createAndSaveReward(Member member, Rewardable rewardable) {
+    protected Reward createAndSaveReward(Member member, Rewardable rewardable) {
 
-        NewReward reward = NewReward.createReward(10, member, rewardable);
+        Reward reward = Reward.createReward(10, member, rewardable);
 
         em.persist(reward);
 

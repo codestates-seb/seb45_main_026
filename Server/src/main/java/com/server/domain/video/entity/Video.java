@@ -1,12 +1,11 @@
 package com.server.domain.video.entity;
 
-import com.server.domain.category.entity.Category;
 import com.server.domain.cart.entity.Cart;
+import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.watch.entity.Watch;
@@ -15,7 +14,6 @@ import com.server.global.exception.businessexception.videoexception.VideoAlready
 import lombok.*;
 
 import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 

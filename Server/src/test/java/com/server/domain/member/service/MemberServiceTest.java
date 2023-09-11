@@ -27,10 +27,10 @@ import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.CartsResponse;
+import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
-import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.Order;
@@ -46,9 +46,7 @@ import com.server.global.exception.businessexception.memberexception.MemberNotFo
 import com.server.global.exception.businessexception.memberexception.MemberNotUpdatedException;
 import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
 import com.server.global.exception.businessexception.orderexception.OrderNotFoundException;
-import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import com.server.global.testhelper.ServiceTest;
-import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 
 public class MemberServiceTest extends ServiceTest {
@@ -115,26 +113,31 @@ public class MemberServiceTest extends ServiceTest {
 
 	@Test
 	@DisplayName("로그인한 사용자의 리워드 목록을 조회한다.")
-	void getRewards() {
+	void getNewRewards() {
 		Member member = createAndSaveMember();
 		Channel channel = createAndSaveChannel(member);
-		Video video = createAndSaveVideo(channel);
-		Question question = createAndSaveQuestion(video);
 
 		Member user = createAndSaveMember();
 
-		createAndSaveVideoReward(user, video);
-		createAndSaveQuestionReward(user, question);
+		Video video = createAndSaveVideo(channel);
+		createAndSaveReward(user, video);
+		Question question = createAndSaveQuestion(video);
+		createAndSaveReward(user, question);
+		Reply reply = createAndSaveReply(user, video);
+		createAndSaveReward(user, reply);
 
 		Page<RewardsResponse> page = memberService.getRewards(user.getMemberId(), 1, 10);
 
-		assertThat(page.getTotalElements()).isEqualTo(2);
+		assertThat(page.getTotalElements()).isEqualTo(3);
 		assertThat(page.getTotalPages()).isEqualTo(1);
 
 		Iterator<RewardsResponse> pageIterator = page.iterator();
 
+		assertThat(pageIterator.next().getRewardType()).isEqualTo(RewardType.REPLY);
 		assertThat(pageIterator.next().getRewardType()).isEqualTo(RewardType.QUIZ);
 		assertThat(pageIterator.next().getRewardType()).isEqualTo(RewardType.VIDEO);
+
+		assertThat(page.getContent()).isSortedAccordingTo(Comparator.comparing(RewardsResponse::getCreatedDate).reversed());
 	}
 
 	@Test

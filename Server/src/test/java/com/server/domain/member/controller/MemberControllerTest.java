@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
 import com.server.global.reponse.ApiPageResponse;
@@ -35,7 +36,6 @@ import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
-import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.OrderStatus;
@@ -107,31 +107,86 @@ public class MemberControllerTest extends ControllerTest {
 		//given
 		List<RewardsResponse> responses = List.of(
 			RewardsResponse.builder()
-				.questionId(1L)
-				.videoId(1L)
-				.rewardType(RewardType.QUIZ)
+				.rewardId(1L)
+				.rewardType(RewardType.VIDEO)
 				.rewardPoint(100)
+				.isCanceled(false)
 				.createdDate(LocalDateTime.now())
+				.modifiedDate(LocalDateTime.now())
 				.build(),
 			RewardsResponse.builder()
-				.videoId(298L)
-				.rewardType(RewardType.VIDEO)
-				.rewardPoint(10)
-				.createdDate(LocalDateTime.now())
-				.build(),
-			RewardsResponse.builder()
-				.videoId(114L)
-				.rewardType(RewardType.VIDEO)
-				.rewardPoint(300)
-				.createdDate(LocalDateTime.now())
-				.build(),
-			RewardsResponse.builder()
-				.questionId(1L)
-				.videoId(418L)
+				.rewardId(2L)
 				.rewardType(RewardType.QUIZ)
-				.rewardPoint(5)
+				.rewardPoint(200)
+				.isCanceled(true)
 				.createdDate(LocalDateTime.now())
+				.modifiedDate(LocalDateTime.now())
+				.build(),
+			RewardsResponse.builder()
+				.rewardId(3L)
+				.rewardType(RewardType.REPLY)
+				.rewardPoint(300)
+				.isCanceled(false)
+				.createdDate(LocalDateTime.now())
+				.modifiedDate(LocalDateTime.now())
+				.build(),
+			RewardsResponse.builder()
+				.rewardId(4L)
+				.rewardType(RewardType.VIDEO)
+				.rewardPoint(400)
+				.isCanceled(false)
+				.createdDate(LocalDateTime.now())
+				.modifiedDate(LocalDateTime.now())
+				.build(),
+			RewardsResponse.builder()
+				.rewardId(5L)
+				.rewardType(RewardType.REPLY)
+				.rewardPoint(500)
+				.isCanceled(true)
+				.createdDate(LocalDateTime.now())
+				.modifiedDate(LocalDateTime.now())
+				.build(),
+			RewardsResponse.builder()
+				.rewardId(6L)
+				.rewardType(RewardType.QUIZ)
+				.rewardPoint(600)
+				.isCanceled(false)
+				.createdDate(LocalDateTime.now())
+				.modifiedDate(LocalDateTime.now())
+				.build(),
+			RewardsResponse.builder()
+				.rewardId(7L)
+				.rewardType(RewardType.QUIZ)
+				.rewardPoint(700)
+				.isCanceled(true)
+				.createdDate(LocalDateTime.now())
+				.modifiedDate(LocalDateTime.now())
+				.build(),
+			RewardsResponse.builder()
+				.rewardId(8L)
+				.rewardType(RewardType.VIDEO)
+				.rewardPoint(800)
+				.isCanceled(false)
+				.createdDate(LocalDateTime.now())
+				.modifiedDate(LocalDateTime.now())
+				.build(),
+			RewardsResponse.builder()
+				.rewardId(9L)
+				.rewardType(RewardType.VIDEO)
+				.rewardPoint(900)
+				.isCanceled(false)
+				.createdDate(LocalDateTime.now())
+				.modifiedDate(LocalDateTime.now())
+				.build(),
+			RewardsResponse.builder()
+				.rewardId(10L)
+				.rewardType(RewardType.REPLY)
+				.rewardPoint(1000)
+				.isCanceled(true)
+				.createdDate(LocalDateTime.now())
+				.modifiedDate(LocalDateTime.now())
 				.build()
+
 		);
 
 		PageImpl<RewardsResponse> page = new PageImpl<>(responses);
@@ -162,12 +217,12 @@ public class MemberControllerTest extends ControllerTest {
 					),
 					pageResponseFields(
 						fieldWithPath("data[]").description("리워드 목록"),
-						fieldWithPath("data[].videoId").description("리워드를 획득한 비디오 ID"),
-						fieldWithPath("data[].questionId").description("리워드를 획득한 질문 ID").optional(),
-						fieldWithPath("data[].rewardType").description("리워드 타입"),
-						fieldWithPath("data[].rewardPoint").description("지급된 리워드"),
-						fieldWithPath("data[].isCanceled").description("리워드를 획득한 엔티티의 ID"),
-						fieldWithPath("data[].createdDate").description("리워드 지급 날짜")
+						fieldWithPath("data[].rewardId").description("리워드 ID"),
+						fieldWithPath("data[].rewardType").description("리워드 획득 타입"),
+						fieldWithPath("data[].rewardPoint").description("지급된 리워드 포인트"),
+						fieldWithPath("data[].canceled").description("리워드 취소 여부"),
+						fieldWithPath("data[].createdDate").description("리워드 지급일"),
+						fieldWithPath("data[].modifiedDate").description("리워드 변경일")
 					)
 				)
 			);
@@ -1118,15 +1173,7 @@ public class MemberControllerTest extends ControllerTest {
 	@DisplayName("리워드 목록 조회 Validation 테스트")
 	Collection<DynamicTest> getRewardsValidation() throws Exception {
 		//given
-		List<RewardsResponse> responses = List.of(
-			RewardsResponse.builder()
-				.questionId(1L)
-				.videoId(418L)
-				.rewardType(RewardType.QUIZ)
-				.rewardPoint(5)
-				.createdDate(LocalDateTime.now())
-				.build()
-		);
+		List<RewardsResponse> responses = List.of(RewardsResponse.builder().build());
 
 		PageImpl<RewardsResponse> pages = new PageImpl<>(responses);
 

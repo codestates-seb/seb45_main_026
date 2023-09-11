@@ -1,13 +1,9 @@
 package com.server.domain.member.service.dto.response;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 
-import com.server.domain.question.entity.Question;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.RewardType;
 
@@ -17,23 +13,23 @@ import lombok.Getter;
 @Getter
 @Builder
 public class RewardsResponse {
-	private Long videoId;
-	private Long questionId;
+	private Long rewardId;
 	private RewardType rewardType;
 	private Integer rewardPoint;
-	private Boolean isCanceled;
+	private boolean isCanceled;
 	private LocalDateTime createdDate;
+	private LocalDateTime modifiedDate;
 
 	public static Page<RewardsResponse> convert(Page<Reward> rewards) {
-		return rewards.map(reward -> new RewardsResponse(
-			reward.getVideo().getVideoId(),
-			Optional.ofNullable(reward.getQuestion())
-				.map(Question::getQuestionId)
-				.orElse(null),
-			reward.getRewardType(),
-			reward.getRewardPoint(),
-			reward.isCanceled(),
-			reward.getCreatedDate()
-		));
+		return rewards.map(
+			newReward -> RewardsResponse.builder()
+				.rewardId(newReward.getRewardId())
+				.rewardType(newReward.getRewardType())
+				.rewardPoint(newReward.getRewardPoint())
+				.isCanceled(newReward.isCanceled())
+				.createdDate(newReward.getCreatedDate())
+				.modifiedDate(newReward.getModifiedDate())
+				.build()
+		);
 	}
 }
