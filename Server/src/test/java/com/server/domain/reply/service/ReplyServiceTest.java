@@ -3,6 +3,7 @@ package com.server.domain.reply.service;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.order.entity.Order;
 import com.server.domain.reply.controller.convert.ReplySort;
 import com.server.domain.reply.dto.CreateReply;
 import com.server.domain.reply.dto.ReplyInfo;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -410,6 +412,7 @@ class ReplyServiceTest extends ServiceTest {
     @Test
     @DisplayName("비디오를 구매하지않은 사용자는 댓글을 남길 수 없다")
     void notPurchaseVideo() {
+        //given
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
         Video video = createAndSaveVideo(channel);
@@ -444,5 +447,41 @@ class ReplyServiceTest extends ServiceTest {
 
         List<Reply> replies = replyRepository.findAllByMemberIdAndVideoId(member.getMemberId(), video.getVideoId());
         assertThat(replies, empty());
+    }
+
+    @Test
+    @DisplayName("강의의 별점이 변경되었는지 확인한다")
+    void calculateStar() {
+        //given
+        Member member = createAndSaveMember();
+
+        Channel channel = createAndSaveChannel(member);
+
+        Video video = Video.builder()
+                .videoName("title")
+                .description("description")
+                .thumbnailFile("thumbnailFile")
+                .videoFile("videoFile")
+                .view(0)
+                .star(7.0F)
+                .price(1000)
+                .videoStatus(VideoStatus.CREATED)
+                .channel(member.getChannel())
+                .build();
+
+        Order order = Order.createOrder(member, List.of(video), 0);
+        order.completeOrder(LocalDateTime.now(), "paymentKey");
+
+        videoRepository.save(video);
+        orderRepository.save(order);
+
+        em.flush();
+        em.clear();
+
+        //when
+        replyService.createReply(member.getMemberId(), video.getVideoId(), new CreateReply("content", 7));
+
+        //then
+        assertThat(video.getStar()).isEqualTo(7f);
     }
 }

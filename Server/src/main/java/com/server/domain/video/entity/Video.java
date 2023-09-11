@@ -58,7 +58,7 @@ public class Video extends BaseEntity implements Rewardable {
     @JoinColumn(name = "channel_id")
     private Channel channel;
 
-    @OneToMany(mappedBy = "video")
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
     private List<Reply> replies = new ArrayList<>();
 
     @OneToMany(mappedBy = "video")
@@ -99,18 +99,10 @@ public class Video extends BaseEntity implements Rewardable {
         this.view++;
     }
 
-    public void calculateStar() {
-        if (this.replies != null && !this.replies.isEmpty()) {
-            double average = this.replies.stream()
-                    .filter(reply -> reply.getStar() != null) // Filter out replies with null stars
-                    .mapToDouble(Reply::getStar)
-                    .average()
-                    .orElse(0);
+    public void calculateStar(){
+        double average = this.replies.stream().mapToDouble(Reply::getStar).average().orElse(0);
 
-            this.star = (float) (Math.round(average * 10.0) / 10.0);
-        } else {
-            this.star = 0.0f; // Set a default value when there are no replies or all stars are null
-        }
+        this.star = (float) (Math.round(average * 10.0) / 10.0);
     }
 
     public void updateCategory(List<Category> categories) {
