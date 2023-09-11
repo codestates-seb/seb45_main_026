@@ -39,12 +39,12 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
     }
 
     @Override
-    public List<Video> findPurchasedVideosByMemberId(Long memberId) {
-        return queryFactory.selectFrom(video)
-                .join(video.orderVideos, orderVideo)
-                .join(orderVideo.order, order)
-                .where(order.member.memberId.eq(memberId)
-                        .and(orderVideo.orderStatus.in(OrderStatus.COMPLETED, OrderStatus.ORDERED))
+    public List<OrderVideo> findOrderedVideosByMemberId(Long memberId, List<Long> videoIds) {
+        return queryFactory.selectFrom(orderVideo)
+                .join(orderVideo.order, order).fetchJoin()
+                .where(order.member.memberId.eq(memberId),
+                        orderVideo.orderStatus.in(OrderStatus.COMPLETED, OrderStatus.ORDERED),
+                        orderVideo.video.videoId.in(videoIds)
                 ).fetch();
     }
 

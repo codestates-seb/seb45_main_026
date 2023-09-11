@@ -19,9 +19,8 @@ public class ReplyInfo {
     private Integer star;
     private MemberInfo member;
     private LocalDateTime createdDate;
-    public static ReplyInfo of(Reply reply) {
+    public static ReplyInfo of(Reply reply, String imageUrl) {
         Member loginMember = reply.getMember();
-        String imageUrl = reply.getMember().getImageFile();
 
         MemberInfo member = MemberInfo.builder()
                 .memberId(loginMember.getMemberId())

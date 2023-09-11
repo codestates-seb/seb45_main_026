@@ -17,10 +17,10 @@ import java.util.Optional;
 public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
     @Query("select r from Reply r where r.video.videoId = :videoId")
-    Page<ReplyInfo> findAllByVideoIdPaging(@Param("videoId") Long videoId, Pageable pageable);
+    Page<Reply> findAllByVideoIdPaging(@Param("videoId") Long videoId, Pageable pageable);
 
     @Query("select r from Reply r where r.video.videoId = :videoId and (:star is null or r.star >= :star)")
-    Page<ReplyInfo> findAllByVideoIdAndStarOrStarIsNull(@Param("videoId") Long videoId, @Param("star") Integer star, Pageable pageable);
+    Page<Reply> findAllByVideoIdAndStarOrStarIsNull(@Param("videoId") Long videoId, @Param("star") Integer star, Pageable pageable);
 
     @Query("select r from Reply r where r.member.memberId = :memberId and r.video.videoId = :videoId")
     List<Reply> findAllByMemberIdAndVideoId(@Param("memberId")Long memberId, @Param("videoId")Long videoId);
