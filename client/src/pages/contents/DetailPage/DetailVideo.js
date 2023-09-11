@@ -10,19 +10,23 @@ import {
 } from "../../../atoms/buttons/Buttons";
 import { setPrev } from "../../../redux/createSlice/VideoInfoSlice";
 import { useToken } from "../../../hooks/useToken";
-import tokens from '../../../styles/tokens.json';
-import { BodyTextTypo, Heading5Typo, SmallTextTypo } from "../../../atoms/typographys/Typographys";
+import tokens from "../../../styles/tokens.json";
+import {
+  BodyTextTypo,
+  Heading5Typo,
+  SmallTextTypo,
+} from "../../../atoms/typographys/Typographys";
 
 const globalTokens = tokens.global;
 
 const DetailVideo = () => {
-  const isDark = useSelector(state=>state.uiSetting.isDark);
-  const refreshToken = useToken();
-  const { videoId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const videoDatas = useSelector((state) => state.videoInfo.data);
+  const refreshToken = useToken();
+  const { videoId } = useParams();
   const myId = useSelector((state) => state.loginInfo.myid);
+  const isDark = useSelector((state) => state.uiSetting.isDark);
+  const videoDatas = useSelector((state) => state.videoInfo.data);
   const token = useSelector((state) => state.loginInfo.accessToken);
 
   const handleCartNav = () => {
@@ -38,7 +42,7 @@ const DetailVideo = () => {
         }
       })
       .catch((err) => {
-        if(err.response.data.message==='만료된 토큰입니다.') {
+        if (err.response.data.message === "만료된 토큰입니다.") {
           refreshToken();
         } else {
           console.log(err);
@@ -59,7 +63,9 @@ const DetailVideo = () => {
         ) : (
           <>
             강의를 듣고 싶다면?
-            <HeaderBtn  isDark={isDark} onClick={handleCartNav}>구매하러 가기 →</HeaderBtn>
+            <HeaderBtn isDark={isDark} onClick={handleCartNav}>
+              구매하러 가기 →
+            </HeaderBtn>
           </>
         )}
       </VideoHeader>
@@ -77,7 +83,7 @@ const DetailVideo = () => {
           <PrevBtn onClick={() => dispatch(setPrev(true))}>
             1분 미리보기
           </PrevBtn>
-          <PurchaseBtn>구매하러 가기</PurchaseBtn>
+          <PurchaseBtn onClick={handleCartNav}>구매하러 가기</PurchaseBtn>
         </VideoCover>
       )}
 
@@ -88,8 +94,12 @@ const DetailVideo = () => {
           <ProfileImg src={videoDatas.channel.imageUrl} alt="프로필 이미지" />
 
           <ProfileRight>
-            <ProfileName isDark={isDark}>{videoDatas.channel.channelName}</ProfileName>
-            <Subscribed isDark={isDark}>구독자 {videoDatas.channel.subscribes}명</Subscribed>
+            <ProfileName isDark={isDark}>
+              {videoDatas.channel.channelName}
+            </ProfileName>
+            <Subscribed isDark={isDark}>
+              구독자 {videoDatas.channel.subscribes}명
+            </Subscribed>
           </ProfileRight>
         </Profile>
 
@@ -111,7 +121,8 @@ export const VideoContainer = styled.section`
   padding: 50px 50px 30px 50px;
   margin-bottom: 20px;
   border-radius: ${globalTokens.RegularRadius.value}px;
-  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
+  background-color: ${(props) =>
+    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
 `;
 
 export const VideoCover = styled.div`
@@ -141,7 +152,8 @@ export const VideoHeader = styled.div`
   justify-content: end;
   align-items: center;
   width: 100%;
-  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;
 
 export const HeaderBtn = styled(NegativeTextButton)`
@@ -185,5 +197,6 @@ export const ProfileRight = styled.div``;
 export const ProfileName = styled(BodyTextTypo)``;
 
 export const Subscribed = styled(SmallTextTypo)`
-  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;

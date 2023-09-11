@@ -1,7 +1,7 @@
 import { styled } from "styled-components";
 import { useSelector } from "react-redux";
-import { BodyTextTypo } from '../../atoms/typographys/Typographys'
 import tokens from '../../styles/tokens.json';
+import { BodyTextTypo } from '../../atoms/typographys/Typographys'
 
 const globalTokens = tokens.global;
 

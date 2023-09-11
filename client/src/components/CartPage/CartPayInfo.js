@@ -1,22 +1,28 @@
 import { styled } from "styled-components";
 import { useSelector } from "react-redux";
 import { useState } from "react";
-import tokens from '../../styles/tokens.json';
-import { BodyTextTypo, SmallTextTypo } from "../../atoms/typographys/Typographys";
-import { BigButton, RegularButton } from '../../atoms/buttons/Buttons'
+import tokens from "../../styles/tokens.json";
+import {
+  BodyTextTypo,
+  SmallTextTypo,
+} from "../../atoms/typographys/Typographys";
 import { RegularInput } from "../../atoms/inputs/Inputs";
+import { RegularButton } from "../../atoms/buttons/Buttons";
+import PaymentBtn from "../../pages/contents/CartPage/TossPayment";
 
 const globalTokens = tokens.global;
 
+// 1,000 천 단위 (,) 추가하기
 export const priceToString = (price) => {
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
 const CartPayInfo = () => {
-  const isDark = useSelector(state=>state.uiSetting.isDark);
+  const isDark = useSelector((state) => state.uiSetting.isDark);
   const cartsData = useSelector((state) => state.cartSlice.data);
   const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
   const myCartInfo = useSelector((state) => state.cartSlice.myCartInfo);
+  const [isDiscount, setDiscount] = useState(0);
 
   const getTotal = () => {
     const cartsArr = cartsData.map((el) => el.videoId);
@@ -30,10 +36,12 @@ const CartPayInfo = () => {
   };
   const totalPrice = getTotal();
 
-  const [isDiscount, setDiscount] = useState(0);
-
   const handleChangeDiscount = (reward) => {
-    setDiscount(reward);
+    if (totalPrice > parseInt(reward)) {
+      setDiscount(reward);
+    } else {
+      setDiscount(totalPrice);
+    }
   };
 
   const handleBlurDiscount = (reward) => {
@@ -45,7 +53,7 @@ const CartPayInfo = () => {
 
     if (totalPrice < parseInt(reward)) {
       setDiscount(totalPrice);
-      return alert("선택하신 상품 금액을 넘어서 포인트를 사용할 수 없습니다.")
+      return alert("선택하신 상품 금액을 넘어서 포인트를 사용할 수 없습니다.");
     }
 
     if (reward > myCartInfo.reward) {
@@ -70,7 +78,7 @@ const CartPayInfo = () => {
           onBlur={(e) => handleBlurDiscount(e.target.value)}
         />
         <SubmitBtn
-         isDark={isDark}
+          isDark={isDark}
           onClick={(e) => {
             e.preventDefault();
             handleChangeDiscount(myCartInfo.reward);
@@ -90,10 +98,12 @@ const CartPayInfo = () => {
         </PriceInfo>
         <PriceInfo>
           <Amount isDark={isDark}>총 결제금액</Amount>
-          <Amount isDark={isDark}>{priceToString(totalPrice - isDiscount)}원</Amount>
+          <Amount isDark={isDark}>
+            {priceToString(totalPrice - isDiscount)}원
+          </Amount>
         </PriceInfo>
       </Payment>
-      <PayBtn isDark={isDark} onClick={(e) => e.preventDefault()}>결제하기</PayBtn>
+      <PaymentBtn isDiscount={isDiscount}/>
     </PayForm>
   );
 };
@@ -104,9 +114,12 @@ export const PayForm = styled.form`
   width: 100%;
   padding: 20px 20px;
   margin: 15px 0px;
-  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
   border-radius: 10px;
-  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
+  background-color: ${(props) =>
+    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
 
   display: flex;
   flex-direction: column;
@@ -126,7 +139,8 @@ export const PointLabel = styled(BodyTextTypo)`
 `;
 
 export const Point = styled(SmallTextTypo)`
-  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
   margin-right: 10px;
 `;
 
@@ -149,30 +163,15 @@ export const PriceInfo = styled.div`
   margin: 10px 0px;
 `;
 
-export const Selected = styled(BodyTextTypo)`
-`;
+export const Selected = styled(BodyTextTypo)``;
 
 export const Discount = styled(BodyTextTypo)`
-  color: ${props=>props.isDark?globalTokens.LightRed.value:globalTokens.MainRed.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightRed.value : globalTokens.MainRed.value};
 `;
 
 export const Amount = styled(BodyTextTypo)`
   font-weight: ${globalTokens.Bold.value};
-`;
-
-export const PayBtn = styled(BigButton)`
-  @media screen and (min-width: 1170px) {
-    max-width: 310px;
-  }
-  @media screen and (min-width: 0px) {
-    /* max-width: 310px; */
-  }
-  width: 100%;
-  height: 45px;
-  border-radius: 8px;
-  margin-top: 10px;
-  font-weight: 600;
-  font-size: 16px;
 `;
 
 export const SubmitBtn = styled(RegularButton)`
