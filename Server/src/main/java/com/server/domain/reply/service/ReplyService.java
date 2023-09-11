@@ -114,7 +114,6 @@ public class ReplyService {
                                       reply.getMember().getNickname()))
                 .createdDate(reply.getCreatedDate())
                 .build();
-
     }
 
     public void deleteReply(Long replyId, Long loginMemberId) {
@@ -127,11 +126,10 @@ public class ReplyService {
 
         Video video = reply.getVideo();
         replyRepository.deleteById(replyId);
-
-        video.calculateStar();
         videoRepository.save(video);
 
-
+        video.calculateStar();
+        //videoRepository.save(video);
     }
 
     private void existReplies(Long loginMemberId, Long videoId) {
