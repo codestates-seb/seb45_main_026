@@ -43,3 +43,7 @@ code {
 ::-webkit-scrollbar {
   width: 0px
 }
+.flicking-arrow-prev,
+.flicking-arrow-next {
+  color: red;
+}

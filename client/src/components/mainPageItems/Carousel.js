@@ -1,25 +1,49 @@
 import React from 'react';
-import Flicking, { MoveEvent, WillChangeEvent } from "@egjs/react-flicking";
 import { styled } from 'styled-components';
 import carousel1 from '../../assets/images/carousels/carousel1.png';
 import carousel2 from '../../assets/images/carousels/carousel2.png';
 import carousel3 from '../../assets/images/carousels/carousel3.png';
+import { AutoPlay } from "@egjs/flicking-plugins";
+import Flicking, { ViewportSlot, MoveEvent, WillChangeEvent, Viewport } from "@egjs/react-flicking";
+import { Arrow } from "@egjs/flicking-plugins";
+import "@egjs/flicking-plugins/dist/arrow.css";
+import carouselPrev from '../../assets/images/icons/arrow/carouselPrev.svg';
+import carouselNext from '../../assets/images/icons/arrow/carouselNext.svg';
 
 const CarouselContainer = styled.div`
-    height: 600px;
+    max-height: 450px;
 `
 const CarouselItemContainer = styled.div`
 `
 const CarouselImg = styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 95%;
+    height: 95%;
+    object-fit: contain;
+`
+const CarouselArrowButton = styled.span`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    &.flicking-arrow-prev {
+        color: red;
+    }
 `
 
 const Carousel = () => {
+    const plugins = [ new AutoPlay({ 
+        duration: 1500, 
+        animationDuration: 2000,
+        direction: "NEXT", 
+        stopOnHover: true }),
+        new Arrow({}),
+    ];
+
     return (
         <CarouselContainer>
             <Flicking
+                duration={2000}
                 viewportTag='div'
                 cameraTag='div'
                 cameraClass=""
@@ -29,7 +53,10 @@ const Carousel = () => {
                 onMove={(e) => {}}
                 onWillChange={(e) => {}}
                 horizontal={true}
-                circular= {true}>
+                circular= {true}
+                moveType='snap'
+                threshold={50}
+                plugins={plugins}>
                 <CarouselItemContainer>
                     <CarouselImg src={carousel1}/>
                 </CarouselItemContainer>
@@ -39,6 +66,10 @@ const Carousel = () => {
                 <CarouselItemContainer>
                     <CarouselImg src={carousel3}/>
                 </CarouselItemContainer>
+                <ViewportSlot>
+                    <CarouselArrowButton className="flicking-arrow-prev is-thin"></CarouselArrowButton>
+                    <CarouselArrowButton className="flicking-arrow-next is-thin"></CarouselArrowButton>
+                </ViewportSlot>
             </Flicking>
         </CarouselContainer>
     );
