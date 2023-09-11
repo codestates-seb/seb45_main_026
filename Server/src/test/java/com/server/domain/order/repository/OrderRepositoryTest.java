@@ -131,6 +131,9 @@ class OrderRepositoryTest extends RepositoryTest {
 
         Order order = createAndSaveOrderComplete(member, List.of(video1, video2, video3));// 결제한 주문
 
+        em.flush();
+        em.clear();
+
         Watch watch1 = Watch.createWatch(member, video1); //video1 시청
         Watch watch2 = Watch.createWatch(member, video2); //video2 시청
         em.persist(watch1);
