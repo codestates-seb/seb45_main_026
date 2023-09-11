@@ -78,7 +78,7 @@ export const CartItems = styled.div`
   min-height: 750px;
   margin: 20px 0px;
   padding: 0px 10px;
-  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+  /* border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value}; */
   border-radius: 8px;
   position: relative;
   background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
@@ -115,9 +115,7 @@ export const Checklabel = styled(BodyTextTypo)`
 
 export const RemoveBtn = styled(NegativeTextButton)`
   border-radius: 8px;
-  width: 100px;
   height: 35px;
-  font-size: 14px;
 `;
 
 export const CartLists = styled.ul`

@@ -8,14 +8,15 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useToken } from "../../hooks/useToken";
+import { BodyTextTypo, Heading5Typo } from "../../atoms/typographys/Typographys";
 
 const globalTokens = tokens.global;
 
 const ItemBody = styled.div`
-    width: 100%;
+    width: 95%;
     padding: ${globalTokens.Spacing28.value}px;
     gap: ${globalTokens.Spacing8.value}px;
-    border: 1px lightgray solid;
+    border: 1px ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value} solid;
     border-radius: ${globalTokens.RegularRadius.value}px;
     display: flex;
     flex-direction: column;
@@ -53,12 +54,9 @@ const TextInfor = styled.div`
     flex-direction: column;
     justify-content: center;
 `
-const AuthorName = styled.div`
-    font-size: ${globalTokens.Heading5.value}px;
-    font-weight: ${globalTokens.Bold.value};
+const AuthorName = styled(Heading5Typo)`
 `
-const Subscribers = styled.div`
-    font-size: ${globalTokens.BodyText.value}px;
+const Subscribers = styled(BodyTextTypo)`
 `
 const ContentContainer = styled.div`
     width: 100%;
@@ -73,11 +71,10 @@ const TopContainer = styled.div`
     flex-direction: row;
     justify-content: space-between;
 `
-const LectureCount = styled.div`
-    font-size: ${globalTokens.BodyText.value}px;
+const LectureCount = styled(BodyTextTypo)`
     display: flex;
 `
-const CountNum = styled.div`
+const CountNum = styled(BodyTextTypo)`
     font-weight: ${globalTokens.Bold.value};
 `
 const AccordionButton = styled.button`
@@ -85,9 +82,8 @@ const AccordionButton = styled.button`
     height: 20px;
 `
 const AccordionArrow = styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 35px;
+    height: 35px;
 `
 const HorizonItemContainer = styled.ul`
     width: 100%;
@@ -103,6 +99,7 @@ const HorizonItemContainer = styled.ul`
 
 
 export default function PurchasedItem({channel,setChannelList}) {
+    const isDark = useSelector(state=>state.uiSetting.isDark);
     const refreshToken = useToken();
     const navigate=useNavigate();
     const [isOpen, setIsOpen] = useState(false)
@@ -144,19 +141,19 @@ export default function PurchasedItem({channel,setChannelList}) {
           });
     }
     return (
-      <ItemBody>
-        <ProfileContainer onClick={()=>navigate(`/channels/${channel.memberId}`)} >
+      <ItemBody isDark={isDark}>
+        <ProfileContainer isDark={isDark} onClick={()=>navigate(`/channels/${channel.memberId}`)} >
           <ImgContainer>
             <ProfileImg src={channel.imageUrl} />
           </ImgContainer>
           <TextInfor>
-            <AuthorName>{channel.channelName}</AuthorName>
-            <Subscribers>구독자 {channel.subscribers} 명</Subscribers>
+            <AuthorName isDark={isDark}>{channel.channelName}</AuthorName>
+            <Subscribers isDark={isDark}>구독자 {channel.subscribers} 명</Subscribers>
           </TextInfor>
         </ProfileContainer>
         <TopContainer>
-          <LectureCount>
-            <CountNum>{channel.videoCount}</CountNum>개의 강의
+          <LectureCount isDark={isDark}>
+            <CountNum isDark={isDark}>{channel.videoCount}</CountNum>개의 강의
           </LectureCount>
           <AccordionButton onClick={() => arccordionHandler(channel.memberId)}>
             <AccordionArrow src={isOpen ? arrowUp : arrowDown} />
