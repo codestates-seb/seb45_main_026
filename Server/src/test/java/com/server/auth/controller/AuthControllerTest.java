@@ -624,11 +624,11 @@ public class AuthControllerTest {
 				}
 			),
 			DynamicTest.dynamicTest(
-				"이메일 형식이 잘못된 경우",
+				"이메일이 null인 경우",
 				() -> {
 					//given
 					AuthApiRequest.Confirm confirm = new AuthApiRequest.Confirm(
-						"confirmemail.com",
+						null,
 						"code1234"
 					);
 
@@ -645,8 +645,34 @@ public class AuthControllerTest {
 						.andDo(print())
 						.andExpect(status().isBadRequest())
 						.andExpect(jsonPath("$.data[0].field").value("email"))
-						.andExpect(jsonPath("$.data[0].value").value("confirmemail.com"))
-						.andExpect(jsonPath("$.data[0].reason").value("이메일 형식을 맞춰주세요. (example@email.com)"));
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("입력값을 다시 확인해주세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"코드가 null인 경우",
+				() -> {
+					//given
+					AuthApiRequest.Confirm confirm = new AuthApiRequest.Confirm(
+						"confirm@email.com",
+						null
+					);
+
+					String content = objectMapper.writeValueAsString(confirm);
+
+					//when
+					ResultActions signup = mockMvc.perform(
+						post("/auth/signup/confirm")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					signup
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("code"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("코드를 다시 확인해주세요."));
 				}
 			)
 		);
@@ -692,6 +718,282 @@ public class AuthControllerTest {
 			);
 	}
 
+	@TestFactory
+	@DisplayName("회원가입 Validation 테스트")
+	Collection<DynamicTest> signupValidation() throws Exception {
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"이메일 형식이 잘못된 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						"codingjoa.com",
+						"asdf1234!",
+						"당근"
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("email"))
+						.andExpect(jsonPath("$.data[0].value").value("codingjoa.com"))
+						.andExpect(jsonPath("$.data[0].reason").value("이메일 형식을 맞춰주세요. (example@email.com)"));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"이메일이 null인 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						null,
+						"asdf1234!",
+						"당근"
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("email"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("입력값을 다시 확인해주세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"패스워드 형식이 잘못된 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						"coding@joa.com",
+						"asdf12345",
+						"당근"
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("password"))
+						.andExpect(jsonPath("$.data[0].value").value("asdf12345"))
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"패스워드의 길이가 8글자 이하인 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						"coding@joa.com",
+						"asdf123!",
+						"당근"
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("password"))
+						.andExpect(jsonPath("$.data[0].value").value("asdf123!"))
+						.andExpect(jsonPath("$.data[0].reason").value("허용된 글자 수는 9자에서 20자 입니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"패스워드의 길이가 21글자 이상인 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						"coding@joa.com",
+						"aaaaaaaaaaaaaaa12345!",
+						"당근"
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("password"))
+						.andExpect(jsonPath("$.data[0].value").value("aaaaaaaaaaaaaaa12345!"))
+						.andExpect(jsonPath("$.data[0].reason").value("허용된 글자 수는 9자에서 20자 입니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"패스워드가 null인 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						"coding@joa.com",
+						null,
+						"당근"
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("password"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"닉네임이 null인 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						"coding@joa.com",
+						"qwer1234!",
+						null
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("nickname"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("한글/숫자/영어를 선택하여 사용한 1 ~ 20자를 입력하세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"닉네임의 길이가 1글자 미만인 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						"coding@joa.com",
+						"qwer1234!",
+						""
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("nickname"))
+						.andExpect(jsonPath("$.data[0].value").value(""));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"닉네임의 길이가 21글자 이상인 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						"coding@joa.com",
+						"qwer1234!",
+						"이사이트의닉네임은이십글자까지만가능합니다"
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("nickname"))
+						.andExpect(jsonPath("$.data[0].value").value("이사이트의닉네임은이십글자까지만가능합니다"));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"닉네임의 형식이 잘못된 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						"coding@joa.com",
+						"qwer1234!",
+						"가!나@다$라%마^바&"
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("nickname"))
+						.andExpect(jsonPath("$.data[0].value").value("가!나@다$라%마^바&"))
+						.andExpect(jsonPath("$.data[0].reason").value("한글/숫자/영어를 선택하여 사용한 1 ~ 20자를 입력하세요."));
+				}
+			)
+		);
+	}
+
 	@Test
 	@DisplayName("패스워드 초기화")
 	void updatePassword() throws Exception {
@@ -729,6 +1031,174 @@ public class AuthControllerTest {
 					)
 				)
 			);
+	}
+
+	@TestFactory
+	@DisplayName("패스워드 초기화 Validation 테스트")
+	Collection<DynamicTest> updatePasswordValidation() throws Exception {
+
+		return List.of(
+			DynamicTest.dynamicTest(
+				"이메일 형식이 잘못된 경우",
+				() -> {
+					//given
+					AuthApiRequest.Reset reset = new AuthApiRequest.Reset(
+						"codingjoa.com",
+						"asdf1234!"
+					);
+
+					String content = objectMapper.writeValueAsString(reset);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/auth/password")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("email"))
+						.andExpect(jsonPath("$.data[0].value").value("codingjoa.com"))
+						.andExpect(jsonPath("$.data[0].reason").value("이메일 형식을 맞춰주세요. (example@email.com)"));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"이메일이 null인 경우",
+				() -> {
+					//given
+					AuthApiRequest.Reset reset = new AuthApiRequest.Reset(
+						null,
+						"asdf1234!"
+					);
+
+					String content = objectMapper.writeValueAsString(reset);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch("/auth/password")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("email"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("입력값을 다시 확인해주세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"패스워드 형식이 잘못된 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						"coding@joa.com",
+						"asdf12345",
+						"당근"
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("password"))
+						.andExpect(jsonPath("$.data[0].value").value("asdf12345"))
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"패스워드의 길이가 8글자 이하인 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						"coding@joa.com",
+						"asdf123!",
+						"당근"
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("password"))
+						.andExpect(jsonPath("$.data[0].value").value("asdf123!"))
+						.andExpect(jsonPath("$.data[0].reason").value("허용된 글자 수는 9자에서 20자 입니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"패스워드의 길이가 21글자 이상인 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						"coding@joa.com",
+						"aaaaaaaaaaaaaaa12345!",
+						"당근"
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("password"))
+						.andExpect(jsonPath("$.data[0].value").value("aaaaaaaaaaaaaaa12345!"))
+						.andExpect(jsonPath("$.data[0].reason").value("허용된 글자 수는 9자에서 20자 입니다."));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"패스워드가 null인 경우",
+				() -> {
+					//given
+					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+						"coding@joa.com",
+						null,
+						"당근"
+					);
+
+					String content = objectMapper.writeValueAsString(signUp);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						post("/auth/signup")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("password"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
+				}
+			)
+		);
 	}
 
 	private Member createMember(String email, String password) {
