@@ -276,7 +276,7 @@ public abstract class ServiceTest {
     protected Reply createAndSaveReply(Member member, Video video) {
         Reply reply = Reply.builder()
                 .content("content")
-                .star(1)
+                .star(0)
                 .member(member)
                 .video(video)
                 .build();

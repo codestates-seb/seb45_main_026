@@ -46,21 +46,23 @@ public class ReplyService {
 
     @Transactional(readOnly = true)
     public Page<ReplyInfo> getReplies(Long videoId, int page, int size, ReplySort replySort, Integer star) {
-        Sort sort;
 
-        if (replySort == ReplySort.STAR) {
-            sort = Sort.by(Sort.Direction.DESC, "star").and(Sort.by(Sort.Direction.DESC, "createdDate"));
-        } else {
-            sort = Sort.by(Sort.Direction.DESC, "createdDate");
-        }
+       Sort sort = (replySort == ReplySort.STAR)
+               ? Sort.by(Sort.Direction.DESC, "star", "createdDate")
+               : Sort.by(Sort.Direction.DESC, "createdDate");
 
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
-        if (star != null) { //(별점 필터링 o)
-            return replyRepository.findAllByVideoIdAndStarOrStarIsNull(videoId, star, pageRequest);
-        } else { //(별점 필터링 x)
-            return replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
-        }
+        Page<Reply> replies = (star != null)
+                ? replyRepository.findAllByVideoIdAndStarOrStarIsNull(videoId, star, pageRequest)
+                : replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
+
+        Page<ReplyInfo> replyInfoPage = replies.map(reply -> {
+            String imageUrl = awsService.getFileUrl(reply.getMember().getMemberId(), reply.getMember().getImageFile(), FileType.PROFILE_IMAGE);
+            return ReplyInfo.of(reply, imageUrl);
+        });
+
+        return replyInfoPage;
     }
 
     public Long createReply(Long loginMemberId, Long videoId, CreateReply reply) {
@@ -72,15 +74,14 @@ public class ReplyService {
         existReplies(loginMemberId, videoId);
         evaluateStar(reply.getStar());
 
-        String content = reply.getContent();
-        Integer star = reply.getStar();
+        Reply newReply = Reply.createReply(findLoginMember, video, reply);
 
-        Reply newReply = Reply.builder()
-                .content(content)
-            		.star(star)
-            		.build();
+        replyRepository.save(newReply);
 
-        return replyRepository.save(newReply).getReplyId();
+        video.calculateStar();
+        videoRepository.save(video);
+
+        return newReply.getReplyId();
     }
 
     public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi request) {
@@ -92,6 +93,11 @@ public class ReplyService {
             }
 
         reply.updateReply(request.getContent(), request.getStar());
+
+        replyRepository.save(reply);
+
+        reply.getVideo().calculateStar();
+        videoRepository.save(reply.getVideo());
     }
 
     @Transactional(readOnly = true)
@@ -104,10 +110,8 @@ public class ReplyService {
                 .content(reply.getContent())
                 .star(reply.getStar())
                 .member(MemberInfo.of(reply.getMember().getMemberId(),
-                        reply.getMember().getNickname(),
-                        awsService.getFileUrl(reply.getMember().getMemberId(),
-                        reply.getMember().getImageFile(),
-                       FileType.PROFILE_IMAGE)))
+                                      awsService.getFileUrl(reply.getMember().getMemberId(), reply.getMember().getImageFile(), FileType.PROFILE_IMAGE),
+                                      reply.getMember().getNickname()))
                 .createdDate(reply.getCreatedDate())
                 .build();
     }
@@ -120,7 +124,11 @@ public class ReplyService {
             throw new MemberAccessDeniedException();
         }
 
+        Video video = reply.getVideo();
         replyRepository.deleteById(replyId);
+        videoRepository.save(video);
+
+        video.calculateStar();
     }
 
     private void existReplies(Long loginMemberId, Long videoId) {
@@ -130,7 +138,7 @@ public class ReplyService {
         replyRepository.findAllByMemberIdAndVideoId(loginMemberId, videoId);
     }
 
-    private void validateReply(Long loginMemberId, Video video, CreateReply request) {
+    private void validateReply(Long loginMemberId, Video video, CreateReply reply) {
         Boolean isPurchased = memberRepository.checkMemberPurchaseVideo(loginMemberId, video.getVideoId());
         if (!isPurchased) {
             throw new VideoNotPurchasedException();
@@ -150,5 +158,6 @@ public class ReplyService {
     private Member findMember(Long memberId) {
         return memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
     }
+
 }
 

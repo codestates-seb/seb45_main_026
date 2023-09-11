@@ -46,6 +46,8 @@ public class Reply extends BaseEntity implements Rewardable {
     }
 
 
+
+
     public void updateReply(String content, Integer star) {
         this.content = content == null ? this.content : content;
         this.star = star == null ? this.star : star;
