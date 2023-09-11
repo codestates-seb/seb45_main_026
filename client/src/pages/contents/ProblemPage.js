@@ -21,8 +21,8 @@ const ProblemPage = () => {
   const problemsData = useSelector((state) => state.problemSlice.data);
   const filtered = problemsData.filter((el, idx) => idx + 1 === setting.isPage);
 
-  useEffect(() => {
-    axios
+  const getProblems = () => {
+    return axios
       .get(`https://api.itprometheus.net/videos/${videoId}/questions`, {
         headers: { Authorization: token.authorization },
       })
@@ -32,11 +32,15 @@ const ProblemPage = () => {
       })
       .catch((err) => {
         if (err.response.data.message === "만료된 토큰입니다.") {
-          refreshToken();
+          refreshToken(() => getProblems());
         } else {
           console.log(err);
         }
       });
+  };
+
+  useEffect(() => {
+    getProblems();
   }, []);
 
   return (

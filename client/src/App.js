@@ -31,6 +31,7 @@ import { AlertModal } from './atoms/modal/Modal';
 import ProblemUploadPage from "./pages/contents/ProblemUploadPage";
 import { useLogout } from "./hooks/useLogout";
 import { useToken } from "./hooks/useToken";
+import Loading from "./atoms/loading/Loading";
 
 function App() {
   const dispatch = useDispatch();
@@ -99,6 +100,7 @@ function App() {
         <Route path="/channellist" element={<ChannelListPage />} />
       </Routes>
       <Footer />
+      <Loading />
     </BrowserRouter>
   );
 }
