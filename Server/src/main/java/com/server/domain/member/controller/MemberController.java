@@ -21,13 +21,12 @@ import com.server.domain.member.controller.dto.MemberApiRequest;
 import com.server.domain.member.controller.dto.PlaylistsSort;
 import com.server.domain.member.service.MemberService;
 import com.server.domain.member.service.dto.response.CartsResponse;
-import com.server.domain.member.service.dto.response.NewRewardsResponse;
+import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
-import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.global.annotation.LoginId;
@@ -58,12 +57,11 @@ public class MemberController {
 	}
 
 	@GetMapping("/rewards")
-	public ResponseEntity<ApiPageResponse<NewRewardsResponse>> getRewards(@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
 																			@RequestParam(value = "size", defaultValue = "16") @Positive(message = "{validation.positive}") int size,
 																			@LoginId Long loginId) {
 
-		// Page<RewardsResponse> responses = memberService.getRewards(loginId, page, size);
-		Page<NewRewardsResponse> responses = memberService.getNewRewards(loginId, page, size);
+		Page<RewardsResponse> responses = memberService.getRewards(loginId, page, size);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}

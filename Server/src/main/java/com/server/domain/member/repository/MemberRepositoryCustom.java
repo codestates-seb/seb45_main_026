@@ -38,8 +38,7 @@ public interface MemberRepositoryCustom {
 
     Page<Video>  findPlaylistsOrderBySort(Long memberId, Pageable pageable, String sort);
 
-    Page<Reward> findRewardsByMemberId(Long memberId, Pageable pageable);
-
     Page<Tuple> findPlaylistGroupByChannelName(Long memberId, Pageable pageable);
+
     Page<Video> findPlaylistChannelDetails(Long loginId, Long memberId);
 }
