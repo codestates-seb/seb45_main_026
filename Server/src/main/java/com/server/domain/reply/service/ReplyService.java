@@ -129,7 +129,6 @@ public class ReplyService {
         videoRepository.save(video);
 
         video.calculateStar();
-        //videoRepository.save(video);
     }
 
     private void existReplies(Long loginMemberId, Long videoId) {
