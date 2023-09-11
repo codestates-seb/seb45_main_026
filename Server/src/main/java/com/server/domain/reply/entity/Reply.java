@@ -35,7 +35,7 @@ public class Reply extends BaseEntity implements Rewardable {
     @JoinColumn(name = "video_id")
     private Video video;
 
-    public static Reply createReply(Member member, Video video, CreateReply createReply) {
+    public static Reply createComment(Member member, Video video, CreateReply createReply) {
 
         return Reply.builder()
                 .content(createReply.getContent())
@@ -44,8 +44,6 @@ public class Reply extends BaseEntity implements Rewardable {
                 .video(video)
                 .build();
     }
-
-
 
 
     public void updateReply(String content, Integer star) {
