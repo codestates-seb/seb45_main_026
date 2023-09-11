@@ -25,6 +25,7 @@ const NoticeTextarea = styled.textarea`
 const SubmitButton = styled.button`
     width: 60px;
     height: 40px;
+    background-color: white;
     border: 1px black solid;
     border-radius: ${globalTokens.RegularRadius.value}px;
 `

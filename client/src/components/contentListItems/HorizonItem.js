@@ -1,11 +1,11 @@
 import React from "react";
 import tokens from "../../styles/tokens.json";
 import { styled } from "styled-components";
-import yellowStar from "../../assets/images/icons/star/starYellow.svg"
 import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { BodyTextTypo, Heading5Typo, SmallTextTypo } from "../../atoms/typographys/Typographys";
+import Stars from "./Stars";
 
 const globalTokens = tokens.global;
 
@@ -82,9 +82,8 @@ const InforContainerRight = styled.div`
     height: 70px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: end;
-    gap: ${globalTokens.Spacing12.value}px;
 `
 const AuthorContainer = styled.div`
     height: 50px;
@@ -128,20 +127,22 @@ const CreatedAt = styled(SmallTextTypo)`
     height: 20px;
     font-size: ${globalTokens.SmallText.value}px;
 `
-const StarImage = styled.img`
-    height: 30px;
-    width: 30px;
-`
 const ScoreContainer = styled.div`
     height: 30px;
     display: flex;
     flex-direction: row;
     align-items: center;
+    gap: ${globalTokens.Spacing4.value}px;
 `
 const ScoreText = styled(SmallTextTypo)`
     font-size: ${globalTokens.BodyText.value}px;
     padding-top: ${globalTokens.Spacing4.value}px;
     height: 30px;
+`
+const StarContainer = styled.div`
+  height: 24px;
+  width: 120px;
+  position: relative;
 `
 const PriceText = styled(Heading5Typo)`
     font-size: ${globalTokens.Heading5.value}px;
@@ -187,13 +188,11 @@ export default function HorizonItem({lecture, channel}) {
             <InforContainerRight>
               <ScoreContainer>
                 <ScoreText isDark={isDark}>{star}</ScoreText>
-                <StarImage src={yellowStar} />
-                <StarImage src={yellowStar} />
-                <StarImage src={yellowStar} />
-                <StarImage src={yellowStar} />
-                <StarImage src={yellowStar} />
+                <StarContainer>
+                  <Stars score={star} />
+                </StarContainer>
               </ScoreContainer>
-              {isPurchased ? <PriceText isDark={isDark}>구매됨</PriceText> :isPurchased===false?<PriceText isDark={isDark}>{price}원</PriceText>:<></>}
+              {isPurchased ? <PriceText isDark={isDark}>구매됨</PriceText> :isPurchased===false?<PriceText isDark={isDark}>{price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원</PriceText>:<></>}
             </InforContainerRight>
           </InforContainer>
         </ItemInfors>
