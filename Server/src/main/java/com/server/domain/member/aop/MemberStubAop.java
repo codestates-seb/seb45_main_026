@@ -49,42 +49,6 @@ public class MemberStubAop {
 		return ResponseEntity.ok(ApiSingleResponse.ok(profileResponse, "프로필 조회 성공"));
 	}
 
-	@Around("execution(* com.server.domain.member.controller.MemberController.getRewards(..))")
-	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(ProceedingJoinPoint joinPoint) {
-		List<RewardsResponse> responses = List.of(
-			RewardsResponse.builder()
-				.questionId(1L)
-				.videoId(1L)
-				.rewardType(RewardType.QUIZ)
-				.rewardPoint(100)
-				.createdDate(LocalDateTime.now())
-				.build(),
-			RewardsResponse.builder()
-				.videoId(298L)
-				.rewardType(RewardType.VIDEO)
-				.rewardPoint(10)
-				.createdDate(LocalDateTime.now())
-				.build(),
-			RewardsResponse.builder()
-				.videoId(114L)
-				.rewardType(RewardType.VIDEO)
-				.rewardPoint(300)
-				.createdDate(LocalDateTime.now())
-				.build(),
-			RewardsResponse.builder()
-				.questionId(1L)
-				.videoId(418L)
-				.rewardType(RewardType.QUIZ)
-				.rewardPoint(5)
-				.createdDate(LocalDateTime.now())
-				.build()
-		);
-
-		PageImpl<RewardsResponse> page = new PageImpl<>(responses);
-
-		return ResponseEntity.ok(ApiPageResponse.ok(page));
-	}
-
 	@Around("execution(* com.server.domain.member.controller.MemberController.getSubscribes(..))")
 	public ResponseEntity<ApiPageResponse<SubscribesResponse>> getSubscribes(ProceedingJoinPoint joinPoint) {
 		List<SubscribesResponse> responses = List.of(

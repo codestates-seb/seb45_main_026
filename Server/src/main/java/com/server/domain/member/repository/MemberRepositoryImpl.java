@@ -1,7 +1,26 @@
 package com.server.domain.member.repository;
 
+import static com.server.domain.cart.entity.QCart.*;
+import static com.server.domain.channel.entity.QChannel.*;
+import static com.server.domain.member.entity.QMember.*;
+import static com.server.domain.order.entity.QOrder.*;
+import static com.server.domain.order.entity.QOrderVideo.*;
+import static com.server.domain.subscribe.entity.QSubscribe.*;
+import static com.server.domain.video.entity.QVideo.*;
+import static com.server.domain.watch.entity.QWatch.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityManager;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -14,32 +33,9 @@ import com.server.domain.member.repository.dto.MemberVideoData;
 import com.server.domain.member.repository.dto.QMemberVideoData;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
-import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.QVideo;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
-
-import javax.persistence.EntityManager;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.server.domain.cart.entity.QCart.*;
-import static com.server.domain.channel.entity.QChannel.channel;
-import static com.server.domain.member.entity.QMember.*;
-import static com.server.domain.order.entity.QOrder.*;
-import static com.server.domain.order.entity.QOrderVideo.*;
-import static com.server.domain.question.entity.QQuestion.*;
-import static com.server.domain.reward.entity.QReward.*;
-import static com.server.domain.subscribe.entity.QSubscribe.*;
-import static com.server.domain.video.entity.QVideo.*;
-import static com.server.domain.watch.entity.QWatch.*;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
@@ -273,26 +269,6 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();
-
-        return new PageImpl<>(results, pageable, totalCount);
-    }
-
-    public Page<Reward> findRewardsByMemberId(Long memberId, Pageable pageable) {
-
-        JPAQuery<Reward> query = queryFactory
-            .selectDistinct(reward)
-            .from(reward)
-            .leftJoin(reward.video, video).fetchJoin()
-            .leftJoin(reward.question, question).fetchJoin()
-            .where(reward.member.memberId.eq(memberId))
-            .orderBy(reward.createdDate.desc());
-
-        List<Reward> results = query
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
-
-        long totalCount = query.fetchCount();
 
         return new PageImpl<>(results, pageable, totalCount);
     }

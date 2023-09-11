@@ -18,11 +18,9 @@ import com.server.domain.question.entity.Question;
 import com.server.domain.question.repository.QuestionRepository;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
-import com.server.domain.reward.entity.NewReward;
 import com.server.domain.reward.entity.Reward;
-import com.server.domain.reward.entity.RewardType;
 import com.server.domain.reward.entity.Rewardable;
-import com.server.domain.reward.repository.NewRewardRepository;
+import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.reward.service.RewardService;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.subscribe.repository.SubscribeRepository;
@@ -34,7 +32,6 @@ import com.server.domain.videoCategory.entity.VideoCategoryRepository;
 import com.server.domain.watch.repository.WatchRepository;
 import com.server.module.email.service.MailService;
 import com.server.module.redis.service.RedisService;
-
 import com.server.module.s3.service.AwsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -67,7 +64,7 @@ public abstract class ServiceTest {
     @Autowired protected ReplyRepository replyRepository;
     @Autowired protected AnnouncementRepository announcementRepository;
     @Autowired protected CartRepository cartRepository;
-    @Autowired protected NewRewardRepository newRewardRepository;
+    @Autowired protected RewardRepository rewardRepository;
     @Autowired protected EntityManager em;
     @Autowired private RewardService rewardService;
 
@@ -118,6 +115,14 @@ public abstract class ServiceTest {
 
     protected Channel createAndSaveChannelWithName(Member member, String channelName) {
         Channel channel = Channel.createChannel(channelName);
+        channel.setMember(member);
+        channelRepository.save(channel);
+
+        return channel;
+    }
+
+    protected Channel createAndSaveChannelWithSubscriber(Member member, int subscriber) {
+        Channel channel = Channel.builder().channelName("channelName").subscribers(subscriber).build();
         channel.setMember(member);
         channelRepository.save(channel);
 
@@ -281,29 +286,22 @@ public abstract class ServiceTest {
         return reply;
     }
 
-    protected Reward createAndSaveVideoReward(Member member, Video video) {
+    protected Reply createAndSaveReply5Star(Member member, Video video) {
+        Reply reply = Reply.builder()
+            .content("content")
+            .star(5)
+            .member(member)
+            .video(video)
+            .build();
 
-        Reward reward = Reward.createReward(RewardType.VIDEO,
-                video.getRewardPoint(),
-                member, video);
+        replyRepository.save(reply);
 
-        em.persist(reward);
-
-        return reward;
+        return reply;
     }
 
-    protected Reward createAndSaveQuestionReward(Member member, Question question) {
+    protected Reward createAndSaveReward(Member member, Rewardable rewardable) {
 
-        Reward reward = Reward.createReward(RewardType.QUIZ, question.getRewardPoint(), member, question);
-
-        em.persist(reward);
-
-        return reward;
-    }
-
-    protected NewReward createAndSaveReward(Member member, Rewardable rewardable) {
-
-        NewReward reward = NewReward.createReward(rewardable.getRewardPoint(), member, rewardable);
+        Reward reward = Reward.createReward(rewardable.getRewardPoint(), member, rewardable);
 
         em.persist(reward);
 

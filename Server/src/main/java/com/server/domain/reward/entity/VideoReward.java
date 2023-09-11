@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("VIDEO")
-public class VideoReward extends NewReward {
+public class VideoReward extends Reward {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "video_id")

@@ -63,7 +63,7 @@ public class AuthService {
 		checkEmailCertify(request.getEmail());
 
 		Member member = checkExistMember(request.getEmail());
-		member.setPassword(passwordEncoder.encode(request.getPassword()));
+		member.updatePassword(passwordEncoder.encode(request.getPassword()));
 	}
 
 	private Member checkExistMember(String email) {
