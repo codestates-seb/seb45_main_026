@@ -11,7 +11,7 @@ public interface OrderRepositoryCustom {
 
     Long deleteCartByMemberAndOrderId(Long memberId, String orderId);
 
-    List<Video> findPurchasedVideosByMemberId(Long memberId);
+    List<OrderVideo> findOrderedVideosByMemberId(Long memberId, List<Long> videoIds);
 
     Optional<Order> findByIdWithVideos(Long memberId, String orderId);
 
