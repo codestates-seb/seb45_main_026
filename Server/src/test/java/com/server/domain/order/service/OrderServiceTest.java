@@ -149,7 +149,7 @@ class OrderServiceTest extends ServiceTest {
     }
 
     @Test
-    @DisplayName("이미 주문한 video Id 로 요청하면 OrderExistException 이 발생한다.")
+    @DisplayName("이미 주문한 video Id 로 요청하면 해당 주문은 cancel 이 되고 새로운 주문이 생성된다.")
     void createOrderOrderExistExceptionORDERED() {
         //given
         Member member = createAndSaveMember();
@@ -158,16 +158,30 @@ class OrderServiceTest extends ServiceTest {
         Video video1 = createAndSaveVideo(channel);
         Video video2 = createAndSaveVideo(channel);
 
-        createAndSaveOrder(member, List.of(video2), 0); // 2번 비디오는 구매 대기 중
+        Order order = createAndSaveOrder(member, List.of(video2), 0);// 2번 비디오는 구매 대기 중
 
         OrderCreateServiceRequest request = OrderCreateServiceRequest.builder()
                 .videoIds(List.of(video1.getVideoId(), video2.getVideoId()))
                 .reward(0)
                 .build();
 
-        //when & then
-        assertThatThrownBy(() -> orderService.createOrder(member.getMemberId(), request))
-                .isInstanceOf(OrderExistException.class);
+        //when
+        OrderResponse response = orderService.createOrder(member.getMemberId(), request);
+
+        //then
+        Order newOrder = orderRepository.findById(response.getOrderId()).orElseThrow();
+        assertAll("새로운 주문 정보가 맞는지 확인",
+                () -> assertThat(newOrder.getVideos()).contains(video1, video2),
+                () -> assertThat(newOrder.getTotalPayAmount()).isEqualTo(video1.getPrice() + video2.getPrice() - request.getReward()),
+                () -> assertThat(newOrder.getReward()).isEqualTo(request.getReward()),
+                () -> assertThat(newOrder.getOrderStatus()).isEqualTo(OrderStatus.ORDERED)
+        );
+        assertAll("기존 주문 정보가 취소되었는지 확인",
+                () -> assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CANCELED),
+                () -> assertThat(order.getOrderVideos()).
+                        extracting("orderStatus")
+                        .contains(OrderStatus.CANCELED)
+        );
     }
 
     @Test

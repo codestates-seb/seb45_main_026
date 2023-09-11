@@ -3,6 +3,7 @@ package com.server.domain.order.service;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.order.repository.OrderRepository;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
@@ -247,10 +248,32 @@ public class OrderService {
     }
 
     private void checkDuplicateOrder(Member member, List<Video> toBuyVideos) {
-        List<Video> purchasedVideos = orderRepository.findPurchasedVideosByMemberId(member.getMemberId());
 
-        toBuyVideos.forEach(toBuyVideo -> {
-            if(purchasedVideos.contains(toBuyVideo)) throw new OrderExistException();
+        List<Long> toBuyVideoIds = toBuyVideos.stream()
+                .map(Video::getVideoId)
+                .collect(Collectors.toList());
+
+        List<OrderVideo> orderVideos = orderRepository.findOrderedVideosByMemberId(member.getMemberId(), toBuyVideoIds);
+
+        checkAlreadyPurchased(orderVideos);
+
+        checkAlreadyOrderedAndSwitchCancel(orderVideos);
+    }
+
+    private void checkAlreadyPurchased(List<OrderVideo> orderVideos) {
+        List<String> alreadyPurchasedVideoNames = orderVideos.stream()
+                .filter(orderVideo -> orderVideo.getOrderStatus().equals(OrderStatus.COMPLETED))
+                .map(orderVideo -> orderVideo.getVideo().getVideoName())
+                .collect(Collectors.toList());
+
+        if(!alreadyPurchasedVideoNames.isEmpty())
+            throw new OrderExistException(String.join(", ", alreadyPurchasedVideoNames));
+    }
+
+    private void checkAlreadyOrderedAndSwitchCancel(List<OrderVideo> orderVideos) {
+        orderVideos.forEach(orderVideo -> {
+            if(orderVideo.getOrderStatus().equals(OrderStatus.ORDERED))
+                orderVideo.getOrder().cancelAllOrder();
         });
     }
 

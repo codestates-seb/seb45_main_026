@@ -61,23 +61,29 @@ class OrderRepositoryTest extends RepositoryTest {
     }
 
     @Test
-    @DisplayName("memberId 로 구매한 Video 를 조회한다.")
-    void findPurchasedVideosByMemberId() {
+    @DisplayName("memberId 와 videoId 로 해당 video 중 구매하거나 구매대기중인 OrderVideo 를 조회한다.")
+    void findOrderedVideosByMemberId() {
         //given
         Member owner = createMemberWithChannel();
         Video video1 = createAndSaveVideo(owner.getChannel());
         Video video2 = createAndSaveVideo(owner.getChannel());
+        Video video3 = createAndSaveVideo(owner.getChannel());
 
         Member loginMember = createAndSaveMember();
-        createAndSaveOrderComplete(loginMember, List.of(video1));
+        createAndSaveOrderComplete(loginMember, List.of(video1)); // 주문에 1 추가 (결제 완료)
+        createAndSaveOrder(loginMember, List.of(video2)); // 주문에 2 추가 (결제 x)
+
+        List<Long> videoIds = List.of(video1.getVideoId(), video2.getVideoId(), video3.getVideoId());
 
         //when
-        List<Video> purchasedVideos = orderRepository.findPurchasedVideosByMemberId(loginMember.getMemberId());
+        List<OrderVideo> orderVideos = orderRepository.findOrderedVideosByMemberId(loginMember.getMemberId(), videoIds);
 
         //then
-        assertThat(purchasedVideos.size()).isEqualTo(1);
-        assertThat(purchasedVideos.get(0).getVideoId()).isEqualTo(video1.getVideoId());
-
+        assertThat(orderVideos.size()).isEqualTo(2);
+        assertThat(orderVideos).hasSize(2)
+                .extracting("video")
+                .extracting("videoId")
+                .containsExactly(video1.getVideoId(), video2.getVideoId());
     }
 
     @Test
@@ -124,6 +130,9 @@ class OrderRepositoryTest extends RepositoryTest {
         Video video4 = createAndSaveVideo(channel);
 
         Order order = createAndSaveOrderComplete(member, List.of(video1, video2, video3));// 결제한 주문
+
+        em.flush();
+        em.clear();
 
         Watch watch1 = Watch.createWatch(member, video1); //video1 시청
         Watch watch2 = Watch.createWatch(member, video2); //video2 시청
@@ -175,7 +184,7 @@ class OrderRepositoryTest extends RepositoryTest {
 
     @Test
     @DisplayName("orderId 로 주문한 비디오 중 시청한 비디오를 찾는다.")
-    void findWatchVideoAfterPurchaseByVideoIdNotWath() {
+    void findWatchVideoAfterPurchaseByVideoIdNotWatch() {
         //given
         Member owner = createAndSaveMember();
         Channel channel = createAndSaveChannel(owner);
