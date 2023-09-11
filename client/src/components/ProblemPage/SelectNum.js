@@ -1,7 +1,7 @@
 import { styled } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { setPage } from "../../../redux/createSlice/ProblemSlice";
-import { ReactComponent as plus_circle } from "../../../assets/images/icons/plus_circle.svg";
+import { setPage } from "../../redux/createSlice/ProblemSlice";
+import { ReactComponent as plus_circle } from "../../assets/images/icons/plus_circle.svg";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";

@@ -1,28 +1,26 @@
-import { styled } from "styled-components";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-// import tokens from "../../../styles/tokens.json";
-import { PageContainer } from "../../../atoms/layouts/PageContainer";
-import { setCarts } from "../../../redux/createSlice/CartsSlice";
+import { useEffect } from "react";
+import { styled } from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
 import CartLeft from "./CartLeft";
 import CartRight from "./CartRight";
-import { Heading5Typo } from '../../../atoms/typographys/Typographys';
-import { HomeTitle } from '../../../components/contentListItems/ChannelHome';
-import tokens from '../../../styles/tokens.json';
+import tokens from "../../../styles/tokens.json";
 import { useToken } from "../../../hooks/useToken";
+import { setCarts } from "../../../redux/createSlice/CartsSlice";
+import { PageContainer } from "../../../atoms/layouts/PageContainer";
+import { HomeTitle } from "../../../components/contentListItems/ChannelHome";
 
 const globalTokens = tokens.global;
 
 const CartPage = () => {
-  const refreshToken = useToken();
   const dispatch = useDispatch();
+  const refreshToken = useToken();
   const isDark = useSelector((state) => state.uiSetting.isDark);
-  const cartsData = useSelector((state) => state.cartSlice.data);
   const token = useSelector((state) => state.loginInfo.accessToken);
+  const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
 
-  useEffect(() => {
-    axios
+  const getCartsData = () => {
+    return axios
       .get(`https://api.itprometheus.net/members/carts`, {
         headers: { Authorization: token.authorization },
       })
@@ -30,13 +28,17 @@ const CartPage = () => {
         dispatch(setCarts(res.data.data));
       })
       .catch((err) => {
-        if(err.response.data.message==='만료된 토큰입니다.') {
-          refreshToken();
+        if (err.response.data.code === 401) {
+          refreshToken(() => getCartsData());
         } else {
           console.log(err);
         }
       });
-  }, [tokens]);
+  };
+
+  useEffect(() => {
+    getCartsData();
+  }, [checkedItems]);
 
   return (
     <PageContainer isDark={isDark}>
@@ -64,8 +66,7 @@ export const CartContainer = styled.div`
   margin-top: ${globalTokens.Spacing40.value}px;
 `;
 
-export const CartTitle = styled(HomeTitle)`
-`;
+export const CartTitle = styled(HomeTitle)``;
 
 export const CartContent = styled.div`
   width: 100%;

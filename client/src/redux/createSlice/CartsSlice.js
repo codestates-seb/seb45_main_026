@@ -20,13 +20,21 @@ const CartsSlice = createSlice({
       },
     ],
     myCartInfo: {
-      memberId: 1,
-      nickname: "test",
+      memberId: 0,
+      nickname: "",
       email: "",
-      grade: "BRONZE",
-      reward: 40,
+      grade: "",
+      reward: 0,
     },
     checkedItem: [],
+    paymentInfo: {
+      amount: 0,
+      orderId: "",
+      orderName: "",
+      customerName: "",
+      successUrl: "http://localhost:3000/carts",
+      failUrl: "http://localhost:3000/carts",
+    },
   },
   reducers: {
     setCarts: (state, action) => {
@@ -38,8 +46,11 @@ const CartsSlice = createSlice({
     setMyInfo: (state, action) => {
       state.myCartInfo = action.payload;
     },
+    setPayment: (state, action) => {
+      state.paymentInfo = { ...state.paymentInfo, ...action.payload };
+    },
   },
 });
 
 export default CartsSlice;
-export const { setCarts, setChecked, setMyInfo } = CartsSlice.actions;
+export const { setCarts, setChecked, setMyInfo, setPayment } = CartsSlice.actions;

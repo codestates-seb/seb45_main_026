@@ -5,13 +5,15 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { PageContainer } from "../../atoms/layouts/PageContainer";
 import { setProblems } from "../../redux/createSlice/ProblemSlice";
-import SelectNum from "../../components/CartPage/ProblemPage/SelectNum";
-import ProblemBox from "../../components/CartPage/ProblemPage/ProblemBox";
+import SelectNum from "../../components/ProblemPage/SelectNum";
+import ProblemBox from "../../components/ProblemPage/ProblemBox";
+import { useToken } from "../../hooks/useToken";
 
 const ProblemPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { videoId } = useParams();
+  const refreshToken = useToken();
   const myId = useSelector((state) => state.loginInfo.myid);
   const videoDatas = useSelector((state) => state.videoInfo.data);
   const token = useSelector((state) => state.loginInfo.accessToken);
@@ -28,7 +30,13 @@ const ProblemPage = () => {
         console.log(res.data.data);
         dispatch(setProblems(res.data.data));
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        if (err.response.data.message === "만료된 토큰입니다.") {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
   }, []);
 
   return (

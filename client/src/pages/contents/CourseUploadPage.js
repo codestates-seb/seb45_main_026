@@ -1,10 +1,13 @@
 import { styled } from "styled-components";
+import { useSelector } from "react-redux";
 import { PageContainer } from "../../atoms/layouts/PageContainer";
 import CourseUpload from "../../components/UploadPage/CourseUpload";
 
 const CourseUploadPage = () => {
+  const isDark = useSelector((state) => state.uiSetting.isDark);
+
   return (
-    <PageContainer>
+    <PageContainer isDark={isDark}>
       <UploadContainer>
         <CourseUpload />
       </UploadContainer>

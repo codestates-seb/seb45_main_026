@@ -8,8 +8,8 @@ import DetailVideo from "./DetailVideo";
 import DetailReview from "./DetailReview";
 import DetailContent from "./DetailContent";
 import { setVideoInfo } from "../../../redux/createSlice/VideoInfoSlice";
-import { useToken } from '../../../hooks/useToken';
-import tokens from '../../../styles/tokens.json';
+import { useToken } from "../../../hooks/useToken";
+import tokens from "../../../styles/tokens.json";
 
 const globalTokens = tokens.global;
 
@@ -30,7 +30,7 @@ const DetailPage = () => {
         dispatch(setVideoInfo(res.data.data));
       })
       .catch((err) => {
-        if(err.response.data.message==='만료된 토큰입니다.') {
+        if (err.response.data.message === "만료된 토큰입니다.") {
           refreshToken();
         } else {
           console.log(err);
