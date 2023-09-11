@@ -63,7 +63,7 @@ export const CartContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: start;
-  margin-top: ${globalTokens.Spacing40.value}px;
+  margin: ${globalTokens.Spacing40.value}px 0px;
 `;
 
 export const CartTitle = styled(HomeTitle)``;

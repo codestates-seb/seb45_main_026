@@ -114,9 +114,7 @@ export const PayForm = styled.form`
   width: 100%;
   padding: 20px 20px;
   margin: 15px 0px;
-  border: 1px solid
-    ${(props) =>
-      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
+  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
   border-radius: 10px;
   background-color: ${(props) =>
     props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};

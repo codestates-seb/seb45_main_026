@@ -68,14 +68,8 @@ export const PayInfo = styled.div`
   width: 100%;
   padding: 10px 20px;
   margin: 10px 0px 25px 0px;
-  border: 1px solid
-    ${(props) =>
-      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
-  background-color: ${(props) =>
-    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
-  border-radius: 10px;
-  color: ${(props) =>
-    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
-  font-size: 12px;
-  font-weight: normal;
+  background-color: ${ props=>props.isDark? 'rgba(255,255,255,0.15)' : globalTokens.White.value };
+  border-radius: ${globalTokens.RegularRadius.value}px;
+  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+  font-size: ${globalTokens.SmallText.value}px;
 `;

@@ -2,13 +2,18 @@ import { styled } from "styled-components";
 import { useSelector } from "react-redux";
 import { PageContainer } from "../../atoms/layouts/PageContainer";
 import CourseUpload from "../../components/UploadPage/CourseUpload";
+import tokens from '../../styles/tokens.json';
+import { useSelector } from "react-redux";
+import { Heading5Typo } from "../../atoms/typographys/Typographys";
+
+const globalTokens = tokens.global;
 
 const CourseUploadPage = () => {
-  const isDark = useSelector((state) => state.uiSetting.isDark);
+  const isDark = useSelector(state=>state.uiSetting.isDark);
 
   return (
     <PageContainer isDark={isDark}>
-      <UploadContainer>
+      <UploadContainer isDark={isDark}>
         <CourseUpload />
       </UploadContainer>
     </PageContainer>
@@ -20,9 +25,10 @@ export default CourseUploadPage;
 export const UploadContainer = styled.section`
   width: 100%;
   max-width: 1000px;
+  margin: ${globalTokens.Spacing40.value}px 0px;
   padding: 50px 0px 100px 0px;
-  background-color: white;
-  border-radius: 8px;
+  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
+  border-radius: ${globalTokens.RegularRadius.value}px;
   display: flex;
   flex-direction: column;
   justify-content: start;
@@ -48,16 +54,15 @@ export const UploadTypeBtn = styled.button`
   font-size: 16px;
 `;
 
-export const UploadTitle = styled.h2``;
+export const UploadTitle = styled(Heading5Typo)``;
 
 export const UploadSubtitle = styled.span`
-  margin: 5px 0px 50px 5px;
-  color: gray;
+  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
   font-size: 14px;
 `;
 
 export const SubDescribe = styled.span`
-  color: red;
+  color: ${props=>props.isDark?globalTokens.LightRed.value:globalTokens.Negative.value};
   font-size: 12px;
   margin-left: 15px;
 `;

@@ -24,7 +24,7 @@ const LectureMainContainer = styled(MainContainer)`
   margin-top: ${globalTokens.Spacing40.value}px;
   margin-bottom: ${globalTokens.Spacing40.value}px;
   padding: ${globalTokens.Spacing20.value}px;
-  border-radius: ${globalTokens.BigRadius.value}px;
+  border-radius: ${globalTokens.RegularRadius.value}px;
 `;
 const ListTitle = styled(HomeTitle)`
   width: 100%;

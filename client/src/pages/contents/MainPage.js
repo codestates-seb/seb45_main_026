@@ -9,6 +9,9 @@ import {
 import { setLocation } from "../../redux/createSlice/UISettingSlice";
 import MainPageFirstItem from "../../components/mainPageItems/MainPageItems";
 import { useLocation, useMatch, useNavigate } from "react-router-dom";
+import MainSecondPageItems from "../../components/mainPageItems/MainSecondPageItems";
+import MainThirdPageItems from "../../components/mainPageItems/MainThirdPageItems";
+import MainFourthPageItems from "../../components/mainPageItems/MainFourthPageItems";
 
 const MainPage = () => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
@@ -109,9 +112,15 @@ const MainPage = () => {
           <MainPageFirstItem />
         </FirstPageBackgroundContainer>
       </LightContainer>
-      <DarkContainer isDark={isDark}>2</DarkContainer>
-      <LightContainer isDark={isDark}>3</LightContainer>
-      <DarkContainer isDark={isDark}>4</DarkContainer>
+      <DarkContainer isDark={isDark}>
+        <MainSecondPageItems/>
+      </DarkContainer>
+      <LightContainer isDark={isDark}>
+        <MainThirdPageItems/>
+      </LightContainer>
+      <DarkContainer isDark={isDark}>
+        <MainFourthPageItems/>
+      </DarkContainer>
     </MainPageContainer>
   );
 };

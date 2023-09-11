@@ -10,9 +10,14 @@ import { useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { BodyTextTypo } from "../../atoms/typographys/Typographys";
+import { RegularInput } from '../../atoms/inputs/Inputs';
+import { RegularTextArea } from "../../atoms/inputs/TextAreas";
 import { useToken } from "../../hooks/useToken";
 
 const CourseUpload = () => {
+  const isDark = useSelector(state=>state.uiSetting.isDark);
+  const token = useSelector((state) => state.loginInfo.accessToken);
   const imgRef = useRef();
   const videoRef = useRef();
   const navigate = useNavigate();
@@ -178,12 +183,13 @@ const CourseUpload = () => {
 
   return (
     <CourseBox>
-      <UploadTitle>강의 등록하기</UploadTitle>
-      <UploadSubtitle>강의 정보를 입력합니다.</UploadSubtitle>
+      <UploadTitle isDark={isDark}>강의 등록하기</UploadTitle>
+      <UploadSubtitle isDark={isDark}>강의 정보를 입력합니다.</UploadSubtitle>
       <ColBox>
         <RowBox>
-          <CourseName>강의명</CourseName>
+          <CourseName isDark={isDark}>강의명</CourseName>
           <ChooseName
+            isDark={isDark}
             type="text"
             placeholder="강의명은 영상 파일의 제목으로 업로드 됩니다."
             value={uploadDetail.videoName}
@@ -191,8 +197,9 @@ const CourseUpload = () => {
           />
         </RowBox>
         <RowBox>
-          <CourseIntro>강의 소개</CourseIntro>
+          <CourseIntro isDark={isDark}>강의 소개</CourseIntro>
           <ChooseIntro
+            isDark={isDark}
             type="text"
             placeholder="강의 소개를 입력해 주세요."
             value={uploadDetail.description}
@@ -202,8 +209,9 @@ const CourseUpload = () => {
           />
         </RowBox>
         <RowBox>
-          <CourseCategory>가격</CourseCategory>
+          <CourseCategory isDark={isDark}>가격</CourseCategory>
           <ChooseCategory
+            isDark={isDark}
             type="text"
             placeholder="가격을 설정해 주세요."
             value={uploadDetail.price}
@@ -214,8 +222,9 @@ const CourseUpload = () => {
           />
         </RowBox>
         <RowBox>
-          <CourseCategory>카테고리</CourseCategory>
+          <CourseCategory isDark={isDark}>카테고리</CourseCategory>
           <ChooseCategory
+            isDark={isDark}
             type="text"
             placeholder="카테고리를 선택해 주세요."
             value={uploadDetail.categories}
@@ -229,7 +238,7 @@ const CourseUpload = () => {
         </RowBox>
 
         <RowBox>
-          <CourseImage>썸네일 이미지</CourseImage>
+          <CourseImage isDark={isDark}>썸네일 이미지</CourseImage>
           <ColBox>
             <ChooseImageInupt
               id="imageUpload"
@@ -242,28 +251,29 @@ const CourseUpload = () => {
               {imgFile ? (
                 <ChooseImage src={imgFile} alt="프로필 이미지" />
               ) : (
-                <ChooseSpan>썸네일을 등록해 주세요.</ChooseSpan>
+                <ChooseSpan isDark={isDark}>썸네일을 등록해 주세요.</ChooseSpan>
               )}
             </ChooseImageBtn>
-            <SubDescribe>
+            <SubDescribe isDark={isDark}>
               썸네일 이미지는 png, jpg, jpeg 확장자만 등록이 가능합니다.
             </SubDescribe>
-            <SubDescribe>권장 이미지 크기 : 291px &times; 212px</SubDescribe>
+            <SubDescribe isDark={isDark}>권장 이미지 크기 : 291px &times; 212px</SubDescribe>
           </ColBox>
         </RowBox>
 
         <RowBox>
-          <CourseVideo>강의 영상</CourseVideo>
+          <CourseVideo isDark={isDark}>강의 영상</CourseVideo>
           <ColBox>
             <ChooseVideo
+              isDark={isDark}
               type="file"
               accept="video/mp4"
               onChange={handleSaveFile}
               ref={videoRef}
             />
-            <SubDescribe>강의 영상은 mp4만 등록이 가능합니다.</SubDescribe>
-            <SubDescribe>권장 화면 비율 : 1920 &times; 1080</SubDescribe>
-            <SubDescribe>최대 영상 크기 : 1GB</SubDescribe>
+            <SubDescribe isDark={isDark}>강의 영상은 mp4만 등록이 가능합니다.</SubDescribe>
+            <SubDescribe isDark={isDark}>권장 화면 비율 : 1920 &times; 1080</SubDescribe>
+            <SubDescribe isDark={isDark}>최대 영상 크기 : 1GB</SubDescribe>
           </ColBox>
         </RowBox>
         <SubmitCourse onClick={handleVideoPost}>강의 등록 완료</SubmitCourse>
@@ -285,7 +295,7 @@ export const CourseBox = styled.div`
   padding: 20px;
 `;
 
-export const RegularLabel = styled.label`
+export const RegularLabel = styled(BodyTextTypo)`
   width: 100%;
   max-width: 100px;
   text-align: end;
@@ -298,9 +308,7 @@ export const CourseCategory = styled(RegularLabel)``;
 export const CourseImage = styled(RegularLabel)``;
 export const CourseVideo = styled(RegularLabel)``;
 
-export const GrayInput = styled.input`
-  border: 2px solid rgb(236, 236, 236);
-  border-radius: 8px;
+export const GrayInput = styled(RegularInput)`
   margin-left: 15px;
   padding-left: 10px;
 `;
@@ -311,12 +319,10 @@ export const ChooseName = styled(GrayInput)`
   height: 50px;
 `;
 
-export const ChooseIntro = styled.textarea`
+export const ChooseIntro = styled(RegularTextArea)`
   width: 100%;
   max-width: 500px;
   height: 100px;
-  border: 2px solid rgb(236, 236, 236);
-  border-radius: 8px;
   margin-left: 15px;
   padding: 10px 0px 0px 10px;
   resize: none;

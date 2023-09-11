@@ -36,4 +36,9 @@ export const MainPageHeaderContainer = styled(HeaderContainer)`
 `
 export const HeaderLoginButton = styled(RoundButton)`
     margin: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing32.value}px;
+    background-color: rgba(0,0,0,0);
+    &:hover {
+        color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
+        background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.15)'};
+    }
 `
