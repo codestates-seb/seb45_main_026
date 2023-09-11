@@ -1,4 +1,5 @@
 import { styled } from "styled-components";
+import { useSelector } from "react-redux";
 import { PageContainer } from "../../atoms/layouts/PageContainer";
 import CourseUpload from "../../components/UploadPage/CourseUpload";
 import tokens from '../../styles/tokens.json';

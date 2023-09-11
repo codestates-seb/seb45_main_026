@@ -1,6 +1,6 @@
 import { styled } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { setPage } from "../../../redux/createSlice/ProblemSlice";
+import { setPage } from "../../redux/createSlice/ProblemSlice";
 import axios from "axios";
 import { useState } from "react";
 

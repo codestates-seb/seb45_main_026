@@ -5,32 +5,36 @@ import { useDispatch, useSelector } from "react-redux";
 import CartMyInfo from "../../../components/CartPage/CartMyInfo";
 import CartPayInfo from "../../../components/CartPage/CartPayInfo";
 import { setMyInfo } from "../../../redux/createSlice/CartsSlice";
-import tokens from '../../../styles/tokens.json';
-import { useToken } from '../../../hooks/useToken';
+import tokens from "../../../styles/tokens.json";
+import { useToken } from "../../../hooks/useToken";
 
 const globalTokens = tokens.global;
 
 const CartRight = () => {
   const refreshToken = useToken();
-  const isDark = useSelector(state=>state.uiSetting.isDark);
+  const isDark = useSelector((state) => state.uiSetting.isDark);
   const dispatch = useDispatch();
   const token = useSelector((state) => state.loginInfo.accessToken);
   const headers = {
     Authorization: token.authorization,
   };
 
-  useEffect(() => {
-    axios
+  const getMyInfo = () => {
+    return axios
       .get(`https://api.itprometheus.net/members`, { headers })
       .then((res) => dispatch(setMyInfo(res.data.data)))
       .catch((err) => {
-        if(err.response.data.message==='만료된 토큰입니다.') {
-          refreshToken();
+        if (err.response.data.message === "만료된 토큰입니다.") {
+          refreshToken(() => getMyInfo());
         } else {
           console.log(err);
         }
       });
-  },[token]);
+  };
+
+  useEffect(() => {
+    getMyInfo();
+  }, [token]);
 
   return (
     <CartSection>
@@ -64,7 +68,6 @@ export const PayInfo = styled.div`
   width: 100%;
   padding: 10px 20px;
   margin: 10px 0px 25px 0px;
-  /* border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value}; */
   background-color: ${ props=>props.isDark? 'rgba(255,255,255,0.15)' : globalTokens.White.value };
   border-radius: ${globalTokens.RegularRadius.value}px;
   color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};

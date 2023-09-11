@@ -1,12 +1,12 @@
 import { styled } from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import tokens from "../../../styles/tokens.json";
 import CartItem from "../../../components/CartPage/CartItem";
 import CartEmpty from "../../../components/CartPage/CartEmpty";
-import { useDispatch, useSelector } from "react-redux";
 import { setChecked } from "../../../redux/createSlice/CartsSlice";
-import axios from "axios";
-import tokens from '../../../styles/tokens.json';
 import { BodyTextTypo } from "../../../atoms/typographys/Typographys";
-import { NegativeTextButton, RegularButton } from "../../../atoms/buttons/Buttons";
+import { NegativeTextButton } from "../../../atoms/buttons/Buttons";
 
 const globalTokens = tokens.global;
 
@@ -15,10 +15,7 @@ const CartLeft = () => {
   const cartsData = useSelector((state) => state.cartSlice.data);
   const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
   const token = useSelector((state) => state.loginInfo.accessToken);
-  const isDark = useSelector((state)=>state.uiSetting.isDark);
-  const headers = {
-    Authorization: token.authorization,
-  };
+  const isDark = useSelector((state) => state.uiSetting.isDark);
 
   const handleAllCheck = (checked) => {
     if (checked) {
@@ -31,10 +28,13 @@ const CartLeft = () => {
   const handlePatchItemList = () => {
     return axios
       .delete(`https://api.itprometheus.net/videos/carts`, {
-        headers,
+        headers: { Authorization: token.authorization },
         data: { videoIds: checkedItems },
       })
-      .then((res) => console.log(res.data))
+      .then((res) => {
+        console.log(res.data);
+        dispatch(setChecked([]))
+      })
       .catch((err) => console.log(err));
   };
 
@@ -51,7 +51,9 @@ const CartLeft = () => {
             전체선택 {checkedItems.length}/{cartsData.length}
           </Checklabel>
         </WholeCheck>
-        <RemoveBtn isDark={isDark} onClick={handlePatchItemList}>&times; 선택 삭제</RemoveBtn>
+        <RemoveBtn isDark={isDark} onClick={handlePatchItemList}>
+          &times; 선택 삭제
+        </RemoveBtn>
       </CartHeader>
       <CartLists isScroll={cartsData.length}>
         {cartsData.length ? (
@@ -78,10 +80,11 @@ export const CartItems = styled.div`
   min-height: 750px;
   margin: 20px 0px;
   padding: 0px 10px;
-  /* border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value}; */
+  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
   border-radius: 8px;
   position: relative;
-  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
+  background-color: ${(props) =>
+    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
 `;
 
 export const CartHeader = styled.div`
@@ -90,7 +93,9 @@ export const CartHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 15px 15px 10px 15px;
-  border-bottom: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+  border-bottom: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
 `;
 
 export const WholeCheck = styled.div`
@@ -135,13 +140,15 @@ export const CartCautions = styled.ul`
   padding-left: 15px;
   font-size: ${globalTokens.BodyText.value};
   font-weight: ${globalTokens.Bold.value};
-  color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value}
+  color: ${(props) =>
+    props.isDark ? globalTokens.White.value : globalTokens.Black.value};
 `;
 
 export const CartCaution = styled.li`
   margin: ${globalTokens.Spacing4.value}px 0px;
   padding-left: 10px;
-  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
   font-size: ${globalTokens.BodyText.value}px;
   font-weight: normal;
 `;

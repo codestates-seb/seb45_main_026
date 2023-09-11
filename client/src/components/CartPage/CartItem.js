@@ -13,17 +13,16 @@ const CartItem = ({ el }) => {
   const dispatch = useDispatch();
   const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
   const token = useSelector((state) => state.loginInfo.accessToken);
-  const headers = {
-    Authorization: token.authorization,
-    refresh: token.refresh,
-  };
 
   const handlePatchItemList = (videoId) => {
     return axios
       .patch(`https://api.itprometheus.net/videos/${videoId}/carts`, null, {
-        headers,
+        headers: { Authorization: token.authorization },
       })
-      .then((res) => console.log(res.data))
+      .then((res) => {
+        console.log(res.data);
+        dispatch(setChecked([]));
+      })
       .catch((err) => console.log(err));
   };
 

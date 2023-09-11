@@ -1,7 +1,10 @@
-import React,{useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { styled } from "styled-components";
-import { useSelector,useDispatch } from "react-redux";
-import { PageContainer,MainContainer } from "../../atoms/layouts/PageContainer";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  PageContainer,
+  MainContainer,
+} from "../../atoms/layouts/PageContainer";
 import tokens from "../../styles/tokens.json";
 import CategoryFilter from "../../components/filters/CategoryFilter";
 import PurchasedItem from "../../components/contentListItems/PurchasedItem";
@@ -51,18 +54,19 @@ const SwitchButton = styled(RoundButton)`
 `
 
 export default function PurchasedListPage() {
-    const isDark = useSelector((state) => state.uiSetting.isDark);
-    const accessToken = useSelector((state) => state.loginInfo.accessToken);
-    const isList = useSelector((state) => state.filterSlice.isList);
-    const filterState = useSelector((state) => state.filterSlice.filter);
-    const dispatch = useDispatch();
-    const refreshToken = useToken();
-    const [channelList, setChannelList] = useState([]);
-    const [videolList,setVideoList]=useState([])
-    
-    useEffect(() => {
-      if (isList) {
-        axios.get(
+  const dispatch = useDispatch();
+  const refreshToken = useToken();
+  const [videolList, setVideoList] = useState([]);
+  const [channelList, setChannelList] = useState([]);
+  const isDark = useSelector((state) => state.uiSetting.isDark);
+  const isList = useSelector((state) => state.filterSlice.isList);
+  const filterState = useSelector((state) => state.filterSlice.filter);
+  const accessToken = useSelector((state) => state.loginInfo.accessToken);
+
+  useEffect(() => {
+    if (isList) {
+      axios
+        .get(
           `https://api.itprometheus.net/members/playlists?page=1&size=16&sort=${filterState.sortBy.value}`,
           {
             headers: { Authorization: accessToken.authorization },

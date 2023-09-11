@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { BodyTextTypo } from "../../atoms/typographys/Typographys";
 import { RegularInput } from '../../atoms/inputs/Inputs';
 import { RegularTextArea } from "../../atoms/inputs/TextAreas";
+import { useToken } from "../../hooks/useToken";
 
 const CourseUpload = () => {
   const isDark = useSelector(state=>state.uiSetting.isDark);
@@ -20,6 +21,7 @@ const CourseUpload = () => {
   const imgRef = useRef();
   const videoRef = useRef();
   const navigate = useNavigate();
+  const refreshToken = useToken();
   const [imgFile, setImgFile] = useState("");
   const [videoFile, setVideoFile] = useState("");
   const [uploadVideo, setUploadVideo] = useState({
@@ -36,8 +38,8 @@ const CourseUpload = () => {
     thumbnailUrl: "",
     videoUrl: "",
   });
-  const [imageUpload, setImageUpload] = useState(false);
-  const [videoUpload, setVideoUpload] = useState(false);
+  const [isComplete, setComplete] = useState(false);
+  const token = useSelector((state) => state.loginInfo.accessToken);
 
   const handleSaveFile = (e) => {
     const file = e.target.files[0];
@@ -102,6 +104,10 @@ const CourseUpload = () => {
           console.log(err);
           if (err.response.data.code === 409) {
             alert(`${err.response.data.message}`);
+          } else if (err.response.data.code === 401) {
+            refreshToken();
+          } else {
+            console.log(err);
           }
         });
     }
@@ -118,9 +124,17 @@ const CourseUpload = () => {
           },
         })
         .then((res) => {
-          setImageUpload(true);
+          console.log(res);
+          if (res.status === 200) {
+            handleVideoUpload();
+          }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          if (err.response.status === 503) {
+            console.log(err);
+            handleImgUpload();
+          }
+        });
     }
   };
 
@@ -133,28 +147,30 @@ const CourseUpload = () => {
           },
         })
         .then((res) => {
-          setVideoUpload(true);
+          if (res.status === 200) {
+            handleDetailPost();
+          }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          if (err.response.status === 503) {
+            console.log(err);
+            // handleVideoUpload();
+          }
+        });
     }
   };
 
   const handleDetailPost = () => {
-    if (imageUpload && videoUpload) {
+    if (!isComplete) {
       return axios
         .post("https://api.itprometheus.net/videos", uploadDetail, {
           headers: { Authorization: token.authorization },
         })
         .then((res) => {
-          setImageUpload(false);
-          setVideoUpload(false);
+          setComplete(true);
           alert("성공적으로 강의가 등록 되었습니다.");
           if (window.confirm("강의 문제를 업로드 하시겠습니까?")) {
-            navigate(
-              `videos/${parseInt(
-                "/videos/49".split("/").slice(-1)[0]
-              )}/problems/upload`
-            );
+            navigate(`${res.headers.location}/problems/upload`);
           } else {
             navigate("/lecture");
           }
@@ -163,11 +179,7 @@ const CourseUpload = () => {
     }
   };
 
-  useMemo(async () => {
-    const imgLoad = await handleImgUpload();
-    const videoLoad = await handleVideoUpload();
-    const postLoad = await handleDetailPost();
-  }, [presignedUrl]);
+  useMemo(() => handleImgUpload(), [presignedUrl]);
 
   return (
     <CourseBox>
