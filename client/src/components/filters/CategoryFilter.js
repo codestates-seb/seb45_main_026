@@ -137,7 +137,6 @@ const filters3 = [
     actionName: "setSort",
     options: [
       { text: "최신순", value: "created-date" },
-      { text: "조회순", value: "view" },
       { text: "별점순", value: "star" },
       { text: "이름순", value: "name" },
     ],

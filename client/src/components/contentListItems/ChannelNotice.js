@@ -35,6 +35,11 @@ const ItemContainer = styled.div`
     align-items: center;
     gap: ${globalTokens.Spacing28.value}px;
 `
+const StarContainer = styled.div`
+    height: 24px;
+    width: 120px;
+    position: relative;
+`
 
 
 export default function ChannelNotice() {
@@ -48,7 +53,7 @@ export default function ChannelNotice() {
     return (
         <NoticeBody isDark={isDark}>
             <NoticeTitle isDark={isDark}>커뮤니티</NoticeTitle>
-            <NoticeSubmit/>
+            <NoticeSubmit />
             <ItemContainer>
                 <NoticeItem/>
                 <NoticeItem/>

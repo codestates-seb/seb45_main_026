@@ -1,8 +1,7 @@
 import React from "react";
 import styled from "styled-components"
 import tokens from "../../styles/tokens.json";
-import yellowStar from "../../assets/images/icons/star/starYellow.svg"
-import blankStar from "../../assets/images/icons/star/starWhite.svg"
+import Stars from "./Stars";
 import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -116,10 +115,6 @@ const PriceInfor = styled.div`
 const DateInfor = styled.div`
     font-size: ${globalTokens.SmallText.value}px;
 `
-const StarImage = styled.img`
-    height: 20px;
-    width: 20px;
-`
 const ScoreContainer = styled.div`
   display: flex;
   align-items: center;
@@ -127,6 +122,11 @@ const ScoreContainer = styled.div`
 `
 const ScoreText = styled.span`
   font-size: ${globalTokens.SmallText.value}px;
+`
+const StarContainer = styled.div`
+  height: 20px;
+  width: 100px;
+  position: relative;
 `
 
 export default function VerticalItem({ lecture ,channel}) { 
@@ -139,21 +139,29 @@ export default function VerticalItem({ lecture ,channel}) {
   const day = date.getDate().toString().padStart(2, "0");
     return (
       <ComponentBody>
-        <ThumbnailContainer onClick={()=>navigate(`/videos/${lecture.videoId}`)}>
+        <ThumbnailContainer
+          onClick={() => navigate(`/videos/${lecture.videoId}`)}
+        >
           <Thumbnail src={thumbnailUrl} />
         </ThumbnailContainer>
-        <ItemTitle onClick={()=>navigate(`/videos/${lecture.videoId}`) }>{videoName}</ItemTitle>
+        <ItemTitle onClick={() => navigate(`/videos/${lecture.videoId}`)}>
+          {videoName}
+        </ItemTitle>
         <ItemInfors>
           <InforContainerLeft>
             <AuthorInfor>
-              <ImgContainer onClick={()=>navigate(`/channels/${channel.memberId}`)}>
+              <ImgContainer
+                onClick={() => navigate(`/channels/${channel.memberId}`)}
+              >
                 <ProfileImg
-                  src={
-                    channel.imageUrl ? channel.imageUrl : frofileGray
-                  }
+                  src={channel.imageUrl ? channel.imageUrl : frofileGray}
                 />
               </ImgContainer>
-              <AuthorName onClick={()=>navigate(`/channels/${channel.memberId}`)}>{channel.channelName}</AuthorName>
+              <AuthorName
+                onClick={() => navigate(`/channels/${channel.memberId}`)}
+              >
+                {channel.channelName}
+              </AuthorName>
             </AuthorInfor>
             <DateInfor>
               {month}월{day}일 업로드됨
@@ -162,16 +170,16 @@ export default function VerticalItem({ lecture ,channel}) {
           <InforContainerRight>
             <ScoreContainer>
               <ScoreText>{star}</ScoreText>
-              <StarImage src={yellowStar} />
-              <StarImage src={yellowStar} />
-              <StarImage src={yellowStar} />
-              <StarImage src={yellowStar} />
-              <StarImage src={yellowStar} />
+              <StarContainer>
+                <Stars score={star} />
+              </StarContainer>
             </ScoreContainer>
             {isPurchased ? (
               <PriceInfor>구매됨</PriceInfor>
             ) : (
-              <PriceInfor>{price}원</PriceInfor>
+              <PriceInfor>
+                {price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원
+              </PriceInfor>
             )}
           </InforContainerRight>
         </ItemInfors>
