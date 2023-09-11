@@ -1094,17 +1094,16 @@ public class AuthControllerTest {
 				"패스워드 형식이 잘못된 경우",
 				() -> {
 					//given
-					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+					AuthApiRequest.Reset reset = new AuthApiRequest.Reset(
 						"coding@joa.com",
-						"asdf12345",
-						"당근"
+						"asdf12345"
 					);
 
-					String content = objectMapper.writeValueAsString(signUp);
+					String content = objectMapper.writeValueAsString(reset);
 
 					//when
 					ResultActions actions = mockMvc.perform(
-						post("/auth/signup")
+						patch("/auth/password")
 							.contentType(MediaType.APPLICATION_JSON)
 							.content(content)
 					);
@@ -1121,17 +1120,16 @@ public class AuthControllerTest {
 				"패스워드의 길이가 8글자 이하인 경우",
 				() -> {
 					//given
-					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+					AuthApiRequest.Reset reset = new AuthApiRequest.Reset(
 						"coding@joa.com",
-						"asdf123!",
-						"당근"
+						"asdf123!"
 					);
 
-					String content = objectMapper.writeValueAsString(signUp);
+					String content = objectMapper.writeValueAsString(reset);
 
 					//when
 					ResultActions actions = mockMvc.perform(
-						post("/auth/signup")
+						patch("/auth/password")
 							.contentType(MediaType.APPLICATION_JSON)
 							.content(content)
 					);
@@ -1148,17 +1146,16 @@ public class AuthControllerTest {
 				"패스워드의 길이가 21글자 이상인 경우",
 				() -> {
 					//given
-					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+					AuthApiRequest.Reset reset = new AuthApiRequest.Reset(
 						"coding@joa.com",
-						"aaaaaaaaaaaaaaa12345!",
-						"당근"
+						"aaaaaaaaaaaaaaa12345!"
 					);
 
-					String content = objectMapper.writeValueAsString(signUp);
+					String content = objectMapper.writeValueAsString(reset);
 
 					//when
 					ResultActions actions = mockMvc.perform(
-						post("/auth/signup")
+						patch("/auth/password")
 							.contentType(MediaType.APPLICATION_JSON)
 							.content(content)
 					);
@@ -1175,17 +1172,16 @@ public class AuthControllerTest {
 				"패스워드가 null인 경우",
 				() -> {
 					//given
-					AuthApiRequest.SignUp signUp = new AuthApiRequest.SignUp(
+					AuthApiRequest.Reset reset = new AuthApiRequest.Reset(
 						"coding@joa.com",
-						null,
-						"당근"
+						null
 					);
 
-					String content = objectMapper.writeValueAsString(signUp);
+					String content = objectMapper.writeValueAsString(reset);
 
 					//when
 					ResultActions actions = mockMvc.perform(
-						post("/auth/signup")
+						patch("/auth/password")
 							.contentType(MediaType.APPLICATION_JSON)
 							.content(content)
 					);
@@ -1195,7 +1191,7 @@ public class AuthControllerTest {
 						.andExpect(status().isBadRequest())
 						.andExpect(jsonPath("$.data[0].field").value("password"))
 						.andExpect(jsonPath("$.data[0].value").value("null"))
-						.andExpect(jsonPath("$.data[0].reason").value("문자, 숫자, 특수문자로 이루어진 9~20자를 입력하세요."));
+						.andExpect(jsonPath("$.data[0].reason").value("입력값을 다시 확인해주세요."));
 				}
 			)
 		);

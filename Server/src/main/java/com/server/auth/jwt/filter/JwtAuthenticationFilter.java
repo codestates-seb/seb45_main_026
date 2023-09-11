@@ -60,6 +60,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 			return authenticationManager.authenticate(authenticationToken);
 
+		} catch (AuthenticationException authenticationException) {
+			AuthUtil.setResponse(response, authenticationException);
+			return null;
 		} catch (BusinessException businessException) {
 			AuthUtil.setResponse(response, businessException);
 			return null;
