@@ -9,10 +9,12 @@ import {
 } from "../../pages/contents/CourseUploadPage";
 import UploadModal from "./Modal/UploadModal";
 import plus_circle from "../../assets/images/icons/plus_circle.svg";
+import { useToken } from "../../hooks/useToken";
 
 const ProblemUpload = () => {
   const { videoId } = useParams();
   const navigate = useNavigate();
+  const refreshToken = useToken();
   const token = useSelector((state) => state.loginInfo.accessToken);
   const initialState = {
     content: "",
@@ -79,12 +81,17 @@ const ProblemUpload = () => {
       .then((res) => {
         console.log(res.data);
         if (res.data.code === 201) {
-          alert(res.data.message);
+          alert("성공적으로 강의 문제가 등록되었습니다.");
           navigate(`/videos/${videoId}/problems`);
-          isProblemList([]);
+          setProblemList([]);
         }
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        if (err.response.data.message === "만료된 토큰입니다.") {
+          refreshToken(() => handleSubmitProblem());
+        }
+      });
   };
 
   return (

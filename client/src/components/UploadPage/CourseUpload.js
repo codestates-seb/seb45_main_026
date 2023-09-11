@@ -8,19 +8,21 @@ import {
 } from "../../pages/contents/CourseUploadPage";
 import { useMemo, useRef, useState } from "react";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { BodyTextTypo } from "../../atoms/typographys/Typographys";
-import { RegularInput } from '../../atoms/inputs/Inputs';
+import { RegularInput } from "../../atoms/inputs/Inputs";
 import { RegularTextArea } from "../../atoms/inputs/TextAreas";
 import { useToken } from "../../hooks/useToken";
+import { setIsLoading } from "../../redux/createSlice/UISettingSlice";
 
 const CourseUpload = () => {
-  const isDark = useSelector(state=>state.uiSetting.isDark);
+  const isDark = useSelector((state) => state.uiSetting.isDark);
   const token = useSelector((state) => state.loginInfo.accessToken);
   const imgRef = useRef();
   const videoRef = useRef();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const refreshToken = useToken();
   const [imgFile, setImgFile] = useState("");
   const [videoFile, setVideoFile] = useState("");
@@ -39,7 +41,6 @@ const CourseUpload = () => {
     videoUrl: "",
   });
   const [isComplete, setComplete] = useState(false);
-  const token = useSelector((state) => state.loginInfo.accessToken);
 
   const handleSaveFile = (e) => {
     const file = e.target.files[0];
@@ -98,6 +99,7 @@ const CourseUpload = () => {
           }
         )
         .then((res) => {
+          dispatch(setIsLoading(true));
           setPresignedUrl(res.data.data);
         })
         .catch((err) => {
@@ -105,7 +107,7 @@ const CourseUpload = () => {
           if (err.response.data.code === 409) {
             alert(`${err.response.data.message}`);
           } else if (err.response.data.code === 401) {
-            refreshToken();
+            refreshToken(() => handleVideoPost());
           } else {
             console.log(err);
           }
@@ -132,7 +134,7 @@ const CourseUpload = () => {
         .catch((err) => {
           if (err.response.status === 503) {
             console.log(err);
-            handleImgUpload();
+            // handleImgUpload();
           }
         });
     }
@@ -167,6 +169,7 @@ const CourseUpload = () => {
           headers: { Authorization: token.authorization },
         })
         .then((res) => {
+          dispatch(setIsLoading(false));
           setComplete(true);
           alert("성공적으로 강의가 등록 되었습니다.");
           if (window.confirm("강의 문제를 업로드 하시겠습니까?")) {
@@ -175,7 +178,12 @@ const CourseUpload = () => {
             navigate("/lecture");
           }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          if (err.response.data.message === "만료된 토큰입니다.") {
+            refreshToken(() => handleDetailPost());
+          }
+        });
     }
   };
 
@@ -257,7 +265,9 @@ const CourseUpload = () => {
             <SubDescribe isDark={isDark}>
               썸네일 이미지는 png, jpg, jpeg 확장자만 등록이 가능합니다.
             </SubDescribe>
-            <SubDescribe isDark={isDark}>권장 이미지 크기 : 291px &times; 212px</SubDescribe>
+            <SubDescribe isDark={isDark}>
+              권장 이미지 크기 : 291px &times; 212px
+            </SubDescribe>
           </ColBox>
         </RowBox>
 
@@ -271,8 +281,12 @@ const CourseUpload = () => {
               onChange={handleSaveFile}
               ref={videoRef}
             />
-            <SubDescribe isDark={isDark}>강의 영상은 mp4만 등록이 가능합니다.</SubDescribe>
-            <SubDescribe isDark={isDark}>권장 화면 비율 : 1920 &times; 1080</SubDescribe>
+            <SubDescribe isDark={isDark}>
+              강의 영상은 mp4만 등록이 가능합니다.
+            </SubDescribe>
+            <SubDescribe isDark={isDark}>
+              권장 화면 비율 : 1920 &times; 1080
+            </SubDescribe>
             <SubDescribe isDark={isDark}>최대 영상 크기 : 1GB</SubDescribe>
           </ColBox>
         </RowBox>
