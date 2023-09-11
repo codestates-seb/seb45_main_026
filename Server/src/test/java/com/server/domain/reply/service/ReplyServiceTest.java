@@ -109,8 +109,6 @@ class ReplyServiceTest extends ServiceTest {
     public void testDeleteReply() {
         //given
         Member member = createAndSaveMember();
-        Member member1 = createAndSaveMember();
-        Member member2 = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
 
         Video video = Video.builder()
@@ -132,8 +130,6 @@ class ReplyServiceTest extends ServiceTest {
         orderRepository.save(order);
 
         Reply reply = createAndSaveReply(member, video);
-        Reply reply2 = createAndSaveReply(member1, video);
-        Reply reply3 = createAndSaveReply(member2, video);
 
         em.flush();
         em.clear();
