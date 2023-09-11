@@ -40,7 +40,7 @@ class ReplyRepositoryTest extends RepositoryTest {
         em.clear();
 
         //when
-        Page<ReplyInfo> replyInfoPage = replyRepository.findAllByVideoIdPaging(video.getVideoId(), PageRequest.of(0, 10));
+        Page<Reply> replyInfoPage = replyRepository.findAllByVideoIdPaging(video.getVideoId(), PageRequest.of(0, 10));
 
         //then
         assertThat(replyInfoPage.getContent().size()).isEqualTo(2);
@@ -85,7 +85,7 @@ class ReplyRepositoryTest extends RepositoryTest {
         em.clear();
 
         // When
-        Page<ReplyInfo> replyInfoPage = replyRepository.findAllByVideoIdAndStarOrStarIsNull(video.getVideoId(), 3, PageRequest.of(0, 10));
+        Page<Reply> replyInfoPage = replyRepository.findAllByVideoIdAndStarOrStarIsNull(video.getVideoId(), 3, PageRequest.of(0, 10));
 
         // Then
         assertThat(replyInfoPage.getContent().size()).isEqualTo(2); // 3점 이상의 댓글만 필터링되어야 함
