@@ -27,6 +27,7 @@ import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.CartsResponse;
+import com.server.domain.member.service.dto.response.NewRewardsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
@@ -135,6 +136,35 @@ public class MemberServiceTest extends ServiceTest {
 
 		assertThat(pageIterator.next().getRewardType()).isEqualTo(RewardType.QUIZ);
 		assertThat(pageIterator.next().getRewardType()).isEqualTo(RewardType.VIDEO);
+	}
+
+	@Test
+	@DisplayName("로그인한 사용자의 리워드 목록을 조회한다.")
+	void getNewRewards() {
+		Member member = createAndSaveMember();
+		Channel channel = createAndSaveChannel(member);
+
+		Member user = createAndSaveMember();
+
+		Video video = createAndSaveVideo(channel);
+		createAndSaveReward(user, video);
+		Question question = createAndSaveQuestion(video);
+		createAndSaveReward(user, question);
+		Reply reply = createAndSaveReply(user, video);
+		createAndSaveReward(user, reply);
+
+		Page<NewRewardsResponse> page = memberService.getNewRewards(user.getMemberId(), 1, 10);
+
+		assertThat(page.getTotalElements()).isEqualTo(3);
+		assertThat(page.getTotalPages()).isEqualTo(1);
+
+		Iterator<NewRewardsResponse> pageIterator = page.iterator();
+
+		assertThat(pageIterator.next().getRewardType()).isEqualTo(RewardType.REPLY);
+		assertThat(pageIterator.next().getRewardType()).isEqualTo(RewardType.QUIZ);
+		assertThat(pageIterator.next().getRewardType()).isEqualTo(RewardType.VIDEO);
+
+		assertThat(page.getContent()).isSortedAccordingTo(Comparator.comparing(NewRewardsResponse::getCreatedDate).reversed());
 	}
 
 	@Test
