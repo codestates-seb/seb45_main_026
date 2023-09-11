@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import { PageContainer } from "../../atoms/layouts/PageContainer";
 import CourseUpload from "../../components/UploadPage/CourseUpload";
 import tokens from '../../styles/tokens.json';
-import { useSelector } from "react-redux";
 import { Heading5Typo } from "../../atoms/typographys/Typographys";
 
 const globalTokens = tokens.global;
