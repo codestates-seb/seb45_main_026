@@ -11,7 +11,7 @@ import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
 import com.server.domain.order.service.dto.response.CancelServiceResponse;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
-import com.server.domain.reward.entity.NewReward;
+import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
@@ -508,8 +508,8 @@ class OrderServiceTest extends ServiceTest {
         Order order = createAndSaveOrder(member, List.of(video1, video2), 0);
         order.completeOrder(LocalDateTime.now(), "paymentKey"); // 완료된 주문
 
-        NewReward reward1 = createAndSaveReward(member, video1);
-        NewReward reward2 = createAndSaveReward(member, video2);
+        Reward reward1 = createAndSaveReward(member, video1);
+        Reward reward2 = createAndSaveReward(member, video2);
 
         member.minusReward(member.getReward()); // 리워드 소멸
 
@@ -531,8 +531,8 @@ class OrderServiceTest extends ServiceTest {
         Order order = createAndSaveOrder(member, List.of(video1, video2), 1000); // reward 를 1000원을 사용해서 주문
         order.completeOrder(LocalDateTime.now(), "paymentKey"); // 완료된 주문
 
-        NewReward reward1 = createAndSaveReward(member, video1);
-        NewReward reward2 = createAndSaveReward(member, video2);
+        Reward reward1 = createAndSaveReward(member, video1);
+        Reward reward2 = createAndSaveReward(member, video2);
 
         member.minusReward(member.getReward()); // 리워드 소멸
 
@@ -617,7 +617,7 @@ class OrderServiceTest extends ServiceTest {
 
         //then
         //멤버 리워드 생성
-        List<NewReward> findRewards = newRewardRepository.findAll();
+        List<Reward> findRewards = rewardRepository.findAll();
         assertThat(findRewards).hasSize(2)
                 .extracting("member")
                 .extracting("memberId")
@@ -789,7 +789,7 @@ class OrderServiceTest extends ServiceTest {
 
         Order order = createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video1, video2), 100);
 
-        NewReward reward = createAndSaveReward(loginMember, video1);
+        Reward reward = createAndSaveReward(loginMember, video1);
 
         int currentReward = loginMember.getReward();
 
@@ -880,7 +880,7 @@ class OrderServiceTest extends ServiceTest {
 
         Order order = createAndSaveOrderWithPurchaseComplete(loginMember, List.of(video1, video2), 100);
 
-        NewReward reward = createAndSaveReward(loginMember, video1);
+        Reward reward = createAndSaveReward(loginMember, video1);
 
         loginMember.minusReward(loginMember.getReward()); // 리워드 부족
 
@@ -929,7 +929,7 @@ class OrderServiceTest extends ServiceTest {
                 .findFirst().orElseThrow();
         orderVideo1.cancel(); // video1 가 취소된 상황
 
-        NewReward reward2 = createAndSaveReward(loginMember, video2);
+        Reward reward2 = createAndSaveReward(loginMember, video2);
 
         int currentReward = loginMember.getReward();
 

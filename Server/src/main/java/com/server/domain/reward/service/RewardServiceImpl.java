@@ -6,7 +6,7 @@ import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.*;
-import com.server.domain.reward.repository.NewRewardRepository;
+import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.video.entity.Video;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,12 +15,12 @@ import java.util.List;
 
 @Transactional
 @Service
-public class NewRewardService implements RewardService {
+public class RewardServiceImpl implements RewardService {
 
-	private final NewRewardRepository newRewardRepository;
+	private final RewardRepository newRewardRepository;
 
-	public NewRewardService(NewRewardRepository newRewardRepository) {
-		this.newRewardRepository = newRewardRepository;
+	public RewardServiceImpl(RewardRepository rewardRepository) {
+		this.newRewardRepository = rewardRepository;
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class NewRewardService implements RewardService {
 
 		Member member = order.getMember();
 
-		List<NewReward> rewards = newRewardRepository.findByOrderId(order.getOrderId());
+		List<Reward> rewards = newRewardRepository.findByOrderId(order.getOrderId());
 
 		int refundRewardPoint = calculateRefundRewardFrom(rewards);
 
@@ -56,7 +56,7 @@ public class NewRewardService implements RewardService {
 			order.convertAmountToReward(refundRewardPoint - member.getReward());
 		}
 
-		rewards.forEach(NewReward::cancelReward);
+		rewards.forEach(Reward::cancelReward);
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class NewRewardService implements RewardService {
 		Member member = order.getMember();
 		Video video = orderVideo.getVideo();
 
-		List<NewReward> rewards = newRewardRepository.findByMemberAndVideoId(
+		List<Reward> rewards = newRewardRepository.findByMemberAndVideoId(
 				member.getMemberId(),
 				video.getVideoId());
 
@@ -76,12 +76,12 @@ public class NewRewardService implements RewardService {
 			order.convertAmountToReward(refundRewardPoint - member.getReward());
 		}
 
-		rewards.forEach(NewReward::cancelReward);
+		rewards.forEach(Reward::cancelReward);
 	}
 
-	private int calculateRefundRewardFrom(List<NewReward> rewards) {
+	private int calculateRefundRewardFrom(List<Reward> rewards) {
 		return rewards.stream()
-				.mapToInt(NewReward::getRewardPoint)
+				.mapToInt(Reward::getRewardPoint)
 				.sum();
 	}
 
@@ -99,7 +99,7 @@ public class NewRewardService implements RewardService {
 
 	private void createVideoReward(Video video, Member member) {
 
-		NewReward reward = NewReward.createReward(
+		Reward reward = Reward.createReward(
 				video.getRewardPoint(),
 				member,
 				video
@@ -109,7 +109,7 @@ public class NewRewardService implements RewardService {
 	}
 
 	private QuestionReward createQuestionReward(Question question, Member member) {
-		QuestionReward reward = (QuestionReward) NewReward.createReward(
+		QuestionReward reward = (QuestionReward) Reward.createReward(
 				question.getRewardPoint(),
 				member,
 				question);
@@ -118,7 +118,7 @@ public class NewRewardService implements RewardService {
 	}
 
 	private ReplyReward createReplyReward(Reply reply, Member member) {
-		ReplyReward reward = (ReplyReward) NewReward.createReward(
+		ReplyReward reward = (ReplyReward) Reward.createReward(
 				reply.getRewardPoint(),
 				member,
 				reply);

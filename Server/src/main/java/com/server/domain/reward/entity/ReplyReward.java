@@ -1,7 +1,6 @@
 package com.server.domain.reward.entity;
 
 import com.server.domain.member.entity.Member;
-import com.server.domain.reply.entity.Reply;
 import com.server.domain.video.entity.Video;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,7 +12,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("REPLY")
-public class ReplyReward extends NewReward {
+public class ReplyReward extends Reward {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "video_id")

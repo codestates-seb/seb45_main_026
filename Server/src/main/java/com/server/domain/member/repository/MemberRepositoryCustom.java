@@ -6,15 +6,13 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.dto.MemberVideoData;
 import com.server.domain.order.entity.Order;
-import com.server.domain.reward.entity.Reward;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 public interface MemberRepositoryCustom {
 
