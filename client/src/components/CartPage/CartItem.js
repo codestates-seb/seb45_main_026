@@ -20,7 +20,6 @@ const CartItem = ({ el }) => {
         headers: { Authorization: token.authorization },
       })
       .then((res) => {
-        console.log(res.data);
         dispatch(setChecked([]));
       })
       .catch((err) => console.log(err));

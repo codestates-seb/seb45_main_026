@@ -11,17 +11,16 @@ import { useToken } from "../../../hooks/useToken";
 const globalTokens = tokens.global;
 
 const CartRight = () => {
+  const dispatch = useDispatch();
   const refreshToken = useToken();
   const isDark = useSelector((state) => state.uiSetting.isDark);
-  const dispatch = useDispatch();
   const token = useSelector((state) => state.loginInfo.accessToken);
-  const headers = {
-    Authorization: token.authorization,
-  };
 
   const getMyInfo = () => {
     return axios
-      .get(`https://api.itprometheus.net/members`, { headers })
+      .get(`https://api.itprometheus.net/members`, {
+        headers: { Authorization: token.authorization },
+      })
       .then((res) => dispatch(setMyInfo(res.data.data)))
       .catch((err) => {
         if (err.response.data.message === "만료된 토큰입니다.") {
@@ -68,8 +67,10 @@ export const PayInfo = styled.div`
   width: 100%;
   padding: 10px 20px;
   margin: 10px 0px 25px 0px;
-  background-color: ${ props=>props.isDark? 'rgba(255,255,255,0.15)' : globalTokens.White.value };
+  background-color: ${(props) =>
+    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
   border-radius: ${globalTokens.RegularRadius.value}px;
-  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
   font-size: ${globalTokens.SmallText.value}px;
 `;

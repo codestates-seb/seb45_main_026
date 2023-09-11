@@ -20,8 +20,8 @@ export const priceToString = (price) => {
 const CartPayInfo = () => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const cartsData = useSelector((state) => state.cartSlice.data);
-  const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
   const myCartInfo = useSelector((state) => state.cartSlice.myCartInfo);
+  const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
   const [isDiscount, setDiscount] = useState(0);
 
   const getTotal = () => {
@@ -103,7 +103,7 @@ const CartPayInfo = () => {
           </Amount>
         </PriceInfo>
       </Payment>
-      <PaymentBtn isDiscount={isDiscount}/>
+      <PaymentBtn isDiscount={isDiscount} />
     </PayForm>
   );
 };
@@ -114,7 +114,9 @@ export const PayForm = styled.form`
   width: 100%;
   padding: 20px 20px;
   margin: 15px 0px;
-  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
   border-radius: 10px;
   background-color: ${(props) =>
     props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
