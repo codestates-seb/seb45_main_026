@@ -74,6 +74,10 @@ public class OrderService {
 
         Order order = Order.createOrder(member, videos, request.getReward());
 
+        if(order.getTotalPayAmount() == 0) {
+            order.completeOrder(LocalDateTime.now(), "freeOrder");
+        }
+
         return OrderResponse.of(orderRepository.save(order));
     }
 
@@ -227,6 +231,8 @@ public class OrderService {
     }
 
     private void orderCancelRequest(Order order, Integer cancelPrice) {
+
+        if(cancelPrice == 0) return;
 
         URI uri = URI.create(TOSS_ORIGIN_URL + order.getPaymentKey() + "/cancel");
 
