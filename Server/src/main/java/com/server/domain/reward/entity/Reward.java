@@ -1,84 +1,60 @@
 package com.server.domain.reward.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-
-import com.server.domain.answer.entity.Answer;
 import com.server.domain.member.entity.Member;
 import com.server.domain.question.entity.Question;
+import com.server.domain.reply.entity.Reply;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
-
+import com.server.global.exception.businessexception.rewardexception.RewardNotValidException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
-public class Reward extends BaseEntity {
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "rewardType")
+public abstract class Reward extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long rewardId;
-
-	@Enumerated(value = EnumType.STRING)
-	@Column(nullable = false)
-	private RewardType rewardType;
+	protected Long rewardId;
 
 	@Column(nullable = false)
-	private Integer rewardPoint;
+	protected Integer rewardPoint;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id", nullable = false)
-	private Member member;
+	protected Member member;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "video_id")
-	private Video video;
+	protected boolean isCanceled;
 
-	private boolean isCanceled;
+	public abstract RewardType getRewardType();
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "question_id")
-	private Question question;
-
-	public static Reward createReward(RewardType rewardType,
-										Integer rewardPoint, Member member, Video video) {
-
-		member.addReward(rewardPoint);
-
-		return Reward.builder()
-			.rewardType(rewardType)
-			.rewardPoint(rewardPoint)
-			.member(member)
-			.video(video)
-			.build();
+	protected Reward(Member member, Integer rewardPoint) {
+		this.member = member;
+		this.rewardPoint = rewardPoint;
 	}
 
-	public static Reward createReward(RewardType rewardType,
-		Integer rewardPoint, Member member, Question question) {
+	public static Reward createReward(Integer rewardPoint,
+									  Member member,
+									  Rewardable entity) {
 
 		member.addReward(rewardPoint);
 
-		return Reward.builder()
-			.rewardType(rewardType)
-			.rewardPoint(rewardPoint)
-			.member(member)
-			.question(question)
-			.video(question.getVideo())
-			.build();
+		if (entity instanceof Video) {
+			return new VideoReward(member, rewardPoint, (Video) entity);
+		} else if (entity instanceof Question) {
+			return new QuestionReward(member, rewardPoint, (Question) entity);
+		} else if (entity instanceof Reply) {
+			return new ReplyReward(member, rewardPoint, ((Reply) entity).getVideo());
+		} else {
+			throw new RewardNotValidException();
+		}
 	}
 
 	public void cancelReward() {

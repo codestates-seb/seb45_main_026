@@ -4,11 +4,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.entity.QMember;
 import com.server.domain.order.entity.OrderStatus;
-import com.server.domain.order.entity.QOrder;
-import com.server.domain.order.entity.QOrderVideo;
 import com.server.domain.question.entity.QQuestion;
 import com.server.domain.question.entity.Question;
-import com.server.domain.reply.entity.QReply;
 import com.server.domain.reward.entity.*;
 import com.server.domain.video.entity.QVideo;
 import com.server.domain.video.entity.Video;
@@ -19,29 +16,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.server.domain.channel.entity.QChannel.channel;
 import static com.server.domain.member.entity.QMember.*;
 import static com.server.domain.order.entity.QOrder.*;
 import static com.server.domain.order.entity.QOrderVideo.*;
 import static com.server.domain.question.entity.QQuestion.question;
-import static com.server.domain.reply.entity.QReply.reply;
-import static com.server.domain.reward.entity.QNewReward.*;
 import static com.server.domain.reward.entity.QQuestionReward.questionReward;
 import static com.server.domain.reward.entity.QReplyReward.*;
-import static com.server.domain.reward.entity.QReward.*;
 import static com.server.domain.reward.entity.QVideoReward.videoReward;
 import static com.server.domain.video.entity.QVideo.video;
 
-public class NewRewardRepositoryImpl implements NewRewardRepositoryCustom{
+public class RewardRepositoryImpl implements RewardRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
-    public NewRewardRepositoryImpl(EntityManager em) {
+    public RewardRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
     @Override
-    public List<NewReward> findByOrderId(String orderId) {
+    public List<Reward> findByOrderId(String orderId) {
 
         List<Long> videoIds = queryFactory.select(video.videoId)
                 .from(orderVideo)
@@ -67,7 +60,7 @@ public class NewRewardRepositoryImpl implements NewRewardRepositoryCustom{
                 .where(video.videoId.in(videoIds))
                 .fetch();
 
-        List<NewReward> rewards = new ArrayList<>();
+        List<Reward> rewards = new ArrayList<>();
         rewards.addAll(replyRewards);
         rewards.addAll(questionRewards);
         rewards.addAll(videoRewards);
@@ -76,7 +69,7 @@ public class NewRewardRepositoryImpl implements NewRewardRepositoryCustom{
     }
 
     @Override
-    public List<NewReward> findByMemberAndVideoId(Long memberId, Long videoId) {
+    public List<Reward> findByMemberAndVideoId(Long memberId, Long videoId) {
 
         List<ReplyReward> replyRewards = queryFactory.selectFrom(replyReward)
                 .join(replyReward.member, member)
@@ -100,7 +93,7 @@ public class NewRewardRepositoryImpl implements NewRewardRepositoryCustom{
                         .and(video.videoId.eq(videoId)))
                 .fetch();
 
-        List<NewReward> rewards = new ArrayList<>();
+        List<Reward> rewards = new ArrayList<>();
         rewards.addAll(replyRewards);
         rewards.addAll(questionRewards);
         rewards.addAll(videoRewards);

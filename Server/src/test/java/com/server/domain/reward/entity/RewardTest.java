@@ -5,7 +5,6 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.video.entity.Video;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,7 @@ class RewardTest {
                     int beforeReward = member.getReward();
 
                     //when
-                    NewReward reward = NewReward.createReward(video.getRewardPoint(), member, video);
+                    Reward reward = Reward.createReward(video.getRewardPoint(), member, video);
 
                     //then
                     assertAll("member 의 리워드 적립을 확인한다.",
@@ -54,7 +53,7 @@ class RewardTest {
                     int beforeReward = member.getReward();
 
                     //when
-                    NewReward reward = NewReward.createReward(question.getRewardPoint(), member, question);
+                    Reward reward = Reward.createReward(question.getRewardPoint(), member, question);
 
                     //then
                     assertAll("member 의 리워드 적립을 확인한다.",
@@ -73,7 +72,7 @@ class RewardTest {
                     int beforeReward = member.getReward();
 
                     //when
-                    NewReward reward = NewReward.createReward(reply.getRewardPoint(), member, reply);
+                    Reward reward = Reward.createReward(reply.getRewardPoint(), member, reply);
 
                     //then
                     assertAll("member 의 리워드 적립을 확인한다.",
@@ -99,9 +98,9 @@ class RewardTest {
         Question question = createQuestion(video);
         Reply reply = createReply(video);
 
-        NewReward videoReward = NewReward.createReward(video.getRewardPoint(), member, video);
-        NewReward questionReward = NewReward.createReward(question.getRewardPoint(), member, question);
-        NewReward replyReward = NewReward.createReward(reply.getRewardPoint(), member, reply);
+        Reward videoReward = Reward.createReward(video.getRewardPoint(), member, video);
+        Reward questionReward = Reward.createReward(question.getRewardPoint(), member, question);
+        Reward replyReward = Reward.createReward(reply.getRewardPoint(), member, reply);
 
         int beforeReward = member.getReward();
 
