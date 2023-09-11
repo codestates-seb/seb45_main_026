@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@egjs/flicking-plugins": "^4.7.1",
     "@egjs/react-flicking": "^4.11.0",
     "@react-oauth/google": "^0.11.1",
     "@reduxjs/toolkit": "^1.9.5",

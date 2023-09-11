@@ -17,7 +17,6 @@ import { useToken } from "../../hooks/useToken";
 
 const CourseUpload = () => {
   const isDark = useSelector(state=>state.uiSetting.isDark);
-  const token = useSelector((state) => state.loginInfo.accessToken);
   const imgRef = useRef();
   const videoRef = useRef();
   const navigate = useNavigate();
