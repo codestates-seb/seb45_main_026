@@ -20,18 +20,18 @@ export const MainPageFirstItem = () => {
         if(!ref.current) return;
         const callback = (entries) => {
             entries.forEach((entry)=>{
+                setIsInTitleViewport(false);
+                setIsInSubTitleVieport(false);
+                setIsInButtonViewport(false);
+
                 if(entry.isIntersecting) {
                     setIsInTitleViewport(true);
                     setTimeout(()=>{
                         setIsInSubTitleVieport(true);
                         setTimeout(()=>{
                             setIsInButtonViewport(true);
-                        },1000);
-                    },1000);
-                } else {
-                    setIsInTitleViewport(false);
-                    setIsInSubTitleVieport(false);
-                    setIsInButtonViewport(false);
+                        },500);
+                    },500);
                 }
             });
         }

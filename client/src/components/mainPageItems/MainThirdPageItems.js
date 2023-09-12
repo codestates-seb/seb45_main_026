@@ -3,6 +3,7 @@ import { styled } from 'styled-components';
 import tokens from '../../styles/tokens.json';
 import { MainPageSubTitleTypo, MainPageTitleTypo } from './MainPageItems.style';
 import { useSelector } from 'react-redux';
+import Rollingbanner from './Rollingbanner';
 
 const globalTokens = tokens.global;
 
@@ -26,6 +27,7 @@ export const MainThirdPageItems = () => {
             <MainPageSubTitleTypo isDark={isDark}>
                 기술 스텍
             </MainPageSubTitleTypo>
+            <Rollingbanner/>
         </MainPageThirdItemContainer>
     );
 };
