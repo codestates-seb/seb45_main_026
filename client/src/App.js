@@ -32,6 +32,7 @@ import ProblemUploadPage from "./pages/contents/ProblemUploadPage";
 import { useLogout } from "./hooks/useLogout";
 import { useToken } from "./hooks/useToken";
 import Loading from "./atoms/loading/Loading";
+import RewardPage from './pages/userInfo/RewardPage';
 
 function App() {
   const dispatch = useDispatch();
@@ -98,6 +99,7 @@ function App() {
         <Route path="/videos/:videoId/problems" element={<ProblemPage />} />
         <Route path="/purchased" element={<PurchasedListPage />} />
         <Route path="/channellist" element={<ChannelListPage />} />
+        <Route path="/rewards" element={<RewardPage/>}/>
       </Routes>
       <Footer />
       <Loading />

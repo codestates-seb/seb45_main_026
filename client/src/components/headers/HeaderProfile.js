@@ -5,8 +5,10 @@ import { BodyTextTypo } from '../../atoms/typographys/Typographys';
 import ProfileGray from '../../assets/images/icons/profile/profileGray.svg'
 import { setIsSideBar } from '../../redux/createSlice/UISettingSlice';
 import SideBar from '../sideBar/SideBar';
+import { useNavigate } from 'react-router-dom';
 
 const HeaderProfile = () => {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const isDark = useSelector(state=>state.uiSetting.isDark);
     const isSideBar = useSelector(state=>state.uiSetting.isSideBar);
@@ -20,6 +22,10 @@ const HeaderProfile = () => {
         dispatch(setIsSideBar(false));
 
     }
+    const handleRewardClick = (e)=>{ 
+        e.stopPropagation();
+        navigate('/rewards');
+    }
 
     return (
         <HeaderProfileContainer 
@@ -28,7 +34,7 @@ const HeaderProfile = () => {
                 
                 <BodyTextTypo 
                     isDark={isDark}>{userInfo.nickname}</BodyTextTypo>
-                <HeaderProfileInfo isDark={isDark} onClick={(e)=>{e.stopPropagation()}}>
+                <HeaderProfileInfo isDark={isDark} onClick={handleRewardClick}>
                     보유 포인트 : {userInfo.reward}p
                 </HeaderProfileInfo>
                 <HeaderProfileImgContainer>
