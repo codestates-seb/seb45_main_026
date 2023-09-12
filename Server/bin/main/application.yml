@@ -57,6 +57,14 @@ spring:
     host: 127.0.0.1
     port: 6379
 
+jwt:
+  access:
+    expiration: 3600000
+    header: Authorization
+  refresh:
+    expiration: 1209600000
+    header: Refresh
+
 # p6spy ?? ??
 decorator:
   datasource:
@@ -82,3 +90,8 @@ spring:
 
 pem:
   location: /prometheus.pem
+
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
