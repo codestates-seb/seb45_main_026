@@ -4,10 +4,16 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.question.entity.Question;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
+
+import java.util.Collection;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.DynamicTest.*;
 
 class AnswerTest {
 
@@ -38,11 +44,36 @@ class AnswerTest {
         Answer answer = createAnswer(question);
 
         //when
-        boolean result = answer.solveAnswer(correctAnswer);
+        answer.solveAnswer(correctAnswer);
 
         //then
-        assertThat(result).isTrue();
         assertThat(answer.getAnswerStatus()).isEqualTo(AnswerStatus.CORRECT);
+    }
+
+    @TestFactory
+    @DisplayName("answer 의 status 가 correct 인지 확인한다.")
+    Collection<DynamicTest> isCorrect() {
+        //given
+        String correctAnswer = "correctAnswer";
+        Question question = createQuestion(correctAnswer);
+        Answer answer = createAnswer(question);
+
+        return List.of(
+                dynamicTest("문제를 틀리면 false 를 반환한다.", () -> {
+                    //when
+                    answer.solveAnswer("wrongAnswer");
+
+                    //then
+                    assertThat(answer.isCorrect()).isFalse();
+                }),
+                dynamicTest("문제를 맞추면 true 를 반환한다.", () -> {
+                    //when
+                    answer.solveAnswer(correctAnswer);
+
+                    //then
+                    assertThat(answer.isCorrect()).isTrue();
+                })
+        );
     }
 
     private Answer createAnswer(Question question) {

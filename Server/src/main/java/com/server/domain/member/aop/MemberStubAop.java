@@ -6,11 +6,9 @@ import java.util.List;
 import com.server.module.s3.service.dto.FileType;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 
 import com.server.domain.member.entity.Grade;
 import com.server.domain.member.service.dto.response.CartsResponse;
@@ -49,42 +47,6 @@ public class MemberStubAop {
 			.build();
 
 		return ResponseEntity.ok(ApiSingleResponse.ok(profileResponse, "프로필 조회 성공"));
-	}
-
-	@Around("execution(* com.server.domain.member.controller.MemberController.getRewards(..))")
-	public ResponseEntity<ApiPageResponse<RewardsResponse>> getRewards(ProceedingJoinPoint joinPoint) {
-		List<RewardsResponse> responses = List.of(
-			RewardsResponse.builder()
-				.questionId(1L)
-				.videoId(1L)
-				.rewardType(RewardType.QUIZ)
-				.rewardPoint(100)
-				.createdDate(LocalDateTime.now())
-				.build(),
-			RewardsResponse.builder()
-				.videoId(298L)
-				.rewardType(RewardType.VIDEO)
-				.rewardPoint(10)
-				.createdDate(LocalDateTime.now())
-				.build(),
-			RewardsResponse.builder()
-				.videoId(114L)
-				.rewardType(RewardType.VIDEO)
-				.rewardPoint(300)
-				.createdDate(LocalDateTime.now())
-				.build(),
-			RewardsResponse.builder()
-				.questionId(1L)
-				.videoId(418L)
-				.rewardType(RewardType.QUIZ)
-				.rewardPoint(5)
-				.createdDate(LocalDateTime.now())
-				.build()
-		);
-
-		PageImpl<RewardsResponse> page = new PageImpl<>(responses);
-
-		return ResponseEntity.ok(ApiPageResponse.ok(page));
 	}
 
 	@Around("execution(* com.server.domain.member.controller.MemberController.getSubscribes(..))")
@@ -239,7 +201,7 @@ public class MemberStubAop {
 			PlaylistsResponse.builder()
 				.videoId(321L)
 				.videoName("가볍게 배우는 알고리즘")
-				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailUrl(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.star(4.7f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -252,7 +214,7 @@ public class MemberStubAop {
 			PlaylistsResponse.builder()
 				.videoId(2218L)
 				.videoName("더 가볍게 배우는 알고리즘")
-				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailUrl(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.star(3.4f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -265,7 +227,7 @@ public class MemberStubAop {
 			PlaylistsResponse.builder()
 				.videoId(7831L)
 				.videoName("많이 가볍게 배우는 알고리즘")
-				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailUrl(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.star(2.9f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(
@@ -278,7 +240,7 @@ public class MemberStubAop {
 			PlaylistsResponse.builder()
 				.videoId(321L)
 				.videoName("진짜 가볍게 배우는 알고리즘")
-				.thumbnailFile(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailUrl(awsService.getFileUrl(9999L, "test22", FileType.PROFILE_IMAGE))
 				.star(1.8f)
 				.modifiedDate(LocalDateTime.now())
 				.channel(

@@ -1,55 +1,41 @@
 package com.server.domain.member.repository;
 
-import com.querydsl.core.QueryResults;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.server.domain.cart.entity.Cart;
-import com.server.domain.channel.entity.Channel;
-import com.server.domain.channel.entity.QChannel;
-import com.server.domain.member.entity.Member;
-import com.server.domain.member.entity.QMember;
-import com.server.domain.member.repository.dto.MemberSubscribesData;
-import com.server.domain.member.repository.dto.MemberVideoData;
-import com.server.domain.member.repository.dto.QMemberVideoData;
-import com.server.domain.member.service.dto.response.CartsResponse;
-import com.server.domain.member.service.dto.response.OrdersResponse;
-import com.server.domain.member.service.dto.response.PlaylistsResponse;
-import com.server.domain.member.service.dto.response.RewardsResponse;
-import com.server.domain.member.service.dto.response.WatchsResponse;
-import com.server.domain.order.entity.Order;
-import com.server.domain.order.entity.OrderStatus;
-import com.server.domain.order.entity.OrderVideo;
-import com.server.domain.reward.entity.Reward;
-import com.server.domain.subscribe.entity.QSubscribe;
-import com.server.domain.subscribe.entity.Subscribe;
-import com.server.domain.video.entity.QVideo;
-import com.server.domain.video.entity.Video;
-import com.server.domain.watch.entity.Watch;
-
-import javax.persistence.EntityManager;
+import static com.server.domain.cart.entity.QCart.*;
+import static com.server.domain.channel.entity.QChannel.*;
+import static com.server.domain.member.entity.QMember.*;
+import static com.server.domain.order.entity.QOrder.*;
+import static com.server.domain.order.entity.QOrderVideo.*;
+import static com.server.domain.subscribe.entity.QSubscribe.*;
+import static com.server.domain.video.entity.QVideo.*;
+import static com.server.domain.watch.entity.QWatch.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.server.domain.cart.entity.QCart.*;
-import static com.server.domain.channel.entity.QChannel.channel;
-import static com.server.domain.member.entity.QMember.*;
-import static com.server.domain.order.entity.QOrder.*;
-import static com.server.domain.order.entity.QOrderVideo.*;
-import static com.server.domain.question.entity.QQuestion.*;
-import static com.server.domain.reward.entity.QReward.*;
-import static com.server.domain.subscribe.entity.QSubscribe.*;
-import static com.server.domain.video.entity.QVideo.*;
-import static com.server.domain.watch.entity.QWatch.*;
+import javax.persistence.EntityManager;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.server.domain.cart.entity.Cart;
+import com.server.domain.channel.entity.Channel;
+import com.server.domain.member.entity.Member;
+import com.server.domain.member.entity.QMember;
+import com.server.domain.member.repository.dto.MemberVideoData;
+import com.server.domain.member.repository.dto.QMemberVideoData;
+import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderStatus;
+import com.server.domain.video.entity.QVideo;
+import com.server.domain.video.entity.Video;
+import com.server.domain.watch.entity.Watch;
 
 public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
@@ -95,10 +81,16 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     @Override
     public List<Boolean> checkMemberSubscribeChannel(Long memberId, List<Long> ownerMemberIds) {
 
+        QMember channelOwner = new QMember("channelOwner");
+        QMember loginMember = new QMember("loginMember");
+
         List<Long> memberSubcribeList = queryFactory
-                .select(subscribe1.channel.member.memberId)
-                .from(subscribe1)
-                .where(subscribe1.member.memberId.eq(memberId))
+                .select(channelOwner.memberId)
+                .from(channelOwner)
+                .join(channelOwner.channel, channel)
+                .join(channel.subscribes, subscribe1)
+                .join(subscribe1.member, loginMember)
+                .where(loginMember.memberId.eq(memberId))
                 .fetch();
 
         return ownerMemberIds.stream()
@@ -226,9 +218,6 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
             case "name":
                 orderSpecifier = video.videoName.asc();
                 break;
-            case "channel":
-                orderSpecifier = video.channel.channelName.asc();
-                break;
             case "star":
                 orderSpecifier = video.star.desc();
                 break;
@@ -284,23 +273,64 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         return new PageImpl<>(results, pageable, totalCount);
     }
 
-    public Page<Reward> findRewardsByMemberId(Long memberId, Pageable pageable) {
+    public Page<Tuple> findPlaylistGroupByChannelName(Long memberId, Pageable pageable) {
 
-        JPAQuery<Reward> query = queryFactory
-            .selectDistinct(reward)
-            .from(reward)
-            .leftJoin(reward.video, video).fetchJoin()
-            .leftJoin(reward.question, question).fetchJoin()
-            .where(reward.member.memberId.eq(memberId))
-            .orderBy(reward.createdDate.desc());
-
-        List<Reward> results = query
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
+        JPAQuery<Tuple> query = queryFactory
+            .select(
+                channel.member.memberId,
+                channel.channelName,
+                channel.member.imageFile,
+                video.videoId.count(),
+                JPAExpressions
+                    .select(subscribe1.subscribe)
+                    .from(subscribe1)
+                    .where(
+                        subscribe1.channel.channelId.eq(channel.channelId)
+                            .and(subscribe1.member.memberId.eq(memberId))
+                    )
+                    .exists().as("isSubscribed"),
+                channel.subscribers
+            )
+            .from(member)
+            .join(member.orders, order)
+            .join(order.orderVideos, orderVideo)
+            .join(orderVideo.video, video)
+            .join(video.channel, channel)
+            .where(
+                order.member.memberId.eq(memberId)
+                .and(order.orderStatus.eq(OrderStatus.COMPLETED))
+            )
+            .groupBy(channel.member.memberId)
+            .orderBy(channel.channelName.asc());
 
         long totalCount = query.fetchCount();
 
-        return new PageImpl<>(results, pageable, totalCount);
+        List<Tuple> tuples = query
+            .limit(pageable.getPageSize())
+            .offset(pageable.getOffset())
+            .fetch();
+
+        return new PageImpl<>(tuples, pageable, totalCount);
+    }
+
+    public Page<Video> findPlaylistChannelDetails(Long loginId, Long memberId) {
+
+        JPAQuery<Video> query = queryFactory
+            .select(video)
+            .from(order)
+            .join(order.orderVideos, orderVideo)
+            .join(orderVideo.video, video)
+            .join(video.channel, channel)
+            .where(
+                order.member.memberId.eq(loginId)
+                .and(order.orderStatus.eq(OrderStatus.COMPLETED))
+                .and(video.channel.member.memberId.eq(memberId))
+            )
+            .orderBy(video.videoName.asc());
+
+        List<Video> videos = query
+            .fetch();
+
+        return new PageImpl<>(videos);
     }
 }

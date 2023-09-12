@@ -1,14 +1,15 @@
 package com.server.domain.reward.repository;
 
-import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
+import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.Reward;
-import com.server.domain.reward.entity.RewardType;
+import com.server.domain.reward.entity.QuestionReward;
+import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.video.entity.Video;
 import com.server.global.testhelper.RepositoryTest;
-import org.hibernate.Hibernate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,55 +17,70 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class RewardRepositoryTest extends RepositoryTest {
 
-    @Autowired RewardRepository rewardRepository;
+    @Autowired
+    RewardRepository rewardRepository;
 
     @Test
-    @DisplayName("member 와 video 로 reward 리스트를 찾는다.")
-    void findByMemberAndVideo() {
+    @DisplayName("주문번호로 reward 리스트를 찾는다.")
+    void findByOrderId() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-        Video video = createAndSaveVideo(channel);
-        Question question = createAndSaveQuestion(video);
+        Member owner = createMemberWithChannel();
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
+        Question question = createAndSaveQuestion(video1);
 
-        Member member = createAndSaveMember();
+        Member loginMember = createMemberWithChannel();
 
-        Reward reward1 = createAndSaveVideoReward(member, video);
-        Reward reward2 = createAndSaveQuestionReward(member, question);
+        Order order = createAndSaveOrderComplete(loginMember, List.of(video1, video2));
+
+        Reply reply = createAndSaveReply(loginMember, video1);
+
+        Reward reward1 = createAndSaveReward(loginMember, video1);
+        Reward reward2 = createAndSaveReward(loginMember, question);
+        Reward reward3 = createAndSaveReward(loginMember, video2);
+        Reward reward4 = createAndSaveReward(loginMember, reply);
 
         em.flush();
         em.clear();
 
         //when
-        List<Reward> rewards = rewardRepository.findByMemberAndVideo(member, video);
+        List<Reward> rewards = rewardRepository.findByOrderId(order.getOrderId());
 
         //then
-        assertThat(rewards).hasSize(2)
+        assertThat(rewards).hasSize(4)
                 .extracting("rewardId")
-                .containsExactlyInAnyOrder(reward1.getRewardId(), reward2.getRewardId());
+                .containsExactlyInAnyOrder(
+                        reward1.getRewardId(),
+                        reward2.getRewardId(),
+                        reward3.getRewardId(),
+                        reward4.getRewardId()
+                );
     }
 
     @Test
-    @DisplayName("주문번호로 reward 리스트를 찾는다. reward 의 member 는 초기화되어있다.")
-    void findByOrderId() {
+    @DisplayName("주문번호로 reward 리스트를 찾을 때 취소된 비디오의 내역은 찾지 않는다.")
+    void findByOrderIdWithCanceledVideo() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-        Video video1 = createAndSaveVideo(channel);
-        Video video2 = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
         Question question = createAndSaveQuestion(video1);
 
-        Member member = createAndSaveMember();
+        Member loginMember = createMemberWithChannel();
 
-        Order order = createAndSaveOrderComplete(member, List.of(video1, video2));
+        Order order = createAndSaveOrderComplete(loginMember, List.of(video1, video2));
+        order.cancelVideoOrder(getOrderVideo(order, video2)); //video2 취소
 
-        Reward reward1 = createAndSaveVideoReward(member, video1);
-        Reward reward2 = createAndSaveQuestionReward(member, question);
-        Reward reward3 = createAndSaveVideoReward(member, video2);
+        Reply reply = createAndSaveReply(loginMember, video1);
+
+        Reward reward1 = createAndSaveReward(loginMember, video1);
+        Reward reward2 = createAndSaveReward(loginMember, question);
+        Reward reward3 = createAndSaveReward(loginMember, video2);
+        Reward reward4 = createAndSaveReward(loginMember, reply);
 
         em.flush();
         em.clear();
@@ -75,61 +91,65 @@ class RewardRepositoryTest extends RepositoryTest {
         //then
         assertThat(rewards).hasSize(3)
                 .extracting("rewardId")
-                .containsExactlyInAnyOrder(reward1.getRewardId(), reward2.getRewardId(), reward3.getRewardId());
+                .containsExactlyInAnyOrder(
+                        reward1.getRewardId(),
+                        reward2.getRewardId(),
+                        reward4.getRewardId()
+                );
+    }
 
-        for (Reward reward : rewards) {
-            assertThat(Hibernate.isInitialized(reward.getMember())).isTrue();
-        }
+    private OrderVideo getOrderVideo(Order order, Video video) {
+        return order.getOrderVideos().stream()
+                .filter(ov -> ov.getVideo().getVideoId().equals(video.getVideoId()))
+                .findFirst()
+                .orElseThrow();
     }
 
     @Test
     @DisplayName("member 와 question 으로 Reward 를 찾는다.")
     void findByQuestionAndMember() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-        Video video1 = createAndSaveVideo(channel);
-        Video video2 = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
         Question question = createAndSaveQuestion(video1);
 
-        Member member = createAndSaveMember();
+        Member loginMember = createMemberWithChannel();
 
-        Order order = createAndSaveOrderComplete(member, List.of(video1, video2));
+        createAndSaveOrderComplete(loginMember, List.of(video1, video2));
 
-        Reward reward = createAndSaveQuestionReward(member, question);
+        Reward reward = createAndSaveReward(loginMember, question);
 
         em.flush();
         em.clear();
 
         //when
-        Reward findReward = rewardRepository.findByQuestionAndMember(question, member).orElseThrow();
+        Reward findReward = rewardRepository.findByQuestionAndMember(question, loginMember).orElseThrow();
 
         //then
         assertThat(findReward.getRewardId()).isEqualTo(reward.getRewardId());
     }
 
     @Test
-    @DisplayName("member 와 question 으로 Reward 를 찾을 때 취소되었으면 반환하지 않는다.")
-    void findByQuestionAndMemberCanceled() {
+    @DisplayName("member 와 question 으로 Reward 를 찾을 때 Reward 가 취소되었으면 찾지 않는다.")
+    void findByQuestionAndMemberQuestionRewardCanceled() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-        Video video1 = createAndSaveVideo(channel);
-        Video video2 = createAndSaveVideo(channel);
-        Question question = createAndSaveQuestion(video1);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+        Question question = createAndSaveQuestion(video);
 
-        Member member = createAndSaveMember();
+        Member loginMember = createMemberWithChannel();
 
-        Order order = createAndSaveOrderComplete(member, List.of(video1, video2));
+        createAndSaveOrderComplete(loginMember, List.of(video));
 
-        Reward reward = createAndSaveQuestionReward(member, question);
+        Reward reward = createAndSaveReward(loginMember, question);
         reward.cancelReward();
 
         em.flush();
         em.clear();
 
         //when
-        Optional<Reward> findReward = rewardRepository.findByQuestionAndMember(question, member);
+        Optional<QuestionReward> findReward = rewardRepository.findByQuestionAndMember(question, loginMember);
 
         //then
         assertThat(findReward.isPresent()).isFalse();
@@ -139,27 +159,26 @@ class RewardRepositoryTest extends RepositoryTest {
     @DisplayName("member 와 Question List 로 모든 Reward 를 찾는다.")
     void findByQuestionsAndMember() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         Question question1 = createAndSaveQuestion(video);
         Question question2 = createAndSaveQuestion(video);
         Question question3 = createAndSaveQuestion(video);
         List<Question> questions = List.of(question1, question2, question3);
 
-        Member member = createAndSaveMember();
+        Member loginMember = createMemberWithChannel();
 
-        Order order = createAndSaveOrderComplete(member, List.of(video));
+        createAndSaveOrderComplete(loginMember, List.of(video));
 
-        Reward reward1 = createAndSaveQuestionReward(member, question1);
-        Reward reward2 = createAndSaveQuestionReward(member, question2);
-        Reward reward3 = createAndSaveQuestionReward(member, question3);
+        Reward reward1 = createAndSaveReward(loginMember, question1);
+        Reward reward2 = createAndSaveReward(loginMember, question2);
+        Reward reward3 = createAndSaveReward(loginMember, question3);
 
         em.flush();
         em.clear();
 
         //when
-        List<Reward> findRewards = rewardRepository.findByQuestionsAndMember(questions, member);
+        List<QuestionReward> findRewards = rewardRepository.findByQuestionsAndMember(questions, loginMember);
 
         //then
         assertThat(findRewards).hasSize(3)
@@ -171,32 +190,127 @@ class RewardRepositoryTest extends RepositoryTest {
     @DisplayName("member 와 Question List 로 모든 Reward 를 찾는다. reward 가 취소되었으면 반환하지 않는다.")
     void findByQuestionsAndMemberCanceled() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
-        Video video = createAndSaveVideo(channel);
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
         Question question1 = createAndSaveQuestion(video);
         Question question2 = createAndSaveQuestion(video);
         Question question3 = createAndSaveQuestion(video);
         List<Question> questions = List.of(question1, question2, question3);
 
-        Member member = createAndSaveMember();
+        Member member = createMemberWithChannel();
 
-        Order order = createAndSaveOrderComplete(member, List.of(video));
+        createAndSaveOrderComplete(member, List.of(video));
 
-        Reward reward1 = createAndSaveQuestionReward(member, question1);
+        Reward reward1 = createAndSaveReward(member, question1);
         reward1.cancelReward();
-        Reward reward2 = createAndSaveQuestionReward(member, question2);
+        Reward reward2 = createAndSaveReward(member, question2);
         reward2.cancelReward();
-        Reward reward3 = createAndSaveQuestionReward(member, question3);
+        Reward reward3 = createAndSaveReward(member, question3);
         reward3.cancelReward();
 
         em.flush();
         em.clear();
 
         //when
-        List<Reward> findRewards = rewardRepository.findByQuestionsAndMember(questions, member);
+        List<QuestionReward> findRewards = rewardRepository.findByQuestionsAndMember(questions, member);
 
         //then
         assertThat(findRewards).isEmpty();
+    }
+    
+    @Test
+    @DisplayName("videoId, memberId 를 통해 해당 video 를 통해 얻은 모든 Reward 를 확인한다.")
+    void findByMemberAndVideoId() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
+        Question question = createAndSaveQuestion(video1);
+
+        Member member = createMemberWithChannel();
+
+        Reply reply = createAndSaveReply(member, video1);
+
+        createAndSaveOrderComplete(member, List.of(video1, video2));
+
+        Reward reward1 = createAndSaveReward(member, video1);
+        Reward reward2 = createAndSaveReward(member, question);
+        Reward reward3 = createAndSaveReward(member, video2);
+        Reward reward4 = createAndSaveReward(member, reply);
+
+
+        em.flush();
+        em.clear();
+
+        //when
+        List<Reward> rewards = rewardRepository.findByMemberAndVideoId(member.getMemberId(), video1.getVideoId());
+
+        //then
+        assertThat(rewards).hasSize(3)
+                .extracting("rewardId")
+                .containsExactlyInAnyOrder(
+                        reward1.getRewardId(),
+                        reward2.getRewardId(),
+                        reward4.getRewardId()
+                );
+    }
+
+    @Test
+    @DisplayName("videoId, memberId 를 통해 해당 video 를 통해 얻은 모든 Reward 를 확인할 때 취소된 리워드는 반환하지 않는다.")
+    void findByMemberAndVideoIdExceptCanceledReward() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
+        Question question = createAndSaveQuestion(video1);
+
+        Member member = createMemberWithChannel();
+
+        Reply reply = createAndSaveReply(member, video1);
+
+        createAndSaveOrderComplete(member, List.of(video1, video2));
+
+        Reward reward1 = createAndSaveReward(member, video1);
+        Reward reward2 = createAndSaveReward(member, question);
+        Reward reward3 = createAndSaveReward(member, video2);
+        Reward reward4 = createAndSaveReward(member, reply);
+        reward4.cancelReward(); //취소된 리워드
+
+
+        em.flush();
+        em.clear();
+
+        //when
+        List<Reward> rewards = rewardRepository.findByMemberAndVideoId(member.getMemberId(), video1.getVideoId());
+
+        //then
+        assertThat(rewards).hasSize(2)
+                .extracting("rewardId")
+                .containsExactlyInAnyOrder(
+                        reward1.getRewardId(),
+                        reward2.getRewardId()
+                );
+    }
+
+    protected Reward createAndSaveReward(Member member, Rewardable rewardable) {
+
+        Reward reward = Reward.createReward(10, member, rewardable);
+
+        em.persist(reward);
+
+        return reward;
+    }
+
+    protected Reply createAndSaveReply(Member member, Video video) {
+        Reply reply = Reply.builder()
+                .content("content")
+                .star(5)
+                .member(member)
+                .video(video)
+                .build();
+
+        em.persist(reply);
+
+        return reply;
     }
 }

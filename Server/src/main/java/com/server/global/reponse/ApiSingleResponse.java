@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
@@ -21,6 +22,7 @@ import com.server.global.exception.businessexception.BusinessException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 
 @Getter
 @AllArgsConstructor
@@ -77,6 +79,19 @@ public class ApiSingleResponse<T> {
 		);
 	}
 
+	public static ApiSingleResponse<List<ErrorResponse>> fail(MissingServletRequestParameterException exception) {
+		return new ApiSingleResponse<>(
+				List.of(ErrorResponse.of(
+						exception.getParameterName(),
+						"null",
+						String.format("%s 값은 필수입니다.", exception.getParameterName())
+				)),
+				HttpStatus.BAD_REQUEST.value(),
+				HttpStatus.BAD_REQUEST.name(),
+				"입력 값을 확인해주세요."
+		);
+	}
+
 	public static ApiSingleResponse<String> fail(HttpRequestMethodNotSupportedException exception) {
 		return new ApiSingleResponse<>(
 			String.format("지원하지 않는 Method : %s", exception.getMethod()),
@@ -87,6 +102,15 @@ public class ApiSingleResponse<T> {
 	}
 
 	public static ApiSingleResponse<Void> fail(Exception exception) {
+		return new ApiSingleResponse<>(
+			null,
+			HttpStatus.INTERNAL_SERVER_ERROR.value(),
+			HttpStatus.INTERNAL_SERVER_ERROR.name(),
+			exception.getMessage()
+		);
+	}
+
+	public static ApiSingleResponse<Void> fail(Exception exception, int status) {
 		return new ApiSingleResponse<>(
 			null,
 			HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -132,6 +156,10 @@ public class ApiSingleResponse<T> {
 
 		private static String getInValidValue(ConstraintViolation<?> violation) {
 			return Optional.ofNullable(violation.getInvalidValue()).orElse("null").toString();
+		}
+
+		public static ErrorResponse of(String field, String value, String reason) {
+			return new ErrorResponse(field, value, reason);
 		}
 
 	}

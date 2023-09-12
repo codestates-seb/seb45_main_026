@@ -80,6 +80,7 @@ class QuestionControllerTest extends ControllerTest {
                                         fieldWithPath("data.answerStatus").description(generateLinkCode(AnswerStatus.class)),
                                         fieldWithPath("data.description").description("질문에 대한 답변 설명"),
                                         fieldWithPath("data.selections").description("질문에 대한 선택지"),
+                                        fieldWithPath("data.choice").description("객관식 여부"),
                                         fieldWithPath("data.solvedDate").description("질문 풀이 날짜")
                                 )
                         )
@@ -93,7 +94,6 @@ class QuestionControllerTest extends ControllerTest {
         Long questionId = 1L;
 
         QuestionUpdateApiRequest request = QuestionUpdateApiRequest.builder()
-                .position(1)
                 .content("content")
                 .questionAnswer("1")
                 .description("this is apple")
@@ -127,7 +127,6 @@ class QuestionControllerTest extends ControllerTest {
                                         parameterWithName("question-id").description("수정할 문제 ID")
                                 ),
                                 requestFields(
-                                        fieldWithPath("position").description("문제 순서").optional().attributes(getConstraint("position")),
                                         fieldWithPath("content").description("문제 내용").optional().attributes(getConstraint("content")),
                                         fieldWithPath("questionAnswer").description("정답").optional().attributes(getConstraint("questionAnswer")),
                                         fieldWithPath("description").description("문제에 대한 답변 설명").optional().attributes(getConstraint("description")),
@@ -270,7 +269,6 @@ class QuestionControllerTest extends ControllerTest {
                     Long wrongQuestionId = 0L;
 
                     QuestionUpdateApiRequest request = QuestionUpdateApiRequest.builder()
-                            .position(1)
                             .content("content")
                             .questionAnswer("1")
                             .description("this is apple")
@@ -292,39 +290,11 @@ class QuestionControllerTest extends ControllerTest {
                             .andExpect(jsonPath("$.data[0].value").value(wrongQuestionId))
                             .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
                 }),
-                dynamicTest("position 값이 있을 때 양수가 아니면 검증에 실패한다.", ()-> {
-                    //given
-                    int wrongPosition = 0;
-
-                    QuestionUpdateApiRequest request = QuestionUpdateApiRequest.builder()
-                            .position(wrongPosition)
-                            .content("content")
-                            .questionAnswer("1")
-                            .description("this is apple")
-                            .selections(List.of("selection1", "selection2", "selection3", "selection4"))
-                            .build();
-
-                    //when
-                    ResultActions actions = mockMvc.perform(
-                            patch("/questions/{question-id}", questionId)
-                                    .header(AUTHORIZATION, TOKEN)
-                                    .contentType(APPLICATION_JSON)
-                                    .content(objectMapper.writeValueAsString(request))
-                    );
-
-                    //then
-                    actions.andDo(print())
-                            .andExpect(status().isBadRequest())
-                            .andExpect(jsonPath("$.data[0].field").value("position"))
-                            .andExpect(jsonPath("$.data[0].value").value(wrongPosition))
-                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
-                }),
                 dynamicTest("content 값이 있을 때 공백이면 검증에 실패한다.", ()-> {
                     //given
                     String wrongContent = " ";
 
                     QuestionUpdateApiRequest request = QuestionUpdateApiRequest.builder()
-                            .position(1)
                             .content(wrongContent)
                             .questionAnswer("1")
                             .description("this is apple")
@@ -351,7 +321,6 @@ class QuestionControllerTest extends ControllerTest {
                     String questionAnswer = " ";
 
                     QuestionUpdateApiRequest request = QuestionUpdateApiRequest.builder()
-                            .position(1)
                             .content("content")
                             .questionAnswer(questionAnswer)
                             .description("this is apple")
@@ -376,7 +345,6 @@ class QuestionControllerTest extends ControllerTest {
                 dynamicTest("selections 값이 있을 때 빈 배열이면 검증에 실패한다.", ()-> {
                     //given
                     QuestionUpdateApiRequest request = QuestionUpdateApiRequest.builder()
-                            .position(1)
                             .content("content")
                             .questionAnswer("1")
                             .description("this is apple")
@@ -401,7 +369,6 @@ class QuestionControllerTest extends ControllerTest {
                 dynamicTest("selections 가 5개 이상이면 검증에 실패한다.", ()-> {
                     //given
                     QuestionUpdateApiRequest request = QuestionUpdateApiRequest.builder()
-                            .position(1)
                             .content("content")
                             .questionAnswer("1")
                             .description("this is apple")
@@ -426,7 +393,6 @@ class QuestionControllerTest extends ControllerTest {
                 dynamicTest("selections 내부 값이 공백이면 검증에 실패한다.", ()-> {
                     //given
                     QuestionUpdateApiRequest request = QuestionUpdateApiRequest.builder()
-                            .position(1)
                             .content("content")
                             .questionAnswer("1")
                             .description("this is apple")

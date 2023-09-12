@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.server.auth.jwt.service.JwtProvider;
+import com.server.auth.util.AuthUtil;
+import com.server.global.exception.businessexception.BusinessException;
 import com.server.global.exception.businessexception.authexception.JwtNotFoundException;
 import com.server.global.exception.businessexception.requestexception.RequestNotPostException;
 
@@ -28,7 +30,7 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
 									HttpServletResponse response,
 									FilterChain filterChain) throws ServletException, IOException {
 		if(!request.getMethod().equals("POST")){
-			throw new RequestNotPostException();
+			AuthUtil.setResponse(response, new RequestNotPostException());
 		}
 		else{
 			try {
@@ -40,6 +42,8 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
 					jwtProvider.refillAccessToken(refreshToken, ACCESS_TOKEN_EXPIRE_TIME);
 
 				response.setHeader(AUTHORIZATION, BEARER + refilledAccessToken);
+			} catch (BusinessException exception) {
+				AuthUtil.setResponse(response, exception);
 			} catch (Exception exception) {
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "알 수 없는 오류입니다. 다시 시도해주세요.");
 			}

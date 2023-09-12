@@ -16,9 +16,6 @@ import java.util.List;
 @Builder
 public class QuestionUpdateApiRequest {
 
-    @Positive(message = "{validation.positive}")
-    private Integer position;
-
     @OnlyNotBlank(message = "{validation.question.content.notBlank}")
     private String content;
 
@@ -36,7 +33,6 @@ public class QuestionUpdateApiRequest {
 
         return QuestionUpdateServiceRequest.builder()
                 .questionId(questionId)
-                .position(position)
                 .content(content)
                 .questionAnswer(questionAnswer)
                 .description(description)

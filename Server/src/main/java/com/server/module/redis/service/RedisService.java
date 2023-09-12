@@ -19,10 +19,10 @@ public class RedisService {
 		return valueOperations.get(key);
 	}
 
-	public void setExpire(String key, String mail, long duration) {
+	public void setExpire(String key, String value, long duration) {
 		ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
 		Duration expireDuration = Duration.ofSeconds(duration);
-		valueOperations.set(key, mail, expireDuration);
+		valueOperations.set(key, value, expireDuration);
 	}
 
 	public void deleteData(String key) {

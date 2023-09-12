@@ -18,13 +18,16 @@ public class ChannelInfo {
     private String description;
     private String imageUrl;
     private LocalDateTime createdDate;
+    public static ChannelInfo of(Channel channel, Boolean isSubscribed, String imageUrl) {
 
-
-        public static ChannelInfo of(Channel channel, boolean isSubscribed, String imageUrl) {
-
-            return ChannelInfo.builder()
-                    .isSubscribed(isSubscribed)
-                    .imageUrl(imageUrl)
-                    .build();
+                 return ChannelInfo.builder()
+                            .memberId(channel.getMember().getMemberId())
+                            .channelName(channel.getChannelName())
+                            .subscribers(channel.getSubscribers())
+                            .isSubscribed(isSubscribed)
+                            .description(channel.getDescription())
+                            .imageUrl(imageUrl)
+                            .createdDate(channel.getCreatedDate())
+                            .build();
         }
     }

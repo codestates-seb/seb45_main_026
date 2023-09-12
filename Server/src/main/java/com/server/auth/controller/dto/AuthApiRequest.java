@@ -1,9 +1,7 @@
 package com.server.auth.controller.dto;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -11,7 +9,6 @@ import javax.validation.constraints.Size;
 import com.server.auth.oauth.service.OAuthProvider;
 import com.server.auth.service.dto.AuthServiceRequest;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
-import com.server.module.email.service.dto.MailServiceRequest;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,8 +42,8 @@ public class AuthApiRequest {
 		@NotNull(message = "{validation.auth.code}")
 		private String code;
 
-		public MailServiceRequest.Confirm toServiceRequest() {
-			return MailServiceRequest.Confirm.builder()
+		public AuthServiceRequest.Confirm toServiceRequest() {
+			return AuthServiceRequest.Confirm.builder()
 				.email(email)
 				.code(code)
 				.build();
@@ -68,7 +65,7 @@ public class AuthApiRequest {
 
 		@NotNull(message = "{validation.auth.nickname}")
 		@Size(min = 1, max = 20, message = "{validation.size}")
-		@Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,20}$", message = "{validation.auth.nickname}")
+		@Pattern(regexp = "^[a-zA-Z0-9가-힣]{1,20}$", message = "{validation.auth.nickname}")
 		private String nickname;
 
 		public MemberServiceRequest.Create toServiceRequest() {
@@ -81,6 +78,7 @@ public class AuthApiRequest {
 	}
 
 	@Getter
+	@Setter
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class Login {

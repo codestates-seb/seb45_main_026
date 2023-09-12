@@ -5,73 +5,59 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.server.domain.cart.entity.Cart;
-import com.server.domain.channel.entity.Channel;
-import com.server.domain.member.service.dto.response.CartsResponse;
-import com.server.domain.member.service.dto.response.OrdersResponse;
-import com.server.domain.member.service.dto.response.PlaylistsResponse;
-import com.server.domain.member.service.dto.response.RewardsResponse;
-import com.server.domain.member.service.dto.response.SubscribesResponse;
-import com.server.domain.member.service.dto.response.WatchsResponse;
-import com.server.domain.order.entity.Order;
-import com.server.domain.question.entity.Question;
-import com.server.domain.reward.entity.Reward;
-import com.server.domain.reward.entity.RewardType;
-import com.server.domain.subscribe.entity.Subscribe;
-import com.server.domain.video.entity.Video;
-import com.server.domain.watch.entity.Watch;
-import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.junit.jupiter.api.TestFactory;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.server.domain.cart.entity.Cart;
+import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
-import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
+import com.server.domain.member.service.dto.response.CartsResponse;
+import com.server.domain.member.service.dto.response.RewardsResponse;
+import com.server.domain.member.service.dto.response.OrdersResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
+import com.server.domain.member.service.dto.response.PlaylistsResponse;
+import com.server.domain.member.service.dto.response.SubscribesResponse;
+import com.server.domain.member.service.dto.response.WatchsResponse;
+import com.server.domain.order.entity.Order;
+import com.server.domain.question.entity.Question;
+import com.server.domain.reply.entity.Reply;
+import com.server.domain.reward.entity.RewardType;
+import com.server.domain.video.entity.Video;
+import com.server.domain.watch.entity.Watch;
+import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberNotUpdatedException;
 import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
+import com.server.global.exception.businessexception.orderexception.OrderNotFoundException;
 import com.server.global.testhelper.ServiceTest;
-import com.server.module.s3.service.AwsService;
+import com.server.module.s3.service.dto.FileType;
 
 public class MemberServiceTest extends ServiceTest {
 
 	@Autowired PasswordEncoder passwordEncoder;
 	@Autowired MemberService memberService;
-	@Autowired AwsService awsService;
-
-	@Mock
-	private MemberRepository mockMemberRepository;
-
-	@Mock
-	private AwsService mockAwsService;
-
-	@InjectMocks
-	private MemberService mockMemberService;
 
 	@Test
 	@DisplayName("로그인한 회원의 프로필 조회가 성공적으로 되는지 검증한다.")
 	void getMember() {
 		Member member = Member.builder()
-			.memberId(1L)
 			.email("test@gmail.com")
 			.password(passwordEncoder.encode("1q2w3e4r!"))
 			.nickname("test")
@@ -80,16 +66,16 @@ public class MemberServiceTest extends ServiceTest {
 			.imageFile("imageName")
 			.build();
 
-		Optional<Member> optional = Optional.ofNullable(member);
+		em.persist(member);
+		em.flush();
+
 		Long id = member.getMemberId();
 
-		String fileUrl = "www.test.com";
+		String fileUrl = "www.imageUrl.com";
 
-		given(mockMemberRepository.findById(Mockito.anyLong())).willReturn(optional);
-		given(mockAwsService.getFileUrl(Mockito.anyLong(), Mockito.anyString(), Mockito.any(FileType.class)))
-			.willReturn(fileUrl);
+		given(awsService.getFileUrl(Mockito.anyLong(), Mockito.anyString(), Mockito.any(FileType.class))).willReturn(fileUrl);
 
-		assertThat(mockMemberService.getMember(id).getImageUrl()).isEqualTo(fileUrl);
+		assertThat(memberService.getMember(id).getImageUrl()).isEqualTo(fileUrl);
 	}
 
 	@Test
@@ -127,31 +113,36 @@ public class MemberServiceTest extends ServiceTest {
 
 	@Test
 	@DisplayName("로그인한 사용자의 리워드 목록을 조회한다.")
-	void getRewards() {
+	void getNewRewards() {
 		Member member = createAndSaveMember();
 		Channel channel = createAndSaveChannel(member);
-		Video video = createAndSaveVideo(channel);
-		Question question = createAndSaveQuestion(video);
 
 		Member user = createAndSaveMember();
 
-		createAndSaveVideoReward(user, video);
-		createAndSaveQuestionReward(user, question);
+		Video video = createAndSaveVideo(channel);
+		createAndSaveReward(user, video);
+		Question question = createAndSaveQuestion(video);
+		createAndSaveReward(user, question);
+		Reply reply = createAndSaveReply(user, video);
+		createAndSaveReward(user, reply);
 
 		Page<RewardsResponse> page = memberService.getRewards(user.getMemberId(), 1, 10);
 
-		assertThat(page.getTotalElements()).isEqualTo(2);
+		assertThat(page.getTotalElements()).isEqualTo(3);
 		assertThat(page.getTotalPages()).isEqualTo(1);
 
 		Iterator<RewardsResponse> pageIterator = page.iterator();
 
+		assertThat(pageIterator.next().getRewardType()).isEqualTo(RewardType.REPLY);
 		assertThat(pageIterator.next().getRewardType()).isEqualTo(RewardType.QUIZ);
 		assertThat(pageIterator.next().getRewardType()).isEqualTo(RewardType.VIDEO);
+
+		assertThat(page.getContent()).isSortedAccordingTo(Comparator.comparing(RewardsResponse::getCreatedDate).reversed());
 	}
 
 	@Test
 	@DisplayName("로그인한 회원의 장바구니 목록을 조회한다.")
-	void getCarts() {
+	void getCarts() throws InterruptedException {
 		Member user = createAndSaveMember();
 
 		List<Cart> carts = new ArrayList<>();
@@ -163,7 +154,8 @@ public class MemberServiceTest extends ServiceTest {
 			Video video = createAndSaveVideo(channel);
 
 			videos.add(video);
-			carts.add(createAndSaveCartWithVideo(user, video));
+			carts.add(createAndSaveCart(user, video));
+			Thread.sleep(50);
 		}
 
 		Page<CartsResponse> page = memberService.getCarts(user.getMemberId(), 1, 10);
@@ -171,10 +163,8 @@ public class MemberServiceTest extends ServiceTest {
 		assertThat(page.getTotalElements()).isEqualTo(20);
 		assertThat(page.getTotalPages()).isEqualTo(2);
 
-		List<CartsResponse> cartList = page.getContent();
-
-		assertThat(cartList.get(0).getVideoId()).isEqualTo(videos.get(videos.size() - 1).getVideoId());
-		assertThat(cartList.get(cartList.size() - 1).getVideoId()).isEqualTo(videos.get(10).getVideoId());
+		assertThat(page.getContent())
+			.isSortedAccordingTo(Comparator.comparing(CartsResponse::getCreatedDate).reversed());
 	}
 
 	@Test
@@ -188,6 +178,9 @@ public class MemberServiceTest extends ServiceTest {
 
 		createOrders(user, firstlast);
 
+		em.flush();
+		em.clear();
+
 		Page<OrdersResponse> page = memberService.getOrders(user.getMemberId(), pages, size, 6);
 
 		assertThat(page.getContent().size()).isEqualTo(size);
@@ -196,6 +189,51 @@ public class MemberServiceTest extends ServiceTest {
 
 		assertThat(page.getContent().get(0).getOrderId()).isEqualTo(firstlast.get(1).getOrderId());
 		assertThat(page.getContent().get(9).getOrderId()).isEqualTo(firstlast.get(0).getOrderId());
+	}
+
+	@Test
+	@DisplayName("보관함 목록을 채널별로 그룹화해서 조회한다")
+	void getGroupPlaylists() {
+		Member user = createAndSaveMember();
+		Member member1 = createAndSaveMember();
+		Member member2 = createAndSaveMember();
+		Channel channel1 = createAndSaveChannelWithName(member1, "1aaaaaaaaa");
+		Channel channel2 = createAndSaveChannelWithName(member2, "0aaaaaaaa");
+		createAndSaveVideo(channel1);
+		createAndSaveVideo(channel1);
+		createAndSaveVideo(channel1);
+		createAndSaveVideo(channel1);
+		createAndSaveSubscribe(user, channel1);
+
+		for (int x = 1; x < 21; x++) {
+			List<Video> videos = new ArrayList<>();
+
+			Channel channel;
+			Video video;
+
+			Member member = createAndSaveMember();
+			if (x < 5) {
+				video = createAndSaveVideo(channel1);
+			} else if (x > 4 && x < 10) {
+				video = createAndSaveVideo(channel2);
+			} else {
+				channel = createAndSaveChannelWithName(member, generateRandomString());
+				video = createAndSaveVideo(channel);
+			}
+
+			videos.add(video);
+
+			createAndSaveOrderWithPurchaseComplete(user, videos, 0);
+		}
+
+		Page<PlaylistChannelResponse> responses =
+			memberService.getChannelForPlaylist(user.getMemberId(), 1, 10);
+
+		List<PlaylistChannelResponse> playlistChannelResponses = responses.getContent();
+
+		assertThat(playlistChannelResponses).isSortedAccordingTo(
+			Comparator.comparing(PlaylistChannelResponse::getChannelName)
+		);
 	}
 
 	@Test
@@ -237,8 +275,6 @@ public class MemberServiceTest extends ServiceTest {
 	void getWatchs() {
 		Member user = createAndSaveMember();
 
-		List<Watch> firstlast = new ArrayList<>();
-
 		for (int i = 0; i < 20; i++) {
 			String name = generateRandomString();
 
@@ -246,12 +282,11 @@ public class MemberServiceTest extends ServiceTest {
 			Channel channel = createAndSaveChannelWithName(member, name);
 			Video video = createAndSaveVideo(channel);
 
-			Watch watch = createAndSaveWatch(user, video);
-
-			if(i == 10 || i == 19) {
-				firstlast.add(watch);
-			}
+			createAndSaveWatch(user, video);
 		}
+
+		em.flush();
+		em.clear();
 
 		Page<WatchsResponse> page = memberService.getWatchs(user.getMemberId(), 1, 10, 7);
 
@@ -263,15 +298,154 @@ public class MemberServiceTest extends ServiceTest {
 		);
 	}
 
-	@Test
+	@TestFactory
 	@DisplayName("로그인한 사용자의 ID에 맞는 회원 테이블을 삭제한다.")
-	void deleteMember() {
-		Member member = createAndSaveMember();
-		Long id = member.getMemberId();
+	Collection<DynamicTest> deleteMember() {
+		//given
+		Member user = createAndSaveMember();
+		Long userId = user.getMemberId();
+		Channel userChannel = createAndSaveChannel(user);
+		Video userVideo1 = createAndSaveVideo(userChannel);
+		Video userVideo2 = createAndSaveVideo(userChannel);
+		Video userVideo3 = createAndSaveVideo(userChannel);
+		Order userOrder = createAndSaveOrder(user, List.of(userVideo1, userVideo2, userVideo3), 0);
 
-		memberService.deleteMember(id);
+		Member member1 = createAndSaveMember();
+		Channel channel1 = createAndSaveChannelWithSubscriber(member1, 10);
+		Video channel1Video1 = createAndSaveVideo(channel1);
+		Video channel1Video2 = createAndSaveVideo(channel1);
+		Video channel1Video3 = createAndSaveVideo(channel1);
 
-		assertThrows(MemberNotFoundException.class, () -> memberRepository.findById(id).orElseThrow(MemberNotFoundException::new));
+		Member member2 = createAndSaveMember();
+		Channel channel2 = createAndSaveChannelWithSubscriber(member2, 100);
+
+		Member member3 = createAndSaveMember();
+		Channel channel3 = createAndSaveChannelWithSubscriber(member3, 1000);
+
+		createAndSaveSubscribe(user, channel1);
+		createAndSaveSubscribe(user, channel2);
+		createAndSaveSubscribe(user, channel3);
+
+		Watch watch1 = createAndSaveWatch(user, channel1Video1);
+		Watch watch2 = createAndSaveWatch(user, channel1Video2);
+		Watch watch3 = createAndSaveWatch(user, channel1Video3);
+
+		Reply userReply1 = createAndSaveReply(user, channel1Video1);
+		Reply userReply2 = createAndSaveReply(user, channel1Video2);
+		Reply userReply3 = createAndSaveReply(user, channel1Video3);
+
+		Reply reply1 = createAndSaveReply5Star(member1, channel1Video1);
+		Reply reply2 = createAndSaveReply5Star(member2, channel1Video1);
+		Reply reply3 = createAndSaveReply5Star(member3, channel1Video1);
+
+		em.flush();
+		em.clear();
+
+		Float channel1Video1Star =
+			videoRepository.findById(channel1Video1.getVideoId()).orElseThrow().getStar();
+
+		//when
+		memberService.deleteMember(userId);
+
+		em.flush();
+		em.clear();
+
+		Float newChannel1Video1Star =
+			videoRepository.findById(channel1Video1.getVideoId()).orElseThrow().getStar();
+
+		//then
+		return List.of(
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원의 엔티티가 존재하지 않는지 검증한다",
+				() -> {
+					assertThrows(MemberNotFoundException.class,
+						() -> memberRepository.findById(userId).orElseThrow(MemberNotFoundException::new));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원의 채널이 같이 삭제되는지 검증한다",
+				() -> {
+					assertThrows(ChannelNotFoundException.class,
+						() -> channelRepository.findById(userChannel.getChannelId()).orElseThrow(ChannelNotFoundException::new));
+				}
+			),
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원이 업로드한 비디오가 같이 삭제되지 않는지 검증한다.",
+				() -> {
+					assertThat(videoRepository.findById(userVideo1.getVideoId()).orElseThrow().getChannel())
+						.isNull();
+					assertThat(videoRepository.findById(userVideo2.getVideoId()).orElseThrow().getChannel())
+						.isNull();
+					assertThat(videoRepository.findById(userVideo3.getVideoId()).orElseThrow().getChannel())
+						.isNull();
+				}
+			),
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원이 구독하던 채널의 구독자수가 감소했는지 검증한다",
+				() -> {
+					assertThat(channelRepository.findById(channel1.getChannelId()).orElseThrow().getSubscribers()).isEqualTo(9);
+					assertThat(channelRepository.findById(channel2.getChannelId()).orElseThrow().getSubscribers()).isEqualTo(99);
+					assertThat(channelRepository.findById(channel3.getChannelId()).orElseThrow().getSubscribers()).isEqualTo(999);
+				}
+			),
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원의 주문기록이 남아있는지 검증한다",
+				() -> {
+					assertDoesNotThrow(
+						() -> orderRepository.findById(userOrder.getOrderId()).orElseThrow(
+							OrderNotFoundException::new
+						)
+					);
+				}
+			),
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원의 시청기록이 지워졌는지 검증한다",
+				() -> {
+					assertThrows(
+						NullPointerException.class,
+						() -> watchRepository.findById(watch1.getWatchId()).orElseThrow(NullPointerException::new)
+					);
+					assertThrows(
+						NullPointerException.class,
+						() -> watchRepository.findById(watch2.getWatchId()).orElseThrow(NullPointerException::new)
+					);
+					assertThrows(
+						NullPointerException.class,
+						() -> watchRepository.findById(watch3.getWatchId()).orElseThrow(NullPointerException::new)
+					);
+				}
+			),
+			DynamicTest.dynamicTest(
+				"탈퇴한 회원이 작성했던 강의평들이 지워지는지 검증한다",
+				() -> {
+					assertThrows(
+						NullPointerException.class,
+						() -> replyRepository.findById(userReply1.getReplyId()).orElseThrow(NullPointerException::new)
+					);
+					assertThrows(
+						NullPointerException.class,
+						() -> replyRepository.findById(userReply2.getReplyId()).orElseThrow(NullPointerException::new)
+					);
+					assertThrows(
+						NullPointerException.class,
+						() -> replyRepository.findById(userReply3.getReplyId()).orElseThrow(NullPointerException::new)
+					);
+				}
+			),
+			DynamicTest.dynamicTest(
+				"삭제된 강의평들의 영상의 별점이 다시 계산되는지 검증한다",
+				() -> {
+					assertThat(videoRepository.findById(channel1Video1.getVideoId())
+						.orElseThrow().getStar()).isEqualTo(5);
+					assertThat(videoRepository.findById(channel1Video1.getVideoId())
+						.orElseThrow().getReplies().size()).isEqualTo(3);
+					assertThat(videoRepository.findById(channel1Video2.getVideoId())
+						.orElseThrow().getStar()).isEqualTo(0);
+					assertThat(videoRepository.findById(channel1Video3.getVideoId())
+						.orElseThrow().getStar()).isEqualTo(0);
+				}
+			)
+		);
 	}
 
 	@Test
@@ -309,11 +483,10 @@ public class MemberServiceTest extends ServiceTest {
 		Member member = createNoImageMember();
 
 		Long loginId = member.getMemberId();
-		String imageName = member.getEmail();
+		String imageName = "profile20230907140835";
 
-		memberService.updateImage(loginId);
+		memberService.updateImage(loginId, imageName);
 
-		assertThat(imageName).isEqualTo("test@gmail.com");
 		assertThat(member.getImageFile()).isNotNull().isEqualTo(imageName);
 	}
 
@@ -367,12 +540,8 @@ public class MemberServiceTest extends ServiceTest {
 		Member member = createMember();
 		Long loginId = member.getMemberId();
 
-		given(mockMemberRepository.findById(Mockito.anyLong())).willReturn(Optional.of(member));
-		doNothing().when(mockAwsService).deleteFile(anyLong(), anyString(), any(FileType.class));
+		memberService.deleteImage(loginId);
 
-		mockMemberService.deleteImage(loginId);
-
-		verify(mockAwsService).deleteFile(loginId, "imageName", FileType.PROFILE_IMAGE);
 		assertNull(member.getImageFile());
 	}
 

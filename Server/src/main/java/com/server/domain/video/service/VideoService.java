@@ -6,11 +6,8 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.category.repository.CategoryRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
-import com.server.domain.reply.dto.ReplyCreateServiceApi;
-import com.server.domain.reply.dto.ReplyInfo;
-import com.server.domain.reply.entity.Reply;
-import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
@@ -22,27 +19,17 @@ import com.server.domain.video.service.dto.response.VideoPageResponse;
 import com.server.domain.watch.entity.Watch;
 import com.server.domain.watch.repository.WatchRepository;
 import com.server.global.exception.businessexception.categoryexception.CategoryNotFoundException;
-import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
-import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
-import com.server.global.exception.businessexception.videoexception.VideoAccessDeniedException;
-import com.server.global.exception.businessexception.videoexception.VideoFileNameNotMatchException;
-import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
-import com.server.global.exception.businessexception.videoexception.VideoUploadNotRequestException;
-import com.server.module.redis.service.RedisService;
+import com.server.global.exception.businessexception.videoexception.*;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -56,65 +43,78 @@ public class VideoService {
     private final CategoryRepository categoryRepository;
     private final CartRepository cartRepository;
     private final AwsService awsService;
-    private final RedisService redisService;
-    private final ReplyRepository replyRepository;
 
     public VideoService(VideoRepository videoRepository, MemberRepository memberRepository,
                         WatchRepository watchRepository, CategoryRepository categoryRepository,
-                        CartRepository cartRepository, AwsService awsService, RedisService redisService,
-                        ReplyRepository replyRepository) {
+                        CartRepository cartRepository, AwsService awsService) {
         this.videoRepository = videoRepository;
         this.memberRepository = memberRepository;
         this.watchRepository = watchRepository;
         this.categoryRepository = categoryRepository;
         this.cartRepository = cartRepository;
         this.awsService = awsService;
-        this.redisService = redisService;
-        this.replyRepository = replyRepository;
     }
 
     public Page<VideoPageResponse> getVideos(Long loginMemberId, VideoGetServiceRequest request) {
 
-        Page<Video> video = videoRepository.findAllByCategoryPaging(request.toDataRequest());
+        Member member = verifiedMemberOrNull(loginMemberId);
 
-        List<Boolean> isPurchaseInOrder = isPurchaseInOrder(loginMemberId, video.getContent());
+        Page<Video> videos = videoRepository.findAllByCond(request.toDataRequest());
 
-        List<Boolean> isSubscribeInOrder = isSubscribeInOrder(loginMemberId, video.getContent(), request.isSubscribe());
+        return VideoPageResponse.of(
+                videos,
+                isPurchase(member, videos),
+                isSubscribe(member, videos, request.isSubscribe()),
+                getVideoUrls(videos),
+                getVideoIdsInCart(member, videos.getContent())
+        );
+    }
 
-        List<String[]> urlsInOrder = getThumbnailAndImageUrlsInOrder(video.getContent());
+    public VideoDetailResponse getVideo(Long loginMemberId, Long videoId) {
 
-        return VideoPageResponse.of(video, isPurchaseInOrder, isSubscribeInOrder, urlsInOrder);
+        Video video = verifiedVideoIncludeWithdrawal(videoId);
+
+        Member loginMember = verifiedMemberOrNull(loginMemberId);
+
+        Boolean isPurchased = isPurchased(loginMember, video);
+
+        checkIfVideoClosed(isPurchased, video);
+
+        return VideoDetailResponse.of(video,
+                isSubscribed(loginMember, video),
+                getAllUrls(video),
+                isPurchased,
+                isReplied(loginMember, video),
+                isInCart(loginMember, video));
     }
 
     @Transactional
-    public VideoDetailResponse getVideo(Long loginMemberId, Long videoId) {
+    public void watch(Long loginMemberId, Long videoId) {
 
-        Video video = existVideo(videoId);
+        Video video = verifiedVideoIncludeWithdrawal(videoId);
 
-        Member member = verifiedMemberOrNull(loginMemberId);
+        Member loginMember = verifiedMemberOrNull(loginMemberId);
 
-        watch(member, video);
+        video.addView();
+        if(loginMember == null) return;
 
-        Boolean subscribed = isSubscribed(member, video);
-
-        Map<String, Boolean> isPurchaseAndIsReplied = getIsPurchaseAndIsReplied(member, videoId);
-
-        Map<String, String> urls = getVideoUrls(video);
-
-        return VideoDetailResponse.of(video, subscribed, urls, isPurchaseAndIsReplied);
+        getOrCreateWatch(loginMember, video);
     }
 
     @Transactional
     public VideoCreateUrlResponse getVideoCreateUrl(Long loginMemberId, VideoCreateUrlServiceRequest request) {
 
+        checkValidVideoName(request.getFileName());
+
         Member member = verifiedMemberWithChannel(loginMemberId);
+
+        checkDuplicateVideoNameInSameChannel(loginMemberId, request.getFileName());
 
         Video video = Video.createVideo(
                 member.getChannel(),
                 request.getFileName(),
                 0,
-                "uploading",
-                new ArrayList<>());
+                "uploading");
 
         videoRepository.save(video);
 
@@ -129,26 +129,23 @@ public class VideoService {
     @Transactional
     public Long createVideo(Long loginMemberId, VideoCreateServiceRequest request) {
 
-        Video video = verifedVideo(loginMemberId, request.getVideoName());
+        Video video = verifiedVideo(loginMemberId, request.getVideoName());
 
-        additionalCreateProcess(request, video);
+        video.additionalCreateProcess(
+                request.getPrice(),
+                request.getDescription(),
+                verifiedCategories(request.getCategories())
+        );
+
+        checkIfVideoUploaded(loginMemberId, video);
 
         return video.getVideoId();
-    }
-
-    private void additionalCreateProcess(VideoCreateServiceRequest request, Video video) {
-
-        List<Category> categories = verifiedCategories(request.getCategories());
-
-        video.additionalCreateProcess(request.getPrice(), request.getDescription());
-
-        video.updateCategory(categories);
     }
 
     @Transactional
     public void updateVideo(Long loginMemberId, VideoUpdateServiceRequest request) {
 
-        Video video = verifedVideo(loginMemberId, request.getVideoId());
+        Video video = verifiedVideo(loginMemberId, request.getVideoId());
 
         video.updateVideo(request.getDescription());
     }
@@ -164,64 +161,94 @@ public class VideoService {
     }
 
     @Transactional
-    public void deleteVideo(Long loginMemberId, Long videoId) {
+    public void deleteCarts(Long loginMemberId, List<Long> videoIds) {
 
-        Video video = verifedVideo(loginMemberId, videoId);
+        Member member = verifiedMember(loginMemberId);
 
-        awsService.deleteFile(loginMemberId, video.getVideoName(), FileType.VIDEO);
-        awsService.deleteFile(loginMemberId, video.getThumbnailFile(), FileType.THUMBNAIL);
-
-        videoRepository.delete(video);
+        cartRepository.deleteByMemberAndVideoIds(member, videoIds);
     }
 
-    private List<Boolean> isPurchaseInOrder(Long loginMemberId, List<Video> content) {
+    @Transactional
+    public void deleteVideo(Long loginMemberId, Long videoId) {
 
-        List<Long> videoIds = content.stream()
+        Video video = verifiedVideo(loginMemberId, videoId);
+
+        video.close();
+    }
+
+    private void checkValidVideoName(String fileName) {
+        if (fileName.contains("/")) {
+            throw new VideoNameNotValidException("/");
+        }
+    }
+
+    private List<Boolean> isPurchase(Member loginMember, Page<Video> videos) {
+
+        if(loginMember == null) {
+            return createBooleans(videos.getContent().size(), false);
+        }
+
+        List<Long> videoIds = videos.getContent().stream()
                 .map(Video::getVideoId)
                 .collect(Collectors.toList());
 
-        return memberRepository.checkMemberPurchaseVideos(loginMemberId, videoIds);
+        return memberRepository.checkMemberPurchaseVideos(loginMember.getMemberId(), videoIds);
     }
 
-    private List<Boolean> isSubscribeInOrder(Long loginMemberId, List<Video> content, boolean subscribe) {
+    private List<Boolean> isSubscribe(Member loginMember, Page<Video> videos, boolean subscribe) {
 
-        if (subscribe) {
-            return IntStream.range(0, content.size())
-                    .mapToObj(i -> true)
-                    .collect(Collectors.toList());
+        if(loginMember == null) {
+            return createBooleans(videos.getContent().size(), false);
         }
 
-        List<Long> memberIds = content.stream()
-                .map(video -> video.getChannel().getMember().getMemberId())
+        if (subscribe) {
+            return createBooleans(videos.getContent().size(), true);
+        }
+
+        List<Long> memberIds = videos.stream()
+                .map(Video::getMemberId)
                 .collect(Collectors.toList());
 
-        return memberRepository.checkMemberSubscribeChannel(loginMemberId, memberIds);
+        return memberRepository.checkMemberSubscribeChannel(loginMember.getMemberId(), memberIds);
     }
 
-    private List<String[]> getThumbnailAndImageUrlsInOrder(List<Video> content) {
+    private List<Boolean> createBooleans(int size, boolean value) {
+        return IntStream.range(0, size)
+                .mapToObj(i -> value)
+                .collect(Collectors.toList());
+    }
 
-        return content.stream()
+    private List<Map<String, String>> getVideoUrls(Page<Video> videos) {
+
+        return videos.stream()
                 .map(video -> {
                     Member member = video.getChannel().getMember();
-                    String[] urls = new String[2];
-                    urls[0] = getThumbnailUrl(member.getMemberId(), video);
-                    urls[1] = getImageUrl(member);
+
+                    Map<String, String> urls = new HashMap<>();
+
+                    urls.put("thumbnailUrl", getThumbnailUrl(member.getMemberId(), video));
+                    urls.put("imageUrl", getImageUrl(member));
+
                     return urls;
                 })
                 .collect(Collectors.toList());
     }
 
-    private Map<String, String> getVideoUrls(Video video) {
+    private Map<String, String> getAllUrls(Video video) {
 
         Map<String, String> urls = new HashMap<>();
 
         Member owner = video.getChannel().getMember();
 
-        urls.put("videoUrl", awsService.getFileUrl(owner.getMemberId(), video.getVideoFile(), FileType.VIDEO));
+        urls.put("videoUrl", getVideoUrl(video, owner));
         urls.put("thumbnailUrl", getThumbnailUrl(owner.getMemberId(), video));
         urls.put("imageUrl", getImageUrl(owner));
 
         return urls;
+    }
+
+    private String getVideoUrl(Video video, Member owner) {
+        return awsService.getFileUrl(owner.getMemberId(), video.getVideoFile(), FileType.VIDEO);
     }
 
     private String getImageUrl(Member member) {
@@ -244,7 +271,47 @@ public class VideoService {
                 imageType);
     }
 
+    private Boolean isInCart(Member member, Video video) {
+
+        if(member == null) {
+            return false;
+        }
+
+        return !getVideoIdsInCart(member, List.of(video)).isEmpty();
+    }
+
+    private List<Long> getVideoIdsInCart(Member member, List<Video> videos) {
+
+        if(member == null) {
+            return Collections.emptyList();
+        }
+
+        List<Long> videoIds = videos.stream()
+                .map(Video::getVideoId)
+                .collect(Collectors.toList());
+
+        return videoRepository.findVideoIdInCart(member.getMemberId(), videoIds);
+    }
+
+    private void checkIfVideoUploaded(Long loginMemberId, Video video) {
+        boolean existVideo = awsService.isExistFile(loginMemberId, video.getVideoFile(), FileType.VIDEO);
+        boolean existThumbnail = awsService.isExistFile(loginMemberId, video.getThumbnailFile(), FileType.THUMBNAIL);
+
+        if(!existVideo) {
+            throw new VideoNotUploadedException(video.getVideoName());
+        }
+
+        if(!existThumbnail) {
+            throw new ThumbnailNotUploadedException(video.getVideoName());
+        }
+    }
+
     private Member verifiedMemberOrNull(Long loginMemberId) {
+
+        if(loginMemberId == null || loginMemberId == -1) {
+            return null;
+        }
+
         return memberRepository.findById(loginMemberId)
                 .orElse(null);
     }
@@ -262,7 +329,7 @@ public class VideoService {
                 .orElseThrow(VideoNotFoundException::new);
     }
 
-    private Video verifedVideo(Long memberId, Long videoId) {
+    private Video verifiedVideo(Long memberId, Long videoId) {
         Video video = videoRepository.findVideoDetail(videoId)
                 .orElseThrow(VideoNotFoundException::new);
 
@@ -273,42 +340,60 @@ public class VideoService {
         return video;
     }
 
-    private Video verifedVideo(Long memberId, String videoName) {
+    private Video verifiedVideo(Long memberId, String videoName) {
 
         return videoRepository.findVideoByNameWithMember(memberId, videoName)
                 .orElseThrow(VideoNotFoundException::new);
     }
 
-    private void watch(Member member, Video video) {
+    private Video verifiedVideoIncludeWithdrawal(Long videoId) {
+        return videoRepository.findVideoDetailIncludeWithdrawal(videoId)
+                .orElseThrow(VideoNotFoundException::new);
+    }
 
-        video.addView();
-        if(member == null) return;
+    private void checkDuplicateVideoNameInSameChannel(Long memberId, String videoName) {
 
-        getOrCreateWatch(member, video);
+        videoRepository.findVideoByNameWithMember(memberId, videoName)
+                .ifPresent(video -> {
+                    throw new VideoNameDuplicateException();
+                });
+    }
+
+    private void checkIfVideoClosed(boolean isPurchased, Video video) {
+        if(!isPurchased && video.getVideoStatus().equals(VideoStatus.CLOSED)) {
+            throw new VideoClosedException(video.getVideoName());
+        }
     }
 
     private void getOrCreateWatch(Member member, Video video) {
-        Watch watch = watchRepository.findByMemberAndVideo(member, video)
-                .orElseGet(() -> watchRepository.save(Watch.createWatch(member, video)));
+        Watch watch = getWatch(member, video)
+                .orElseGet(
+                        () -> createWatch(member, video)
+                );
 
         watch.setLastWatchedTime(LocalDateTime.now());
     }
 
-    private Map<String, Boolean> getIsPurchaseAndIsReplied(Member member, Long videoId) {
+    private Optional<Watch> getWatch(Member member, Video video) {
+        return watchRepository.findByMemberAndVideo(member, video);
+    }
 
-        if(member == null) {
-            return Map.of("isPurchased", false, "isReplied", false);
-        }
+    private Watch createWatch(Member member, Video video) {
+        return watchRepository.save(Watch.createWatch(member, video));
+    }
 
-        Long loginMemberId = member.getMemberId();
+    private Boolean isPurchased(Member member, Video video) {
 
-        List<Boolean> purchasedAndIsReplied = videoRepository.isPurchasedAndIsReplied(loginMemberId, videoId);
+        if(member == null) return false;
 
-        HashMap<String, Boolean> isPurchaseAndIsReplied = new HashMap<>();
-        isPurchaseAndIsReplied.put("isPurchased", purchasedAndIsReplied.get(0));
-        isPurchaseAndIsReplied.put("isReplied", purchasedAndIsReplied.get(1));
+        return videoRepository.isPurchased(member.getMemberId(), video.getVideoId());
+    }
 
-        return isPurchaseAndIsReplied;
+    private Boolean isReplied(Member member, Video video) {
+
+        if(member == null) return false;
+
+        return videoRepository.isReplied(member.getMemberId(), video.getVideoId());
     }
 
     private Boolean isSubscribed(Member member, Video video) {
@@ -318,21 +403,6 @@ public class VideoService {
         return memberRepository.checkMemberSubscribeChannel(
                 member.getMemberId(),
                 List.of(video.getChannel().getMember().getMemberId())).get(0);
-    }
-
-    private void checkFileName(Long memberId, String requestFileName) {
-
-        String savedFileName = redisService.getData(String.valueOf(memberId));
-
-        if(savedFileName == null) {
-            throw new VideoUploadNotRequestException();
-        }
-
-        if(!savedFileName.equals(requestFileName)) {
-            throw new VideoFileNameNotMatchException();
-        }
-
-        redisService.deleteData(String.valueOf(memberId));
     }
 
     private List<Category> verifiedCategories(List<String> categoryNames) {
@@ -352,40 +422,18 @@ public class VideoService {
         return cart == null ? createCart(member, video) : deleteCart(cart);
     }
 
-    private boolean deleteCart(Cart cart) {
-        cartRepository.delete(cart);
-        return false;
-    }
-
     private boolean createCart(Member member, Video video) {
+
+        if(video.getVideoStatus().equals(VideoStatus.CLOSED)) {
+            throw new VideoClosedException(video.getVideoName());
+        }
+
         cartRepository.save(Cart.createCart(member, video, video.getPrice()));
         return true;
     }
 
-    public Page<ReplyInfo> getReplies(Long videoId, int page, int size, String sort) {
-
-        PageRequest pageRequest = PageRequest.of(page, size);
-
-        return ReplyInfo.of(replyRepository.findAllByReplyId(pageRequest, sort, videoId));
-    }
-
-    public Long createReply(Long loginMemberId, Long videoId, ReplyCreateServiceApi response) {
-
-        memberRepository.findById(loginMemberId).orElseThrow(() -> new MemberAccessDeniedException());
-
-        Integer star = response.getStar();
-
-        if (star < 1 || star > 5) {
-            throw new ReplyNotValidException();
-        }
-
-        videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException());
-
-        Reply reply = Reply.builder()
-                .content(response.getContent())
-                .star(response.getStar())
-                .build();
-
-        return replyRepository.save(reply).getReplyId();
+    private boolean deleteCart(Cart cart) {
+        cartRepository.delete(cart);
+        return false;
     }
 }

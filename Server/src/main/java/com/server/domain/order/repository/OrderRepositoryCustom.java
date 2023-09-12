@@ -1,14 +1,23 @@
 package com.server.domain.order.repository;
 
 import com.server.domain.order.entity.Order;
+import com.server.domain.order.entity.OrderVideo;
+import com.server.domain.video.entity.Video;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepositoryCustom {
 
-    Long deleteCartByMemberAndOrderId1(Long memberId, String orderId);
+    Long deleteCartByMemberAndOrderId(Long memberId, String orderId);
 
-    Long deleteCartByMemberAndOrderId2(Long memberId, String orderId);
+    List<OrderVideo> findOrderedVideosByMemberId(Long memberId, List<Long> videoIds);
 
-    Optional<Order> findByIdWithVideos(String orderId);
+    Optional<Order> findByIdWithVideos(Long memberId, String orderId);
+
+    List<Video> findWatchVideosAfterPurchaseById(Order order);
+
+    Boolean checkIfWatchAfterPurchase(Order order, Long videoId);
+
+    Optional<OrderVideo> findOrderVideoByVideoId(String orderId, Long videoId);
 }

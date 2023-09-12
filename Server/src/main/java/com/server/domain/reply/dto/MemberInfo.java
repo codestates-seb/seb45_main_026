@@ -10,4 +10,12 @@ public class MemberInfo {
     private Long memberId;
     private String nickname;
     private String imageUrl;
+
+    public static MemberInfo of(Long memberId, String nickname, String imageUrl) {
+        return MemberInfo.builder()
+                .memberId(memberId)
+                .nickname(nickname)
+                .imageUrl(imageUrl)
+                .build();
+    }
 }

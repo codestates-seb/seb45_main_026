@@ -18,6 +18,7 @@ public class VideoGetServiceRequest {
     private String sort;
     private boolean subscribe;
     private Boolean free;
+    private boolean isPurchased;
 
     public VideoGetDataRequest toDataRequest() {
         return VideoGetDataRequest.builder()
@@ -27,6 +28,7 @@ public class VideoGetServiceRequest {
                 .sort(sort)
                 .subscribe(subscribe)
                 .free(free)
+                .isPurchased(isPurchased)
                 .build();
     }
 }

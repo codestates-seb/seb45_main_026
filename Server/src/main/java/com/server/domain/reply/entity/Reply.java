@@ -1,6 +1,7 @@
 package com.server.domain.reply.entity;
 
 import com.server.domain.member.entity.Member;
+import com.server.domain.reply.dto.CreateReply;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
@@ -34,36 +35,23 @@ public class Reply extends BaseEntity implements Rewardable {
     @JoinColumn(name = "video_id")
     private Video video;
 
+    public static Reply newReply(Member member, Video video, CreateReply createReply) {
 
-    public void setReplyId(Long replyId) {
-        this.replyId = replyId;
-    }
-
-    public void setStar(int star) {
-        this.star = star;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public void setMember(Member member) {
-        this.member = member;
-    }
-
-    public void setVideo(Video video) {
-        this.video = video;
-    }
-
-
-    public Long setReplyId() {
-        return replyId;
+        return Reply.builder()
+                .content(createReply.getContent())
+                .star(createReply.getStar())
+                .member(member)
+                .video(video)
+                .build();
     }
 
 
     public void updateReply(String content, Integer star) {
-        this.content = content;
-        this.star = star;
+        this.content = content == null ? this.content : content;
+        this.star = star == null ? this.star : star;
     }
 
+    public int getRewardPoint(){
+        return 10;
+    }
 }

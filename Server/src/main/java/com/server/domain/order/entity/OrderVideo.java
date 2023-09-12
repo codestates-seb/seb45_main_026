@@ -2,6 +2,7 @@ package com.server.domain.order.entity;
 
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
+import com.server.global.exception.businessexception.orderexception.OrderAlreadyCanceledException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,6 +30,9 @@ public class OrderVideo extends BaseEntity {
     @JoinColumn(name = "video_id")
     private Video video;
 
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus = OrderStatus.ORDERED;
+
     private OrderVideo(Order order, Video video, Integer price) {
         this.order = order;
         this.video = video;
@@ -41,5 +45,18 @@ public class OrderVideo extends BaseEntity {
 
     public void addOrder(Order order) {
         this.order = order;
+    }
+
+    public void cancel() {
+        this.orderStatus = OrderStatus.CANCELED;
+    }
+
+    public void complete() {
+        this.orderStatus = OrderStatus.COMPLETED;
+    }
+
+    public void checkAlreadyCanceled() {
+        if(this.getOrderStatus().equals(OrderStatus.CANCELED))
+            throw new OrderAlreadyCanceledException();
     }
 }

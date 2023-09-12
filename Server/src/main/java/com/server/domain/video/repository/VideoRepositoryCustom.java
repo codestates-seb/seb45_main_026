@@ -1,9 +1,9 @@
 package com.server.domain.video.repository;
 
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.repository.dto.ChannelVideoGetDataRequest;
 import com.server.domain.video.repository.dto.VideoGetDataRequest;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,11 +14,17 @@ public interface VideoRepositoryCustom {
 
     Optional<Video> findVideoDetail(Long videoId);
 
-    Page<Video> findAllByCategoryPaging(VideoGetDataRequest request);
+    Optional<Video> findVideoDetailIncludeWithdrawal(Long videoId);
 
-    List<Boolean> isPurchasedAndIsReplied(Long memberId, Long videoId);
+    Boolean isPurchased(Long memberId, Long videoId);
 
-    Page<Video> findChannelVideoByCategoryPaging(Long memberId, String category, Pageable pageable, String sort, Boolean free);
+    Boolean isReplied(Long memberId, Long videoId);
 
     Optional<Video> findVideoByNameWithMember(Long memberId, String videoName);
+
+    List<Long> findVideoIdInCart(Long memberId, List<Long> videoIds);
+
+    Page<Video> findAllByCond(VideoGetDataRequest request);
+
+    Page<Video> findChannelVideoByCond(ChannelVideoGetDataRequest request);
 }

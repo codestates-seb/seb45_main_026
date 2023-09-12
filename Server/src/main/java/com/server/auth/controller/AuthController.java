@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/auth")
+@Validated
 @Slf4j
 public class AuthController {
 
@@ -43,15 +45,21 @@ public class AuthController {
 		this.memberService = memberService;
 	}
 
-	@PostMapping(value = { "/signup/email", "/password/email" })
-	public ResponseEntity<Void> sendEmail(@RequestBody @Valid AuthApiRequest.Send request) throws Exception {
-		authService.sendEmail(request.toServiceRequest());
+	@PostMapping("/signup/email")
+	public ResponseEntity<Void> sendEmailForSignup(@RequestBody @Valid AuthApiRequest.Send request) throws Exception {
+		authService.sendEmail(request.toServiceRequest(), "signup");
+		return ResponseEntity.noContent().build();
+	}
+
+	@PostMapping("/password/email")
+	public ResponseEntity<Void> sendEmailForPassword(@RequestBody @Valid AuthApiRequest.Send request) throws Exception {
+		authService.sendEmail(request.toServiceRequest(), "password");
 		return ResponseEntity.noContent().build();
 	}
 
 	@PostMapping(value = { "/signup/confirm", "/password/confirm" })
 	public ResponseEntity<Void> confirmEmail(@RequestBody @Valid AuthApiRequest.Confirm request) {
-		mailService.verifyEmail(request.toServiceRequest());
+		authService.verifyEmail(request.toServiceRequest());
 		return ResponseEntity.noContent().build();
 	}
 
@@ -73,8 +81,8 @@ public class AuthController {
 	}
 
 	@PatchMapping("/password")
-	public ResponseEntity<Void> updatePassword(@RequestBody @Valid AuthApiRequest.Reset request, @LoginId Long loginId) {
-		authService.updatePassword(request.toServiceRequest(), loginId);
+	public ResponseEntity<Void> updatePassword(@RequestBody @Valid AuthApiRequest.Reset request) {
+		authService.updatePassword(request.toServiceRequest());
 		return ResponseEntity.noContent().build();
 	}
 }

@@ -92,6 +92,7 @@ public class VideoController {
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "subscribe", defaultValue = "false") boolean subscribe,
             @RequestParam(value = "free", required = false) Boolean free,
+            @RequestParam(value = "is-purchased", defaultValue = "true") boolean isPurchased,
             @LoginId Long loginMemberId) {
 
         VideoGetServiceRequest request = VideoGetServiceRequest.builder()
@@ -102,6 +103,7 @@ public class VideoController {
                 .sort(sort.getSort())
                 .subscribe(subscribe)
                 .free(free)
+                .isPurchased(isPurchased)
                 .build();
 
         Page<VideoPageResponse> videos = videoService.getVideos(loginMemberId, request);
@@ -113,6 +115,8 @@ public class VideoController {
     public ResponseEntity<ApiSingleResponse<VideoDetailResponse>> getVideo(
                                           @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
                                           @LoginId Long loginMemberId) {
+
+        videoService.watch(loginMemberId, videoId);
 
         VideoDetailResponse video = videoService.getVideo(loginMemberId, videoId);
 
@@ -162,6 +166,16 @@ public class VideoController {
         return ResponseEntity.ok(ApiSingleResponse.ok(isInCart, message));
     }
 
+    @DeleteMapping("/carts")
+    public ResponseEntity<Void> deleteCarts(
+            @RequestBody @Valid VideoCartDeleteApiRequest request,
+            @LoginId Long loginMemberId) {
+
+        videoService.deleteCarts(loginMemberId, request.getVideoIds());
+
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{video-id}")
     public ResponseEntity<Void> deleteVideo(@PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
                                             @LoginId Long loginMemberId) {
@@ -173,17 +187,18 @@ public class VideoController {
 
     @GetMapping("/{video-id}/replies")
     public ResponseEntity<ApiPageResponse<ReplyInfo>> getReplies(
-            @PathVariable("video-id")
-            @Positive(message = "{validation.positive}") Long videoId,
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
             @RequestParam(defaultValue = "1") @Positive(message = "{validation.positive}") int page,
             @RequestParam(defaultValue = "10") @Positive(message = "{validation.positive}") int size,
             @RequestParam(defaultValue = "created-date") ReplySort sort,
             @RequestParam(required = false) @Positive(message = "{validation.positive}") Integer star) {
 
-        Page<ReplyInfo> replies = videoService.getReplies(videoId, page -1, size, sort.getSort());
+        Page<ReplyInfo> replies = replyService.getReplies(videoId, page - 1, size, sort, star);
 
         return ResponseEntity.ok(ApiPageResponse.ok(replies, "댓글 조회 성공"));
     }
+
+
 
     @PostMapping("/{video-id}/replies")
     public ResponseEntity<ApiSingleResponse<Void>> createReply(
@@ -191,7 +206,7 @@ public class VideoController {
             @RequestBody @Valid ReplyCreateControllerApi request,
             @LoginId Long loginMemberId) {
 
-        Long replyId = videoService.createReply(loginMemberId, videoId, request.toService());
+        Long replyId = replyService.createReply(loginMemberId, videoId, request.toService());
 
         URI uri = URI.create("/replies/" + replyId);
 

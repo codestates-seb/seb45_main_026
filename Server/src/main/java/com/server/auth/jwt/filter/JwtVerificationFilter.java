@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.MDC;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -45,6 +46,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 		try{
 			Claims claims = verifyClaims(request);
 			setAuthenticationToContext(claims);
+			MDC.put("email", claims.getSubject());
 		} catch (JwtExpiredException | JwtNotValidException jwtException) {
 			AuthUtil.setResponse(response, jwtException);
 			return;

@@ -1,7 +1,6 @@
 package com.server.domain.reward.entity;
 
 import com.server.domain.member.entity.Member;
-import com.server.domain.reply.entity.Reply;
 import com.server.domain.video.entity.Video;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,29 +12,19 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("REPLY")
-public class ReplyReward extends NewReward {
+public class ReplyReward extends Reward {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reply_id")
-    private Reply reply;
+    @JoinColumn(name = "video_id")
+    private Video video;
 
-    protected ReplyReward(Member member, Integer rewardPoint, Reply reply) {
+    protected ReplyReward(Member member, Integer rewardPoint, Video video) {
         super(member, rewardPoint);
-        this.reply = reply;
+        this.video = video;
     }
 
     @Override
     public RewardType getRewardType() {
         return RewardType.REPLY;
-    }
-
-    @Override
-    public Long getEntityId() {
-        return reply.getReplyId();
-    }
-
-    @Override
-    public Video getVideo() {
-        return reply.getVideo();
     }
 }

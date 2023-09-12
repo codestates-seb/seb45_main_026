@@ -63,9 +63,9 @@ public class ChannelController {
     @PatchMapping("/{member-id}/subscribe")
     public ResponseEntity<ApiSingleResponse<Boolean>> updateSubscribe(
             @PathVariable("member-id") @Positive(message = "{validation.positive}") Long memberId,
-            @LoginId Long loginMemberId){
+            @LoginId Long loginMemberId) {
 
-        boolean isSubscribed = channelService.updateSubscribe(loginMemberId, memberId);
+        boolean isSubscribed = channelService.updateSubscribe(memberId, loginMemberId);
 
         return ResponseEntity.ok(ApiSingleResponse.ok(isSubscribed, "구독상태가 업데이트되었습니다."));
     }
@@ -79,6 +79,7 @@ public class ChannelController {
             @RequestParam(value = "sort", defaultValue = "created-date") VideoSort sort,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "free", required = false) Boolean free,
+            @RequestParam(value = "is-purchased", defaultValue = "true") boolean isPurchased,
             @LoginId Long loginMemberId
     ) {
         ChannelVideoGetServiceRequest request = ChannelVideoGetServiceRequest.builder()
@@ -88,6 +89,7 @@ public class ChannelController {
                 .sort(sort.getSort())
                 .categoryName(category)
                 .free(free)
+                .isPurchased(isPurchased)
                 .build();
 
         Page<ChannelVideoResponse> responses = channelService.getChannelVideos(loginMemberId, request);

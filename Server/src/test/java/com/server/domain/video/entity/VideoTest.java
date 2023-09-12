@@ -26,19 +26,9 @@ class VideoTest {
         String videoName = "videoName";
         int price = 1000;
         String description = "description";
-        List<Category> categories = List.of(
-                Category.builder()
-                        .categoryId(1L)
-                        .categoryName("category1")
-                        .build(),
-                Category.builder()
-                        .categoryId(2L)
-                        .categoryName("category2")
-                        .build()
-        );
 
         //when
-        Video video = Video.createVideo(channel, videoName, price, description, categories);
+        Video video = Video.createVideo(channel, videoName, price, description);
 
         //then
         assertThat(video.getChannel()).isEqualTo(channel);
@@ -46,12 +36,6 @@ class VideoTest {
         assertThat(video.getPrice()).isEqualTo(price);
         assertThat(video.getDescription()).isEqualTo(description);
         assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.UPLOADING);
-
-        List<VideoCategory> videoCategories = video.getVideoCategories();
-        assertThat(videoCategories.size()).isEqualTo(2);
-        assertThat(videoCategories.get(0).getCategory().getCategoryName()).isEqualTo("category1");
-        assertThat(videoCategories.get(1).getCategory().getCategoryName()).isEqualTo("category2");
-
     }
 
     @Test
@@ -128,72 +112,6 @@ class VideoTest {
         );
     }
 
-    @TestFactory
-    @DisplayName("video 를 업데이트한다.")
-    Collection<DynamicTest> updateVideo() {
-        //given
-        Video video = createVideo("video");
-
-        return List.of(
-                dynamicTest("videoName 을 업데이트한다.", () -> {
-                    //given
-                    String videoName = "update videoName";
-
-                    //when
-                    video.updateVideo(videoName, null, null);
-
-                    //then
-                    assertThat(video.getVideoName()).isEqualTo(videoName);
-                }),
-                dynamicTest("price 를 업데이트한다.", () -> {
-                    //given
-                    int price = 2000;
-
-                    //when
-                    video.updateVideo(null, price, null);
-
-                    //then
-                    assertThat(video.getPrice()).isEqualTo(price);
-                }),
-                dynamicTest("description 을 업데이트한다.", () -> {
-                    //given
-                    String description = "update description";
-
-                    //when
-                    video.updateVideo(null, null, description);
-
-                    //then
-                    assertThat(video.getDescription()).isEqualTo(description);
-                }),
-                dynamicTest("videoName, price, description 을 업데이트한다.", () -> {
-                    //given
-                    String videoName = "update videoName2";
-                    int price = 3000;
-                    String description = "update description2";
-
-                    //when
-                    video.updateVideo(videoName, price, description);
-
-                    //then
-                    assertThat(video.getVideoName()).isEqualTo(videoName);
-                    assertThat(video.getPrice()).isEqualTo(price);
-                    assertThat(video.getDescription()).isEqualTo(description);
-                })
-                ,
-                dynamicTest("모두 null 로 넣어도 null 값이 할당되지 않는다.", () -> {
-                    //when
-                    video.updateVideo(null, null, null);
-
-                    //then
-                    assertThat(video.getVideoName()).isNotNull();
-                    assertThat(video.getPrice()).isNotNull();
-                    assertThat(video.getDescription()).isNotNull();
-                })
-
-        );
-
-    }
-
     private Video createVideo(String videoName) {
         return Video.builder()
                 .videoName(videoName)
@@ -218,8 +136,9 @@ class VideoTest {
     }
 
     private Reply createReply(int star) {
-        Reply reply = new Reply();
-        reply.setStar(star);
+        Reply reply = Reply.builder()
+                .star(star)
+                .build();
 
         return reply;
     }

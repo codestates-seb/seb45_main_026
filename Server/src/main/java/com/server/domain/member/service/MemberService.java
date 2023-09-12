@@ -1,60 +1,86 @@
 package com.server.domain.member.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.server.domain.reward.entity.Reward;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.querydsl.core.Tuple;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
+import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.channel.service.ChannelService;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
-import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
-import com.server.domain.member.service.dto.response.*;
+import com.server.domain.member.service.dto.response.CartsResponse;
+import com.server.domain.member.service.dto.response.RewardsResponse;
+import com.server.domain.member.service.dto.response.OrdersResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
+import com.server.domain.member.service.dto.response.PlaylistsResponse;
+import com.server.domain.member.service.dto.response.ProfileResponse;
+import com.server.domain.member.service.dto.response.SubscribesResponse;
+import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.member.util.MemberResponseConverter;
 import com.server.domain.order.entity.Order;
-import com.server.domain.reward.entity.Reward;
+import com.server.domain.order.repository.OrderRepository;
+import com.server.domain.reply.entity.Reply;
+import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.watch.entity.Watch;
+import com.server.global.exception.businessexception.mailexception.MailCertificationException;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberDuplicateException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.memberexception.MemberPasswordException;
-import com.server.module.email.service.MailService;
+import com.server.module.redis.service.RedisService;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
 public class MemberService {
 
 	private final MemberRepository memberRepository;
-	private final MailService mailService;
+	private final ChannelRepository channelRepository;
+	private final VideoRepository videoRepository;
+	private final OrderRepository orderRepository;
+	private final RewardRepository rewardRepository;
 	private final ChannelService channelService;
 	private final AwsService awsService;
 	private final PasswordEncoder passwordEncoder;
 	private final MemberResponseConverter converter;
+	private final RedisService redisService;
 
-	public MemberService(MemberRepository memberRepository, MailService mailService, ChannelService channelService,
-		AwsService awsService, PasswordEncoder passwordEncoder, MemberResponseConverter converter) {
+	public MemberService(MemberRepository memberRepository, ChannelRepository channelRepository,
+		VideoRepository videoRepository, OrderRepository orderRepository, RewardRepository rewardRepository,
+		ChannelService channelService, AwsService awsService, PasswordEncoder passwordEncoder,
+		MemberResponseConverter converter, RedisService redisService) {
 		this.memberRepository = memberRepository;
-		this.mailService = mailService;
+		this.channelRepository = channelRepository;
+		this.videoRepository = videoRepository;
+		this.orderRepository = orderRepository;
+		this.rewardRepository = rewardRepository;
 		this.channelService = channelService;
 		this.awsService = awsService;
 		this.passwordEncoder = passwordEncoder;
 		this.converter = converter;
+		this.redisService = redisService;
 	}
 
 	@Transactional
 	public void signUp(MemberServiceRequest.Create create) {
 		checkDuplicationEmail(create.getEmail());
-		mailService.checkEmailCertify(create.getEmail());
+		checkEmailCertify(create.getEmail());
 
 		Member member = Member.createMember(create.getEmail(), passwordEncoder.encode(create.getPassword()),
 				create.getNickname());
@@ -77,9 +103,9 @@ public class MemberService {
 	public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
 
-		Pageable pageable = PageRequest.of(page - 1, size);
+		Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.desc("createdDate")));
 
-		Page<Reward> rewards = memberRepository.findRewardsByMemberId(member.getMemberId(), pageable);
+		Page<Reward> rewards = rewardRepository.findRewardsByMember(member, pageable);
 
 		return RewardsResponse.convert(rewards);
 	}
@@ -134,6 +160,21 @@ public class MemberService {
 		return converter.convertWatchToWatchResponses(watches);
 	}
 
+	public Page<PlaylistChannelResponse> getChannelForPlaylist(Long loginId, int page, int size) {
+		Page<Tuple> channels =
+			memberRepository.findPlaylistGroupByChannelName(loginId, PageRequest.of(page - 1, size));
+
+		return converter.convertChannelToPlaylistChannelResponse(channels);
+	}
+
+	public Page<PlaylistChannelDetailsResponse> getChannelDetailsForPlaylist(Long loginId, Long memberId) {
+
+		Page<Video> videos =
+			memberRepository.findPlaylistChannelDetails(loginId, memberId);
+
+		return converter.convertVideoToPlaylistChannelDetailsResponse(videos, memberId);
+	}
+
 	@Transactional
 	public void updatePassword(MemberServiceRequest.Password request, Long loginId) {
 		Member member = validateMember(loginId);
@@ -143,28 +184,39 @@ public class MemberService {
 
 		validatePassword(request.getPrevPassword(), password);
 
-		member.setPassword(newPassword);
+		member.updatePassword(newPassword);
 	}
 
 	@Transactional
 	public void updateNickname(MemberServiceRequest.Nickname request, Long loginId) {
 		Member member = validateMember(loginId);
 
-		member.setNickname(request.getNickname());
+		member.updateNickname(request.getNickname());
 	}
 
 	@Transactional
-	public void updateImage(Long loginId) {
+	public void updateImage(Long loginId, String imageName) {
 		Member member = validateMember(loginId);
 
-		member.updateImageFile(member.getEmail());
+		member.updateImageFile(imageName);
 	}
 
 	@Transactional
 	public void deleteMember(Long loginId) {
 		Member member = validateMember(loginId);
 
+		channelRepository.decreaseSubscribersByMember(member);
+		videoRepository.disconnectVideosFromChannel(member.getChannel());
+		orderRepository.disconnectOrdersFromMember(member);
+		List<Reply> memberReplies = member.getReplies();
 		memberRepository.delete(member);
+
+		List<Long> videoIdsToUpdate = memberReplies.stream()
+			.map(reply -> reply.getVideo().getVideoId())
+			.distinct()
+			.collect(Collectors.toList());
+
+		videoRepository.updateVideoRatings(videoIdsToUpdate);
 	}
 
 	@Transactional
@@ -173,12 +225,6 @@ public class MemberService {
 
 		awsService.deleteFile(loginId, member.getImageFile(), FileType.PROFILE_IMAGE);
 		member.deleteImageFile();
-	}
-
-	public Member findMemberBy(Long id) {
-		return memberRepository.findById(id).orElseThrow(
-				MemberNotFoundException::new
-		);
 	}
 
 	public void validatePassword(String password, String encodedPassword) {
@@ -210,4 +256,10 @@ public class MemberService {
 			FileType.PROFILE_IMAGE);
 	}
 
+	private void checkEmailCertify(String email) {
+		if (!"true".equals(redisService.getData(email))) {
+			throw new MailCertificationException();
+		}
+		redisService.deleteData(email);
+	}
 }

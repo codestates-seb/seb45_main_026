@@ -1,6 +1,7 @@
 package com.server.domain.announcement.entity;
 
 import com.server.domain.channel.entity.Channel;
+import com.server.domain.member.entity.Member;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -57,5 +58,38 @@ class AnnouncementTest {
         //then
         assertThat(announcement.getContent()).isNotNull();
 
+    }
+    
+    @Test
+    @DisplayName("memberId 의 Id 를 반환한다.")
+    void getMemberId() {
+        //given
+        Member member = createMemberWithChannel();
+
+        Announcement announcement = Announcement.builder()
+                .content("content")
+                .channel(member.getChannel())
+                .build();
+    
+        //when
+        Long findMemberId = announcement.getMemberId();
+
+        //then
+        assertThat(findMemberId).isEqualTo(member.getMemberId());
+        
+    }
+
+    private Member createMemberWithChannel() {
+        Member member = Member.builder()
+                .memberId(1L)
+                .build();
+
+        Channel channel = Channel.builder()
+                .channelId(1L)
+                .build();
+
+        member.setChannel(channel);
+
+        return member;
     }
 }

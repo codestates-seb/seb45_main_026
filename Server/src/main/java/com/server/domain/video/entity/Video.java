@@ -1,20 +1,19 @@
 package com.server.domain.video.entity;
 
-import com.server.domain.category.entity.Category;
 import com.server.domain.cart.entity.Cart;
+import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.entity.BaseEntity;
+import com.server.global.exception.businessexception.videoexception.VideoAlreadyCreatedException;
 import lombok.*;
 
 import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +56,7 @@ public class Video extends BaseEntity implements Rewardable {
     @JoinColumn(name = "channel_id")
     private Channel channel;
 
-    @OneToMany(mappedBy = "video")
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
     private List<Reply> replies = new ArrayList<>();
 
     @OneToMany(mappedBy = "video")
@@ -65,9 +64,6 @@ public class Video extends BaseEntity implements Rewardable {
 
     @OneToMany(mappedBy = "video")
     private List<Cart> carts = new ArrayList<>();
-
-    @OneToMany(mappedBy = "video")
-    private List<Reward> rewards = new ArrayList<>();
 
     @OneToMany(mappedBy = "video")
     private List<Question> questions = new ArrayList<>();
@@ -78,9 +74,10 @@ public class Video extends BaseEntity implements Rewardable {
     @OneToMany(mappedBy = "video")
     private List<OrderVideo> orderVideos = new ArrayList<>();
 
-    public static Video createVideo(Channel channel, String videoName, Integer price, String description, List<Category> categories) {
+    public static Video createVideo(Channel channel, String videoName, Integer price, String description) {
 
-        Video video = Video.builder()
+
+        return Video.builder()
                 .channel(channel)
                 .videoName(videoName)
                 .price(price)
@@ -90,13 +87,6 @@ public class Video extends BaseEntity implements Rewardable {
                 .star(0f)
                 .videoCategories(new ArrayList<>())
                 .build();
-
-        for (Category category : categories) {
-            VideoCategory videoCategory = VideoCategory.createVideoCategory(video, category);
-            video.addVideoCategory(videoCategory);
-        }
-
-        return video;
     }
 
     private void addVideoCategory(VideoCategory videoCategory) {
@@ -126,21 +116,46 @@ public class Video extends BaseEntity implements Rewardable {
         }
     }
 
-    public void updateVideo(String videoName, Integer price, String description) {
-        this.videoName = videoName == null ? this.videoName : videoName;
-        this.price = price == null ? this.price : price;
-        this.description = description == null ? this.description : description;
-    }
-
     public void updateVideo(String description) {
         this.description = description == null ? this.description : description;
     }
 
-    public void additionalCreateProcess(Integer price, String description) {
+    public void additionalCreateProcess(Integer price, String description, List<Category> categories) {
+
+        checkIsUploading();
+
         this.price = price;
         this.description = description;
         this.videoStatus = VideoStatus.CREATED;
         this.thumbnailFile = this.videoId + "/" + this.videoName;
         this.videoFile = this.videoId + "/" + this.videoName;
+
+        this.videoCategories.clear();
+        for (Category category : categories) {
+            VideoCategory videoCategory = VideoCategory.createVideoCategory(this, category);
+            this.addVideoCategory(videoCategory);
+        }
+    }
+
+    public int getRewardPoint(){
+        return (int) (price * 0.01);
+    }
+
+    public void close() {
+        this.videoStatus = VideoStatus.CLOSED;
+    }
+
+    public boolean isOwnedBy(Long memberId) {
+        return this.channel.getMember().getMemberId().equals(memberId);
+    }
+
+    private void checkIsUploading() {
+        if(this.videoStatus != VideoStatus.UPLOADING) {
+            throw new VideoAlreadyCreatedException();
+        }
+    }
+
+    public Long getMemberId() {
+        return this.channel.getMember().getMemberId();
     }
 }

@@ -6,6 +6,11 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.AuthenticationException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.global.exception.businessexception.BusinessException;
 import com.server.global.exception.businessexception.authexception.JwtExpiredException;
@@ -24,5 +29,12 @@ public class AuthUtil {
 				ApiSingleResponse.fail(be)
 			)
 		);
+	}
+
+	public static void setResponse(HttpServletResponse response) throws IOException {
+		response.setContentType("application/json");
+		response.setHeader(LOCATION, "/auth/refresh");
+		response.setCharacterEncoding("UTF-8");
+		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 	}
 }

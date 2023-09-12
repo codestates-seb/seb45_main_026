@@ -8,9 +8,9 @@ import lombok.Getter;
 public class MemberDisabledException extends MemberException {
 
     public static final String MESSAGE = "탈퇴한 회원입니다.";
-    public static final String CODE = "MEMBER-401";
+    public static final String CODE = "MEMBER-403";
 
     public MemberDisabledException() {
-        super(CODE, HttpStatus.UNAUTHORIZED, MESSAGE);
+        super(CODE, HttpStatus.FORBIDDEN, MESSAGE);
     }
 }

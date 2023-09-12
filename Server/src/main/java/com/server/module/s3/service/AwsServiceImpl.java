@@ -12,14 +12,14 @@ import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
 import software.amazon.awssdk.services.cloudfront.model.CustomSignerRequest;
 import software.amazon.awssdk.services.cloudfront.url.SignedUrl;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -53,7 +53,7 @@ public class AwsServiceImpl implements AwsService {
         if(fileName == null) return null;
 
         if(fileType.isRequiredAuth()) {
-            Instant tenSecondsLater = getInstantDuration(60);
+            Instant tenSecondsLater = getInstantDuration(300);
 
             return getFilePresignedUrl(fileType.getLocation(memberId, fileName), tenSecondsLater);
         }
@@ -89,7 +89,7 @@ public class AwsServiceImpl implements AwsService {
         Duration duration = Duration.ofMinutes(10);
 
         URL presignedPutObjectUrl = getPresignedPutVideoObjectUrl(
-                memberId + "/" + fileName,
+                memberId + "/videos/" + fileName,
                 VIDEO_TYPE,
                 duration);
 
@@ -102,6 +102,11 @@ public class AwsServiceImpl implements AwsService {
         checkValidFile(fileName);
 
         deleteFile(fileType.s3Location(memberId, fileName));
+    }
+
+    @Override
+    public boolean isExistFile(Long memberId, String fileName, FileType fileType) {
+        return isExistFile(fileType.s3Location(memberId, fileName));
     }
 
     private void checkValidFile(String fileName) {
@@ -117,9 +122,10 @@ public class AwsServiceImpl implements AwsService {
 
     private String getFilePresignedUrl(String location, Instant tenSecondsLater) {
         CustomSignerRequest customSignerRequest = null;
+
         try {
             customSignerRequest = CustomSignerRequest.builder()
-                    .resourceUrl(location)
+                    .resourceUrl(encodeFileName(location))
                     .expirationDate(tenSecondsLater)
                     .keyPairId(KEY_PAIR_ID)
                     .privateKey(Path.of(PRIVATE_KEY_PATH))
@@ -131,6 +137,14 @@ public class AwsServiceImpl implements AwsService {
         SignedUrl signedUrlWithCustomPolicy = cloudFrontUtilities.getSignedUrlWithCustomPolicy(customSignerRequest);
 
         return URLDecoder.decode(signedUrlWithCustomPolicy.url(), UTF_8);
+    }
+
+    private String encodeFileName(String location) throws UnsupportedEncodingException {
+
+        String baseUrl = location.substring(0, location.lastIndexOf("/") + 1);
+        String fileName = location.substring(location.lastIndexOf("/") + 1);
+        String encodedFileName = URLEncoder.encode(fileName, "UTF-8").replace("+", "%20");
+        return baseUrl + encodedFileName;
     }
 
     private URL getPresignedPutVideoObjectUrl(String fileName, String contentType, Duration duration) {
@@ -151,7 +165,7 @@ public class AwsServiceImpl implements AwsService {
     private URL getPresignedPutImageObjectUrl(String location, String contentType, Duration duration) {
 
         String bucketName = location.split("/")[0];
-        String path = location.substring(location.indexOf("/"));
+        String path = location.substring(location.indexOf("/") + 1);
 
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
@@ -170,7 +184,7 @@ public class AwsServiceImpl implements AwsService {
     private void deleteFile(String location) {
 
         String bucketName = location.split("/")[0];
-        String path = location.substring(location.indexOf("/"));
+        String path = location.substring(location.indexOf("/") + 1);
 
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
@@ -180,6 +194,24 @@ public class AwsServiceImpl implements AwsService {
         DeleteObjectResponse deleteObjectResponse = s3Client.deleteObject(deleteObjectRequest);
 
         check204Response(deleteObjectResponse);
+    }
+
+    private boolean isExistFile(String location) {
+
+        String bucketName = location.split("/")[0];
+        String path = location.substring(location.indexOf("/") + 1);
+
+        HeadObjectRequest objectRequest = HeadObjectRequest.builder()
+                .bucket(bucketName)
+                .key(path)
+                .build();
+
+        try {
+            s3Client.headObject(objectRequest);
+            return true;
+        } catch (NoSuchKeyException e) {
+            return false;
+        }
     }
 
     private void check204Response(DeleteObjectResponse deleteObjectResponse) {

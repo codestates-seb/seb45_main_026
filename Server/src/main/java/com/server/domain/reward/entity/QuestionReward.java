@@ -13,7 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @DiscriminatorValue("QUIZ")
-public class QuestionReward extends NewReward {
+public class QuestionReward extends Reward {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
@@ -29,12 +29,6 @@ public class QuestionReward extends NewReward {
         return RewardType.QUIZ;
     }
 
-    @Override
-    public Long getEntityId() {
-        return question.getQuestionId();
-    }
-
-    @Override
     public Video getVideo() {
         return question.getVideo();
     }

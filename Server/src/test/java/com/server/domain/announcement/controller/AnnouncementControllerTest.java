@@ -38,11 +38,7 @@ class AnnouncementControllerTest extends ControllerTest {
         //given
         Long announcementId = 1L;
 
-        AnnouncementResponse response = AnnouncementResponse.builder()
-                .announcementId(announcementId)
-                .content("공지사항 내용")
-                .createdDate(LocalDateTime.now())
-                .build();
+        AnnouncementResponse response = getAnnouncementResponse(announcementId);
 
         String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(response, "공지사항 조회 성공"));
 
@@ -73,6 +69,14 @@ class AnnouncementControllerTest extends ControllerTest {
                         fieldWithPath("message").description("응답 메시지")
                 )
         ));
+    }
+
+    private AnnouncementResponse getAnnouncementResponse(Long announcementId) {
+        return AnnouncementResponse.builder()
+                .announcementId(announcementId)
+                .content("공지사항 내용")
+                .createdDate(LocalDateTime.now())
+                .build();
     }
 
     @Test

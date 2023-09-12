@@ -1,6 +1,8 @@
 package com.server.global.testhelper;
 
+import com.server.auth.jwt.service.CustomUserDetails;
 import com.server.domain.announcement.repository.AnnouncementRepository;
+import com.server.domain.answer.entity.Answer;
 import com.server.domain.answer.repository.AnswerRepository;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.cart.repository.CartRepository;
@@ -18,7 +20,7 @@ import com.server.domain.question.repository.QuestionRepository;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
 import com.server.domain.reward.entity.Reward;
-import com.server.domain.reward.entity.RewardType;
+import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.reward.repository.RewardRepository;
 import com.server.domain.reward.service.RewardService;
 import com.server.domain.subscribe.entity.Subscribe;
@@ -29,16 +31,25 @@ import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.videoCategory.entity.VideoCategoryRepository;
 import com.server.domain.watch.repository.WatchRepository;
+import com.server.module.email.service.MailService;
 import com.server.module.redis.service.RedisService;
+import com.server.module.s3.service.AwsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @SpringBootTest
@@ -66,6 +77,8 @@ public abstract class ServiceTest {
 
     @MockBean protected RedisService redisService;
     @MockBean protected RestTemplate restTemplate;
+    @MockBean protected MailService mailService;
+    @MockBean protected AwsService awsService;
 
     protected Member createAndSaveMember() {
         Member member = Member.builder()
@@ -78,6 +91,23 @@ public abstract class ServiceTest {
                 .build();
 
         memberRepository.save(member);
+
+        return member;
+    }
+
+    protected Member createMemberWithChannel() {
+        Member member = Member.builder()
+                .email("test@gmail.com")
+                .password("1q2w3e4r!")
+                .nickname("test")
+                .authority(Authority.ROLE_USER)
+                .reward(1000)
+                .imageFile("imageFile")
+                .build();
+
+        memberRepository.save(member);
+
+        createAndSaveChannel(member);
 
         return member;
     }
@@ -98,6 +128,14 @@ public abstract class ServiceTest {
         return channel;
     }
 
+    protected Channel createAndSaveChannelWithSubscriber(Member member, int subscriber) {
+        Channel channel = Channel.builder().channelName("channelName").subscribers(subscriber).build();
+        channel.setMember(member);
+        channelRepository.save(channel);
+
+        return channel;
+    }
+
     protected Video createAndSaveVideo(Channel channel) {
         Video video = Video.builder()
                 .videoName("title")
@@ -110,6 +148,27 @@ public abstract class ServiceTest {
                 .videoCategories(new ArrayList<>())
                 .videoStatus(VideoStatus.CREATED)
                 .channel(channel)
+                .questions(new ArrayList<>())
+                .build();
+
+        videoRepository.save(video);
+
+        return video;
+    }
+
+    protected Video createAndSaveVideo(Channel channel, int price) {
+        Video video = Video.builder()
+                .videoName("title")
+                .description("description")
+                .thumbnailFile("thumbnailFile")
+                .videoFile("videoFile")
+                .view(0)
+                .star(0.0F)
+                .price(price)
+                .videoCategories(new ArrayList<>())
+                .videoStatus(VideoStatus.CREATED)
+                .channel(channel)
+                .questions(new ArrayList<>())
                 .build();
 
         videoRepository.save(video);
@@ -136,7 +195,7 @@ public abstract class ServiceTest {
         return video;
     }
 
-    protected Video createAndSavePurchasedVideo(Member member, Channel channel) {
+    protected Video createAndSavePurchasedVideo(Member member) {
         Video video = Video.builder()
                 .videoName("title")
                 .description("description")
@@ -146,11 +205,11 @@ public abstract class ServiceTest {
                 .star(0.0F)
                 .price(1000)
                 .videoStatus(VideoStatus.CREATED)
-                .channel(channel)
+                .channel(member.getChannel())
                 .build();
 
         Order order = Order.createOrder(member, List.of(video), 0);
-        order.completeOrder();
+        order.completeOrder(LocalDateTime.now(), "paymentKey");
 
         videoRepository.save(video);
         orderRepository.save(order);
@@ -182,7 +241,7 @@ public abstract class ServiceTest {
 
     protected Order createAndSaveOrderWithPurchaseComplete(Member member, List<Video> video, int reward) {
         Order order = Order.createOrder(member, video, reward);
-        order.completeOrder();
+        order.completeOrder(LocalDateTime.now(), "paymentKey");
         orderRepository.save(order);
 
         return order;
@@ -222,40 +281,69 @@ public abstract class ServiceTest {
     }
 
     protected Reply createAndSaveReply(Member member, Video video) {
-        Reply reply = new Reply();
-        reply.setMember(member);
-        reply.setVideo(video);
-        reply.setContent("content");
-        reply.setStar(0);
+        Reply reply = Reply.builder()
+                .content("content")
+                .star(0)
+                .member(member)
+                .video(video)
+                .build();
 
         replyRepository.save(reply);
 
         return reply;
     }
 
-    protected Reward createAndSaveVideoReward(Member member, Video video) {
+    protected Reply createAndSaveReply5Star(Member member, Video video) {
+        Reply reply = Reply.builder()
+            .content("content")
+            .star(5)
+            .member(member)
+            .video(video)
+            .build();
 
-        Reward reward = Reward.createReward(RewardType.VIDEO,
-                (int) (video.getPrice() * rewardService.getVideoRewardPolicy()),
-                member, video);
+        replyRepository.save(reply);
+
+        return reply;
+    }
+
+    protected Reward createAndSaveReward(Member member, Rewardable rewardable) {
+
+        Reward reward = Reward.createReward(rewardable.getRewardPoint(), member, rewardable);
 
         em.persist(reward);
 
         return reward;
     }
 
-    protected Reward createAndSaveQuestionReward(Member member, Question question) {
-
-        Reward reward = Reward.createReward(RewardType.QUIZ, rewardService.getQuestionRewardPolicy(), member, question);
-
-        em.persist(reward);
-
-        return reward;
-    }
-
-    protected Cart createAndSaveCartWithVideo(Member member, Video video) {
+    protected Cart createAndSaveCart(Member member, Video video) {
         Cart cart = Cart.createCart(member, video, video.getPrice());
 
         return cartRepository.save(cart);
+    }
+
+    protected Answer createAndSaveAnswer(Member loginMember, Question question) {
+
+        Answer answer = Answer.createAnswer("1", loginMember, question);
+
+        return answerRepository.save(answer);
+    }
+
+    protected UserDetails getUserDetails(Member member) {
+        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getAuthority().toString());
+
+        return new CustomUserDetails(
+            member.getMemberId(),
+            String.valueOf(member.getEmail()),
+            member.getPassword(),
+            Collections.singleton(grantedAuthority)
+        );
+    }
+
+    protected UsernamePasswordAuthenticationToken getAuthenticationToken() {
+        Member member = createAndSaveMember();
+
+        UserDetails userDetails = getUserDetails(member);
+
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

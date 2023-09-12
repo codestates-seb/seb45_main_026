@@ -7,12 +7,14 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
+import com.querydsl.core.Tuple;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
-import com.server.domain.member.repository.dto.MemberSubscribesData;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
@@ -68,36 +70,47 @@ public class MemberResponseConverter {
 	}
 
 	public Page<PlaylistsResponse> convertVideosToPlaylistsResponses(Page<Video> videos) {
-		return videos.map(video -> PlaylistsResponse.builder()
-			.videoId(video.getVideoId())
-			.videoName(video.getVideoName())
-			.thumbnailFile(
-				getThumbnailUrl(video.getChannel().getMember().getMemberId(),
-					video.getThumbnailFile())
-			)
-			.star(video.getStar())
-			.modifiedDate(video.getModifiedDate())
-			.channel(
-				PlaylistsResponse.Channel.builder()
-					.memberId(video.getChannel().getMember().getMemberId())
-					.channelName(video.getChannel().getChannelName())
-					.build()
-			)
-			.build()
+		return videos.map(video -> {
+			Member member = video.getChannel().getMember();
+			Long memberId = member.getMemberId();
+
+			return PlaylistsResponse.builder()
+				.videoId(video.getVideoId())
+				.videoName(video.getVideoName())
+				.thumbnailUrl(
+					getThumbnailUrl(memberId, video.getThumbnailFile())
+				)
+				.star(video.getStar())
+				.modifiedDate(video.getModifiedDate())
+				.channel(
+					PlaylistsResponse.Channel.builder()
+						.memberId(video.getChannel().getMember().getMemberId())
+						.channelName(video.getChannel().getChannelName())
+						.imageUrl(getProfileUrl(memberId, member.getImageFile()))
+						.build()
+				)
+				.build();
+			}
 		);
 	}
 
 	public Page<WatchsResponse> convertWatchToWatchResponses(Page<Watch> watches) {
-		return watches.map(watch -> WatchsResponse.builder()
-			.videoId(watch.getVideo().getVideoId())
-			.videoName(watch.getVideo().getVideoName())
-			.thumbnailFile(getThumbnailUrl(watch.getVideo().getChannel().getMember().getMemberId(), watch.getVideo().getThumbnailFile()))
-			.modifiedDate(watch.getModifiedDate())
-			.channel(WatchsResponse.Channel.builder()
-				.memberId(watch.getVideo().getChannel().getMember().getMemberId())
-				.channelName(watch.getVideo().getChannel().getChannelName())
-				.build())
-			.build()
+		return watches.map(watch -> {
+			Member member = watch.getVideo().getChannel().getMember();
+			Long memberId = member.getMemberId();
+
+			return WatchsResponse.builder()
+				.videoId(watch.getVideo().getVideoId())
+				.videoName(watch.getVideo().getVideoName())
+				.thumbnailFile(getThumbnailUrl(memberId, watch.getVideo().getThumbnailFile()))
+				.modifiedDate(watch.getModifiedDate())
+				.channel(WatchsResponse.Channel.builder()
+					.memberId(memberId)
+					.channelName(watch.getVideo().getChannel().getChannelName())
+					.imageUrl(getProfileUrl(memberId, member.getImageFile()))
+					.build())
+				.build();
+			}
 		);
 	}
 
@@ -125,6 +138,41 @@ public class MemberResponseConverter {
 				.channel(channelInfo)
 				.build();
 		});
+	}
+
+	public Page<PlaylistChannelResponse> convertChannelToPlaylistChannelResponse(Page<Tuple> result) {
+
+		return result.map(tuple -> {
+				Long memberId = tuple.get(0, Long.class);
+				String channelName = tuple.get(1, String.class);
+				String imageFile = tuple.get(2, String.class);
+				Long videoCount = tuple.get(3, Long.class);
+				Boolean isSubscribed = tuple.get(4, Boolean.class);
+				Integer subscribers = tuple.get(5, Integer.class);
+
+				return PlaylistChannelResponse.builder()
+					.memberId(memberId)
+					.channelName(channelName)
+					.imageUrl(getProfileUrl(memberId, imageFile))
+					.videoCount(videoCount)
+					.subscribers(subscribers)
+					.isSubscribed(isSubscribed)
+					.build();
+			});
+	}
+
+	public Page<PlaylistChannelDetailsResponse> convertVideoToPlaylistChannelDetailsResponse(Page<Video> videos, Long memberId) {
+		return videos.map(
+			video -> PlaylistChannelDetailsResponse.builder()
+				.videoId(video.getVideoId())
+				.videoName(video.getVideoName())
+				.description(video.getDescription())
+				.thumbnailUrl(getThumbnailUrl(memberId, video.getThumbnailFile()))
+				.view(video.getView())
+				.star(video.getStar())
+				.createdDate(video.getCreatedDate())
+				.build()
+		);
 	}
 
 	private String getThumbnailUrl(Long memberId, String thumbnailFile) {
