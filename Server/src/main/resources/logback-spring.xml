@@ -34,9 +34,23 @@
         </filter>
     </appender>
 
-    <root level="INFO">
+    <!-- 비동기 Appender 정의 -->
+    <appender name="ASYNC_DEFAULT" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="DEFAULT_FILE_APPENDER"/>
+        <queueSize>500</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <appender name="ASYNC_ERROR" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="ERROR_FILE_APPENDER"/>
+        <queueSize>500</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <!-- root logger 설정 변경 -->
+    <root level="INFO">
+        <appender-ref ref="ASYNC_DEFAULT"/>
+        <appender-ref ref="ASYNC_ERROR"/>
     </root>
 
 </configuration>
