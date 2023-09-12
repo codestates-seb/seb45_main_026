@@ -81,6 +81,7 @@ public class MemberResponseConverter {
 					getThumbnailUrl(memberId, video.getThumbnailFile())
 				)
 				.star(video.getStar())
+				.createdDate(video.getCreatedDate())
 				.modifiedDate(video.getModifiedDate())
 				.channel(
 					PlaylistsResponse.Channel.builder()

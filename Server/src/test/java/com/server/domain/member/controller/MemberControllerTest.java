@@ -550,6 +550,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoName("가볍게 배우는 알고리즘")
 				.thumbnailUrl("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 				.star(4.7f)
+				.createdDate(LocalDateTime.now())
 				.modifiedDate(LocalDateTime.now())
 				.channel(
 					PlaylistsResponse.Channel.builder()
@@ -564,6 +565,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoName("더 가볍게 배우는 알고리즘")
 				.thumbnailUrl("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 				.star(3.4f)
+				.createdDate(LocalDateTime.now())
 				.modifiedDate(LocalDateTime.now())
 				.channel(
 					PlaylistsResponse.Channel.builder()
@@ -578,6 +580,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoName("많이 가볍게 배우는 알고리즘")
 				.thumbnailUrl("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 				.star(2.9f)
+				.createdDate(LocalDateTime.now())
 				.modifiedDate(LocalDateTime.now())
 				.channel(
 					PlaylistsResponse.Channel.builder()
@@ -592,6 +595,7 @@ public class MemberControllerTest extends ControllerTest {
 				.videoName("진짜 가볍게 배우는 알고리즘")
 				.thumbnailUrl("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 				.star(1.8f)
+				.createdDate(LocalDateTime.now())
 				.modifiedDate(LocalDateTime.now())
 				.channel(
 					PlaylistsResponse.Channel.builder()
@@ -625,6 +629,7 @@ public class MemberControllerTest extends ControllerTest {
 			fieldWithPath("data[].videoName").description("구매한 영상명"),
 			fieldWithPath("data[].thumbnailUrl").description("영상의 썸네일 이미지 주소"),
 			fieldWithPath("data[].star").description("영상 평균 별점"),
+			fieldWithPath("data[].createdDate").description("영상 업로드 날짜"),
 			fieldWithPath("data[].modifiedDate").description("영상 업데이트 날짜"),
 			fieldWithPath("data[].channel").description("영상 업로더의 채널 정보"),
 			fieldWithPath("data[].channel.memberId").description("업로더의 아이디"),
