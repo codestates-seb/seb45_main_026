@@ -3,8 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { setPage } from "../../redux/createSlice/ProblemSlice";
 import axios from "axios";
 import { useState } from "react";
+import { BodyTextTypo } from "../../atoms/typographys/Typographys";
+import tokens from '../../styles/tokens.json';
+
+const globalTokens = tokens.global;
 
 const ProblemBox = ({ el }) => {
+  const isDark = useSelector(state=>state.uiSetting.isDark);
   const dispatch = useDispatch();
   const token = useSelector((state) => state.loginInfo.accessToken);
   const problemsData = useSelector((state) => state.problemSlice.data);
@@ -35,7 +40,7 @@ const ProblemBox = ({ el }) => {
   return (
     <>
       <ProblemTitle>
-        <ProblemContent>{el.content}</ProblemContent>
+        <ProblemContent isDark={isDark}>{el.content}</ProblemContent>
       </ProblemTitle>
       <ProblemLists>
         {el.choice ? (
@@ -49,6 +54,7 @@ const ProblemBox = ({ el }) => {
               isFalse={isDisable && !isTrue && isAnswer === idx + 1}
             >
               <ContentNum
+                isDark={isDark}
                 type="checkbox"
                 checked={isAnswer === idx + 1}
                 onChange={() => {
@@ -56,13 +62,13 @@ const ProblemBox = ({ el }) => {
                 }}
                 disabled={isDisable}
               />
-              <ListContent>
+              <ListContent isDark={isDark}>
                 {idx + 1}. {li}
               </ListContent>
             </ProblemList>
           ))
         ) : (
-          <ProblemInputBox>
+          <ProblemInputBox isDark={isDark}>
             정답
             <ProblemInput
               isTrue={isDisable && isTrue && isAnswer}
@@ -71,6 +77,7 @@ const ProblemBox = ({ el }) => {
               onChange={(e) => setAnswer(e.target.value)}
               placeholder="단답형으로 입력해주세요."
               disabled={isDisable}
+              isDark={isDark}
             />
           </ProblemInputBox>
         )}
@@ -79,6 +86,7 @@ const ProblemBox = ({ el }) => {
       <BtnBox>
         {setting.isPage !== 1 && (
           <PrevBtn
+            isDark={isDark}
             onClick={() => {
               dispatch(setPage(setting.isPage - 1));
             }}
@@ -87,8 +95,9 @@ const ProblemBox = ({ el }) => {
           </PrevBtn>
         )}
         <ConfirmBtn
-          isOpened={isConfirm}
-          onClick={() => {
+           isDark={isDark}
+           isOpened={isConfirm}
+           onClick={() => {
             if (!isAnswer) {
               alert("정답을 입력해주세요.");
             } else {
@@ -100,6 +109,7 @@ const ProblemBox = ({ el }) => {
         </ConfirmBtn>
         {setting.isPage !== problemsData.length && (
           <NextBtn
+            isDark={isDark}
             onClick={() => {
               dispatch(setPage(setting.isPage + 1));
             }}
@@ -111,8 +121,8 @@ const ProblemBox = ({ el }) => {
 
       {isConfirm && (
         <DiscBox>
-          <DiscName>해설</DiscName>
-          <DiscContent>{el.description}</DiscContent>
+          <DiscName isDark={isDark}>해설</DiscName>
+          <DiscContent isDark={isDark}>{el.description}</DiscContent>
         </DiscBox>
       )}
     </>
@@ -177,8 +187,8 @@ export const BtnBox = styled.div`
 export const RegularBtn = styled.button`
   padding: 0px 20px;
   height: 40px;
-  border: 1px solid rgb(220, 220, 220);
-  border-radius: 20px;
+  border: 1px solid ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+  border-radius: ${globalTokens.BigRadius.value}px;
 `;
 
 export const PrevBtn = styled(RegularBtn)`
@@ -189,7 +199,7 @@ export const PrevBtn = styled(RegularBtn)`
 export const ConfirmBtn = styled(RegularBtn)`
   background-color: ${(props) =>
     props.isOpened ? "rgb(255, 100, 100)" : "white"};
-  color: ${(props) => (props.isOpened ? "white" : "black")};
+  color: ${(props) => (props.isOpened ? "white" : globalTokens.Black.value)};
 `;
 
 export const NextBtn = styled(RegularBtn)`
@@ -213,8 +223,8 @@ export const DiscBox = styled.div`
   flex-direction: column;
 `;
 
-export const DiscName = styled.span`
-  color: gray;
+export const DiscName = styled(BodyTextTypo)`
+  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
   padding-left: 10px;
 `;
 
@@ -244,7 +254,7 @@ export const ProblemInput = styled.input`
       ? "rgb(100, 100, 255)"
       : "white"};
   color: ${(props) =>
-    props.isTrue ? "white" : props.isFalse ? "white" : "black"};
+    props.isTrue ? "white" : props.isFalse ? "white" : globalTokens.Black.value};
   font-size: 16px;
   border: 2px solid rgb(236, 236, 236);
   border-radius: 8px;

@@ -59,14 +59,13 @@ export const MainSecondPageItems = () => {
             setIsInTitleViewport(true);
             setTimeout(()=>{
               setIsInSubTitleViewport(true);
+              setTimeout(()=>{
+                setIsInCarouselViewport(true);
+              },500)
             },500);
-            setTimeout(()=>{
-              setIsInCarouselViewport(true);
-            },1000);
           } else {
             setIsInTitleViewport(false);
             setIsInSubTitleViewport(false);
-            setIsInCarouselViewport(false);
           }
         })
       }
