@@ -1,5 +1,6 @@
 package com.server.auth.controller.dto;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -64,7 +65,7 @@ public class AuthApiRequest {
 
 		@NotNull(message = "{validation.auth.nickname}")
 		@Size(min = 1, max = 20, message = "{validation.size}")
-		@Pattern(regexp = "^[a-zA-Z0-9가-힣]{2,20}$", message = "{validation.auth.nickname}")
+		@Pattern(regexp = "^[a-zA-Z0-9가-힣]{1,20}$", message = "{validation.auth.nickname}")
 		private String nickname;
 
 		public MemberServiceRequest.Create toServiceRequest() {
@@ -77,6 +78,7 @@ public class AuthApiRequest {
 	}
 
 	@Getter
+	@Setter
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class Login {

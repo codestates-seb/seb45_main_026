@@ -1,5 +1,6 @@
 package com.server.global.testhelper;
 
+import com.server.auth.jwt.service.CustomUserDetails;
 import com.server.domain.announcement.repository.AnnouncementRepository;
 import com.server.domain.answer.entity.Answer;
 import com.server.domain.answer.repository.AnswerRepository;
@@ -37,12 +38,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @SpringBootTest
@@ -319,5 +326,24 @@ public abstract class ServiceTest {
         Answer answer = Answer.createAnswer("1", loginMember, question);
 
         return answerRepository.save(answer);
+    }
+
+    protected UserDetails getUserDetails(Member member) {
+        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getAuthority().toString());
+
+        return new CustomUserDetails(
+            member.getMemberId(),
+            String.valueOf(member.getEmail()),
+            member.getPassword(),
+            Collections.singleton(grantedAuthority)
+        );
+    }
+
+    protected UsernamePasswordAuthenticationToken getAuthenticationToken() {
+        Member member = createAndSaveMember();
+
+        UserDetails userDetails = getUserDetails(member);
+
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }
