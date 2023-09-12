@@ -70,11 +70,11 @@ public class ReplyService {
         Member findLoginMember = findMember(loginMemberId);
         Video video = findVideo(videoId);
 
-        validateReply(loginMemberId, video, reply);
+        validateReply(loginMemberId, video);
         existReplies(loginMemberId, videoId);
         evaluateStar(reply.getStar());
 
-        Reply newReply = Reply.createReply(findLoginMember, video, reply);
+        Reply newReply = Reply.createComment(findLoginMember, video, reply);
 
         replyRepository.save(newReply);
 
@@ -94,10 +94,7 @@ public class ReplyService {
 
         reply.updateReply(request.getContent(), request.getStar());
 
-        replyRepository.save(reply);
-
         reply.getVideo().calculateStar();
-        videoRepository.save(reply.getVideo());
     }
 
     @Transactional(readOnly = true)
@@ -138,7 +135,7 @@ public class ReplyService {
         replyRepository.findAllByMemberIdAndVideoId(loginMemberId, videoId);
     }
 
-    private void validateReply(Long loginMemberId, Video video, CreateReply reply) {
+    private void validateReply(Long loginMemberId, Video video) {
         Boolean isPurchased = memberRepository.checkMemberPurchaseVideo(loginMemberId, video.getVideoId());
         if (!isPurchased) {
             throw new VideoNotPurchasedException();
