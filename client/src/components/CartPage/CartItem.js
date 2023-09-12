@@ -8,11 +8,17 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setChecked } from "../../redux/createSlice/CartsSlice";
 import { priceToString } from "./CartPayInfo";
+import tokens from '../../styles/tokens.json';
+import { BodyTextTypo } from "../../atoms/typographys/Typographys";
+import { NegativeTextButton } from "../../atoms/buttons/Buttons";
+
+const globalTokens = tokens.global;
 
 const CartItem = ({ el }) => {
   const dispatch = useDispatch();
   const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
   const token = useSelector((state) => state.loginInfo.accessToken);
+  const isDark = useSelector(state=>state.uiSetting.isDark);
 
   const handlePatchItemList = (videoId) => {
     return axios
@@ -35,17 +41,18 @@ const CartItem = ({ el }) => {
   };
 
   return (
-    <CartList>
+    <CartList isDark={isDark}>
       <CheckedBtn
+        isDark={isDark}
         type="checkbox"
         checked={checkedItems.includes(el.videoId)}
         onChange={(e) => handleCheckChange(e.target.checked, el.videoId)}
       />
-      <VideoImage src={el.thumbnailUrl} />
-      <Content>
-        <ItemTitle>{el.videoName}</ItemTitle>
-        <ItemName>{el.channel.channelName}</ItemName>
-        <Category>
+      <VideoImage src={el.thumbnailUrl} isDark={isDark} />
+      <Content isDark={isDark}>
+        <ItemTitle isDark={isDark}>{el.videoName}</ItemTitle>
+        <ItemName isDark={isDark}>{el.channel.channelName}</ItemName>
+        <Category isDark={isDark}>
           {[{ categoryId: 1234, categoryName: "데이터 불러와야함." }].map(
             (el) => (
               <CategoryLists key={el.categoryId}>
@@ -54,11 +61,11 @@ const CartItem = ({ el }) => {
             )
           )}
         </Category>
-        <CancelBtn onClick={() => handlePatchItemList(el.videoId)}>
+        <CancelBtn isDark={isDark} onClick={() => handlePatchItemList(el.videoId)}>
           &times;
         </CancelBtn>
       </Content>
-      <ItemPrice>{priceToString(el.price)}원</ItemPrice>
+      <ItemPrice isDark={isDark}>{priceToString(el.price)}원</ItemPrice>
     </CartList>
   );
 };
@@ -70,56 +77,54 @@ export const CartList = styled.li`
   flex-direction: row;
   justify-content: start;
   align-items: start;
-  border-bottom: 1px solid rgb(236, 236, 236);
+  border-bottom: 1px solid ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
   width: 100%;
-  margin: 5px 0px;
-  padding: 20px 15px;
+  margin: ${globalTokens.Spacing4.value}px 0px;
+  padding: ${globalTokens.Spacing20.value}px ${globalTokens.Spacing16.value}px;
 `;
 
 export const VideoImage = styled.img`
   width: 100%;
   max-width: 180px;
   aspect-ratio: 8 / 5;
-  margin: 0px 15px;
-  border-radius: 8px;
+  margin: 0px ${globalTokens.Spacing16.value}px;
+  border-radius: ${globalTokens.Spacing8.value}px;
 `;
 
 export const Content = styled.div`
   position: relative;
-
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: start;
 
-  border-right: 1px solid rgb(236, 236, 236);
+  border-right: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
   width: 100%;
   height: 100px;
   max-width: 400px;
 
-  padding-left: 10px;
+  padding-left: ${globalTokens.Spacing8.value}px;
 `;
 
-export const ItemTitle = styled.span`
+export const ItemTitle = styled(BodyTextTypo)`
   width: 100%;
-  margin: 5px 0px;
-  font-weight: bold;
+  margin: ${globalTokens.Spacing4.value}px 0px;
+  font-weight: ${globalTokens.Bold.value};
 `;
 
-export const ItemName = styled.span`
+export const ItemName = styled(BodyTextTypo)`
   width: 100%;
-  margin: 5px 0px;
-  font-weight: 600;
-  color: gray;
+  margin: ${globalTokens.Spacing4.value}px 0px;
+  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
 `;
 
-export const CancelBtn = styled.button`
+export const CancelBtn = styled(NegativeTextButton)`
   position: absolute;
   top: 3%;
   right: 3%;
 `;
 
-export const ItemPrice = styled.div`
+export const ItemPrice = styled(BodyTextTypo)`
   width: 100%;
   max-width: 140px;
   height: 100px;

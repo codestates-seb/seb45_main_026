@@ -7,12 +7,7 @@ import { AutoPlay } from "@egjs/flicking-plugins";
 import Flicking, { ViewportSlot, MoveEvent, WillChangeEvent, Viewport } from "@egjs/react-flicking";
 import { Arrow } from "@egjs/flicking-plugins";
 import "@egjs/flicking-plugins/dist/arrow.css";
-import carouselPrev from '../../assets/images/icons/arrow/carouselPrev.svg';
-import carouselNext from '../../assets/images/icons/arrow/carouselNext.svg';
 
-const CarouselContainer = styled.div`
-    max-height: 450px;
-`
 const CarouselItemContainer = styled.div`
 `
 const CarouselImg = styled.img`
@@ -36,12 +31,11 @@ const Carousel = () => {
         duration: 1500, 
         animationDuration: 2000,
         direction: "NEXT", 
-        stopOnHover: true }),
+        stopOnHover: false }),
         new Arrow({}),
     ];
 
     return (
-        <CarouselContainer>
             <Flicking
                 duration={2000}
                 viewportTag='div'
@@ -71,7 +65,6 @@ const Carousel = () => {
                     <CarouselArrowButton className="flicking-arrow-next is-thin"></CarouselArrowButton>
                 </ViewportSlot>
             </Flicking>
-        </CarouselContainer>
     );
 };
 
