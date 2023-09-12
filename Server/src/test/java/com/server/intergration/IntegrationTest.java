@@ -40,6 +40,7 @@ import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.videoCategory.entity.VideoCategoryRepository;
 import com.server.domain.watch.repository.WatchRepository;
+import com.server.module.s3.service.AwsService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -71,6 +72,9 @@ public class IntegrationTest {
 	@Autowired protected ObjectMapper objectMapper;
 	@Autowired protected RestTemplate restTemplate;
 	@Autowired protected EntityManager entityManager;
+
+	// AWS
+	@Autowired protected AwsService awsService;
 
 	protected String createAccessToken(Member member, long accessTokenExpireTime) {
 		UserDetails userDetails = createUserDetails(member);
