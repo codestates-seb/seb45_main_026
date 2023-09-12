@@ -8,11 +8,13 @@ import HorizonItem from "../../components/contentListItems/HorizonItem";
 import VerticalItem from "../../components/contentListItems/VerticalItem";
 import { setLocation } from "../../redux/createSlice/UISettingSlice";
 import axios from "axios";
-import { resetToInitialState,setIsHorizon } from "../../redux/createSlice/FilterSlice";
+import { resetToInitialState,setIsHorizon,setPage,setMaxPage } from "../../redux/createSlice/FilterSlice";
 import list from '../../assets/images/icons/listItem/list.svg'
 import grid from '../../assets/images/icons/listItem/grid.svg'
 import { HomeTitle } from '../../components/contentListItems/ChannelHome';
 import { useToken } from '../../hooks/useToken';
+import { useInView } from "react-intersection-observer";
+
 const globalTokens = tokens.global;
 
 const LectureMainContainer = styled(MainContainer)`
@@ -52,6 +54,7 @@ const StructureButton = styled.button`
 `;
 const HorizonItemContainer = styled.ul`
   width: 100%;
+  min-height: 800px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -68,23 +71,32 @@ const VerticalItemContainer = styled.ul`
     gap: ${globalTokens.Spacing12.value}px;
     margin-bottom: ${globalTokens.Spacing28.value}px;
 `
+const BottomDiv = styled.div`
+  height: 10px;
+  width: 10px;
+`
 
 const LectureListPage = () => {
-  const refreshToken = useToken();
   const isDark = useSelector(state=>state.uiSetting.isDark);
-  const tokens = useSelector(state=>state.loginInfo.accessToken);
-  const [lectures, setLectures] = useState([]);
   const filterState = useSelector((state) => state.filterSlice.filter);
   const isHorizon = useSelector((state) => state.filterSlice.isHorizon);
   const accessToken = useSelector(state=>state.loginInfo.accessToken);
+  const page = useSelector((state) => state.filterSlice.page);
+  const maxPage = useSelector((state) => state.filterSlice.maxPage);
+  const refreshToken = useToken();
   const dispatch = useDispatch();
+  const [bottomRef, bottomInView] = useInView()
+  const [lectures, setLectures] = useState([]);
+  const [loading,setLoading]=useState(true)
   
   useEffect(() => {
     return () => {
       dispatch(resetToInitialState());
     };
   }, []);
-  useEffect(()=>{
+  
+  useEffect(() => {
+    dispatch(setPage(1));
     axios
       .get(
         `https://api.itprometheus.net/videos?sort=${
@@ -99,12 +111,50 @@ const LectureListPage = () => {
             : ""
         }${
           filterState.isFree.value ? `&free=${filterState.isFree.value}` : ""
-        }`,
+        }&page=1`,
         {
           headers: { Authorization: accessToken.authorization },
         }
       )
-      .then((res) => setLectures(res.data.data))
+      .then((res) => {
+        dispatch(setMaxPage(res.data.pageInfo.totalPage));
+        setLectures(res.data.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (err.response.data.message === "만료된 토큰입니다.") {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
+  }, [filterState, accessToken]);
+
+
+  useEffect(() => {
+    if (lectures !== [] && page !== 1) {
+      axios.get(
+        `https://api.itprometheus.net/videos?sort=${
+          filterState.sortBy.value
+        }&is-purchased=${filterState.isPurchased.value}${
+          filterState.category.value
+            ? `&category=${filterState.category.value}`
+            : ""
+        }${
+          filterState.isSubscribed.value
+            ? `&subscribe=${filterState.isSubscribed.value}`
+            : ""
+        }${
+          filterState.isFree.value ? `&free=${filterState.isFree.value}` : ""
+        }&page=${page}`,
+        {
+          headers: { Authorization: accessToken.authorization },
+        }
+      )
+      .then((res) => {
+        setLectures((prev) => [...prev, ...res.data.data])
+        setLoading(false)
+      })
       .catch((err) => 
         {
           if(err.response.data.message==='만료된 토큰입니다.') {
@@ -113,13 +163,20 @@ const LectureListPage = () => {
             console.log(err);
           }
         }
-      );
-  }, [filterState,tokens])
+      );}
+  }, [page])
+
+  useEffect(() => {
+    if (bottomInView&&maxPage && (page < maxPage)) {
+      setLoading(true)
+      dispatch(setPage(page+1))
+    }
+  },[bottomInView])
   
   return (
     <PageContainer isDark={isDark}>
       <LectureMainContainer isDark={isDark}>
-        <ListTitle isDark={isDark}>강의 목록</ListTitle>
+        <ListTitle isDark={isDark} onClick={()=>dispatch(setPage(page+1))}>강의 목록</ListTitle>
         <FilterContainer>
           <CategoryFilter filterNum="filters1"/>
           <StructureButton
@@ -140,6 +197,7 @@ const LectureListPage = () => {
             ))}
           </VerticalItemContainer>
         )}
+      {page < maxPage&&!loading?<BottomDiv ref={bottomRef}/>:<></>}
       </LectureMainContainer>
     </PageContainer>
   );

@@ -129,6 +129,7 @@ const CreatedAt = styled(SmallTextTypo)`
 `
 const ScoreContainer = styled.div`
     height: 30px;
+    flex-grow: 1;
     display: flex;
     flex-direction: row;
     align-items: center;
