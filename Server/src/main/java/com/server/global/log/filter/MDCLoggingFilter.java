@@ -34,7 +34,7 @@ public class MDCLoggingFilter implements Filter {
 
         String requestFullUri = getRequestFullUri(request);
 
-        String firstHost = getFirstHost(requestFullUri);
+        String firstHost = getFirstHost(request);
 
         log.info("API : {} {}{} duration: {} ms ([{}])", method, "/", firstHost, duration, requestFullUri);
 
@@ -44,17 +44,19 @@ public class MDCLoggingFilter implements Filter {
     private String getRequestFullUri(ServletRequest request) {
         String requestUrl = ((HttpServletRequest) request).getRequestURI();
         String queryString = ((HttpServletRequest) request).getQueryString() == null ?
-                "" : ((HttpServletRequest) request).getQueryString();
+                "" : "?" + ((HttpServletRequest) request).getQueryString();
 
-        return requestUrl + "?" + queryString;
+        return requestUrl + queryString;
     }
 
-    private String getFirstHost(String requestFullUrl) {
+    private String getFirstHost(ServletRequest request) {
 
-        String[] urlArr = requestFullUrl.split("/");
+        String requestUrl = ((HttpServletRequest) request).getRequestURI();
+
+        String[] urlArr = requestUrl.split("/");
 
         String url = "";
-        if(urlArr.length > 2){
+        if(urlArr.length > 1){
             url = urlArr[1];
         }
         return url;
