@@ -65,23 +65,22 @@ public class ReplyService {
         return replyInfoPage;
     }
 
-    public Long createReply(Long loginMemberId, Long videoId, CreateReply reply) {
+    public Long createReply(Long loginMemberId, Long videoId, CreateReply createReply) {
 
         Member findLoginMember = findMember(loginMemberId);
         Video video = findVideo(videoId);
 
         validateReply(loginMemberId, video);
         existReplies(loginMemberId, videoId);
-        evaluateStar(reply.getStar());
+        evaluateStar(createReply.getStar());
 
-        Reply newReply = Reply.createComment(findLoginMember, video, reply);
+        Reply reply = Reply.newReply(findLoginMember, video, createReply);
 
-        replyRepository.save(newReply);
+        replyRepository.save(reply);
 
         video.calculateStar();
-        videoRepository.save(video);
 
-        return newReply.getReplyId();
+        return reply.getReplyId();
     }
 
     public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi request) {
