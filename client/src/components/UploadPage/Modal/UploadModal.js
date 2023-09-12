@@ -1,5 +1,93 @@
 import { styled } from "styled-components";
 
+const UploadModal = ({
+  setModal,
+  isProblem,
+  handleChangeContent,
+  handleCreateProblem,
+  initProblem,
+}) => {
+  return (
+    <ModalBackground
+      onClick={() => {
+        setModal(false);
+        initProblem();
+      }}
+    >
+      <ProblemModal
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        <ProblemTitle>
+          문제 등록하기
+          <TitleInput
+            id="ProblemTitle"
+            type="text"
+            placeholder="문제의 지문을 입력해주세요."
+            onChange={(e) => handleChangeContent(e)}
+            value={isProblem.content}
+          />
+        </ProblemTitle>
+        <ProblemContent>
+          <ProblemLists>
+            {[1, 2, 3, 4].map((el) => (
+              <ProblemList>
+                <CheckNumber
+                  id="questionAnswer"
+                  type="checkbox"
+                  onChange={(e) => {
+                    handleChangeContent(e, el);
+                  }}
+                  checked={isProblem.questionAnswer.includes(el)}
+                />
+                <ListLabel>{el}번 문항</ListLabel>
+                <ListInput
+                  id="selections"
+                  type="text"
+                  placeholder={`${el}번 문항을 입력해주세요.`}
+                  onChange={(e) => handleChangeContent(e, el)}
+                  value={isProblem.selections[el - 1]}
+                />
+              </ProblemList>
+            ))}
+            <ProblemList>
+              <CommentLabel>해설</CommentLabel>
+              <CommentInput
+                id="ProblemDiscribe"
+                type="text"
+                placeholder="해설을 입력해 주세요."
+                onChange={(e) => handleChangeContent(e)}
+                value={isProblem.description}
+              />
+            </ProblemList>
+          </ProblemLists>
+        </ProblemContent>
+        <SubmitBtn
+          onClick={() => {
+            if (!isProblem.content) {
+              return alert("지문을 입력해 주세요.");
+            }
+            if (!isProblem.questionAnswer) {
+              return alert("정답을 체크해 주세요.");
+            }
+            if (!isProblem.selections.length) {
+              return alert("선택지들을 입력해 주세요.");
+            }
+            handleCreateProblem();
+            setModal(false);
+            initProblem();
+          }}
+        >
+          문제 추가
+        </SubmitBtn>
+      </ProblemModal>
+    </ModalBackground>
+  );
+};
+
+export default UploadModal;
+
 export const ModalBackground = styled.div`
   position: fixed;
   top: 0;
@@ -88,6 +176,7 @@ export const TitleInput = styled.textarea`
   border-radius: 8px;
   margin-top: 20px;
   padding: 10px 0px 0px 10px;
+  resize: none;
 `;
 
 export const ListInput = styled(GrayInput)`
@@ -104,6 +193,7 @@ export const CommentInput = styled.textarea`
   border-radius: 8px;
   margin-left: 15px;
   padding: 10px 0px 0px 10px;
+  resize: none;
 `;
 
 export const SubmitBtn = styled.button`
@@ -120,41 +210,3 @@ export const SubmitBtn = styled.button`
     background-color: rgb(255, 150, 150);
   }
 `;
-
-const UploadModal = ({ setModal }) => {
-  return (
-    <ModalBackground onClick={() => setModal(false)}>
-      <ProblemModal
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-      >
-        <ProblemTitle>
-          문제 등록하기
-          <TitleInput type="text" placeholder="문제의 지문을 입력해주세요." />
-        </ProblemTitle>
-        <ProblemContent>
-          <ProblemLists>
-            {[1, 2, 3, 4].map((el) => (
-              <ProblemList>
-                <CheckNumber type="checkbox" />
-                <ListLabel>{el}번 문항</ListLabel>
-                <ListInput
-                  type="text"
-                  placeholder={`${el}번 문항을 입력해주세요.`}
-                />
-              </ProblemList>
-            ))}
-            <ProblemList>
-              <CommentLabel>해설</CommentLabel>
-              <CommentInput type="text" placeholder="해설을 입력해 주세요." />
-            </ProblemList>
-          </ProblemLists>
-        </ProblemContent>
-        <SubmitBtn>문제 추가</SubmitBtn>
-      </ProblemModal>
-    </ModalBackground>
-  );
-};
-
-export default UploadModal;

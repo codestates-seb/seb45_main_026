@@ -8,13 +8,14 @@ export const BigButton = styled.button`
     border-radius: ${globalTokens.RegularRadius.value}px;
     border: ${globalTokens.ThinHeight.value}px solid ${(props)=>props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
     background-color: ${(props)=>props.isDark? globalTokens.MainNavy.value : globalTokens.LightRed.value};
-    color: ${globalTokens.White.value};
-    font-size: ${globalTokens.Heading5.value}px;
+    color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
+    font-size: ${globalTokens.BodyText.value}px;
     font-weight: ${globalTokens.Bold.value};
     transition: 300ms;
 
     &:hover {
         background-color: ${(props)=>props.isDark? globalTokens.LightNavy.value : globalTokens.MainRed.value};
+        color: ${globalTokens.White.value};
     }
 `
 export const BigRedButton = styled.button`
@@ -23,7 +24,7 @@ export const BigRedButton = styled.button`
     border: ${globalTokens.ThinHeight.value}px solid ${(props)=>props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
     background-color: ${(props)=>props.isDark? globalTokens.MainRed.value : globalTokens.LightRed.value};
     color: ${globalTokens.White.value};
-    font-size: ${globalTokens.Heading5.value}px;
+    font-size: ${globalTokens.BodyText.value}px;
     font-weight: ${globalTokens.Bold.value};
     transition: 300ms;
 
@@ -37,7 +38,7 @@ export const BigNavyButton = styled.button`
     border: ${globalTokens.ThinHeight.value}px solid ${(props)=>props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
     background-color: ${(props)=>props.isDark?globalTokens.MainNavy.value:globalTokens.LightNavy.value};
     color: ${globalTokens.White.value};
-    font-size: ${globalTokens.Heading5.value}px;
+    font-size: ${globalTokens.BodyText.value}px;
     font-weight: ${globalTokens.Bold.value};
     transition: 300ms;
 
@@ -50,12 +51,13 @@ export const RegularButton = styled.button`
     border-radius: ${globalTokens.RegularRadius.value}px;
     border: ${globalTokens.ThinHeight.value}px solid ${(props)=>props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
     background-color: ${(props)=>props.isDark? globalTokens.MainNavy.value : globalTokens.LightRed.value};
-    color: ${globalTokens.White.value};
+    color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
     font-size: ${globalTokens.BodyText.value}px;
     transition: 300ms;
 
     &:hover {
         background-color: ${(props)=>props.isDark? globalTokens.LightNavy.value : globalTokens.MainRed.value};
+        color: ${globalTokens.White.value};
     } 
 `
 export const RegularRedButton = styled.button`
@@ -89,12 +91,13 @@ export const RoundButton = styled.button`
     border-radius: ${globalTokens.BigRadius.value}px;
     border: ${globalTokens.ThinHeight.value}px solid ${(props)=>props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
     background-color: ${(props)=>props.isDark? globalTokens.MainNavy.value : globalTokens.LightRed.value};
-    color: ${globalTokens.White.value};
+    color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
     font-size: ${globalTokens.BodyText.value}px;
     transition: 300ms;
 
     &:hover {
         background-color: ${(props)=>props.isDark? globalTokens.LightNavy.value : globalTokens.MainRed.value};
+        color: ${globalTokens.White.value};
     }
 `
 export const RoundRedButton = styled.button`

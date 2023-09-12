@@ -1,24 +1,42 @@
-import { RegularInput } from "./Inputs"
+import { Input } from "./Inputs"
+import { FormProvider, useForm } from 'react-hook-form';
+import { action } from '@storybook/addon-actions';
 
-const Inputs = ({isDark, width}) => {
+const StorybookFormProvider = ({ children }) => {
+    const methods = useForm({
+      defaultValues : {
+        email:'',
+        password:'',
+      }
+    });
     return (
-        <div style={{display: "flex", flexDirection:"column", }}>
-            <RegularInput isDark={isDark} width={width} type='text' placeholder='placeholder'/>
-        </div>
-    )
-}
+      <FormProvider {...methods}>
+        <form
+          onSubmit={methods.handleSubmit(action('[React Hooks Form] Submit'))}>
+          {children}
+        </form>
+      </FormProvider>
+    );
+  };
+
+const withRHF = (showSubmitButton) => (Story) => (
+    <StorybookFormProvider>
+      <Story />
+      {showSubmitButton && <button type="submit">Submit</button>}
+    </StorybookFormProvider>
+);
 
 export default {
     title: 'Atoms/Inputs',
-    component: Inputs,
+    component: Input,
+    decorators: [withRHF(false)],
     argTypes: {
-        isDark: { control: 'boolean' },
         width: {  control: 'text' },
     }
 }
 
-export const InputsTemplate = (args) => <Inputs {...args}/>
+export const InputsTemplate = (args) => <Input {...args}/>
 InputsTemplate.args = {
-    isDark: false,
     width: '300px'
 }
+

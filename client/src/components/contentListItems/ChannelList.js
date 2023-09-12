@@ -1,19 +1,24 @@
-import React from "react";
+import React,{useEffect,useState} from "react";
 import { styled } from "styled-components";
 import tokens from "../../styles/tokens.json";
 import CategoryFilter from "../filters/CategoryFilter";
 import HorizonItem from "./HorizonItem";
+import axios from "axios";
+import { useSelector,useDispatch } from "react-redux";
+import { resetToInitialState } from "../../redux/createSlice/FilterSlice";
+import { useToken } from '../../hooks/useToken';
 
 const globalTokens = tokens.global;
 
 const ListBody = styled.div`
     width: 100%;
     max-width: 1170px;
-    min-height: 600px;
-    padding-top: ${globalTokens.Spacing24.value}px;
+    min-height: 700px;
+    padding: ${globalTokens.Spacing20.value}px;
     display: flex;
     flex-direction: column;
-    background-color: ${globalTokens.White.value};
+    background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
+    border-radius: 0 0 ${globalTokens.RegularRadius.value}px ${globalTokens.RegularRadius.value}px;
     gap: ${globalTokens.Spacing24.value}px;
 `; 
 const ListContainer = styled.ul`
@@ -23,19 +28,51 @@ const ListContainer = styled.ul`
     gap: ${globalTokens.Spacing16.value}px;
     margin-bottom: ${globalTokens.Spacing24.value}px;
 `
-
-export default function ChannelList() {
-    return (
-        <ListBody>
-            <CategoryFilter />
-            <ListContainer>
-                <HorizonItem/>
-                <HorizonItem/>
-                <HorizonItem/>
-                <HorizonItem/>
-                <HorizonItem/>
-                <HorizonItem/>
-            </ListContainer>
-        </ListBody>
-    )
+export default function ChannelList({ channelInfor, accessToken, userId }) {
+  const isDark = useSelector(state=>state.uiSetting.isDark);
+  const filterState = useSelector((state) => state.filterSlice.filter);
+  const refreshToken = useToken();
+  const tokens = useSelector(state=>state.loginInfo.accessToken);
+  const dispatch = useDispatch();
+  const [lectures, setLectures] = useState([]);
+  useEffect(() => {
+    return () => {
+      dispatch(resetToInitialState());
+    };
+  }, []);
+  useEffect(() => {
+    axios
+      .get(
+        `https://api.itprometheus.net/channels/${userId}/videos?sort=${
+          filterState.sortBy.value
+        }&is-purchased=${filterState.isPurchased.value}${
+          filterState.category.value
+            ? `&category=${filterState.category.value}`
+            : ""
+        }${
+          filterState.isFree.value ? `&free=${filterState.isFree.value}` : ""
+        }`,
+        {
+          headers: { Authorization: accessToken.authorization },
+        }
+      )
+      .then((res) => setLectures(res.data.data))
+      .catch((err) => {
+        if(err.response.data.message==='만료된 토큰입니다.') {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
+  }, [filterState, tokens]);
+  return (
+    <ListBody isDark={isDark}>
+      <CategoryFilter filterNum="filters2" />
+      <ListContainer>
+        {lectures.map((el) => (
+          <HorizonItem lecture={el} channel={channelInfor} />
+        ))}
+      </ListContainer>
+    </ListBody>
+  );
 }

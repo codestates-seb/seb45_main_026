@@ -5,9 +5,9 @@ import { RegularInput } from '../../atoms/inputs/Inputs';
 import { BodyTextTypo } from '../../atoms/typographys/Typographys';
 
 export const SignupInput = ({
-    label, name, type, placeholder, 
+    label, name, type, placeholder, width, 
     register, required, maxLength, minLength, pattern, validateFunc,
-    isButton, buttonTitle, handleButtonClick }) => {
+    isButton, buttonTitle, handleButtonClick, onChange }) => {
         const isDark = useSelector(state=>state.uiSetting.isDark);
 
         return (
@@ -17,7 +17,10 @@ export const SignupInput = ({
                     <SignupWithButtonInputContainer isDark={isDark}>
                         <RegularInput
                             isDark={isDark} 
-                            width={ isButton ? '200px' : '300px' }
+                            width={ 
+                                width? `${width}` 
+                                : isButton ? '200px' 
+                                : '300px' }
                             type={type}
                             placeholder={placeholder}
                             {...register(name, { 
@@ -25,7 +28,8 @@ export const SignupInput = ({
                                 maxLength: maxLength,
                                 minLength: minLength,
                                 pattern: pattern,
-                                validate: validateFunc })}/>
+                                validate: validateFunc })}
+                            onChange={onChange}/>
                         { isButton &&
                             <SignupEmailConfirmButton
                                 type='button'
@@ -37,7 +41,10 @@ export const SignupInput = ({
                  : 
                     <RegularInput
                         isDark={isDark}
-                        width={ isButton ? '200px' : '300px' }
+                        width={ 
+                            width? `${width}` 
+                            : isButton ? '200px' 
+                            : '300px' }
                         type={type}
                         placeholder={placeholder}
                         {...register(name, { 

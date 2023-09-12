@@ -1,7 +1,5 @@
 import { styled } from 'styled-components';
 import tokens from '../../styles/tokens.json'
-import { RegularInput } from '../../atoms/inputs/Inputs';
-import { SmallTextTypo } from '../../atoms/typographys/Typographys';
 import { BigButton } from '../../atoms/buttons/Buttons';
 
 const globalTokens = tokens.global;
@@ -16,11 +14,8 @@ export const LoginFormContainer = styled.form`
 export const LoginFormInputContainer = styled.div`
     margin: ${globalTokens.Spacing4.value}px;
 `
-export const ErrorTextTypo = styled(SmallTextTypo)`
-    color: ${(props)=>props.isDark ? globalTokens.LightRed.value : globalTokens.Negative.value};
-    text-align: end;
-`
 export const LoginButton = styled(BigButton)`
     margin: ${globalTokens.Spacing8.value}px;
     width: 250px;
+    font-size: ${globalTokens.BodyText.value}px;
 `

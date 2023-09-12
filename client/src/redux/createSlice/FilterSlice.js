@@ -1,28 +1,59 @@
 import { createSlice } from "@reduxjs/toolkit";
-
+const initialState = {
+  dropdown: false,
+  isHorizon: true,
+  isList : false,
+  filter: {
+    sortBy: { text: "최신순", value: "created-date" },
+    category: { text: "카테고리", value: "" },
+    isPurchased: { text: "구매여부", value: "true" },
+    isFree: { text: "유료/무료", value: "" },
+    isSubscribed: { text: "구독여부", value: "" },
+  },
+};
 const FilterSlice = createSlice({
   name: "FilterSlice",
-  initialState: {
-    sortBy: { text: "최신순", value: "created-date" },
-    dropdown: false,
-    category: { text: "카테고리", value: "" },
-    isPurchased: { text: "구매여부", value: "" },
-  },
+  initialState,
   reducers: {
-    setSort: (state, action) => {
-      state.sortBy = action.payload;
-    },
     setDropdown: (state, action) => {
       state.dropdown = action.payload;
     },
+    setSort: (state, action) => {
+      state.filter.sortBy = action.payload;
+    },
     setIsPurchased: (state, action) => {
-      state.isPurchased = action.payload;
+      state.filter.isPurchased = action.payload;
     },
     setCategory: (state, action) => {
-      state.category = action.payload;
+      state.filter.category = action.payload;
+    },
+    setIsFree: (state, action) => {
+      state.filter.isFree = action.payload;
+    },
+    setIsSubscribed: (state, action) => {
+      state.filter.isSubscribed = action.payload;
+    },
+    setIsHorizon: (state, action) => {
+      state.isHorizon = action.payload;
+    },
+    setIsList: (state, action) => {
+      state.isList = action.payload;
+    },
+    resetToInitialState: (state) => {
+      return initialState;
     },
   },
 });
 
 export default FilterSlice;
-export const { setSort, setDropdown, setIsPurchased, setCategory } = FilterSlice.actions;
+export const {
+  setSort,
+  setDropdown,
+  setIsPurchased,
+  setCategory,
+  resetToInitialState,
+  setIsFree,
+  setIsHorizon,
+  setIsSubscribed,
+  setIsList,
+} = FilterSlice.actions;

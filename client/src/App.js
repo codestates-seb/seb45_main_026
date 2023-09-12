@@ -1,5 +1,5 @@
 import "./App.css";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -7,33 +7,38 @@ import {
 } from "./redux/createSlice/UISettingSlice";
 import MainPage from "./pages/contents/MainPage";
 import LoginPage from "./pages/auth/LoginPage";
-import MyProfilePage from "./pages/userInfo/MyProfilePage";
 import Header from "./components/headers/Header";
 import Footer from "./components/footers/Footer";
 import ChannelPage from "./pages/contents/ChannelPage";
 import DetailPage from "./pages/contents/DetailPage/DetailPage";
 import CartPage from "./pages/contents/CartPage/CartPage";
-import UploadPage from "./pages/contents/UploadPage";
+import CourseUploadPage from "./pages/contents/CourseUploadPage";
 import SignupPage from "./pages/auth/SignupPage";
 import "./App.css";
 import ProblemPage from "./pages/contents/ProblemPage";
 import LectureListPage from "./pages/contents/LectureListPage";
-import { getUserInfoService } from "./services/userInfoService";
+import {  getUserInfoService } from "./services/userInfoService";
 import {
   setIsLogin,
   setLoginInfo,
-  setToken,
+  setMyid,
 } from "./redux/createSlice/LoginInfoSlice";
-import useConfirm from "./hooks/useConfirm";
 import FindPasswordPage from "./pages/auth/FindPasswordPage";
 import PurchasedListPage from "./pages/contents/PurchasedListPage";
+import UpdatePasswordPage from "./pages/auth/UpdatePasswordPage";
+import ChannelListPage from "./pages/contents/ChannelListPage";
+import { AlertModal } from './atoms/modal/Modal';
+import ProblemUploadPage from "./pages/contents/ProblemUploadPage";
+import { useLogout } from "./hooks/useLogout";
+import { useToken } from "./hooks/useToken";
+import Loading from "./atoms/loading/Loading";
 
 function App() {
   const dispatch = useDispatch();
   const tokens = useSelector((state) => state.loginInfo.accessToken);
-  const tokenFinishConfirm = useConfirm(
-    "토큰이 만료되었거나, 서버 오류로 로그아웃 되었습니다."
-  );
+  const refreshToken = useToken();
+  const logout = useLogout();
+  const [ is로그인실패모달, setIs로그인실패모달 ] = useState(false);
 
   const handleResize = () => {
     dispatch(setBrowserWidth(window.innerWidth));
@@ -43,45 +48,59 @@ function App() {
     window.addEventListener("resize", handleResize);
   }, []);
 
-  //웹을 실행했을 때 저장된 토큰이 있으면 토큰을 가지고 프로필 조회를 한다.
   useEffect(() => {
     if (!(tokens.authorization === "")) {
       getUserInfoService(tokens.authorization).then((res) => {
-        if (res.status === "success") {
-          //토큰이 유효하면 회원 정보를 dispatch 후, isLogin을 true로 설정한다.
+        if (res.status === 'success') {
+          //유저 정보 조회에 성공 -> 유저 정보 dispatch
+          dispatch(setMyid(res.data.memberId));
           dispatch(
-            setLoginInfo({ email: res.data.email, nickname: res.data.nickname })
-          );
+            setLoginInfo({
+              email: res.data.email, 
+              nickname: res.data.nickname,
+              grade: res.data.grade,
+              imgUrl: res.data.imageUrl,
+              reward: res.data.reward
+            }));
           dispatch(setIsLogin(true));
-        } else {
-          //토큰이 유효하지 않으면 저장된 토큰, 로그인 정보를 삭제하고 isLogin을 false로 설정한다.
-          tokenFinishConfirm();
-          dispatch(setToken({ authorization: "", refresh: "" }));
-          dispatch(setLoginInfo({ email: "", nickname: "" }));
-          dispatch(setIsLogin(false));
+        } else if(res.data==='만료된 토큰입니다.'){ 
+          //토큰 만료 에러인 경우 토큰 재발급 실행
+            refreshToken();
+         } else { //토큰 만료 에러가 아닌데 어쨋든 에러남
+          logout();
         }
       });
     }
-  });
+  },[tokens]);
 
   return (
     <BrowserRouter>
+      <AlertModal
+        isModalOpen={is로그인실패모달}
+        setIsModalOpen={setIs로그인실패모달}
+        isBackdropClickClose={true}
+        content='로그인 정보가 만료되었습니다. 다시 로그인하세요.'
+        buttonTitle='확인'
+        handleButtonClick={()=>{ setIs로그인실패모달(false) }}/>
       <Header />
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/findPassword" element={<FindPasswordPage />} />
-        <Route path="/MyProfile" element={<MyProfilePage />} />
+        <Route path="/findPassword/updatePassword" element={<UpdatePasswordPage/>}/>
         <Route path="/lecture" element={<LectureListPage />} />
-        <Route path="/videos/1" element={<DetailPage />} />
-        <Route path="/channels/1" element={<ChannelPage />} />
+        <Route path="/videos/:videoId" element={<DetailPage />} />
+        <Route path="/channels/:userId" element={<ChannelPage/>} />
         <Route path="/carts" element={<CartPage />} />
-        <Route path="/upload" element={<UploadPage />} />
-        <Route path="/videos/1/problems" element={<ProblemPage />} />
+        <Route path="/upload/course" element={<CourseUploadPage />} />
+        <Route path="/videos/:videoId/problems/upload" element={<ProblemUploadPage />} />
+        <Route path="/videos/:videoId/problems" element={<ProblemPage />} />
         <Route path="/purchased" element={<PurchasedListPage />} />
+        <Route path="/channellist" element={<ChannelListPage />} />
       </Routes>
       <Footer />
+      <Loading />
     </BrowserRouter>
   );
 }

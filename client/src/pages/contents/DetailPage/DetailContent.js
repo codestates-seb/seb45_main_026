@@ -15,7 +15,7 @@ const DetailContent = () => {
 
       <SubTitle>
         <Views>조회수 {videoDatas.views}회</Views>
-        <Createdate>{videoDatas.createdDate}</Createdate>
+        <Createdate>{videoDatas.createdDate.split("T")[0]}</Createdate>
       </SubTitle>
 
       <Content isOpened={contentOpend}>
@@ -94,9 +94,8 @@ export const Category = styled.ul`
 
 export const CategoryLists = styled.li`
   margin-right: 10px;
-  font-size: small;
   color: gray;
-  font-size: 16px;
+  font-size: 14px;
 `;
 
 export const ContentBtn = styled.button`

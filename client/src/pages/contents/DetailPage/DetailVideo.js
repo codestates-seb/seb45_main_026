@@ -1,32 +1,80 @@
 import { styled } from "styled-components";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import SubscribeBtn from "../../../components/DetailPage/SubscribeBtn";
 import {
   RegularRedButton,
   RegularNavyButton,
+  NegativeTextButton,
 } from "../../../atoms/buttons/Buttons";
-import { useDispatch, useSelector } from "react-redux";
 import { setPrev } from "../../../redux/createSlice/VideoInfoSlice";
-import { Link } from "react-router-dom";
+import { useToken } from "../../../hooks/useToken";
+import tokens from "../../../styles/tokens.json";
+import {
+  BodyTextTypo,
+  Heading5Typo,
+  SmallTextTypo,
+} from "../../../atoms/typographys/Typographys";
+
+const globalTokens = tokens.global;
 
 const DetailVideo = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const refreshToken = useToken();
+  const { videoId } = useParams();
+  const myId = useSelector((state) => state.loginInfo.myid);
+  const isDark = useSelector((state) => state.uiSetting.isDark);
   const videoDatas = useSelector((state) => state.videoInfo.data);
-  console.log(videoDatas);
+  const token = useSelector((state) => state.loginInfo.accessToken);
+
+  const handleCartNav = () => {
+    return axios
+      .patch(`https://api.itprometheus.net/videos/${videoId}/carts`, null, {
+        headers: { Authorization: token.authorization },
+      })
+      .then((res) => {
+        if (res.data.data) {
+          navigate("/carts");
+        } else {
+          handleCartNav();
+        }
+      })
+      .catch((err) => {
+        if (err.response.data.message === "만료된 토큰입니다.") {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
+  };
 
   return (
-    <VideoContainer>
-      <VideoHeader>
-        강의를 다 들었다면?
-        <Link to="/videos/1/problems">
-          <HeaderBtn>문제 풀러가기 →</HeaderBtn>
-        </Link>
+    <VideoContainer isDark={isDark}>
+      <VideoHeader isDark={isDark}>
+        {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
+          <>
+            강의를 다 들었다면?
+            <Link to={`/videos/${videoId}/problems`}>
+              <HeaderBtn isDark={isDark}>문제 풀러가기 →</HeaderBtn>
+            </Link>
+          </>
+        ) : (
+          <>
+            강의를 듣고 싶다면?
+            <HeaderBtn isDark={isDark} onClick={handleCartNav}>
+              구매하러 가기 →
+            </HeaderBtn>
+          </>
+        )}
       </VideoHeader>
 
-      {videoDatas.isPurchased ? (
+      {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
         <VideoWindow
           src={videoDatas.videoUrl}
           controls
-          loop
+          loop={false}
           muted
           autoPlay={false}
         />
@@ -35,19 +83,23 @@ const DetailVideo = () => {
           <PrevBtn onClick={() => dispatch(setPrev(true))}>
             1분 미리보기
           </PrevBtn>
-          <PurchaseBtn>구매하러 가기</PurchaseBtn>
+          <PurchaseBtn onClick={handleCartNav}>구매하러 가기</PurchaseBtn>
         </VideoCover>
       )}
 
-      <VideoTitle>{videoDatas.videoName}</VideoTitle>
+      <VideoTitle isDark={isDark}>{videoDatas.videoName}</VideoTitle>
 
       <VideoInfo>
         <Profile>
           <ProfileImg src={videoDatas.channel.imageUrl} alt="프로필 이미지" />
 
           <ProfileRight>
-            <ProfileName>{videoDatas.channel.channelName}</ProfileName>
-            <Subscribed>구독자 {videoDatas.channel.subscribes}명</Subscribed>
+            <ProfileName isDark={isDark}>
+              {videoDatas.channel.channelName}
+            </ProfileName>
+            <Subscribed isDark={isDark}>
+              구독자 {videoDatas.channel.subscribes}명
+            </Subscribed>
           </ProfileRight>
         </Profile>
 
@@ -66,10 +118,11 @@ export const VideoContainer = styled.section`
   justify-content: center;
   align-items: start;
   flex-wrap: wrap;
-
   padding: 50px 50px 30px 50px;
   margin-bottom: 20px;
-  background-color: white;
+  border-radius: ${globalTokens.RegularRadius.value}px;
+  background-color: ${(props) =>
+    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
 `;
 
 export const VideoCover = styled.div`
@@ -99,14 +152,11 @@ export const VideoHeader = styled.div`
   justify-content: end;
   align-items: center;
   width: 100%;
-
-  font-size: 16px;
-  color: gray;
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;
 
-export const HeaderBtn = styled.button`
-  font-size: 16px;
-  color: red;
+export const HeaderBtn = styled(NegativeTextButton)`
   margin-left: 10px;
 `;
 
@@ -116,7 +166,7 @@ export const VideoWindow = styled.video`
   aspect-ratio: 1.8/1;
   margin-top: 5px;
 `;
-export const VideoTitle = styled.h2`
+export const VideoTitle = styled(Heading5Typo)`
   margin: 10px 0px;
 `;
 
@@ -144,9 +194,9 @@ export const ProfileImg = styled.img`
 `;
 
 export const ProfileRight = styled.div``;
-export const ProfileName = styled.div``;
+export const ProfileName = styled(BodyTextTypo)``;
 
-export const Subscribed = styled.div`
-  font-size: small;
-  color: gray;
+export const Subscribed = styled(SmallTextTypo)`
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;

@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import tokens from "../../styles/tokens.json";
 import { useDispatch } from "react-redux";
-import { setSort, setIsPurchased, setCategory } from "../../redux/createSlice/FilterSlice";
+import { setSort, setIsPurchased, setCategory, setIsFree, setIsSubscribed } from "../../redux/createSlice/FilterSlice";
 
 const globalTokens = tokens.global;
 
@@ -11,7 +11,6 @@ const DropdownContainer = styled.ul`
     display: flex;
     flex-direction: column;
     border-radius: ${globalTokens.RegularRadius.value}px;
-    background-color: lightgray;
     gap: 1px;
     z-index: 1;
 `
@@ -23,6 +22,7 @@ const DropdownItem = styled.li`
     align-items: center;
     background-color: white;
     border-radius: ${globalTokens.RegularRadius.value}px;
+    border: 1px solid lightgray;
     &:hover{
         background-color: lightgray;
     }
@@ -33,11 +33,18 @@ export default function FilterDropdown({ options, actionName }) {
     const actionMap = {
         setSort,
         setIsPurchased,
-        setCategory
+        setCategory,
+        setIsFree,
+        setIsSubscribed
     };
     return (
         <DropdownContainer>
-            {options.map((el,idx)=><DropdownItem key={idx} onClick={()=>dispatch(actionMap[actionName](el))}>{el.text}</DropdownItem>)}
+            {options.map((el,idx)=>
+                <DropdownItem 
+                    key={idx} 
+                    onClick={()=>dispatch(actionMap[actionName](el))}>
+                        {el.text}
+                </DropdownItem>)}
         </DropdownContainer>
   );
 }

@@ -5,41 +5,53 @@ const CartsSlice = createSlice({
   initialState: {
     data: [
       {
-        videoId: 151,
-        videoName: "리눅스 만드는 법",
-        thumbnailUrl: "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
-        views: 333,
-        createdDate: "2023-09-04T01:12:04.519581",
-        price: 100000,
+        videoId: 0,
+        videoName: "",
+        thumbnailUrl: "",
+        views: 0,
+        createdDate: "",
+        price: 0,
         channel: {
-          memberId: 3,
-          channelName: "Linus Torvalds",
-          subscribes: 8391,
-          imageUrl: "https://d2ouhv9pc4idoe.cloudfront.net/images/test",
-        },
-      },
-      {
-        videoId: 9514,
-        videoName: "컴활 강의",
-        thumbnailUrl: "https://d2ouhv9pc4idoe.cloudfront.net/9999/test",
-        views: 777,
-        createdDate: "2023-09-04T01:12:04.52034",
-        price: 70000,
-        channel: {
-          memberId: 361,
-          channelName: "Bill Gates",
-          subscribes: 9999,
-          imageUrl: "https://d2ouhv9pc4idoe.cloudfront.net/images/test",
+          memberId: 0,
+          channelName: "",
+          subscribes: 0,
+          imageUrl: "",
         },
       },
     ],
+    myCartInfo: {
+      memberId: 0,
+      nickname: "",
+      email: "",
+      grade: "",
+      reward: 0,
+    },
+    checkedItem: [],
+    paymentInfo: {
+      amount: 0,
+      orderId: "",
+      orderName: "",
+      customerName: "",
+      successUrl: "http://localhost:3000/carts",
+      failUrl: "http://localhost:3000/carts",
+    },
   },
   reducers: {
     setCarts: (state, action) => {
       state.data = action.payload;
     },
+    setChecked: (state, action) => {
+      state.checkedItem = action.payload;
+    },
+    setMyInfo: (state, action) => {
+      state.myCartInfo = action.payload;
+    },
+    setPayment: (state, action) => {
+      state.paymentInfo = { ...state.paymentInfo, ...action.payload };
+    },
   },
 });
 
 export default CartsSlice;
-export const { setCarts } = CartsSlice.actions;
+export const { setCarts, setChecked, setMyInfo, setPayment } =
+  CartsSlice.actions;

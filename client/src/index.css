@@ -9,6 +9,10 @@ button {
   background: none;
   cursor: pointer;
 }
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
 ol,ul {
   list-style: none;
 }
@@ -20,13 +24,14 @@ a:active {
   text-decoration: none;
 }
 body {
-  overflow-x: hidden;
-  /* overflow-y: hidden; */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+textarea {
+  resize: none;
 }
 body::-webkit-scrollbar {
   display: none;
@@ -34,4 +39,11 @@ body::-webkit-scrollbar {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+::-webkit-scrollbar {
+  width: 0px
+}
+.flicking-arrow-prev,
+.flicking-arrow-next {
+  color: #BBC6D7;
 }

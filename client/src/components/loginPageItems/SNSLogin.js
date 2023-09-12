@@ -40,26 +40,20 @@ export const SNSLogin = () => {
     useEffect(()=>{
         const url = new URL(window.location.href);
         const authorizationCode = url.searchParams.get('code');
-        
-        console.log(`authorization code : ${authorizationCode}`)
-        
+                
         if(authorizationCode) {
-            console.log(`provider: ${provider}`);
-            console.log(`authorizationCode: ${authorizationCode}`);
             oauthLoginService(provider,authorizationCode).then((response)=>{
-                console.log(`oauth 성공 여부 : ${response.status}`);
                 if(response.status==='success') {
                     const authorization = response.authorization;
                     const refresh = response.refresh;
-                    
-                    console.log(`author : ${authorization}`);
-                    console.log(`refresh : ${refresh}`)
                     
                     dispatch(setToken({
                         authorization: authorization,
                         refresh: refresh
                     }));
                     navigate('/lecture');
+                } else {
+                    loginFailConfirm();
                 }
             })
         }

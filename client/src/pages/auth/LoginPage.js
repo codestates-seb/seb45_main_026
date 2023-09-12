@@ -5,6 +5,7 @@ import { styled } from "styled-components";
 import Login from "../../components/loginPageItems/Login";
 import tokens from "../../styles/tokens.json";
 import { setLocation } from "../../redux/createSlice/UISettingSlice";
+import Loading from "../../atoms/loading/Loading";
 
 const globalTokens = tokens.global;
 
@@ -19,14 +20,8 @@ export const LoginPageContainer = styled(PageContainer)`
 `;
 
 const LoginPage = () => {
-  const dispatch = useDispatch();
   const isDark = useSelector((state) => state.uiSetting.isDark);
-
-//   useEffect(() => {
-//     const url = new URL(window.location.href);
-//     dispatch(setLocation(url.pathname));
-//   }, []);
-
+  
   return (
     <LoginPageContainer isDark={isDark}>
       <Login />
