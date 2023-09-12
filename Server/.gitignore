@@ -41,3 +41,4 @@ application-secret.yml
 prometheus.pem
 spy.log
 src/main/resources/static/
+logs/

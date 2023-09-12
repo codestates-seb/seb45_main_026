@@ -90,3 +90,8 @@ spring:
 
 pem:
   location: /prometheus.pem
+
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
