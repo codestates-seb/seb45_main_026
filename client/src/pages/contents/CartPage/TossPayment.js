@@ -34,8 +34,8 @@ const PaymentBtn = ({ isDiscount }) => {
             orderId: res.data.data.orderId,
             orderName: orderName + orderDetail,
             customerName: myCartInfo.nickname,
-            successUrl: "http://localhost:3000/carts",
-            failUrl: "http://localhost:3000/carts",
+            successUrl: "https://www.itprometheus.net/carts",
+            failUrl: "https://www.itprometheus.net/carts",
           };
           dispatch(setIsLoading(true));
           setTimeout(() => {
