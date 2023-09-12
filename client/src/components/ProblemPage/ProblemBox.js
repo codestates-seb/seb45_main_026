@@ -4,12 +4,12 @@ import { setPage } from "../../redux/createSlice/ProblemSlice";
 import axios from "axios";
 import { useState } from "react";
 import { BodyTextTypo } from "../../atoms/typographys/Typographys";
-import tokens from '../../styles/tokens.json';
+import tokens from "../../styles/tokens.json";
 
 const globalTokens = tokens.global;
 
 const ProblemBox = ({ el }) => {
-  const isDark = useSelector(state=>state.uiSetting.isDark);
+  const isDark = useSelector((state) => state.uiSetting.isDark);
   const dispatch = useDispatch();
   const token = useSelector((state) => state.loginInfo.accessToken);
   const problemsData = useSelector((state) => state.problemSlice.data);
@@ -49,7 +49,7 @@ const ProblemBox = ({ el }) => {
               key={idx}
               isTrue={
                 (isDisable && isTrue && isAnswer === idx + 1) ||
-                (isDisable && el.questionAnswer === "answer" + (idx + 1))
+                (isDisable && el.questionAnswer === idx + 1)
               }
               isFalse={isDisable && !isTrue && isAnswer === idx + 1}
             >
@@ -95,9 +95,9 @@ const ProblemBox = ({ el }) => {
           </PrevBtn>
         )}
         <ConfirmBtn
-           isDark={isDark}
-           isOpened={isConfirm}
-           onClick={() => {
+          isDark={isDark}
+          isOpened={isConfirm}
+          onClick={() => {
             if (!isAnswer) {
               alert("정답을 입력해주세요.");
             } else {
@@ -187,7 +187,9 @@ export const BtnBox = styled.div`
 export const RegularBtn = styled.button`
   padding: 0px 20px;
   height: 40px;
-  border: 1px solid ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
   border-radius: ${globalTokens.BigRadius.value}px;
 `;
 
@@ -224,7 +226,8 @@ export const DiscBox = styled.div`
 `;
 
 export const DiscName = styled(BodyTextTypo)`
-  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
   padding-left: 10px;
 `;
 
@@ -254,7 +257,11 @@ export const ProblemInput = styled.input`
       ? "rgb(100, 100, 255)"
       : "white"};
   color: ${(props) =>
-    props.isTrue ? "white" : props.isFalse ? "white" : globalTokens.Black.value};
+    props.isTrue
+      ? "white"
+      : props.isFalse
+      ? "white"
+      : globalTokens.Black.value};
   font-size: 16px;
   border: 2px solid rgb(236, 236, 236);
   border-radius: 8px;

@@ -4,12 +4,19 @@ import { useSelector } from "react-redux";
 import { RegularInput } from "../../../atoms/inputs/Inputs";
 import ReviewStar from "../../../components/DetailPage/ReviewStar";
 import ReviewList from "../../../components/DetailPage/ReviewList";
+import { useEffect, useState } from "react";
 
 const DetailReview = () => {
   const token = useSelector((state) => state.loginInfo.accessToken);
   const dummyData = [0, 1, 2, 3, 4, 5, 6];
+  const [isParams, setParams] = useState({
+    page: 1,
+    size: "",
+    sort: "", // created-date || star
+    star: "", // 1 ~ 10
+  });
 
-  const getReviewData = () => {
+  const getReplies = () => {
     return axios
       .get(
         `https://api.itprometheus.net/videos/1/replies?page=1&size=5&sort=created-date&star=4`,
@@ -20,6 +27,10 @@ const DetailReview = () => {
       .then((res) => console.log(res.data))
       .catch((err) => console.log(err));
   };
+
+  useEffect(() => {
+    getReplies();
+  }, []);
 
   return (
     <ReviewContainer>

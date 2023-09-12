@@ -8,13 +8,13 @@ import {
 } from "../../pages/contents/CourseUploadPage";
 import { useMemo, useRef, useState } from "react";
 import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { BodyTextTypo } from "../../atoms/typographys/Typographys";
 import { RegularInput } from "../../atoms/inputs/Inputs";
 import { RegularTextArea } from "../../atoms/inputs/TextAreas";
 import { useToken } from "../../hooks/useToken";
-import { setIsLoading } from "../../redux/createSlice/UISettingSlice";
+import Loading from "../../atoms/loading/Loading";
 
 const CourseUpload = ({ isTags }) => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
@@ -22,7 +22,6 @@ const CourseUpload = ({ isTags }) => {
   const imgRef = useRef();
   const videoRef = useRef();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const refreshToken = useToken();
   const [imgFile, setImgFile] = useState("");
   const [videoFile, setVideoFile] = useState("");
@@ -40,6 +39,7 @@ const CourseUpload = ({ isTags }) => {
     thumbnailUrl: "",
     videoUrl: "",
   });
+  const [isLoading, setLoading] = useState(false);
   const [isComplete, setComplete] = useState(false);
   const [tagList, setTagList] = useState([]); // 현재 추가한 카테고리
   const tagListLower = tagList.map((el) => el.toLowerCase()); // tagList 대소문자 판별
@@ -104,7 +104,7 @@ const CourseUpload = ({ isTags }) => {
           }
         )
         .then((res) => {
-          dispatch(setIsLoading(true));
+          setLoading(true);
           setPresignedUrl(res.data.data);
         })
         .catch((err) => {
@@ -174,7 +174,7 @@ const CourseUpload = ({ isTags }) => {
           headers: { Authorization: token.authorization },
         })
         .then((res) => {
-          dispatch(setIsLoading(false));
+          setLoading(false);
           setComplete(true);
           alert("성공적으로 강의가 등록 되었습니다.");
           if (window.confirm("강의 문제를 업로드 하시겠습니까?")) {
@@ -368,6 +368,7 @@ const CourseUpload = ({ isTags }) => {
         </RowBox>
         <SubmitCourse onClick={handleVideoPost}>강의 등록 완료</SubmitCourse>
       </ColBox>
+      <Loading isLoading={isLoading} />
     </CourseBox>
   );
 };

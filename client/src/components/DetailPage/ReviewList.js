@@ -1,12 +1,14 @@
 import { styled } from "styled-components";
-import ReviewStar from "./ReviewStar";
+import Stars from "../contentListItems/Stars";
 
 const ReviewList = () => {
   return (
     <ReList>
       <ReviewPatch>수정</ReviewPatch>
       <ReviewDelete>삭제</ReviewDelete>
-      <ReviewStar />
+      <StarBox>
+        <Stars score={1.5} />
+      </StarBox>
       <ReviewContent>
         중간에 루즈한 부분도 있었지만 재밌게 잘봤습니다.
       </ReviewContent>
@@ -19,6 +21,10 @@ const ReviewList = () => {
 };
 
 export default ReviewList;
+
+export const StarBox = styled.div`
+  height: 30px;
+`;
 
 export const ReList = styled.li`
   position: relative;

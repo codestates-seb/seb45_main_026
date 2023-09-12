@@ -1,12 +1,15 @@
 import axios from "axios";
+import { useState } from "react";
 import { styled } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
 import { BigButton } from "../../../atoms/buttons/Buttons";
 import { setIsLoading } from "../../../redux/createSlice/UISettingSlice";
+import Loading from "../../../atoms/loading/Loading";
 
 const PaymentBtn = ({ isDiscount }) => {
   const dispatch = useDispatch();
+  const [isLoading, setLoading] = useState(false);
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const cartsItems = useSelector((state) => state.cartSlice.data);
   const token = useSelector((state) => state.loginInfo.accessToken);
@@ -37,9 +40,9 @@ const PaymentBtn = ({ isDiscount }) => {
             successUrl: "https://www.itprometheus.net/carts",
             failUrl: "https://www.itprometheus.net/carts",
           };
-          dispatch(setIsLoading(true));
+          setLoading(true);
           setTimeout(() => {
-            dispatch(setIsLoading(false));
+            setLoading(false);
             tossActive(paymentInfo);
           }, 1000);
         }
@@ -75,6 +78,7 @@ const PaymentBtn = ({ isDiscount }) => {
       >
         결제하기
       </PayBtn>
+      <Loading isLoading={isLoading} />
     </>
   );
 };

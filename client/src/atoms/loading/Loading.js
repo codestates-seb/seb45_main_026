@@ -22,9 +22,8 @@ const LoadingBackdrop = styled.div`
 const LoadingImg = styled.img`
   width: 100px;
 `;
-export const Loading = () => {
+export const Loading = ({ isLoading = false }) => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
-  const isLoading = useSelector((state) => state.uiSetting.isLoading);
 
   return (
     <LoadingBackdrop isLoading={isLoading} isDark={isDark}>

@@ -1,6 +1,6 @@
 import { styled } from "styled-components";
 import { useSelector } from "react-redux";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import tokens from "../../styles/tokens.json";
 import {
   BodyTextTypo,
@@ -37,9 +37,13 @@ const CartPayInfo = () => {
   const totalPrice = getTotal();
 
   const handleChangeDiscount = (reward) => {
+    setDiscount(reward);
+  };
+
+  const handleAllDiscount = (reward) => {
     if (totalPrice > parseInt(reward)) {
       setDiscount(reward);
-    } else {
+    } else if (totalPrice < parseInt(reward)) {
       setDiscount(totalPrice);
     }
   };
@@ -62,6 +66,12 @@ const CartPayInfo = () => {
     }
   };
 
+  useMemo(() => {
+    if (totalPrice - isDiscount <= 0) {
+      setDiscount(0);
+    }
+  }, [totalPrice]);
+
   return (
     <PayForm isDark={isDark}>
       <PointBox>
@@ -81,7 +91,7 @@ const CartPayInfo = () => {
           isDark={isDark}
           onClick={(e) => {
             e.preventDefault();
-            handleChangeDiscount(myCartInfo.reward);
+            handleAllDiscount(myCartInfo.reward);
           }}
         >
           전액 사용
