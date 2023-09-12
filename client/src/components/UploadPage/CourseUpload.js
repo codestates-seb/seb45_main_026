@@ -16,7 +16,7 @@ import { RegularTextArea } from "../../atoms/inputs/TextAreas";
 import { useToken } from "../../hooks/useToken";
 import { setIsLoading } from "../../redux/createSlice/UISettingSlice";
 
-const CourseUpload = () => {
+const CourseUpload = ({ isTags }) => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const token = useSelector((state) => state.loginInfo.accessToken);
   const imgRef = useRef();
@@ -41,6 +41,11 @@ const CourseUpload = () => {
     videoUrl: "",
   });
   const [isComplete, setComplete] = useState(false);
+  const [tagList, setTagList] = useState([]); // 현재 추가한 카테고리
+  const tagListLower = tagList.map((el) => el.toLowerCase()); // tagList 대소문자 판별
+  const tagsData = isTags.map((el) => el.categoryName); // 실제 tag data 리스트
+  const tagsDataLower = tagsData.map((el) => el.toLowerCase()); // tagsData 대소문자 판별
+  const [tagOpen, setTagOpen] = useState(false); // tag 드롭다운 열고 닫기
 
   const handleSaveFile = (e) => {
     const file = e.target.files[0];
@@ -189,6 +194,49 @@ const CourseUpload = () => {
 
   useMemo(() => handleImgUpload(), [presignedUrl]);
 
+  const addTagList = (e) => {
+    if (e.key === "Enter") {
+      if (
+        tagList.includes(e.target.value) ||
+        tagListLower.includes(e.target.value.toLowerCase())
+      ) {
+        alert("이미 존재하는 카테고리입니다.");
+        return;
+      }
+      if (
+        !tagsData.includes(e.target.value) &&
+        !tagsDataLower.includes(e.target.value.toLowerCase())
+      ) {
+        alert("존재하지 않는 카테고리 입니다.");
+        return;
+      }
+      if (e.target.value && !tagList.includes(e.target.value)) {
+        setTagList([...tagList, e.target.value]);
+        e.target.value = "";
+        return;
+      }
+    } else if (e.key === "Backspace" && !e.target.value) {
+      if (tagList.length) {
+        setTagList(tagList.filter((el, idx) => idx !== tagList.length - 1));
+        return;
+      }
+    }
+  };
+
+  const handleAddTags = (el) => {
+    if (tagList.includes(el) || tagListLower.includes(el.toLowerCase())) {
+      alert("이미 존재하는 카테고리입니다.");
+      return;
+    }
+    if (!tagList.includes(el)) {
+      setTagList([...tagList, el]);
+    }
+  };
+
+  const removeTagList = (el) => {
+    setTagList(tagList.filter((tag) => tag !== el));
+  };
+
   return (
     <CourseBox>
       <UploadTitle isDark={isDark}>강의 등록하기</UploadTitle>
@@ -218,7 +266,7 @@ const CourseUpload = () => {
         </RowBox>
         <RowBox>
           <CourseCategory isDark={isDark}>가격</CourseCategory>
-          <ChooseCategory
+          <ChoosePrice
             isDark={isDark}
             type="text"
             placeholder="가격을 설정해 주세요."
@@ -231,18 +279,46 @@ const CourseUpload = () => {
         </RowBox>
         <RowBox>
           <CourseCategory isDark={isDark}>카테고리</CourseCategory>
-          <ChooseCategory
-            isDark={isDark}
-            type="text"
-            placeholder="카테고리를 선택해 주세요."
-            value={uploadDetail.categories}
-            onChange={(e) => {
-              setUploadDetail({
-                ...uploadDetail,
-                categories: [e.target.value],
-              });
-            }}
-          />
+          <CategoryBox>
+            <CategoryLists>
+              {tagList.map((el, idx) => (
+                <CategoryList key={idx}>
+                  {el}
+                  <CategoryListBtn onClick={() => removeTagList(el)}>
+                    &times;
+                  </CategoryListBtn>
+                </CategoryList>
+              ))}
+            </CategoryLists>
+            <ChooseCategory
+              isDark={isDark}
+              type="text"
+              placeholder={!tagList.length ? "카테고리를 설정해 주세요." : ""}
+              onKeyDown={(e) => addTagList(e)}
+              onFocus={() => setTagOpen(true)}
+              onBlur={() => {
+                setTimeout(() => {
+                  setUploadDetail({ ...uploadDetail, categories: tagList });
+                  setTagOpen(false);
+                }, 100);
+              }}
+            />
+            {tagOpen && (
+              <TagDropDown>
+                {tagsData.map((el, idx) => (
+                  <TagDropDownList
+                    key={idx}
+                    onClick={() => {
+                      handleAddTags(el);
+                      setTagOpen(false);
+                    }}
+                  >
+                    {el}
+                  </TagDropDownList>
+                ))}
+              </TagDropDown>
+            )}
+          </CategoryBox>
         </RowBox>
 
         <RowBox>
@@ -342,10 +418,81 @@ export const ChooseIntro = styled(RegularTextArea)`
   resize: none;
 `;
 
-export const ChooseCategory = styled(GrayInput)`
+export const CategoryBox = styled(RegularLabel)`
+  position: relative;
   width: 100%;
-  max-width: 240px;
+  max-width: 500px;
   height: 50px;
+  margin-left: 15px;
+  display: flex;
+  justify-content: start;
+  border-radius: 8px;
+  border: 2px solid rgb(240, 240, 240);
+`;
+
+export const TagDropDown = styled.ul`
+  position: absolute;
+  top: 48px;
+  left: 0px;
+  width: 100%;
+  max-width: 500px;
+  padding: 0px 10px;
+  border: 2px solid rgb(220, 220, 220);
+  border-radius: 8px;
+  background-color: white;
+  flex-wrap: wrap;
+  display: flex;
+`;
+export const TagDropDownList = styled.li`
+  height: 38px;
+  margin: 10px 6px;
+  padding: 5px 10px;
+  background-color: rgb(255, 180, 160);
+  border: 1px solid rgb(255, 200, 200);
+  border-radius: 8px;
+  cursor: pointer;
+`;
+
+export const CategoryLists = styled.ul`
+  height: 46px;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  border-radius: 8px;
+`;
+export const CategoryList = styled.li`
+  height: 35px;
+  margin-left: 5px;
+  padding: 4px 8px 4px 10px;
+  display: flex;
+  justify-content: start;
+  border-radius: 8px;
+  background-color: rgb(255, 200, 200);
+`;
+
+export const CategoryListBtn = styled.button`
+  margin-left: 5px;
+`;
+
+export const ChooseCategory = styled.input`
+  width: 100%;
+  height: 46px;
+  border: none;
+  padding-left: 10px;
+  border-radius: 8px;
+  font-size: 16px;
+  &:focus {
+    outline: none;
+  }
+`;
+
+export const ChoosePrice = styled(GrayInput)`
+  width: 100%;
+  max-width: 500px;
+  height: 50px;
+  &:focus {
+    outline: none;
+  }
 `;
 
 export const ChooseImageInupt = styled.input`

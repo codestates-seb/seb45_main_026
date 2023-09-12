@@ -53,4 +53,5 @@ const CartsSlice = createSlice({
 });
 
 export default CartsSlice;
-export const { setCarts, setChecked, setMyInfo, setPayment } = CartsSlice.actions;
+export const { setCarts, setChecked, setMyInfo, setPayment } =
+  CartsSlice.actions;

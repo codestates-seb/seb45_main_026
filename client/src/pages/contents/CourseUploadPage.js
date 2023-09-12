@@ -2,18 +2,35 @@ import { styled } from "styled-components";
 import { useSelector } from "react-redux";
 import { PageContainer } from "../../atoms/layouts/PageContainer";
 import CourseUpload from "../../components/UploadPage/CourseUpload";
-import tokens from '../../styles/tokens.json';
+import tokens from "../../styles/tokens.json";
 import { Heading5Typo } from "../../atoms/typographys/Typographys";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 const globalTokens = tokens.global;
 
 const CourseUploadPage = () => {
-  const isDark = useSelector(state=>state.uiSetting.isDark);
+  const isDark = useSelector((state) => state.uiSetting.isDark);
+  const [isTags, setTags] = useState([]);
+
+  const getTags = () => {
+    return axios
+      .get("https://api.itprometheus.net/categories")
+      .then((res) => {
+        console.log(res.data.data);
+        setTags(res.data.data);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  useEffect(() => {
+    getTags();
+  }, []);
 
   return (
     <PageContainer isDark={isDark}>
       <UploadContainer isDark={isDark}>
-        <CourseUpload />
+        <CourseUpload isTags={isTags} />
       </UploadContainer>
     </PageContainer>
   );
@@ -26,7 +43,8 @@ export const UploadContainer = styled.section`
   max-width: 1000px;
   margin: ${globalTokens.Spacing40.value}px 0px;
   padding: 50px 0px 100px 0px;
-  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
+  background-color: ${(props) =>
+    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
   border-radius: ${globalTokens.RegularRadius.value}px;
   display: flex;
   flex-direction: column;
@@ -56,12 +74,14 @@ export const UploadTypeBtn = styled.button`
 export const UploadTitle = styled(Heading5Typo)``;
 
 export const UploadSubtitle = styled.span`
-  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
   font-size: 14px;
 `;
 
 export const SubDescribe = styled.span`
-  color: ${props=>props.isDark?globalTokens.LightRed.value:globalTokens.Negative.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightRed.value : globalTokens.Negative.value};
   font-size: 12px;
   margin-left: 15px;
 `;

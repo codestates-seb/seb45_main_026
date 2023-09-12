@@ -9,10 +9,13 @@ import { useToken } from "../../../hooks/useToken";
 import { setCarts } from "../../../redux/createSlice/CartsSlice";
 import { PageContainer } from "../../../atoms/layouts/PageContainer";
 import { HomeTitle } from "../../../components/contentListItems/ChannelHome";
+import { setIsLoading } from "../../../redux/createSlice/UISettingSlice";
+import { useNavigate } from "react-router-dom";
 
 const globalTokens = tokens.global;
 
 const CartPage = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const refreshToken = useToken();
   const isDark = useSelector((state) => state.uiSetting.isDark);
@@ -28,7 +31,7 @@ const CartPage = () => {
         dispatch(setCarts(res.data.data));
       })
       .catch((err) => {
-        if (err.response.data.code === 401) {
+        if (err.response.data?.code === 401) {
           refreshToken(() => getCartsData());
         } else {
           console.log(err);
@@ -36,8 +39,38 @@ const CartPage = () => {
       });
   };
 
+  const postOrders = (orderData) => {
+    return axios
+      .get(
+        `https://api.itprometheus.net/orders/success?order-id=${orderData.orderId}&payment-key=${orderData.paymentKey}&amount=${orderData.amount}`,
+        {
+          headers: { Authorization: token.authorization },
+        }
+      )
+      .then((res) => {
+        console.log(res.data);
+        alert("성공적으로 결제가 완료되었습니다.");
+        if (window.confirm("구매한 목록 페이지로 가시겠습니까?")) {
+          navigate(`/purchased`);
+        } else {
+          navigate(`/lecture`);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   useEffect(() => {
     getCartsData();
+    const url = new URL(window.location.href);
+    const orderId = url.searchParams.get("orderId");
+    const amount = url.searchParams.get("amount");
+    const paymentKey = url.searchParams.get("paymentKey");
+    const orderData = { paymentKey, orderId, amount };
+    if (paymentKey) {
+      postOrders(orderData);
+    }
   }, [checkedItems]);
 
   return (

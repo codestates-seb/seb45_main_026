@@ -69,7 +69,7 @@ export const ConfirmModal = ({
 
     return (
         <ModalBackdrop 
-            isModalOpen={isModalOpen} 
+            isModalOpen={isModalOpen}
             isDark={isDark}
             onClick={()=>{ isBackdropClickClose && setIsModalOpen(false) }}>
                 <ModalContainer isDark={isDark} onClick={(e)=>{e.stopPropagation();}}>
@@ -100,7 +100,6 @@ export const AlertModal = ({
     content,
     buttonTitle,
     handleButtonClick,
-
 }) => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
 
