@@ -17,7 +17,7 @@ import javax.persistence.Tuple;
 public interface ChannelRepository extends JpaRepository<Channel, Long>, ChannelRepositoryCustom {
 
 	@Query(value = "SELECT c.channel_name, m.member_id, m.image_file " +
-		"FROM channel c JOIN member m ON c.member_id = m.member_id " +
+		"FROM channel c JOIN member m ON c.channel_id = m.member_id " +
 		"WHERE MATCH(c.channel_name) AGAINST(?1 IN BOOLEAN MODE) LIMIT ?2", nativeQuery = true)
 	List<Tuple> findChannelByKeyword(String keyword, int limit);
 

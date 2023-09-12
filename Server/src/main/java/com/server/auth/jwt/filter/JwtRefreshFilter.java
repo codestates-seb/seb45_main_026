@@ -30,7 +30,7 @@ public class JwtRefreshFilter extends OncePerRequestFilter {
 									HttpServletResponse response,
 									FilterChain filterChain) throws ServletException, IOException {
 		if(!request.getMethod().equals("POST")){
-			throw new RequestNotPostException();
+			AuthUtil.setResponse(response, new RequestNotPostException());
 		}
 		else{
 			try {

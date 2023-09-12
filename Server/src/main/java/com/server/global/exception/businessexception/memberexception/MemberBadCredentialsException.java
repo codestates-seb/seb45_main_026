@@ -8,9 +8,9 @@ import lombok.Getter;
 public class MemberBadCredentialsException extends MemberException {
 
     public static final String MESSAGE = "로그인 정보를 확인해주세요.";
-    public static final String CODE = "MEMBER-400";
+    public static final String CODE = "MEMBER-401";
 
     public MemberBadCredentialsException() {
-        super(CODE, HttpStatus.BAD_REQUEST, MESSAGE);
+        super(CODE, HttpStatus.UNAUTHORIZED, MESSAGE);
     }
 }
