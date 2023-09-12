@@ -24,7 +24,7 @@ const HeaderProfile = () => {
     }
     const handleRewardClick = (e)=>{ 
         e.stopPropagation();
-        navigate('/rewards');
+        navigate('/activity/reward');
     }
 
     return (
