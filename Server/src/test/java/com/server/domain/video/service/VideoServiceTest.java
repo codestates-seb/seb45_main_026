@@ -427,6 +427,35 @@ class VideoServiceTest extends ServiceTest {
         );
     }
 
+    @Test
+    @DisplayName("비디오 생성 시 0 원 비디오면 member 의 리워드가 100원 적립된다.")
+    void createVideoMemberAddReward() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = Video.createVideo(owner.getChannel(), "test");
+        videoRepository.save(video);
+
+        createAndSaveCategory("category1");
+
+        VideoCreateServiceRequest request = VideoCreateServiceRequest.builder()
+                .videoName(video.getVideoName())
+                .price(0)
+                .description("test")
+                .categories(List.of("category1"))
+                .build();
+
+        int beforeReward = owner.getReward();
+
+        setFileGetUrlSuccess();
+        setVideoUploadSuccess();
+
+        //when
+        videoService.createVideo(owner.getMemberId(), request);
+
+        //then
+        assertThat(owner.getReward()).isEqualTo(beforeReward + 100);
+    }
+
     @TestFactory
     @DisplayName("비디오를 생성 시 최초 요청한 videoName 으로 요청하지 않으면 예외가 발생한다.")
     Collection<DynamicTest> createVideoException() {
@@ -512,7 +541,7 @@ class VideoServiceTest extends ServiceTest {
     void createVideoMemberNotFoundException() {
         //given
         Member owner = createMemberWithChannel();
-        Video video = Video.createVideo(owner.getChannel(), "test", 1000, "test");
+        Video video = Video.createVideo(owner.getChannel(), "test");
         videoRepository.save(video);
 
         createAndSaveCategory("category1");
@@ -536,7 +565,7 @@ class VideoServiceTest extends ServiceTest {
     void createVideoVideoNotUploadedExceptionWithVideo() {
         //given
         Member owner = createMemberWithChannel();
-        Video video = Video.createVideo(owner.getChannel(), "test", 1000, "test");
+        Video video = Video.createVideo(owner.getChannel(), "test");
         videoRepository.save(video);
 
         createAndSaveCategory("category1");
@@ -563,7 +592,7 @@ class VideoServiceTest extends ServiceTest {
     void createVideoVideoNotUploadedExceptionWithThumbnail() {
         //given
         Member owner = createMemberWithChannel();
-        Video video = Video.createVideo(owner.getChannel(), "test", 1000, "test");
+        Video video = Video.createVideo(owner.getChannel(), "test");
         videoRepository.save(video);
 
         createAndSaveCategory("category1");

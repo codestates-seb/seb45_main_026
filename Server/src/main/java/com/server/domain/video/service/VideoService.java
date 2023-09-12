@@ -112,9 +112,8 @@ public class VideoService {
 
         Video video = Video.createVideo(
                 member.getChannel(),
-                request.getFileName(),
-                0,
-                "uploading");
+                request.getFileName()
+        );
 
         videoRepository.save(video);
 

@@ -874,7 +874,7 @@ class VideoRepositoryTest extends RepositoryTest {
     @DisplayName("videoId 로 탈퇴한 멤버의 video 도 조회할 수 있다.")
     void findVideoDetailIncludeWithdrawal() {
         //given
-        Video video = Video.createVideo(null, "videoName", 1000, "description");
+        Video video = Video.createVideo(null, "videoName");
         em.persist(video);
 
         em.flush();

@@ -2,8 +2,10 @@ package com.server.domain.video.entity;
 
 import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
+import com.server.domain.member.entity.Member;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.videoCategory.entity.VideoCategory;
+import com.server.global.exception.businessexception.videoexception.VideoAlreadyCreatedException;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
@@ -24,17 +26,15 @@ class VideoTest {
                 .channelName("channelName")
                 .build();
         String videoName = "videoName";
-        int price = 1000;
-        String description = "description";
 
         //when
-        Video video = Video.createVideo(channel, videoName, price, description);
+        Video video = Video.createVideo(channel, videoName);
 
         //then
         assertThat(video.getChannel()).isEqualTo(channel);
         assertThat(video.getVideoName()).isEqualTo(videoName);
-        assertThat(video.getPrice()).isEqualTo(price);
-        assertThat(video.getDescription()).isEqualTo(description);
+        assertThat(video.getPrice()).isEqualTo(0);
+        assertThat(video.getDescription()).isEqualTo("uploading");
         assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.UPLOADING);
     }
 
@@ -112,6 +112,98 @@ class VideoTest {
         );
     }
 
+    @Test
+    @DisplayName("video 의 추가적인 업로드 프로세스를 진행하여 가격, 상태, 설명, 썸네일, 파일 위치, 카테고리를 업데이트 한다.")
+    void additionalCreateProcess() {
+        //given
+        Member member = createMember();
+        Long videoId = 1L;
+        Video video = createUploadingVideo(videoId, member);
+
+        int price = 1000;
+        String description = "description";
+        List<Category> categories = List.of(createCategory("category1"), createCategory("category2"));
+
+        //when
+        video.additionalCreateProcess(price, description, categories);
+
+        //then
+        assertThat(video.getPrice()).isEqualTo(price);
+        assertThat(video.getDescription()).isEqualTo(description);
+        assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.CREATED);
+        assertThat(video.getThumbnailFile()).isEqualTo(videoId + "/" + video.getVideoName());
+        assertThat(video.getVideoFile()).isEqualTo(videoId + "/" + video.getVideoName());
+        assertThat(video.getVideoCategories()).hasSize(2)
+                .extracting("category.categoryName")
+                .containsExactlyInAnyOrder("category1", "category2");
+    }
+
+    @Test
+    @DisplayName("video 의 추가적인 업로드 프로세스 진행 중 비디오가 UPLOADING 상태가 아니면 VideoAlreadyCreatedException 이 발생한다.")
+    void additionalCreateProcessVideoAlreadyCreatedException() {
+        //given
+        Video video = createVideoCreated();
+
+        int price = 1000;
+        String description = "description";
+        List<Category> categories = List.of(createCategory("category1"), createCategory("category2"));
+
+        //when
+        assertThatThrownBy(() -> video.additionalCreateProcess(price, description, categories))
+                .isInstanceOf(VideoAlreadyCreatedException.class);
+    }
+
+    @Test
+    @DisplayName("video 추가적인 업로드 프로세스 진행 중 가격이 0원이면 생성자에게 100원의 리워드를 제공한다.")
+    void additionalCreateProcessProvideReward() {
+        //given
+        Member member = createMember();
+        Long videoId = 1L;
+        Video video = createUploadingVideo(videoId, member);
+        int beforeReward = member.getReward();
+
+        int price = 0;
+        String description = "description";
+        List<Category> categories = List.of(createCategory("category1"), createCategory("category2"));
+
+        //when
+        video.additionalCreateProcess(price, description, categories);
+
+        //then
+        assertThat(member.getReward()).isEqualTo(beforeReward + 100);
+
+    }
+
+    private Member createMember() {
+
+        Channel channel = Channel.builder()
+                .build();
+
+        Member member = Member.builder()
+                .memberId(1L)
+                .channel(channel)
+                .build();
+
+        channel.setMember(member);
+
+        return member;
+    }
+
+    private Video createUploadingVideo(Long videoId, Member member) {
+       return Video.builder()
+               .videoId(videoId)
+               .channel(member.getChannel())
+               .videoName("videoName")
+               .price(0)
+               .description("uploading")
+               .videoStatus(VideoStatus.UPLOADING)
+               .view(0)
+               .star(0f)
+               .videoCategories(new ArrayList<>())
+               .build();
+
+    }
+
     private Video createVideo(String videoName) {
         return Video.builder()
                 .videoName(videoName)
@@ -130,6 +222,18 @@ class VideoTest {
                 .description("description")
                 .view(0)
                 .replies(replies)
+                .videoCategories(new ArrayList<>())
+                .star(0f)
+                .build();
+    }
+
+    private Video createVideoCreated() {
+        return Video.builder()
+                .videoName("videoName")
+                .price(1000)
+                .description("description")
+                .view(0)
+                .videoStatus(VideoStatus.CREATED)
                 .videoCategories(new ArrayList<>())
                 .star(0f)
                 .build();
