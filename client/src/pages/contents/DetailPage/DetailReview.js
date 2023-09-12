@@ -5,51 +5,91 @@ import { RegularInput } from "../../../atoms/inputs/Inputs";
 import ReviewStar from "../../../components/DetailPage/ReviewStar";
 import ReviewList from "../../../components/DetailPage/ReviewList";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const DetailReview = () => {
+  const { videoId } = useParams();
   const token = useSelector((state) => state.loginInfo.accessToken);
-  const dummyData = [0, 1, 2, 3, 4, 5, 6];
   const [isParams, setParams] = useState({
     page: 1,
-    size: "",
-    sort: "", // created-date || star
+    size: 8,
+    sort: "created-date", // || star
     star: "", // 1 ~ 10
   });
+  const [isReply, setReply] = useState({
+    content: "",
+    star: 0,
+  });
+  const [isReviews, setReviews] = useState([]);
 
-  const getReplies = () => {
+  const getReview = () => {
+    const queryString = new URLSearchParams(isParams).toString();
     return axios
       .get(
-        `https://api.itprometheus.net/videos/1/replies?page=1&size=5&sort=created-date&star=4`,
+        `https://api.itprometheus.net/videos/${videoId}/replies?${queryString}`,
         {
           headers: { Authorization: token.authorization },
         }
       )
+      .then((res) => {
+        console.log(res.data);
+        setReviews(res.data.data);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const postReview = () => {
+    if (!isReply.content) {
+      return alert("감상평을 입력해주세요.");
+    }
+    if (!isReply.star) {
+      return alert("별점을 선택해주세요.");
+    }
+    return axios
+      .post(`https://api.itprometheus.net/videos/${videoId}/replies`, isReply, {
+        headers: { Authorization: token.authorization },
+      })
       .then((res) => console.log(res.data))
       .catch((err) => console.log(err));
   };
 
+  const handleChangeReply = (e) => {
+    setReply({ ...isReply, content: e.target.value });
+  };
+
   useEffect(() => {
-    getReplies();
+    getReview();
   }, []);
 
   return (
     <ReviewContainer>
-      <ReviewTitle>수강평 {dummyData.length}</ReviewTitle>
+      <ReviewTitle>수강평 {isReviews.length}</ReviewTitle>
 
       <ReviewForm>
         <ReviewLabel>리뷰</ReviewLabel>
         <WriteTitle>별점을 선택해주세요.</WriteTitle>
-        <ReviewStar />
+        <ReviewStar isStar={isReply} setStar={setReply} />
         <ReviewSubmit>
-          <ReviewInput placeholder="한 줄 감상평을 등록해주세요." />
-          <ReviewBtn onClick={(e) => e.preventDefault()}>등록</ReviewBtn>
+          <ReviewInput
+            placeholder="한 줄 감상평을 등록해주세요."
+            value={isReply.content}
+            onChange={(e) => handleChangeReply(e)}
+          />
+          <ReviewBtn
+            onClick={(e) => {
+              e.preventDefault();
+              postReview();
+            }}
+          >
+            등록
+          </ReviewBtn>
         </ReviewSubmit>
       </ReviewForm>
 
       <Reviews>
         <FilterBtns>
-          <FilterBtn>최신순 ↑</FilterBtn>
-          <FilterBtn>별점순 ↑</FilterBtn>
+          <FilterBtn>최신순</FilterBtn>
+          <FilterBtn>별점순</FilterBtn>
           <FilterBtn>
             별점별
             <img src="" alt="" />
@@ -57,7 +97,7 @@ const DetailReview = () => {
         </FilterBtns>
 
         <ReviewLists>
-          {dummyData.map((el, idx) => (
+          {isReviews.map((el, idx) => (
             <ReviewList key={idx} el={el} />
           ))}
         </ReviewLists>

@@ -1,20 +1,64 @@
 import { styled } from "styled-components";
+import axios from "axios";
+import { useSelector } from "react-redux";
 import Stars from "../contentListItems/Stars";
+import { useState } from "react";
 
-const ReviewList = () => {
+const ReviewList = ({ el }) => {
+  const token = useSelector((state) => state.loginInfo.accessToken);
+  const [isEditMode, setEditMode] = useState(false);
+  const [editReply, setEditReply] = useState({
+    content: el.content,
+    star: 0,
+  });
+
+  const patchReview = (replyId) => {
+    return axios
+      .patch(`https://api.itprometheus.net/replies/${replyId}`, editReply, {
+        headers: { Authorization: token.authorization },
+      })
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const deleteReview = (replyId) => {
+    return axios
+      .delete(`https://api.itprometheus.net/replies/${replyId}`, {
+        headers: { Authorization: token.authorization },
+      })
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => console.log(err));
+  };
+
   return (
     <ReList>
-      <ReviewPatch>수정</ReviewPatch>
-      <ReviewDelete>삭제</ReviewDelete>
+      {isEditMode ? (
+        <ReviewPatch onClick={() => setEditMode(false)}>저장</ReviewPatch>
+      ) : (
+        <ReviewPatch onClick={() => setEditMode(true)}>수정</ReviewPatch>
+      )}
+      <ReviewDelete onClick={() => {}}>삭제</ReviewDelete>
       <StarBox>
-        <Stars score={1.5} />
+        <Stars score={el.star} />
       </StarBox>
-      <ReviewContent>
-        중간에 루즈한 부분도 있었지만 재밌게 잘봤습니다.
-      </ReviewContent>
+      {isEditMode ? (
+        <ReviewEdit
+          value={editReply.content}
+          onChange={(e) =>
+            setEditReply({ ...editReply, content: e.target.value })
+          }
+        />
+      ) : (
+        <ReviewContent>{el.content}</ReviewContent>
+      )}
+
       <ReviewInfo>
-        <ReviewName>김둥구</ReviewName>
-        <ReviewDate>2023.08.26</ReviewDate>
+        <ReviewName>{el.member.nickname}</ReviewName>
+        <ReviewDate>{el.createdDate}</ReviewDate>
       </ReviewInfo>
     </ReList>
   );
@@ -23,7 +67,9 @@ const ReviewList = () => {
 export default ReviewList;
 
 export const StarBox = styled.div`
-  height: 30px;
+  position: relative;
+  width: 120px;
+  height: 24px;
 `;
 
 export const ReList = styled.li`
@@ -57,6 +103,10 @@ export const ReviewDelete = styled.button`
   text-decoration: underline;
 `;
 
+export const ReviewEdit = styled.input`
+  flex-wrap: wrap;
+  margin: 10px 0px;
+`;
 export const ReviewContent = styled.div`
   flex-wrap: wrap;
   margin: 10px 0px;
