@@ -4,7 +4,21 @@ import arrowup from "../../assets/images/icons/arrow/subscribe_arrow_up.svg";
 import arrowdown from "../../assets/images/icons/arrow/subscribe_arrow_down.svg";
 import { RoundButton } from "../../atoms/buttons/Buttons";
 import { useSelector } from "react-redux";
-import tokens from '../../styles/tokens.json';
+import tokens from "../../styles/tokens.json";
+
+const SubscribeBtn = () => {
+  const isDark = useSelector((state) => state.uiSetting.isDark);
+
+  return (
+    <Subscribed isDark={isDark}>
+      <BellImg src={bell} alt="구독버튼" />
+      구독중
+      <ArrowImg isOpened={false} alt="구독버튼 열기" />
+    </Subscribed>
+  );
+};
+
+export default SubscribeBtn;
 
 const globalTokens = tokens.global;
 
@@ -15,11 +29,14 @@ export const Subscribed = styled(RoundButton)`
   align-items: center;
   width: 120px;
   height: 35px;
-  background-color: rgba(255,255,255,0);
-  color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
+  background-color: rgba(255, 255, 255, 0);
+  color: ${(props) =>
+    props.isDark ? globalTokens.White.value : globalTokens.Black.value};
   &:hover {
-    background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.15)'};
-    color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
+    background-color: ${(props) =>
+      props.isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)"};
+    color: ${(props) =>
+      props.isDark ? globalTokens.White.value : globalTokens.Black.value};
   }
 `;
 
@@ -36,17 +53,3 @@ export const ArrowImg = styled.img.attrs((props) => ({
   width: 15px;
   height: 15px;
 `;
-
-const SubscribeBtn = () => {
-  const isDark = useSelector(state=>state.uiSetting.isDark);
-
-  return (
-    <Subscribed isDark={isDark}>
-      <BellImg src={bell} alt="구독버튼" />
-      구독중
-      <ArrowImg isOpened={false} alt="구독버튼 열기" />
-    </Subscribed>
-  );
-};
-
-export default SubscribeBtn;

@@ -15,7 +15,7 @@ const DetailContent = () => {
 
       <SubTitle>
         <Views>조회수 {videoDatas.views}회</Views>
-        <Createdate>{videoDatas.createdDate}</Createdate>
+        <Createdate>{videoDatas.createdDate.split("T")[0]}</Createdate>
       </SubTitle>
 
       <Content isOpened={contentOpend}>

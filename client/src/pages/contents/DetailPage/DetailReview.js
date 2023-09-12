@@ -1,10 +1,25 @@
 import { styled } from "styled-components";
+import axios from "axios";
+import { useSelector } from "react-redux";
 import { RegularInput } from "../../../atoms/inputs/Inputs";
 import ReviewStar from "../../../components/DetailPage/ReviewStar";
 import ReviewList from "../../../components/DetailPage/ReviewList";
 
 const DetailReview = () => {
+  const token = useSelector((state) => state.loginInfo.accessToken);
   const dummyData = [0, 1, 2, 3, 4, 5, 6];
+
+  const getReviewData = () => {
+    return axios
+      .get(
+        `https://api.itprometheus.net/videos/1/replies?page=1&size=5&sort=created-date&star=4`,
+        {
+          headers: { Authorization: token.authorization },
+        }
+      )
+      .then((res) => console.log(res.data))
+      .catch((err) => console.log(err));
+  };
 
   return (
     <ReviewContainer>
