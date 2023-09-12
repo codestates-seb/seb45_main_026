@@ -24,6 +24,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.server.auth.jwt.filter.JwtAuthenticationFilter;
 import com.server.auth.jwt.filter.JwtRefreshFilter;
 import com.server.auth.jwt.filter.JwtVerificationFilter;
+import com.server.auth.jwt.handler.MemberAuthenticationEntryPoint;
 import com.server.auth.jwt.service.JwtProvider;
 
 import static com.server.auth.util.AuthConstant.*;
@@ -54,7 +55,7 @@ public class SecurityConfig {
 			.and()
 			.exceptionHandling()
 			.accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN))
-			.authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "인증되지 않은 사용자입니다."))
+			.authenticationEntryPoint(new MemberAuthenticationEntryPoint())
 			.and()
 			.authorizeRequests(getAuthorizeRequests());
 

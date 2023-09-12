@@ -28,7 +28,7 @@ public class VideoSearchResult {
 					tuple.get("video_id", BigInteger.class).longValue(),
 					tuple.get("thumbnail_file", String.class),
 					tuple.get("video_name", String.class),
-					tuple.get("member_id", BigInteger.class).longValue()
+					tuple.get("channel_id", BigInteger.class).longValue()
 				))
 				.collect(Collectors.toList());
 	}

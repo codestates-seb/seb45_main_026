@@ -31,23 +31,10 @@ public class AuthUtil {
 		);
 	}
 
-	public static void setResponse(HttpServletResponse response, AuthenticationException ae) throws IOException {
+	public static void setResponse(HttpServletResponse response) throws IOException {
 		response.setContentType("application/json");
 		response.setHeader(LOCATION, "/auth/refresh");
 		response.setCharacterEncoding("UTF-8");
-
-		if (ae instanceof BadCredentialsException) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
-		}  else if (ae instanceof DisabledException) {
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403 Forbidden
-		} else {
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); // 500 Internal Server Error (기본값)
-		}
-
-		response.getWriter().write(
-			objectMapper.writeValueAsString(
-				ApiSingleResponse.fail(ae)
-			)
-		);
+		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 	}
 }

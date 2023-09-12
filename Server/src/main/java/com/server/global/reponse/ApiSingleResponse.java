@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
@@ -101,6 +102,15 @@ public class ApiSingleResponse<T> {
 	}
 
 	public static ApiSingleResponse<Void> fail(Exception exception) {
+		return new ApiSingleResponse<>(
+			null,
+			HttpStatus.INTERNAL_SERVER_ERROR.value(),
+			HttpStatus.INTERNAL_SERVER_ERROR.name(),
+			exception.getMessage()
+		);
+	}
+
+	public static ApiSingleResponse<Void> fail(Exception exception, int status) {
 		return new ApiSingleResponse<>(
 			null,
 			HttpStatus.INTERNAL_SERVER_ERROR.value(),

@@ -85,7 +85,7 @@ public class MySQLSearchEngineTest extends ServiceTest {
 			"video_id",
 			"thumbnail_file",
 			"video_name",
-			"member_id"
+			"channel_id"
 		};
 
 		List<Tuple> tuples = new ArrayList<>();

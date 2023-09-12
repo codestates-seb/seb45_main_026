@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -33,6 +35,8 @@ import com.server.global.exception.businessexception.authexception.LoginEmailVal
 import com.server.global.exception.businessexception.authexception.LoginPasswordNullException;
 import com.server.global.exception.businessexception.authexception.LoginPasswordSizeException;
 import com.server.global.exception.businessexception.authexception.LoginPasswordValidException;
+import com.server.global.exception.businessexception.memberexception.MemberBadCredentialsException;
+import com.server.global.exception.businessexception.memberexception.MemberDisabledException;
 
 import lombok.SneakyThrows;
 
@@ -60,11 +64,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 			return authenticationManager.authenticate(authenticationToken);
 
-		} catch (AuthenticationException authenticationException) {
-			AuthUtil.setResponse(response, authenticationException);
+		} catch (BadCredentialsException badCredentialsException) {
+			AuthUtil.setResponse(response, new MemberBadCredentialsException());
+			return null;
+		} catch (DisabledException disabledException) {
+			AuthUtil.setResponse(response, new MemberDisabledException());
 			return null;
 		} catch (BusinessException businessException) {
 			AuthUtil.setResponse(response, businessException);
+			return null;
+		} catch (Exception exception) {
+			AuthUtil.setResponse(response);
 			return null;
 		}
 	}
