@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MainContainer, PageContainer } from '../../atoms/layouts/PageContainer';
 import { useSelector } from 'react-redux';
 import { styled } from 'styled-components';
 import tokens from '../../styles/tokens.json';
 import { BodyTextTypo, Heading5Typo } from '../../atoms/typographys/Typographys';
 import RewardCategory from '../../components/rewardPage/RewardCategory';
+import ReceiptDropdown from '../../components/receiptPage/ReceiptDropdown';
+
 
 const globalTokens = tokens.global;
 
@@ -30,6 +32,7 @@ export const RewardContentContainer = styled.section`
     flex-direction: column;
     justify-content: start;
     align-items: center;
+    background-color: yellow;
 `
 export const ContentNothing = styled(BodyTextTypo)`
     margin: ${globalTokens.Spacing40.value}px;
@@ -38,15 +41,16 @@ export const ContentNothing = styled(BodyTextTypo)`
 
 const RewardPage = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
-    const userInfo = useSelector(state=>state.loginInfo.loginInfo);
-
+    const [ rewardList, setRewardList ] = useState([]);
+    
     return (
         <PageContainer isDark={isDark}>
             <RewardMainContainer isDark={isDark}>
                 <RewardTitle isDark={isDark}>나의 활동</RewardTitle>
                 <RewardCategory category='reward'/>
                 <RewardContentContainer>
-                { userInfo.reward===0 && <ContentNothing>적립 내역이 없습니다.</ContentNothing>}
+                { rewardList.length===0 && 
+                    <ContentNothing>적립 내역이 없습니다.</ContentNothing> }
                 </RewardContentContainer>
             </RewardMainContainer>
         </PageContainer>
