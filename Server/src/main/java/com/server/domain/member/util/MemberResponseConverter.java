@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.querydsl.core.Tuple;
 import com.server.domain.cart.entity.Cart;
+import com.server.domain.category.service.dto.response.CategoryResponse;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.dto.response.CartsResponse;
@@ -136,6 +137,10 @@ public class MemberResponseConverter {
 				.views(video.getView())
 				.createdDate(video.getCreatedDate())
 				.price(cart.getPrice())
+				.videoCategories(video.getVideoCategories().stream().map(
+					videoCategory -> CategoryResponse.of(videoCategory.getCategory())
+				)
+				.collect(Collectors.toList()))
 				.channel(channelInfo)
 				.build();
 		});

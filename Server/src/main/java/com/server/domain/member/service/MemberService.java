@@ -167,10 +167,12 @@ public class MemberService {
 		return converter.convertChannelToPlaylistChannelResponse(channels);
 	}
 
-	public Page<PlaylistChannelDetailsResponse> getChannelDetailsForPlaylist(Long loginId, Long memberId) {
+	public Page<PlaylistChannelDetailsResponse> getChannelDetailsForPlaylist(Long loginId, Long memberId, int page, int size) {
+
+		Pageable pageable = PageRequest.of(page - 1, size);
 
 		Page<Video> videos =
-			memberRepository.findPlaylistChannelDetails(loginId, memberId);
+			memberRepository.findPlaylistChannelDetails(loginId, memberId, pageable);
 
 		return converter.convertVideoToPlaylistChannelDetailsResponse(videos, memberId);
 	}

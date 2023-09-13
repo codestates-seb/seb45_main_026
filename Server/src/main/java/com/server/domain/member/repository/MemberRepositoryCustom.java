@@ -38,5 +38,5 @@ public interface MemberRepositoryCustom {
 
     Page<Tuple> findPlaylistGroupByChannelName(Long memberId, Pageable pageable);
 
-    Page<Video> findPlaylistChannelDetails(Long loginId, Long memberId);
+    Page<Video> findPlaylistChannelDetails(Long loginId, Long memberId, Pageable pageable);
 }
