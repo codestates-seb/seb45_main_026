@@ -15,6 +15,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,7 +46,7 @@ import com.server.module.s3.service.dto.ImageType;
 @Transactional
 public class MemberIntergrationTest extends IntegrationTest {
 
-	private static EntityManager entityManager = new ;
+	private boolean isSetting = false;
 
 	// 로그인한 사용자 정보
 	Member loginMember;
@@ -88,8 +89,13 @@ public class MemberIntergrationTest extends IntegrationTest {
 	String otherMemberEmail4 = "other4@email.com";
 	String otherMemberPassword = "other1234!";
 
-	@BeforeAll
+	@BeforeEach
 	void before() {
+
+		if (isSetting) {
+			return;
+		}
+
 		loginMember = createAndSaveMemberWithEmailPassword(loginMemberEmail, loginMemberPassword);
 		loginMemberChannel = createChannel(loginMember);
 
@@ -183,8 +189,10 @@ public class MemberIntergrationTest extends IntegrationTest {
 			loginMemberRewards.add(createAndSaveReward(loginMember, loginMemberReplies.get(i)));
 		}
 
-		entityManager.flush();
-		entityManager.clear();
+		em.flush();
+		em.clear();
+
+		isSetting = true;
 	}
 
 	@Test
