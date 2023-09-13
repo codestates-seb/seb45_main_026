@@ -399,6 +399,8 @@ public class VideoService {
 
         if(member == null) return false;
 
+        if(video.getChannel() == null) return false;
+
         return memberRepository.checkMemberSubscribeChannel(
                 member.getMemberId(),
                 List.of(video.getChannel().getMember().getMemberId())).get(0);

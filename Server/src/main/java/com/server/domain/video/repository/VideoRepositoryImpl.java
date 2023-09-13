@@ -82,9 +82,8 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .from(member)
                 .join(member.orders, order)
                 .join(order.orderVideos, orderVideo)
-                .join(orderVideo.video, video)
                 .where(member.memberId.eq(memberId)
-                        .and(video.videoId.eq(videoId)
+                        .and(orderVideo.video.videoId.eq(videoId)
                                 .and(orderVideo.orderStatus.eq(OrderStatus.COMPLETED))
                         )
                 ).fetchOne();
@@ -139,6 +138,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .orderBy(getSort(request.getSort()))
                 .where(
                         getCreateVideo(),
+                        hasChannel(),
                         freeOrPaid(request.getFree()),
                         whetherIncludePurchased(request),
                         whetherIncludeOnlySubscribed(request)
@@ -150,6 +150,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .distinct()
                 .where(
                         getCreateVideo(),
+                        hasChannel(),
                         freeOrPaid(request.getFree()),
                         whetherIncludePurchased(request),
                         whetherIncludeOnlySubscribed(request)
@@ -245,6 +246,10 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
 
     private BooleanExpression getCreateVideo() {
         return video.videoStatus.eq(VideoStatus.CREATED);
+    }
+
+    private BooleanExpression hasChannel() {
+        return video.channel.channelId.isNotNull();
     }
 
     private BooleanExpression freeOrPaid(Boolean free) {
