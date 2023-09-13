@@ -65,7 +65,7 @@ import com.server.module.s3.service.dto.FileType;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class IntegrationTest {
 	// 레포지토리
 	@Autowired protected AnnouncementRepository announcementRepository;
@@ -112,6 +112,27 @@ public class IntegrationTest {
 		watchRepository.flush();
 		rewardRepository.flush();
 		memberRepository.flush();
+		em.flush();
+		em.clear();
+	}
+
+	protected void deleteAll() {
+		rewardRepository.deleteAll();
+		watchRepository.deleteAll();
+		replyRepository.deleteAll();
+		orderRepository.deleteAll();
+		cartRepository.deleteAll();
+		answerRepository.deleteAll();
+		questionRepository.deleteAll();
+		categoryRepository.deleteAll();
+		videoCategoryRepository.deleteAll();
+		videoRepository.deleteAll();
+		subscribeRepository.deleteAll();
+		announcementRepository.deleteAll();
+		channelRepository.deleteAll();
+		memberRepository.deleteAll();
+		em.flush();
+		em.clear();
 	}
 
 	protected String createAccessToken(Member member, long accessTokenExpireTime) {

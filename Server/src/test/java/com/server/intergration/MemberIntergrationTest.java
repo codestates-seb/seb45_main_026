@@ -8,18 +8,22 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterAll;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
-import org.springframework.data.web.JsonPath;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,19 +33,22 @@ import com.server.domain.member.controller.dto.MemberApiRequest;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
+import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reward.entity.Reward;
-import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.reponse.ApiPageResponse;
-import com.server.module.s3.service.dto.FileType;
+import com.server.global.reponse.PageInfo;
 import com.server.module.s3.service.dto.ImageType;
 
+@Transactional
 public class MemberIntergrationTest extends IntegrationTest {
+
+	private boolean isSetting = false;
 
 	// 로그인한 사용자 정보
 	Member loginMember;
@@ -84,9 +91,13 @@ public class MemberIntergrationTest extends IntegrationTest {
 	String otherMemberEmail4 = "other4@email.com";
 	String otherMemberPassword = "other1234!";
 
-	@BeforeAll
-	@Transactional
-	void pre() {
+	@BeforeEach
+	void before() {
+
+		if (isSetting) {
+			return;
+		}
+
 		loginMember = createAndSaveMemberWithEmailPassword(loginMemberEmail, loginMemberPassword);
 		loginMemberChannel = createChannel(loginMember);
 
@@ -180,15 +191,15 @@ public class MemberIntergrationTest extends IntegrationTest {
 			loginMemberRewards.add(createAndSaveReward(loginMember, loginMemberReplies.get(i)));
 		}
 
-		flushAll();
-	}
-
-	@TestFactory
-	@DisplayName("자신의 프로필이미지, 이메일, 닉네임을 조회한다.")
-	Collection<DynamicTest> getMember() throws Exception {
-
 		em.flush();
 		em.clear();
+
+		isSetting = true;
+	}
+
+	@Test
+	@DisplayName("자신의 프로필이미지, 이메일, 닉네임을 조회한다.")
+	void getMember() throws Exception {
 
 		ResultActions actions = mockMvc.perform(
 			get("/members")
@@ -202,51 +213,17 @@ public class MemberIntergrationTest extends IntegrationTest {
 
 		ProfileResponse profileResponse = getApiSingleResponseFromResult(actions, ProfileResponse.class).getData();
 
-		return List.of(
-			dynamicTest(
-				"조회되는 회원의 아이디가 로그인한 회원과 일치하는가",
-				() -> {
-					assertThat(profileResponse.getMemberId()).isEqualTo(loginMember.getMemberId());
-				}
-			),
-			dynamicTest(
-				"조회되는 회원의 이메일이 로그인한 회원과 일치하는가",
-				() -> {
-					assertThat(profileResponse.getEmail()).isEqualTo(loginMemberEmail);
-				}
-			),
-			dynamicTest(
-				"조회되는 회원의 닉네임이 로그인한 회원과 일치하는가",
-				() -> {
-					assertThat(profileResponse.getNickname()).isEqualTo(loginMember.getNickname());
-				}
-			),dynamicTest(
-				"조회되는 회원의 프로필 이미지가 로그인한 회원과 일치하는가",
-				() -> {
-					assertThat(profileResponse.getImageUrl()).isEqualTo(getProfileUrl(loginMember));
-				}
-			),dynamicTest(
-				"조회되는 회원의 등급이 로그인한 회원과 일치하는가",
-				() -> {
-					assertThat(profileResponse.getGrade()).isEqualTo(loginMember.getGrade());
-				}
-			),dynamicTest(
-				"조회되는 회원의 보유한 리워드가 로그인한 회원과 일치하는가",
-				() -> {
-					// assertThat(profileResponse.getReward()).isEqualTo(loginMember.getReward());
-				}
-			),dynamicTest(
-				"조회되는 회원의 가입일이 로그인한 회원과 일치하는가",
-				() -> {
-					assertThat(profileResponse.getCreatedDate()).isBeforeOrEqualTo(loginMember.getCreatedDate());
-				}
-			)
-		);
+		assertThat(profileResponse.getMemberId()).isEqualTo(loginMember.getMemberId());
+		assertThat(profileResponse.getEmail()).isEqualTo(loginMemberEmail);
+		assertThat(profileResponse.getNickname()).isEqualTo(loginMember.getNickname());
+		assertThat(profileResponse.getImageUrl()).isEqualTo(getProfileUrl(loginMember));
+		assertThat(profileResponse.getGrade()).isEqualTo(loginMember.getGrade());
+		assertThat(profileResponse.getReward()).isEqualTo(loginMember.getReward());
 	}
 
-	@TestFactory
+	@Test
 	@DisplayName("자신의 리워드 목록을 조회한다.")
-	Collection<DynamicTest> getRewards() throws Exception {
+	void getRewards() throws Exception {
 
 		ResultActions actions = mockMvc.perform(
 			get("/members/rewards")
@@ -263,14 +240,35 @@ public class MemberIntergrationTest extends IntegrationTest {
 		ApiPageResponse<RewardsResponse> rewardsResponse =
 			getApiPageResponseFromResult(actions, RewardsResponse.class);
 
-		return List.of(
-			dynamicTest(
-				"1",
-				() -> {
+		// List
+		PageInfo pageInfo = rewardsResponse.getPageInfo();
+		List<RewardsResponse> responses = rewardsResponse.getData();
 
-				}
-			)
-		);
+		int totalSize = loginMemberRewards.size();
+
+		assertThat(pageInfo.getTotalPage()).isEqualTo((int) Math.ceil(totalSize / 16.0));
+		assertThat(pageInfo.getPage()).isEqualTo(1);
+		assertThat(pageInfo.getSize()).isEqualTo(16);
+		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
+
+		RewardsResponse firstContent = responses.get(0);
+		RewardsResponse lastContent = responses.get(responses.size() - 1);
+		Reward firstReward = loginMemberRewards.get(totalSize - 1);
+		Reward lastReward = loginMemberRewards.get(33);
+
+		assertThat(responses).isSortedAccordingTo(Comparator.comparing(RewardsResponse::getCreatedDate).reversed());
+
+		assertThat(firstContent.getRewardId()).isEqualTo(firstReward.getRewardId());
+		assertThat(firstContent.getRewardType()).isEqualTo(firstReward.getRewardType());
+		assertThat(firstContent.getRewardPoint()).isEqualTo(firstReward.getRewardPoint());
+		assertThat(firstContent.getCreatedDate()).isNotNull();
+		assertThat(firstContent.getModifiedDate()).isNotNull();
+
+		assertThat(lastContent.getRewardId()).isEqualTo(lastReward.getRewardId());
+		assertThat(lastContent.getRewardType()).isEqualTo(lastReward.getRewardType());
+		assertThat(lastContent.getRewardPoint()).isEqualTo(lastReward.getRewardPoint());
+		assertThat(lastContent.getCreatedDate()).isNotNull();
+		assertThat(lastContent.getModifiedDate()).isNotNull();
 	}
 
 	@TestFactory
@@ -284,6 +282,13 @@ public class MemberIntergrationTest extends IntegrationTest {
 				.param("size","16")
 				.accept(APPLICATION_JSON)
 		);
+
+		actions
+			.andDo(print())
+			.andExpect(status().isOk());
+
+		ApiPageResponse<SubscribesResponse> subscribesResponse =
+			getApiPageResponseFromResult(actions, SubscribesResponse.class);
 
 		return List.of(
 			dynamicTest(
