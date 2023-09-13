@@ -50,7 +50,11 @@ const ItemInfors = styled.div`
 `
 const Title = styled(Heading5Typo)`
     width: 100%;
+    height: 40px;
     padding: ${globalTokens.Spacing4.value}px;
+    display: flex;
+    justify-content: space-between;
+    overflow: hidden;
     &:hover{
       cursor: pointer;
     }
@@ -58,6 +62,7 @@ const Title = styled(Heading5Typo)`
 const Description = styled(BodyTextTypo)`
     width: 100%;
     height: 50px;
+    overflow: hidden;
     font-size: ${globalTokens.BodyText.value}px;
     padding: ${globalTokens.Spacing4.value}px;
 `
@@ -129,6 +134,7 @@ const CreatedAt = styled(SmallTextTypo)`
 `
 const ScoreContainer = styled.div`
     height: 30px;
+    flex-grow: 1;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -149,6 +155,12 @@ const PriceText = styled(Heading5Typo)`
     font-weight: ${globalTokens.Bold.value};
     height: 30px;
 `
+const JustBut = styled.button`
+  height: 30px;
+  width: 30px;
+  background-color: white;
+  border: 1px black solid;
+`
 
 export default function HorizonItem({lecture, channel}) {
   const isDark = useSelector(state=>state.uiSetting.isDark);
@@ -164,7 +176,7 @@ export default function HorizonItem({lecture, channel}) {
           <Thumbnail src={thumbnailUrl} alt="thumbnail" />
         </ThumbnailContainer>
         <ItemInfors>
-          <Title isDark={isDark} onClick={()=>navigate(`/videos/${lecture.videoId}`)} >{videoName}</Title>
+          <Title isDark={isDark} onClick={() => navigate(`/videos/${lecture.videoId}`)} >{videoName}<JustBut>하이</JustBut></Title>
           <Description isDark={isDark}>{description}</Description>
           <InforContainer>
             <InforContainerLeft>
@@ -187,7 +199,7 @@ export default function HorizonItem({lecture, channel}) {
             </InforContainerLeft>
             <InforContainerRight>
               <ScoreContainer>
-                <ScoreText isDark={isDark}>{star}</ScoreText>
+                <ScoreText isDark={isDark}>{star}/10</ScoreText>
                 <StarContainer>
                   <Stars score={star} />
                 </StarContainer>

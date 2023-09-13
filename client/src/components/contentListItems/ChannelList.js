@@ -5,8 +5,9 @@ import CategoryFilter from "../filters/CategoryFilter";
 import HorizonItem from "./HorizonItem";
 import axios from "axios";
 import { useSelector,useDispatch } from "react-redux";
-import { resetToInitialState } from "../../redux/createSlice/FilterSlice";
+import { resetToInitialState,setPage,setMaxPage  } from "../../redux/createSlice/FilterSlice";
 import { useToken } from '../../hooks/useToken';
+import { useInView } from "react-intersection-observer";
 
 const globalTokens = tokens.global;
 
@@ -28,19 +29,29 @@ const ListContainer = styled.ul`
     gap: ${globalTokens.Spacing16.value}px;
     margin-bottom: ${globalTokens.Spacing24.value}px;
 `
+const BottomDiv = styled.div`
+  height: 10px;
+  width: 10px;
+`
+
 export default function ChannelList({ channelInfor, accessToken, userId }) {
   const isDark = useSelector(state=>state.uiSetting.isDark);
   const filterState = useSelector((state) => state.filterSlice.filter);
+  const page = useSelector((state) => state.filterSlice.page);
+  const maxPage = useSelector((state) => state.filterSlice.maxPage);
   const refreshToken = useToken();
-  const tokens = useSelector(state=>state.loginInfo.accessToken);
   const dispatch = useDispatch();
   const [lectures, setLectures] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [bottomRef, bottomInView] = useInView();
+
   useEffect(() => {
     return () => {
       dispatch(resetToInitialState());
     };
   }, []);
   useEffect(() => {
+    dispatch(setPage(1));
     axios
       .get(
         `https://api.itprometheus.net/channels/${userId}/videos?sort=${
@@ -51,12 +62,45 @@ export default function ChannelList({ channelInfor, accessToken, userId }) {
             : ""
         }${
           filterState.isFree.value ? `&free=${filterState.isFree.value}` : ""
-        }`,
+        }&page=1`,
         {
           headers: { Authorization: accessToken.authorization },
         }
       )
-      .then((res) => setLectures(res.data.data))
+      .then((res) => {
+        dispatch(setMaxPage(res.data.pageInfo.totalPage));
+        setLectures(res.data.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (err.response.data.message === "만료된 토큰입니다.") {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
+  }, [filterState, accessToken]);
+  
+  useEffect(() => {
+    if (lectures !== [] && page !== 1) {
+      axios.get(
+        `https://api.itprometheus.net/channels/${userId}/videos?sort=${
+          filterState.sortBy.value
+        }&is-purchased=${filterState.isPurchased.value}${
+          filterState.category.value
+            ? `&category=${filterState.category.value}`
+            : ""
+        }${
+          filterState.isFree.value ? `&free=${filterState.isFree.value}` : ""
+        }&page=${page}`,
+        {
+          headers: { Authorization: accessToken.authorization },
+        }
+      )
+      .then((res) => {
+        setLectures((prev) => [...prev, ...res.data.data]);
+        setLoading(false);
+      })
       .catch((err) => {
         if(err.response.data.message==='만료된 토큰입니다.') {
           refreshToken();
@@ -64,7 +108,16 @@ export default function ChannelList({ channelInfor, accessToken, userId }) {
           console.log(err);
         }
       });
-  }, [filterState, tokens]);
+    }
+  }, [page])
+  
+  useEffect(() => {
+    if (bottomInView && maxPage && page < maxPage) {
+      setLoading(true);
+      dispatch(setPage(page + 1));
+    }
+  }, [bottomInView]);
+
   return (
     <ListBody isDark={isDark}>
       <CategoryFilter filterNum="filters2" />
@@ -72,6 +125,7 @@ export default function ChannelList({ channelInfor, accessToken, userId }) {
         {lectures.map((el) => (
           <HorizonItem lecture={el} channel={channelInfor} />
         ))}
+        {page < maxPage && !loading ? <BottomDiv ref={bottomRef} /> : <></>}
       </ListContainer>
     </ListBody>
   );
