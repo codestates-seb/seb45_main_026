@@ -32,7 +32,6 @@ export const RewardContentContainer = styled.section`
     flex-direction: column;
     justify-content: start;
     align-items: center;
-    background-color: yellow;
 `
 export const ContentNothing = styled(BodyTextTypo)`
     margin: ${globalTokens.Spacing40.value}px;
