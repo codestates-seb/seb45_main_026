@@ -188,7 +188,7 @@ export default function HorizonItem({lecture, channel}) {
             </InforContainerLeft>
             <InforContainerRight>
               <ScoreContainer>
-                <ScoreText isDark={isDark}>{star}</ScoreText>
+                <ScoreText isDark={isDark}>{star}/10</ScoreText>
                 <StarContainer>
                   <Stars score={star} />
                 </StarContainer>

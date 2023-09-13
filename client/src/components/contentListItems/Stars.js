@@ -18,7 +18,7 @@ const StarImage = styled.img`
 `;
 const YellowStars = styled.div`
     height: 100%;
-    width: ${(props) => props.score * 20}%;
+    width: ${(props) => props.score * 10}%;
     display: flex;
     flex-direction: row;
     position: absolute;
