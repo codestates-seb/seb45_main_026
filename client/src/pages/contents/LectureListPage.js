@@ -71,7 +71,7 @@ const VerticalItemContainer = styled.ul`
     gap: ${globalTokens.Spacing12.value}px;
     margin-bottom: ${globalTokens.Spacing28.value}px;
 `
-const BottomDiv = styled.div`
+export const BottomDiv = styled.div`
   height: 10px;
   width: 10px;
 `
@@ -95,6 +95,7 @@ const LectureListPage = () => {
     };
   }, []);
   
+  //초기에 값을 불러옴
   useEffect(() => {
     dispatch(setPage(1));
     axios
@@ -130,7 +131,7 @@ const LectureListPage = () => {
       });
   }, [filterState, accessToken]);
 
-
+  //page state가 변경되면 데이터를 추가로 불러옴
   useEffect(() => {
     if (lectures !== [] && page !== 1) {
       axios.get(
@@ -166,6 +167,7 @@ const LectureListPage = () => {
       );}
   }, [page])
 
+  //
   useEffect(() => {
     if (bottomInView&&maxPage && (page < maxPage)) {
       setLoading(true)
