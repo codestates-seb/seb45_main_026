@@ -14,10 +14,10 @@ import tokens from "../../../styles/tokens.json";
 const globalTokens = tokens.global;
 
 const DetailPage = () => {
+  const dispatch = useDispatch();
   const refreshToken = useToken();
   const { videoId } = useParams();
-  const dispatch = useDispatch();
-  const isDark = useSelector((state) => state.uiSetting.isDark); // 나중에 리펙토링으로 삭제
+  const isDark = useSelector((state) => state.uiSetting.isDark);
   const token = useSelector((state) => state.loginInfo.accessToken);
 
   useEffect(() => {

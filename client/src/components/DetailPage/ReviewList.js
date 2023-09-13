@@ -1,24 +1,113 @@
 import { styled } from "styled-components";
-import ReviewStar from "./ReviewStar";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import Stars from "../contentListItems/Stars";
+import { useState } from "react";
 
-const ReviewList = () => {
+const ReviewList = ({ el }) => {
+  const myId = useSelector((state) => state.loginInfo.myid);
+  const token = useSelector((state) => state.loginInfo.accessToken);
+  const [isEditMode, setEditMode] = useState(false);
+  const [editReply, setEditReply] = useState({
+    content: el.content,
+    star: 0,
+  });
+
+  const patchReview = (replyId) => {
+    return axios
+      .patch(`https://api.itprometheus.net/replies/${replyId}`, editReply, {
+        headers: { Authorization: token.authorization },
+      })
+      .then((res) => {
+        console.log(res);
+        if (res.status === 204) {
+          window.location.reload();
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const deleteReview = (replyId) => {
+    return axios
+      .delete(`https://api.itprometheus.net/replies/${replyId}`, {
+        headers: { Authorization: token.authorization },
+      })
+      .then((res) => {
+        console.log(res);
+        if (res.status === 204) {
+          window.location.reload();
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
   return (
     <ReList>
-      <ReviewPatch>수정</ReviewPatch>
-      <ReviewDelete>삭제</ReviewDelete>
-      <ReviewStar />
-      <ReviewContent>
-        중간에 루즈한 부분도 있었지만 재밌게 잘봤습니다.
-      </ReviewContent>
+      {myId === el.member.memberId && (
+        <>
+          {isEditMode ? (
+            <ReviewPatch
+              onClick={() => {
+                if (window.confirm("댓글을 저장 하시겠습니까?")) {
+                  setEditMode(false);
+                  patchReview(el.replyId);
+                }
+              }}
+            >
+              저장
+            </ReviewPatch>
+          ) : (
+            <ReviewPatch
+              onClick={() => {
+                setEditMode(true);
+                setEditReply({ ...editReply, star: el.star });
+              }}
+            >
+              수정
+            </ReviewPatch>
+          )}
+          <ReviewDelete
+            onClick={() => {
+              if (window.confirm("댓글을 삭제 하시겠습니까?")) {
+                deleteReview(el.replyId);
+              }
+            }}
+          >
+            삭제
+          </ReviewDelete>
+        </>
+      )}
+
+      <StarBox>
+        <Stars score={el.star} />
+      </StarBox>
+      {isEditMode ? (
+        <ReviewEdit
+          value={editReply.content}
+          onChange={(e) =>
+            setEditReply({ ...editReply, content: e.target.value })
+          }
+        />
+      ) : (
+        <ReviewContent>{el.content}</ReviewContent>
+      )}
+
       <ReviewInfo>
-        <ReviewName>김둥구</ReviewName>
-        <ReviewDate>2023.08.26</ReviewDate>
+        <ReviewName>{el.member.nickname}</ReviewName>
+        <ReviewDate>{el.createdDate.split("T")[0]}</ReviewDate>
       </ReviewInfo>
     </ReList>
   );
 };
 
 export default ReviewList;
+
+export const StarBox = styled.div`
+  position: relative;
+  width: 120px;
+  height: 24px;
+  margin-bottom: 5px;
+`;
 
 export const ReList = styled.li`
   position: relative;
@@ -51,9 +140,22 @@ export const ReviewDelete = styled.button`
   text-decoration: underline;
 `;
 
-export const ReviewContent = styled.div`
+export const ReviewEdit = styled.input`
+  width: 100%;
   flex-wrap: wrap;
-  margin: 10px 0px;
+  margin: 5px 0px;
+  padding: 5px 5px;
+  border: none;
+  background-color: rgb(240, 240, 240);
+  &:focus {
+    outline: none;
+  }
+`;
+export const ReviewContent = styled.div`
+  width: 100%;
+  flex-wrap: wrap;
+  margin: 5px 0px;
+  padding: 5px 5px;
 `;
 
 export const ReviewInfo = styled.div`
@@ -61,12 +163,12 @@ export const ReviewInfo = styled.div`
   flex-direction: row;
   justify-content: start;
   align-items: center;
-  margin-top: 5px;
   font-size: 14px;
 `;
 
 export const ReviewName = styled.div`
   margin-right: 10px;
+  color: gray;
 `;
 
 export const ReviewDate = styled.div`

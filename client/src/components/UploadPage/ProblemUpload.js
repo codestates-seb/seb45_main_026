@@ -33,7 +33,7 @@ const ProblemUpload = () => {
         return;
 
       case "questionAnswer":
-        setProblem({ ...isProblem, questionAnswer: "answer" + num });
+        setProblem({ ...isProblem, questionAnswer: num });
         return;
 
       case "ProblemDiscribe":

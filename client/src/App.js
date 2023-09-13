@@ -104,7 +104,6 @@ function App() {
         <Route path="activity/receipt" element={<ReceiptPage/>}/>
       </Routes>
       <Footer />
-      <Loading />
     </BrowserRouter>
   );
 }

@@ -1,19 +1,29 @@
-import { useState } from "react";
 import { styled } from "styled-components";
-import { ReactComponent as starYellow } from "../../assets/images/icons/star/starYellow.svg";
-import { ReactComponent as starWhite } from "../../assets/images/icons/star/starWhite.svg";
+import { ReactComponent as star_lefthalf } from "../../assets/images/icons/star/star_lefthalf.svg";
+import { ReactComponent as star_righthalf } from "../../assets/images/icons/star/star_righthalf.svg";
 
-const ReviewStar = () => {
-  const [isStar, setStar] = useState({ star: 0 });
-  const reviewStars = [1, 2, 3, 4, 5];
+const ReviewStar = ({ isStar, setStar }) => {
+  const reviewStars = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   return (
     <StarBox>
       {reviewStars.map((el) => {
-        if (el <= isStar.star) {
-          return <StarYellow onClick={() => setStar({ ...isStar, star: 0 })} />;
-        } else {
-          return <StarWhite onClick={() => setStar({ ...isStar, star: el })} />;
+        if (el % 2 !== 0 && el > isStar.star) {
+          return (
+            <StarLeftWhite onClick={() => setStar({ ...isStar, star: el })} />
+          );
+        } else if (el % 2 !== 0 && el <= isStar.star) {
+          return (
+            <StarLeftYellow onClick={() => setStar({ ...isStar, star: el })} />
+          );
+        } else if (el % 2 === 0 && el > isStar.star) {
+          return (
+            <StarRightWhite onClick={() => setStar({ ...isStar, star: el })} />
+          );
+        } else if (el % 2 === 0 && el <= isStar.star) {
+          return (
+            <StarRightYellow onClick={() => setStar({ ...isStar, star: el })} />
+          );
         }
       })}
     </StarBox>
@@ -24,29 +34,52 @@ export default ReviewStar;
 
 export const StarBox = styled.div``;
 
-export const StarYellow = styled(starYellow)`
-  width: 30px;
+export const StarLeftWhite = styled(star_lefthalf)`
+  width: 15px;
   height: 30px;
-
-  /* path {
-    stroke-width: 2px;
-    stroke: gray;
-  } */
-`;
-
-export const StarWhite = styled(starWhite)`
-  width: 30px;
-  height: 30px;
-
+  margin-left: 2px;
   &:hover {
     path {
       stroke: black;
     }
   }
-
   &:active {
     path {
       fill: #ffe072;
     }
+  }
+`;
+
+export const StarRightWhite = styled(star_righthalf)`
+  width: 15px;
+  height: 30px;
+  margin-right: 2px;
+  &:hover {
+    path {
+      stroke: black;
+    }
+  }
+  &:active {
+    path {
+      fill: #ffe072;
+    }
+  }
+`;
+
+export const StarLeftYellow = styled(star_lefthalf)`
+  width: 15px;
+  height: 30px;
+  margin-left: 2px;
+  path {
+    fill: #ffc700;
+  }
+`;
+
+export const StarRightYellow = styled(star_righthalf)`
+  width: 15px;
+  height: 30px;
+  margin-right: 2px;
+  path {
+    fill: #ffc700;
   }
 `;

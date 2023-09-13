@@ -19,7 +19,7 @@ const DetailContent = () => {
       </SubTitle>
 
       <Content isOpened={contentOpend}>
-        {videoDatas.description}
+        {videoDatas.description || "(강의 소개가 없습니다.)"}
         <Category>
           {videoDatas.categories.map((el) => (
             <CategoryLists key={el.categoryId}>
