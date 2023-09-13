@@ -313,7 +313,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         return new PageImpl<>(tuples, pageable, totalCount);
     }
 
-    public Page<Video> findPlaylistChannelDetails(Long loginId, Long memberId) {
+    public Page<Video> findPlaylistChannelDetails(Long loginId, Long memberId, Pageable pageable) {
 
         JPAQuery<Video> query = queryFactory
             .select(video)
@@ -328,9 +328,13 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
             )
             .orderBy(video.videoName.asc());
 
+        long totalCount = query.fetchCount();
+
         List<Video> videos = query
+            .limit(pageable.getPageSize())
+            .offset(pageable.getOffset())
             .fetch();
 
-        return new PageImpl<>(videos);
+        return new PageImpl<>(videos, pageable, totalCount);
     }
 }

@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+import com.server.domain.category.service.dto.response.CategoryResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
@@ -311,6 +312,12 @@ public class MemberControllerTest extends ControllerTest {
 				.views(333)
 				.createdDate(LocalDateTime.now())
 				.price(100000)
+				.videoCategories(List.of(
+					CategoryResponse.builder()
+						.categoryId(1L)
+						.categoryName("Java")
+						.build()
+				))
 				.channel(CartsResponse.Channel.builder()
 					.memberId(3L)
 					.channelName("Linus Torvalds")
@@ -325,6 +332,12 @@ public class MemberControllerTest extends ControllerTest {
 				.views(777)
 				.createdDate(LocalDateTime.now())
 				.price(70000)
+				.videoCategories(List.of(
+					CategoryResponse.builder()
+						.categoryId(2L)
+						.categoryName("JS")
+						.build()
+				))
 				.channel(CartsResponse.Channel.builder()
 					.memberId(361L)
 					.channelName("Bill Gates")
@@ -358,6 +371,9 @@ public class MemberControllerTest extends ControllerTest {
 			fieldWithPath("data[].views").description("영상 조회수"),
 			fieldWithPath("data[].createdDate").description("영상 업로드 날짜"),
 			fieldWithPath("data[].price").description("영상의 가격"),
+			fieldWithPath("data[].videoCategories").description("영상의 카테고리 목록"),
+			fieldWithPath("data[].videoCategories[].categoryId").description("영상의 카테고리 아이디"),
+			fieldWithPath("data[].videoCategories[].categoryName").description("영상의 카테고리 이름"),
 			fieldWithPath("data[].channel").description("영상 업로더의 채널 정보"),
 			fieldWithPath("data[].channel.memberId").description("업로더 아이디"),
 			fieldWithPath("data[].channel.channelName").description("업로더의 채널명"),
@@ -389,10 +405,11 @@ public class MemberControllerTest extends ControllerTest {
 		List<OrdersResponse> responses = List.of(
 			OrdersResponse.builder()
 				.orderId("aBzd031dpf414")
-				.reward(300)
+				.amount(30000)
 				.orderCount(4)
 				.orderStatus(OrderStatus.ORDERED)
 				.createdDate(LocalDateTime.now())
+				.completedDate(LocalDateTime.now())
 				.orderVideos(
 					List.of(
 						OrdersResponse.OrderVideo.builder()
@@ -414,10 +431,11 @@ public class MemberControllerTest extends ControllerTest {
 				.build(),
 			OrdersResponse.builder()
 				.orderId("dfghkdf908sd023")
-				.reward(400)
+				.amount(40000)
 				.orderCount(6)
 				.orderStatus(OrderStatus.CANCELED)
 				.createdDate(LocalDateTime.now())
+				.completedDate(LocalDateTime.now())
 				.orderVideos(
 					List.of(
 						OrdersResponse.OrderVideo.builder()
@@ -439,10 +457,11 @@ public class MemberControllerTest extends ControllerTest {
 				.build(),
 			OrdersResponse.builder()
 				.orderId("fd932jkfdgklgdf")
-				.reward(200)
+				.amount(20000)
 				.orderCount(3)
 				.orderStatus(OrderStatus.COMPLETED)
 				.createdDate(LocalDateTime.now())
+				.completedDate(LocalDateTime.now())
 				.orderVideos(
 					List.of(
 						OrdersResponse.OrderVideo.builder()
@@ -464,10 +483,11 @@ public class MemberControllerTest extends ControllerTest {
 				.build(),
 			OrdersResponse.builder()
 				.orderId("nvbio328sdfhs13")
-				.reward(100)
+				.amount(10000)
 				.orderCount(7)
 				.orderStatus(OrderStatus.ORDERED)
 				.createdDate(LocalDateTime.now())
+				.completedDate(LocalDateTime.now())
 				.orderVideos(
 					List.of(
 						OrdersResponse.OrderVideo.builder()
@@ -509,10 +529,11 @@ public class MemberControllerTest extends ControllerTest {
 		FieldDescriptor[] responseFields = new FieldDescriptor[]{
 			fieldWithPath("data[]").description("결제 목록"),
 			fieldWithPath("data[].orderId").description("결제 번호"),
-			fieldWithPath("data[].reward").description("획득한 리워드"),
+			fieldWithPath("data[].amount").description("총 결제 금액(실제 가격 - 리워드 사용량)"),
 			fieldWithPath("data[].orderCount").description("결제한 강의 수"),
 			fieldWithPath("data[].orderStatus").description("주문 상태"),
 			fieldWithPath("data[].createdDate").description("결제일"),
+			fieldWithPath("data[].completedDate").description("결제완료일"),
 			fieldWithPath("data[].orderVideos[]").description("결제한 강의 목록"),
 			fieldWithPath("data[].orderVideos[].videoId").description("강의 ID"),
 			fieldWithPath("data[].orderVideos[].videoName").description("강의명"),
@@ -745,12 +766,14 @@ public class MemberControllerTest extends ControllerTest {
 
 		PageImpl<PlaylistChannelDetailsResponse> page = new PageImpl<>(responses);
 
-		given(memberService.getChannelDetailsForPlaylist(Mockito.anyLong(), Mockito.anyLong())).willReturn(page);
+		given(memberService.getChannelDetailsForPlaylist(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
 
 		//when
 		ResultActions actions = mockMvc.perform(
 			get("/members/playlists/channels/details")
 				.header(AUTHORIZATION, TOKEN)
+				.param("page", "1")
+				.param("size", "10")
 				.param("member-id","1")
 				.accept(APPLICATION_JSON)
 		);
@@ -765,6 +788,8 @@ public class MemberControllerTest extends ControllerTest {
 						headerWithName(AUTHORIZATION).description("액세스 토큰")
 					),
 					requestParameters(
+						parameterWithName("page").description("조회할 페이지 수"),
+						parameterWithName("size").description("조회할 페이지의 데이터 수"),
 						parameterWithName("member-id").description("조회할 채널 소유자의 회원 ID")
 					),
 					pageResponseFields(
@@ -1417,7 +1442,7 @@ public class MemberControllerTest extends ControllerTest {
 		List<OrdersResponse> responses = List.of(
 			OrdersResponse.builder()
 				.orderId("aBzd031dpf414")
-				.reward(300)
+				.amount(300)
 				.orderCount(4)
 				.orderStatus(OrderStatus.ORDERED)
 				.createdDate(LocalDateTime.now())
@@ -1731,7 +1756,7 @@ public class MemberControllerTest extends ControllerTest {
 
 		PageImpl<PlaylistChannelDetailsResponse> page = new PageImpl<>(responses);
 
-		given(memberService.getChannelDetailsForPlaylist(Mockito.anyLong(), Mockito.anyLong())).willReturn(page);
+		given(memberService.getChannelDetailsForPlaylist(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt())).willReturn(page);
 
 		return List.of(
 			DynamicTest.dynamicTest(
