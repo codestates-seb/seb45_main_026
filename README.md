@@ -86,17 +86,15 @@
 
 ### Front-end
 
-<img alt="HTML5" src ="https://img.shields.io/badge/HTML5-E34F26.svg?&style=for-the-badge&logo=HTML5&logoColor=white"/><img alt="CSS3" src ="https://img.shields.io/badge/CSS3-1572B6.svg?&style=for-the-badge&logo=CSS3&logoColor=white"/>
-<img alt="JavaScript" src ="https://img.shields.io/badge/JavaScript-F7DF1E.svg?&style=for-the-badge&logo=JavaScript&logoColor=white"/>
-<img alt="React" src ="https://img.shields.io/badge/React-61DAFB.svg?&style=for-the-badge&logo=React&logoColor=white"/>
-
+<img alt="HTML5" src ="https://img.shields.io/badge/HTML5-E34F26.svg?&style=for-the-badge&logo=HTML5&logoColor=white"/> <img alt="CSS3" src ="https://img.shields.io/badge/CSS3-1572B6.svg?&style=for-the-badge&logo=CSS3&logoColor=white"/> <img alt="JavaScript" src ="https://img.shields.io/badge/JavaScript-F7DF1E.svg?&style=for-the-badge&logo=JavaScript&logoColor=white"/> <img alt="React" src ="https://img.shields.io/badge/React-61DAFB.svg?&style=for-the-badge&logo=React&logoColor=white"/> <img alt="Redux" src ="https://img.shields.io/badge/Redux-764ABC.svg?&style=for-the-badge&logo=Redux&logoColor=white"/> <img alt="Axios" src ="https://img.shields.io/badge/Axios-5A29E4.svg?&style=for-the-badge&logo=Axios&logoColor=white"/> <img alt="styled components" src ="https://img.shields.io/badge/styled components-DB7093.svg?&style=for-the-badge&logo=styled-components&logoColor=white"/>
+<img alt="React Hook Form" src ="https://img.shields.io/badge/React Hook Form-EC5990.svg?&style=for-the-badge&logo=react%20hook%20form&logoColor=white"/> <img alt="React Router" src ="https://img.shields.io/badge/React Router-CA4245.svg?&style=for-the-badge&logo=react%20rowter&logoColor=white"/>
 
 <br>
 
 ### Back-end
 <img alt="Java" src ="https://img.shields.io/badge/Java-007396.svg?&style=for-the-badge&logo=Java&logoColor=white"/> 
 
-<img alt="Spring Boot" src ="https://img.shields.io/badge/Spring Boot-6DB33F.svg?&style=for-the-badge&logo=springboot&logoColor=white"/> <img alt="jwt" src ="https://img.shields.io/badge/jwt-333333.svg?&style=for-the-badge&logo=jwt&logoColor=white"/> <img alt="jwt" src ="https://img.shields.io/badge/oauth-4479A1.svg?&style=for-the-badge&logo=springsecurity&logoColor=white"/> <img alt="JPA" src ="https://img.shields.io/badge/jpa-6DB33F.svg?&style=for-the-badge&logo=jpa&logoColor=white"/> <img alt="queryDsl" src ="https://img.shields.io/badge/querydsl-4479A1.svg?&style=for-the-badge&logo=querydsl&logoColor=white"/> <img alt="Spring Boot" src ="https://img.shields.io/badge/Rest Docs-6DB33F.svg?&style=for-the-badge&logo=readthedocs&logoColor=white"/>
+<img alt="Spring Boot" src ="https://img.shields.io/badge/Spring Boot-6DB33F.svg?&style=for-the-badge&logo=springboot&logoColor=white"/> <img alt="jwt" src ="https://img.shields.io/badge/jwt-333333.svg?&style=for-the-badge&logo=jwt&logoColor=white"/> <img alt="jwt" src ="https://img.shields.io/badge/oauth-4479A1.svg?&style=for-the-badge&logo=springsecurity&logoColor=white"/> <img alt="JPA" src ="https://img.shields.io/badge/jpa-6DB33F.svg?&style=for-the-badge&logo=jpa&logoColor=white"/> <img alt="queryDsl" src ="https://img.shields.io/badge/querydsl-4479A1.svg?&style=for-the-badge&logo=querydsl&logoColor=white"/> <img alt="Spring Boot" src ="https://img.shields.io/badge/Rest Docs-6DB33F.svg?&style=for-the-badge&logo=readthedocs&logoColor=white"/> <img alt="Spring Boot" src ="https://img.shields.io/badge/Rest Docs-6DB33F.svg?&style=for-the-badge&logo=React Router&logoColor=white"/>
 
 <img alt="mysql" src ="https://img.shields.io/badge/mysql-4479A1.svg?&style=for-the-badge&logo=mysql&logoColor=white"/> <img alt="Redis" src ="https://img.shields.io/badge/Redis-DC382D.svg?&style=for-the-badge&logo=redis&logoColor=white"/>
 
