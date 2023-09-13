@@ -120,9 +120,11 @@ public class MemberController {
 
 	@GetMapping("/playlists/channels/details")
 	public ResponseEntity<ApiPageResponse<PlaylistChannelDetailsResponse>> getPlaylistChannelDetails(@LoginId Long loginId,
+													@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+													@RequestParam(value = "size", defaultValue = "16") @Positive(message = "{validation.positive}") int size,
 													@RequestParam(value = "member-id") @Positive(message = "{validation.positive}") Long memberId) {
 
-		Page<PlaylistChannelDetailsResponse> responses = memberService.getChannelDetailsForPlaylist(loginId, memberId);
+		Page<PlaylistChannelDetailsResponse> responses = memberService.getChannelDetailsForPlaylist(loginId, memberId, page, size);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(responses));
 	}

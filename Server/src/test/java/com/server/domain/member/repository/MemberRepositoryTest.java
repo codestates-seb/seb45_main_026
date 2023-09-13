@@ -574,7 +574,7 @@ class MemberRepositoryTest extends RepositoryTest {
                 () -> {
                     Page<Video> channels =
                         memberRepository.findPlaylistChannelDetails(
-                            user.getMemberId(), member1.getMemberId()
+                            user.getMemberId(), member1.getMemberId(), PageRequest.of(0, 10)
                         );
 
                     assertThat(channels.getContent().get(0).getChannel().getMember().getMemberId())
@@ -589,7 +589,7 @@ class MemberRepositoryTest extends RepositoryTest {
                 () -> {
                     Page<Video> channels =
                         memberRepository.findPlaylistChannelDetails(
-                            user.getMemberId(), member1.getMemberId()
+                            user.getMemberId(), member1.getMemberId(), PageRequest.of(0, 10)
                         );
 
                     assertThat(channels.getContent()).isSortedAccordingTo(

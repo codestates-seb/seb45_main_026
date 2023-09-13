@@ -16,11 +16,9 @@ import com.server.domain.member.service.dto.response.LikesResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
-import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.OrderStatus;
-import com.server.domain.reward.entity.RewardType;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.module.s3.service.AwsService;
@@ -166,25 +164,25 @@ public class MemberStubAop {
 		List<OrdersResponse> responses = List.of(
 			OrdersResponse.builder()
 				.orderId("aBzd031dpf414")
-				.reward(300)
+				.amount(300)
 				.orderCount(4)
 				.orderStatus(OrderStatus.ORDERED)
 				.build(),
 			OrdersResponse.builder()
 				.orderId("dfghkdf908sd023")
-				.reward(400)
+				.amount(400)
 				.orderCount(6)
 				.orderStatus(OrderStatus.CANCELED)
 				.build(),
 			OrdersResponse.builder()
 				.orderId("fd932jkfdgklgdf")
-				.reward(200)
+				.amount(200)
 				.orderCount(3)
 				.orderStatus(OrderStatus.COMPLETED)
 				.build(),
 			OrdersResponse.builder()
 				.orderId("nvbio328sdfhs13")
-				.reward(100)
+				.amount(100)
 				.orderCount(7)
 				.orderStatus(OrderStatus.ORDERED)
 				.build()
