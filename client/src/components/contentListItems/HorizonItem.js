@@ -154,12 +154,13 @@ const PriceText = styled(Heading5Typo)`
     font-size: ${globalTokens.Heading5.value}px;
     font-weight: ${globalTokens.Bold.value};
     height: 30px;
+    min-width: 100px;
+    text-align: end;
 `
-const JustBut = styled.button`
-  height: 30px;
-  width: 30px;
-  background-color: white;
-  border: 1px black solid;
+const CartBut = styled.button`
+  height: 20px;
+  width: 50px;
+  border: 1px solid black;
 `
 
 export default function HorizonItem({lecture, channel}) {
@@ -176,7 +177,7 @@ export default function HorizonItem({lecture, channel}) {
           <Thumbnail src={thumbnailUrl} alt="thumbnail" />
         </ThumbnailContainer>
         <ItemInfors>
-          <Title isDark={isDark} onClick={() => navigate(`/videos/${lecture.videoId}`)} >{videoName}<JustBut>하이</JustBut></Title>
+          <Title isDark={isDark} onClick={() => navigate(`/videos/${lecture.videoId}`)} >{videoName}</Title>
           <Description isDark={isDark}>{description}</Description>
           <InforContainer>
             <InforContainerLeft>
@@ -193,7 +194,7 @@ export default function HorizonItem({lecture, channel}) {
                 </ImgContainer>
                 <AuthorName isDark={isDark} onClick={()=>navigate(`/channels/${channel.memberId}`)}>{channel.channelName}</AuthorName>
                 <CreatedAt isDark={isDark}>
-                  {month}월{day}일 업로드됨
+                  {month}월{day}일 업로드됨 
                 </CreatedAt>
               </AuthorContainer>
             </InforContainerLeft>
@@ -204,7 +205,7 @@ export default function HorizonItem({lecture, channel}) {
                   <Stars score={star} />
                 </StarContainer>
               </ScoreContainer>
-              {isPurchased ? <PriceText isDark={isDark}>구매됨</PriceText> :isPurchased===false?<PriceText isDark={isDark}>{price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원</PriceText>:<></>}
+              {isPurchased ? <PriceText isDark={isDark}>구매됨</PriceText> :isPurchased===false?<PriceText isDark={isDark}><CartBut>hi</CartBut>{price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원</PriceText>:<></>}
             </InforContainerRight>
           </InforContainer>
         </ItemInfors>
