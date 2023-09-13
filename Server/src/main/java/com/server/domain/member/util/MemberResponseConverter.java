@@ -54,10 +54,11 @@ public class MemberResponseConverter {
 	public Page<OrdersResponse> convertOrdersToOrdersResponses(Page<Order> orders) {
 		return orders.map(order -> OrdersResponse.builder()
 			.orderId(order.getOrderId())
-			.reward(order.getReward())
+			.amount(order.getTotalPayAmount() - order.getReward())
 			.orderCount(order.getOrderVideos().size())
 			.orderStatus(order.getOrderStatus())
 			.createdDate(order.getCreatedDate())
+			.completedDate(order.getCompletedDate())
 			.orderVideos(order.getOrderVideos().stream()
 				.map(orderVideo -> OrdersResponse.OrderVideo.builder()
 					.videoId(orderVideo.getVideo().getVideoId())

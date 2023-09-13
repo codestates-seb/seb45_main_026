@@ -12,16 +12,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.server.domain.category.entity.Category;
 import com.server.domain.category.service.dto.response.CategoryResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
-import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.DisplayName;
@@ -408,10 +405,11 @@ public class MemberControllerTest extends ControllerTest {
 		List<OrdersResponse> responses = List.of(
 			OrdersResponse.builder()
 				.orderId("aBzd031dpf414")
-				.reward(300)
+				.amount(30000)
 				.orderCount(4)
 				.orderStatus(OrderStatus.ORDERED)
 				.createdDate(LocalDateTime.now())
+				.completedDate(LocalDateTime.now())
 				.orderVideos(
 					List.of(
 						OrdersResponse.OrderVideo.builder()
@@ -433,10 +431,11 @@ public class MemberControllerTest extends ControllerTest {
 				.build(),
 			OrdersResponse.builder()
 				.orderId("dfghkdf908sd023")
-				.reward(400)
+				.amount(40000)
 				.orderCount(6)
 				.orderStatus(OrderStatus.CANCELED)
 				.createdDate(LocalDateTime.now())
+				.completedDate(LocalDateTime.now())
 				.orderVideos(
 					List.of(
 						OrdersResponse.OrderVideo.builder()
@@ -458,10 +457,11 @@ public class MemberControllerTest extends ControllerTest {
 				.build(),
 			OrdersResponse.builder()
 				.orderId("fd932jkfdgklgdf")
-				.reward(200)
+				.amount(20000)
 				.orderCount(3)
 				.orderStatus(OrderStatus.COMPLETED)
 				.createdDate(LocalDateTime.now())
+				.completedDate(LocalDateTime.now())
 				.orderVideos(
 					List.of(
 						OrdersResponse.OrderVideo.builder()
@@ -483,10 +483,11 @@ public class MemberControllerTest extends ControllerTest {
 				.build(),
 			OrdersResponse.builder()
 				.orderId("nvbio328sdfhs13")
-				.reward(100)
+				.amount(10000)
 				.orderCount(7)
 				.orderStatus(OrderStatus.ORDERED)
 				.createdDate(LocalDateTime.now())
+				.completedDate(LocalDateTime.now())
 				.orderVideos(
 					List.of(
 						OrdersResponse.OrderVideo.builder()
@@ -528,10 +529,11 @@ public class MemberControllerTest extends ControllerTest {
 		FieldDescriptor[] responseFields = new FieldDescriptor[]{
 			fieldWithPath("data[]").description("결제 목록"),
 			fieldWithPath("data[].orderId").description("결제 번호"),
-			fieldWithPath("data[].reward").description("획득한 리워드"),
+			fieldWithPath("data[].amount").description("총 결제 금액(실제 가격 - 리워드 사용량)"),
 			fieldWithPath("data[].orderCount").description("결제한 강의 수"),
 			fieldWithPath("data[].orderStatus").description("주문 상태"),
 			fieldWithPath("data[].createdDate").description("결제일"),
+			fieldWithPath("data[].completedDate").description("결제완료일"),
 			fieldWithPath("data[].orderVideos[]").description("결제한 강의 목록"),
 			fieldWithPath("data[].orderVideos[].videoId").description("강의 ID"),
 			fieldWithPath("data[].orderVideos[].videoName").description("강의명"),
@@ -1440,7 +1442,7 @@ public class MemberControllerTest extends ControllerTest {
 		List<OrdersResponse> responses = List.of(
 			OrdersResponse.builder()
 				.orderId("aBzd031dpf414")
-				.reward(300)
+				.amount(300)
 				.orderCount(4)
 				.orderStatus(OrderStatus.ORDERED)
 				.createdDate(LocalDateTime.now())
