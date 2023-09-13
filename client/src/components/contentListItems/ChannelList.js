@@ -79,7 +79,7 @@ export default function ChannelList({ channelInfor, accessToken, userId }) {
           console.log(err);
         }
       });
-  }, [filterState, accessToken]);
+  }, [filterState, accessToken,userId]);
   
   useEffect(() => {
     if (lectures !== [] && page !== 1) {

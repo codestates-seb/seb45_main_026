@@ -1,4 +1,4 @@
-import React,{useEffect} from "react";
+import React,{useEffect,useState} from "react";
 import { styled } from "styled-components";
 import tokens from "../../styles/tokens.json";
 import NoticeItem from "./NoticeItem";
@@ -35,30 +35,57 @@ const ItemContainer = styled.div`
     align-items: center;
     gap: ${globalTokens.Spacing28.value}px;
 `
-const StarContainer = styled.div`
-    height: 24px;
-    width: 120px;
-    position: relative;
+const Nothing = styled.div`
+    width: 100%;
+    height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: ${globalTokens.Heading4.value}px;
 `
 
 
-export default function ChannelNotice() {
+export default function ChannelNotice({channelInfor,userId}) {
     const isDark = useSelector(state=>state.uiSetting.isDark);
     const accessToken = useSelector(state=>state.loginInfo.accessToken);
+    const myId = useSelector((state) => state.loginInfo.myid);
+    const [notices, setNotices] = useState([])
+    
     useEffect(() => {
-        axios.get("https://api.itprometheus.net/channels/4/announcements?page=1&size=10")
-            .then(res => console.log(res.data))
+        axios.get(`https://api.itprometheus.net/channels/${userId}/announcements?page=1&size=10`)
+            .then(res => setNotices(res.data.data))
             .catch(err=>console.log(err))
-    })
+    },[])
     return (
-        <NoticeBody isDark={isDark}>
-            <NoticeTitle isDark={isDark}>커뮤니티</NoticeTitle>
-            <NoticeSubmit />
-            <ItemContainer>
-                <NoticeItem/>
-                <NoticeItem/>
-                <NoticeItem/>
-            </ItemContainer>
-        </NoticeBody>
-    )
+      <NoticeBody isDark={isDark}>
+        <NoticeTitle isDark={isDark}>커뮤니티</NoticeTitle>
+        {myId === Number(userId) ? (
+          <NoticeSubmit
+            userId={userId}
+            accessToken={accessToken}
+            setNotices={setNotices}
+            todo="post"
+          />
+        ) : (
+          <></>
+        )}
+        <ItemContainer>
+          {notices.map((el) => (
+            <NoticeItem
+              key={el.announcementId}
+              channelInfor={channelInfor}
+              accessToken={accessToken}
+              notice={el}
+              setNotices={setNotices}
+              userId={userId}
+            />
+          ))}
+          {notices.length === 0 ? (
+            <Nothing>등록된 공지사항이 없습니다.</Nothing>
+          ) : (
+            <></>
+          )}
+        </ItemContainer>
+      </NoticeBody>
+    );
 }

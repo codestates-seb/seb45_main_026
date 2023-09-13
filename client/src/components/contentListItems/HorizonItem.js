@@ -154,12 +154,15 @@ const PriceText = styled(Heading5Typo)`
     font-size: ${globalTokens.Heading5.value}px;
     font-weight: ${globalTokens.Bold.value};
     height: 30px;
+    min-width: 100px;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    gap: 4px;
 `
-const JustBut = styled.button`
-  height: 30px;
-  width: 30px;
-  background-color: white;
-  border: 1px black solid;
+const CartBut = styled.img`
+  height: 28px;
+  object-fit: cover;
 `
 
 export default function HorizonItem({lecture, channel}) {
@@ -168,7 +171,7 @@ export default function HorizonItem({lecture, channel}) {
   const navigate=useNavigate()
   const date = new Date(createdDate);
   date.setHours(date.getHours() + 9);
-  const month = (date.getMonth() + 1).toString().padStart(2, "0"); // 월은 0부터 시작하므로 +1
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
     return (
       <ComponentBody isDark={isDark}>
@@ -176,7 +179,7 @@ export default function HorizonItem({lecture, channel}) {
           <Thumbnail src={thumbnailUrl} alt="thumbnail" />
         </ThumbnailContainer>
         <ItemInfors>
-          <Title isDark={isDark} onClick={() => navigate(`/videos/${lecture.videoId}`)} >{videoName}<JustBut>하이</JustBut></Title>
+          <Title isDark={isDark} onClick={() => navigate(`/videos/${lecture.videoId}`)} >{videoName}</Title>
           <Description isDark={isDark}>{description}</Description>
           <InforContainer>
             <InforContainerLeft>
@@ -193,7 +196,7 @@ export default function HorizonItem({lecture, channel}) {
                 </ImgContainer>
                 <AuthorName isDark={isDark} onClick={()=>navigate(`/channels/${channel.memberId}`)}>{channel.channelName}</AuthorName>
                 <CreatedAt isDark={isDark}>
-                  {month}월{day}일 업로드됨
+                  {month}월{day}일 업로드됨 
                 </CreatedAt>
               </AuthorContainer>
             </InforContainerLeft>

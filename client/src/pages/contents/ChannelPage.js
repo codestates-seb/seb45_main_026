@@ -94,7 +94,7 @@ export default function ChannelPage() {
           console.log(err.response.data.message);
         }
       });
-  },[accessToken]);
+  },[accessToken,userId]);
 
     return (
       <PageContainer isDark={isDark}>
@@ -103,12 +103,16 @@ export default function ChannelPage() {
             <ImgContainer>
               <ProfileImg
                 src={
-                  channelInfor.imageUrl ? `${channelInfor.imageUrl}?${new Date().getTime()}` : frofileGray
+                  channelInfor.imageUrl
+                    ? `${channelInfor.imageUrl}?${new Date().getTime()}`
+                    : frofileGray
                 }
               />
             </ImgContainer>
             <InforContainer>
-              <ChannelTitle isDark={isDark}>{channelInfor.channelName}</ChannelTitle>
+              <ChannelTitle isDark={isDark}>
+                {channelInfor.channelName}
+              </ChannelTitle>
               <ChannelSubscribers isDark={isDark}>
                 구독자 {channelInfor.subscribers}명
               </ChannelSubscribers>
@@ -133,7 +137,7 @@ export default function ChannelPage() {
               userId={userId}
             />
           ) : navigate === 2 ? (
-            <ChannelNotice />
+            <ChannelNotice channelInfor={channelInfor} userId={userId} />
           ) : (
             <Setting />
           )}
