@@ -78,7 +78,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
 
     @Override
     public Boolean isPurchased(Long memberId, Long videoId) {
-        Long result = queryFactory.select(video.videoId)
+        Long result = queryFactory.select(orderVideo.orderVideoId)
                 .from(member)
                 .join(member.orders, order)
                 .join(order.orderVideos, orderVideo)
