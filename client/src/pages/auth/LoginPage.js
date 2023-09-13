@@ -11,7 +11,7 @@ const globalTokens = tokens.global;
 
 export const LoginPageContainer = styled(PageContainer)`
   width: 100vw;
-  height: 700px;
+  min-height: 700px;
   padding: ${globalTokens.Spacing40.value}px;
   display: flex;
   flex-direction: column;
