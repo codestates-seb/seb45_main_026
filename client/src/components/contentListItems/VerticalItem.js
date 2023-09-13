@@ -169,7 +169,7 @@ export default function VerticalItem({ lecture ,channel}) {
           </InforContainerLeft>
           <InforContainerRight>
             <ScoreContainer>
-              <ScoreText>{star}</ScoreText>
+              <ScoreText>{star}/10</ScoreText>
               <StarContainer>
                 <Stars score={star} />
               </StarContainer>

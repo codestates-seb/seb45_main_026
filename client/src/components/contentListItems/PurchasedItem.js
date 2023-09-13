@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React,{useEffect, useState} from "react";
 import tokens from "../../styles/tokens.json";
 import { styled } from "styled-components";
 import arrowDown from "../../assets/images/icons/arrow/subscribe_arrow_down.svg";
@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useToken } from "../../hooks/useToken";
 import { BodyTextTypo, Heading5Typo } from "../../atoms/typographys/Typographys";
+import { useInView } from "react-intersection-observer";
 
 const globalTokens = tokens.global;
 
@@ -96,19 +97,29 @@ const HorizonItemContainer = styled.ul`
     max-height: 1000px;
     transition: 500ms;
 `
+const BottomDiv = styled.div`
+  height: 2px;
+  width: 10px;
+`;
 
 
-export default function PurchasedItem({channel,setChannelList}) {
-    const isDark = useSelector(state=>state.uiSetting.isDark);
-    const refreshToken = useToken();
-    const navigate=useNavigate();
-    const [isOpen, setIsOpen] = useState(false)
-    const accessToken = useSelector((state) => state.loginInfo.accessToken);
-    const arccordionHandler = (memberId) => {
+export default function PurchasedItem({ channel, setChannelList }) {
+  
+  const isDark = useSelector(state=>state.uiSetting.isDark);
+  const accessToken = useSelector((state) => state.loginInfo.accessToken);
+  const refreshToken = useToken();
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false)
+  const [page, setPage] = useState(1);
+  const [maxPage, setMaxPage] = useState(null);
+  const [bottomRef, bottomInView] = useInView();
+  const [loading,setLoading]=useState(true)
+  
+  const arccordionHandler = (memberId) => {
         setIsOpen(!isOpen);
         axios
           .get(
-            `https://api.itprometheus.net/members/playlists/channels/details?member-id=${memberId}`,
+            `https://api.itprometheus.net/members/playlists/channels/details?member-id=${memberId}&page=1`,
             {
               headers: { Authorization: accessToken.authorization },
             }
@@ -122,6 +133,8 @@ export default function PurchasedItem({channel,setChannelList}) {
                             return el
                         }
                     }))
+                  setMaxPage(res.data.pageInfo.totalPage);
+                  setLoading(false)
                 } else {
                     setChannelList(prev => prev.map((el) => {
                         if (el.memberId === memberId) {
@@ -140,6 +153,48 @@ export default function PurchasedItem({channel,setChannelList}) {
             }
           });
     }
+  useEffect(() => {
+    if (channel.list !== [] && page !== 1) {
+      axios
+        .get(
+          `https://api.itprometheus.net/members/playlists/channels/details?member-id=${channel.memberId}&page=${page}`,
+          {
+            headers: { Authorization: accessToken.authorization },
+          }
+        )
+        .then((res) => {
+          if (!isOpen) {
+            setChannelList((prev) =>
+              prev.map((el) => {
+                if (el.memberId === channel.memberId) {
+                  return { ...el, list: [...el.list,...res.data.data] };
+                } else {
+                  return el;
+                }
+              })
+            );
+            setLoading(false);
+          } 
+        })
+        .catch((err) => {
+          if (err.response.data.message === "만료된 토큰입니다.") {
+            refreshToken(() => {
+              arccordionHandler(channel.memberId);
+            });
+          } else {
+            console.log(err);
+          }
+        });
+    }
+  }, [page])
+
+  useEffect(() => {
+    if (bottomInView && maxPage && page < maxPage) {
+      setLoading(true);
+      setPage(page + 1);
+    }
+  }, [bottomInView]);
+
     return (
       <ItemBody isDark={isDark}>
         <ProfileContainer isDark={isDark} onClick={()=>navigate(`/channels/${channel.memberId}`)} >
@@ -161,7 +216,8 @@ export default function PurchasedItem({channel,setChannelList}) {
         </TopContainer>
         <ContentContainer>
           <HorizonItemContainer >
-            {channel.videos!==[]?channel.list.map(el=><HorizonItem key={el.videoId} lecture={el} channel={channel} />):<></>}
+            {channel.list!==[]?channel.list.map(el=><HorizonItem key={el.videoId} lecture={el} channel={channel} />):<></>}
+            {page < maxPage&&!loading&&isOpen?<BottomDiv ref={bottomRef}/>:<></>}
           </HorizonItemContainer>
         </ContentContainer>
       </ItemBody>
