@@ -32,7 +32,7 @@ public class RepositoryLoggingAop {
 
         long duration = endTime - startTime;
 
-        log.info("REPOSITORY : {} duration: {} ms ([{}])", classMethod, duration, Arrays.toString(args));
+        log.info("REPOSITORY : {} duration: {} ms \"{}\"", classMethod, duration, Arrays.toString(args));
 
         return result;
     }
