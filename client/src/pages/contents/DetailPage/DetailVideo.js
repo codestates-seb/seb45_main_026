@@ -16,6 +16,8 @@ import {
   Heading5Typo,
   SmallTextTypo,
 } from "../../../atoms/typographys/Typographys";
+import profileGray from "../../../assets/images/icons/profile/profileGray.svg";
+import { useEffect, useState } from "react";
 
 const globalTokens = tokens.global;
 
@@ -28,6 +30,31 @@ const DetailVideo = () => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const videoDatas = useSelector((state) => state.videoInfo.data);
   const token = useSelector((state) => state.loginInfo.accessToken);
+  const [isSub, setSub] = useState("");
+  const [channelInfo, setChannelInfo] = useState({});
+
+  useEffect(() => {
+    getChannelInfo();
+  }, [isSub]);
+
+  const getChannelInfo = () => {
+    return axios
+      .get(
+        `https://api.itprometheus.net/channels/${videoDatas.channel.memberId}`,
+        {
+          headers: { Authorization: token.authorization },
+        }
+      )
+      .then((res) => {
+        console.log(res.data.data);
+        if (res.data.code === 200) {
+          setChannelInfo(res.data.data);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const handleCartNav = () => {
     return axios
@@ -91,19 +118,26 @@ const DetailVideo = () => {
 
       <VideoInfo>
         <Profile>
-          <ProfileImg src={videoDatas.channel.imageUrl} alt="프로필 이미지" />
+          <ProfileImg
+            src={videoDatas.channel.imageUrl || profileGray}
+            alt="프로필 이미지"
+          />
 
           <ProfileRight>
             <ProfileName isDark={isDark}>
               {videoDatas.channel.channelName}
             </ProfileName>
             <Subscribed isDark={isDark}>
-              구독자 {videoDatas.channel.subscribes}명
+              구독자 {channelInfo.subscribers}명
             </Subscribed>
           </ProfileRight>
         </Profile>
 
-        <SubscribeBtn />
+        <SubscribeBtn
+          memberId={videoDatas.channel.memberId}
+          channelInfo={channelInfo}
+          setSub={setSub}
+        />
       </VideoInfo>
     </VideoContainer>
   );

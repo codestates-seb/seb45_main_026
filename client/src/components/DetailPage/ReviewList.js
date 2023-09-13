@@ -5,6 +5,7 @@ import Stars from "../contentListItems/Stars";
 import { useState } from "react";
 
 const ReviewList = ({ el }) => {
+  const myId = useSelector((state) => state.loginInfo.myid);
   const token = useSelector((state) => state.loginInfo.accessToken);
   const [isEditMode, setEditMode] = useState(false);
   const [editReply, setEditReply] = useState({
@@ -18,7 +19,10 @@ const ReviewList = ({ el }) => {
         headers: { Authorization: token.authorization },
       })
       .then((res) => {
-        console.log(res.data);
+        console.log(res);
+        if (res.status === 204) {
+          window.location.reload();
+        }
       })
       .catch((err) => console.log(err));
   };
@@ -29,19 +33,51 @@ const ReviewList = ({ el }) => {
         headers: { Authorization: token.authorization },
       })
       .then((res) => {
-        console.log(res.data);
+        console.log(res);
+        if (res.status === 204) {
+          window.location.reload();
+        }
       })
       .catch((err) => console.log(err));
   };
 
   return (
     <ReList>
-      {isEditMode ? (
-        <ReviewPatch onClick={() => setEditMode(false)}>저장</ReviewPatch>
-      ) : (
-        <ReviewPatch onClick={() => setEditMode(true)}>수정</ReviewPatch>
+      {myId === el.member.memberId && (
+        <>
+          {isEditMode ? (
+            <ReviewPatch
+              onClick={() => {
+                if (window.confirm("댓글을 저장 하시겠습니까?")) {
+                  setEditMode(false);
+                  patchReview(el.replyId);
+                }
+              }}
+            >
+              저장
+            </ReviewPatch>
+          ) : (
+            <ReviewPatch
+              onClick={() => {
+                setEditMode(true);
+                setEditReply({ ...editReply, star: el.star });
+              }}
+            >
+              수정
+            </ReviewPatch>
+          )}
+          <ReviewDelete
+            onClick={() => {
+              if (window.confirm("댓글을 삭제 하시겠습니까?")) {
+                deleteReview(el.replyId);
+              }
+            }}
+          >
+            삭제
+          </ReviewDelete>
+        </>
       )}
-      <ReviewDelete onClick={() => {}}>삭제</ReviewDelete>
+
       <StarBox>
         <Stars score={el.star} />
       </StarBox>
@@ -58,7 +94,7 @@ const ReviewList = ({ el }) => {
 
       <ReviewInfo>
         <ReviewName>{el.member.nickname}</ReviewName>
-        <ReviewDate>{el.createdDate}</ReviewDate>
+        <ReviewDate>{el.createdDate.split("T")[0]}</ReviewDate>
       </ReviewInfo>
     </ReList>
   );
@@ -70,6 +106,7 @@ export const StarBox = styled.div`
   position: relative;
   width: 120px;
   height: 24px;
+  margin-bottom: 5px;
 `;
 
 export const ReList = styled.li`
@@ -104,12 +141,21 @@ export const ReviewDelete = styled.button`
 `;
 
 export const ReviewEdit = styled.input`
+  width: 100%;
   flex-wrap: wrap;
-  margin: 10px 0px;
+  margin: 5px 0px;
+  padding: 5px 5px;
+  border: none;
+  background-color: rgb(240, 240, 240);
+  &:focus {
+    outline: none;
+  }
 `;
 export const ReviewContent = styled.div`
+  width: 100%;
   flex-wrap: wrap;
-  margin: 10px 0px;
+  margin: 5px 0px;
+  padding: 5px 5px;
 `;
 
 export const ReviewInfo = styled.div`
@@ -117,12 +163,12 @@ export const ReviewInfo = styled.div`
   flex-direction: row;
   justify-content: start;
   align-items: center;
-  margin-top: 5px;
   font-size: 14px;
 `;
 
 export const ReviewName = styled.div`
   margin-right: 10px;
+  color: gray;
 `;
 
 export const ReviewDate = styled.div`

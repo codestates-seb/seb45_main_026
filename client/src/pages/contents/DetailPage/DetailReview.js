@@ -1,11 +1,13 @@
 import { styled } from "styled-components";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import { RegularInput } from "../../../atoms/inputs/Inputs";
+import { ReactComponent as StarYellow } from "../../../assets/images/icons/star/starYellow.svg";
 import ReviewStar from "../../../components/DetailPage/ReviewStar";
 import ReviewList from "../../../components/DetailPage/ReviewList";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import Pagination from "../../../components/DetailPage/Pagination";
 
 const DetailReview = () => {
   const { videoId } = useParams();
@@ -13,7 +15,7 @@ const DetailReview = () => {
   const [isParams, setParams] = useState({
     page: 1,
     size: 8,
-    sort: "created-date", // || star
+    sort: "", // || star
     star: "", // 1 ~ 10
   });
   const [isReply, setReply] = useState({
@@ -21,6 +23,8 @@ const DetailReview = () => {
     star: 0,
   });
   const [isReviews, setReviews] = useState([]);
+  const [isPage, setPage] = useState({ page: 1, totalPage: 1 });
+  const [isActive, setActive] = useState(1);
 
   const getReview = () => {
     const queryString = new URLSearchParams(isParams).toString();
@@ -32,7 +36,7 @@ const DetailReview = () => {
         }
       )
       .then((res) => {
-        console.log(res.data);
+        setPage({ ...isPage, ...res.data.pageInfo });
         setReviews(res.data.data);
       })
       .catch((err) => console.log(err));
@@ -49,8 +53,18 @@ const DetailReview = () => {
       .post(`https://api.itprometheus.net/videos/${videoId}/replies`, isReply, {
         headers: { Authorization: token.authorization },
       })
-      .then((res) => console.log(res.data))
-      .catch((err) => console.log(err));
+      .then((res) => {
+        if (res.status === 201) {
+          alert("성공적으로 댓글이 등록되었습니다.");
+        }
+        setReply({ content: "", star: 0 });
+        window.location.reload();
+      })
+      .catch((err) => {
+        if (err.response.status === 404) {
+          alert("수강평은 한 번만 작성할 수 있습니다.");
+        }
+      });
   };
 
   const handleChangeReply = (e) => {
@@ -59,7 +73,11 @@ const DetailReview = () => {
 
   useEffect(() => {
     getReview();
-  }, []);
+  }, []); // isParams.page, isParams.sort, isParams.star
+
+  useMemo(() => {
+    getReview();
+  }, [isParams.page, isParams.sort, isParams.star]);
 
   return (
     <ReviewContainer>
@@ -88,11 +106,47 @@ const DetailReview = () => {
 
       <Reviews>
         <FilterBtns>
-          <FilterBtn>최신순</FilterBtn>
-          <FilterBtn>별점순</FilterBtn>
-          <FilterBtn>
+          <FilterBtn
+            isActive={isActive === 1}
+            onClick={() => {
+              setActive(1);
+              setParams({ ...isParams, sort: "created-date" });
+            }}
+          >
+            최신순
+          </FilterBtn>
+          <FilterBtn
+            isActive={isActive === 2}
+            onClick={() => {
+              setActive(2);
+              setParams({ ...isParams, sort: "star" });
+            }}
+          >
+            별점순
+          </FilterBtn>
+          <FilterBtn
+            isActive={isActive === 3}
+            onClick={() => {
+              setActive(3);
+            }}
+          >
             별점별
-            <img src="" alt="" />
+            {isActive === 3 && (
+              <>
+                <Star />
+                {isParams.star}
+                <FilterStar
+                  type="range"
+                  max={10}
+                  min={1}
+                  step={1}
+                  value={isParams.star}
+                  onChange={(e) => {
+                    setParams({ ...isParams, sort: "", star: e.target.value });
+                  }}
+                />
+              </>
+            )}
           </FilterBtn>
         </FilterBtns>
 
@@ -102,6 +156,7 @@ const DetailReview = () => {
           ))}
         </ReviewLists>
       </Reviews>
+      <Pagination isPage={isPage} setParams={setParams} isParams={isParams} />
     </ReviewContainer>
   );
 };
@@ -180,15 +235,56 @@ export const Reviews = styled.div`
   width: 100%;
 `;
 
-export const FilterBtns = styled.div``;
+export const FilterBtns = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: start;
+`;
+
 export const FilterBtn = styled.button`
   background: none;
   font-size: 16px;
   border-radius: 8px;
   border: 1px solid black;
+  background-color: ${(props) => (props.isActive ? "black" : "white")};
+  color: ${(props) => (props.isActive ? "white" : "black")};
   padding: 5px 10px;
   margin-left: 10px;
   margin-top: 30px;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+`;
+
+export const Star = styled(StarYellow)`
+  width: 15px;
+  height: 15px;
+  margin: 0px 3px 0px 7px;
+`;
+
+export const FilterStar = styled.input`
+  margin-left: 10px;
+  overflow: hidden;
+  appearance: none;
+  background: none;
+
+  &::-webkit-slider-runnable-track {
+    width: 100%;
+    cursor: pointer;
+    border-radius: 10px;
+    border: 1px solid gray;
+    overflow: hidden;
+  }
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: yellow;
+    border-radius: 10px;
+    box-shadow: 1px 1px 7px yellow;
+    box-shadow: -100vw 0 0 99vw yellow;
+  }
 `;
 
 export const ReviewLists = styled.ul`
