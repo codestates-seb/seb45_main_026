@@ -78,7 +78,7 @@ export default function ChannelHome({ channelInfor, accessToken, userId }) {
           console.log(err);
         }
       });
-  }, [tokens]);
+  }, [tokens,userId]);
 
   return (
     <HomeBody isDark={isDark}>

@@ -155,12 +155,14 @@ const PriceText = styled(Heading5Typo)`
     font-weight: ${globalTokens.Bold.value};
     height: 30px;
     min-width: 100px;
-    text-align: end;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    gap: 4px;
 `
-const CartBut = styled.button`
-  height: 20px;
-  width: 50px;
-  border: 1px solid black;
+const CartBut = styled.img`
+  height: 28px;
+  object-fit: cover;
 `
 
 export default function HorizonItem({lecture, channel}) {
@@ -169,7 +171,7 @@ export default function HorizonItem({lecture, channel}) {
   const navigate=useNavigate()
   const date = new Date(createdDate);
   date.setHours(date.getHours() + 9);
-  const month = (date.getMonth() + 1).toString().padStart(2, "0"); // 월은 0부터 시작하므로 +1
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
     return (
       <ComponentBody isDark={isDark}>
@@ -205,7 +207,7 @@ export default function HorizonItem({lecture, channel}) {
                   <Stars score={star} />
                 </StarContainer>
               </ScoreContainer>
-              {isPurchased ? <PriceText isDark={isDark}>구매됨</PriceText> :isPurchased===false?<PriceText isDark={isDark}><CartBut>hi</CartBut>{price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원</PriceText>:<></>}
+              {isPurchased ? <PriceText isDark={isDark}>구매됨</PriceText> :isPurchased===false?<PriceText isDark={isDark}>{price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원</PriceText>:<></>}
             </InforContainerRight>
           </InforContainer>
         </ItemInfors>
