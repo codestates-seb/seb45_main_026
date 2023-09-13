@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -32,6 +33,7 @@ import com.server.domain.member.controller.dto.MemberApiRequest;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
+import com.server.domain.member.service.dto.response.SubscribesResponse;
 import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
@@ -217,7 +219,6 @@ public class MemberIntergrationTest extends IntegrationTest {
 		assertThat(profileResponse.getImageUrl()).isEqualTo(getProfileUrl(loginMember));
 		assertThat(profileResponse.getGrade()).isEqualTo(loginMember.getGrade());
 		assertThat(profileResponse.getReward()).isEqualTo(loginMember.getReward());
-
 	}
 
 	@Test
@@ -241,14 +242,38 @@ public class MemberIntergrationTest extends IntegrationTest {
 
 		// List
 		PageInfo pageInfo = rewardsResponse.getPageInfo();
+		List<RewardsResponse> responses = rewardsResponse.getData();
 
-		// assertThat(rewardsResponse.getPageInfo())
+		int totalSize = loginMemberRewards.size();
+
+		assertThat(pageInfo.getTotalPage()).isEqualTo((int) Math.ceil(totalSize / 16.0));
+		assertThat(pageInfo.getPage()).isEqualTo(1);
+		assertThat(pageInfo.getSize()).isEqualTo(16);
+		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
+
+		RewardsResponse firstContent = responses.get(0);
+		RewardsResponse lastContent = responses.get(responses.size() - 1);
+		Reward firstReward = loginMemberRewards.get(totalSize - 1);
+		Reward lastReward = loginMemberRewards.get(33);
+
+		assertThat(responses).isSortedAccordingTo(Comparator.comparing(RewardsResponse::getCreatedDate).reversed());
+
+		assertThat(firstContent.getRewardId()).isEqualTo(firstReward.getRewardId());
+		assertThat(firstContent.getRewardType()).isEqualTo(firstReward.getRewardType());
+		assertThat(firstContent.getRewardPoint()).isEqualTo(firstReward.getRewardPoint());
+		assertThat(firstContent.getCreatedDate()).isNotNull();
+		assertThat(firstContent.getModifiedDate()).isNotNull();
+
+		assertThat(lastContent.getRewardId()).isEqualTo(lastReward.getRewardId());
+		assertThat(lastContent.getRewardType()).isEqualTo(lastReward.getRewardType());
+		assertThat(lastContent.getRewardPoint()).isEqualTo(lastReward.getRewardPoint());
+		assertThat(lastContent.getCreatedDate()).isNotNull();
+		assertThat(lastContent.getModifiedDate()).isNotNull();
 	}
 
 	@TestFactory
 	@DisplayName("자신의 구독 목록을 조회한다.")
 	Collection<DynamicTest> getSubscribes() throws Exception {
-		before();
 
 		ResultActions actions = mockMvc.perform(
 			get("/members/subscribes")
@@ -257,6 +282,13 @@ public class MemberIntergrationTest extends IntegrationTest {
 				.param("size","16")
 				.accept(APPLICATION_JSON)
 		);
+
+		actions
+			.andDo(print())
+			.andExpect(status().isOk());
+
+		ApiPageResponse<SubscribesResponse> subscribesResponse =
+			getApiPageResponseFromResult(actions, SubscribesResponse.class);
 
 		return List.of(
 			dynamicTest(
