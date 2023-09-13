@@ -22,7 +22,7 @@ public interface VideoRepository extends JpaRepository<Video, Long>, VideoReposi
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE Video v SET v.star = (SELECT IFNULL(AVG(r.star), 0) FROM Reply r WHERE r.video_id = v.video_id) WHERE v.video_id IN :videoIdsToUpdate", nativeQuery = true)
+    @Query(value = "UPDATE video v SET v.star = (SELECT IFNULL(AVG(r.star), 0) FROM reply r WHERE r.video_id = v.video_id) WHERE v.video_id IN :videoIdsToUpdate", nativeQuery = true)
     void updateVideoRatings(@Param("videoIdsToUpdate") List<Long> videoIdsToUpdate);
 
     @Query(value = "select v.video_id, v.thumbnail_file, v.video_name, c.channel_id " +
