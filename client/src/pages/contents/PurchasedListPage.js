@@ -81,12 +81,19 @@ export default function PurchasedListPage() {
           {
             headers: { Authorization: accessToken.authorization },
           }
-      ).then((res) => {
-        setVideoList(res.data.data);
-        dispatch(setMaxPage(res.data.pageInfo.totalPage));
-        setLoading(false)
-      })
-        .catch(err=>console.log(err))
+        )
+        .then((res) => {
+          setVideoList(res.data.data);
+          dispatch(setMaxPage(res.data.pageInfo.totalPage));
+          setLoading(false);
+        })
+        .catch((err) => {
+          if (err.response.data.message === "만료된 토큰입니다.") {
+            refreshToken();
+          } else {
+            console.log(err);
+          }
+        });
       } else if(!isList){
         axios
           .get(
@@ -118,11 +125,18 @@ export default function PurchasedListPage() {
           {
             headers: { Authorization: accessToken.authorization },
           }
-      ).then((res) => {
-        setVideoList((prev) => [...prev, ...res.data.data]);
-        setLoading(false)
-      })
-        .catch(err=>console.log(err))
+        )
+        .then((res) => {
+          setVideoList((prev) => [...prev, ...res.data.data]);
+          setLoading(false);
+        })
+        .catch((err) => {
+          if (err.response.data.message === "만료된 토큰입니다.") {
+            refreshToken();
+          } else {
+            console.log(err);
+          }
+        });
       } else if(!isList&&page!==1&&channelList!==[]){
         axios
           .get(
