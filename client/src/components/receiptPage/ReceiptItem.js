@@ -33,7 +33,7 @@ const ReceiptItem = ({item}) => {
     let createTime = createDate.split('T')[1];
     const titleName = `${item.orderVideos[0].videoName} 외 ${item.orderCount-1}개`;
     const amount = item.amount;
-    console.log(item)
+
     return (
         <ReceiptItemContainer>
             <RewardGrayTypo isDark={isDark}>

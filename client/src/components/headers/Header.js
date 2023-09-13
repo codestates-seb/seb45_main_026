@@ -13,6 +13,7 @@ export const MainPageHeader = () => {
   const handleLoginButtonClick = () => {
     navigate("/login");
   };
+  
   return (
     <MainPageHeaderContainer isDark={isDark}>
       <HeaderLogo />

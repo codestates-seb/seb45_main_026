@@ -27,7 +27,7 @@ export const RewardTitle = styled(Heading5Typo)`
 `
 export const RewardContentContainer = styled.section`
     width: 100%;
-    min-height: 50vh;
+    min-height: 75vh;
     display: flex;
     flex-direction: column;
     justify-content: start;

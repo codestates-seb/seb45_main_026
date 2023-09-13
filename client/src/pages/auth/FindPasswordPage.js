@@ -12,7 +12,6 @@ import { SignupFormLogo } from './SignupPage';
 const globalTokens = tokens.global;
 
 export const FindPasswordPageContainer = styled(PageContainer)`
-    height: 600px;
     padding: ${globalTokens.Spacing40.value}px;
     display: flex;
     flex-direction: column;

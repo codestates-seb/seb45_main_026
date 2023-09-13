@@ -8,8 +8,13 @@ import { setProblems } from "../../redux/createSlice/ProblemSlice";
 import SelectNum from "../../components/ProblemPage/SelectNum";
 import ProblemBox from "../../components/ProblemPage/ProblemBox";
 import { useToken } from "../../hooks/useToken";
+import tokens from '../../styles/tokens.json';
+import { BodyTextTypo } from "../../atoms/typographys/Typographys";
+
+const globalTokens = tokens.global;
 
 const ProblemPage = () => {
+  const isDark = useSelector(state=>state.uiSetting.isDark);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { videoId } = useParams();
@@ -44,15 +49,15 @@ const ProblemPage = () => {
   }, []);
 
   return (
-    <PageContainer>
-      <ProblemContainer>
-        <HeaderBox>
-          <Link to={`/videos/${videoId}`}>
-            <LectureBtn>← 강의로 돌아가기</LectureBtn>
+    <PageContainer isDark={isDark}>
+      <ProblemContainer isDark={isDark}>
+        <HeaderBox isDark={isDark}>
+          <Link isDark={isDark} to={`/videos/${videoId}`}>
+            <LectureBtn isDark={isDark}>← 강의로 돌아가기</LectureBtn>
           </Link>
-          <ProblemHeader>문제</ProblemHeader>
+          <ProblemHeader isDark={isDark}>문제</ProblemHeader>
         </HeaderBox>
-        <BodyBox>
+        <BodyBox isDark={isDark}>
           {problemsData.length ? (
             <>
               <SelectNum />
@@ -62,13 +67,14 @@ const ProblemPage = () => {
             </>
           ) : (
             <ListEmptyBox>
-              <ListEmptyGuide>현재 등록된 강의 문제가 없습니다.</ListEmptyGuide>
+              <ListEmptyGuide isDark={isDark}>현재 등록된 강의 문제가 없습니다.</ListEmptyGuide>
               {myId === videoDatas.channel.memberId && (
                 <>
-                  <ListEmptyGuide>
+                  <ListEmptyGuide isDark={isDark}>
                     이용자들을 위해 강의 문제들을 추가해 주세요.
                   </ListEmptyGuide>
                   <UploadNavBtn
+                    isDark={isDark}
                     onClick={() =>
                       navigate(`/videos/${videoId}/problems/upload`)
                     }
@@ -96,13 +102,12 @@ export const ListEmptyBox = styled.div`
   min-height: 600px;
 `;
 
-export const ListEmptyGuide = styled.span`
+export const ListEmptyGuide = styled(BodyTextTypo)`
   width: 100%;
   max-width: 500px;
   margin: 5px 0px;
   text-align: center;
-  color: gray;
-  font-weight: 600;
+  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
 `;
 
 export const UploadNavBtn = styled.button`
@@ -119,9 +124,11 @@ export const UploadNavBtn = styled.button`
 export const ProblemContainer = styled.section`
   width: 100%;
   max-width: 1000px;
+  margin-top: ${globalTokens.Spacing40.value}px;
+  margin-bottom: ${globalTokens.Spacing40.value}px;
   padding: 50px 0px 100px 0px;
-  background-color: white;
-  border-radius: 8px;
+  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
+  border-radius: ${globalTokens.Spacing8.value}px;
   display: flex;
   flex-direction: column;
   justify-content: start;
@@ -136,12 +143,15 @@ export const HeaderBox = styled.div`
 `;
 
 export const LectureBtn = styled.button`
-  font-size: small;
-  color: red;
+  font-size: ${globalTokens.SmallText.value}px;
+  color: ${globalTokens.Negative.value};
   margin: 0px 0px 20px -50px;
 `;
 
-export const ProblemHeader = styled.h2``;
+export const ProblemHeader = styled.h2`
+  font-size: ${globalTokens.Heading5.value}px;
+  color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value}
+`;
 
 export const BodyBox = styled.div`
   width: 100%;
