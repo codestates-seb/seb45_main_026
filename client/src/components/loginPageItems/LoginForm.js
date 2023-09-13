@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from "react-hook-form"
 import { useDispatch, useSelector } from 'react-redux';
 import { 
@@ -22,10 +22,17 @@ export const LoginForm = () => {
     const {
         register, 
         handleSubmit,
+        getValues,
         formState: { errors },
     } = useForm();
+    
+    const handleEmailChange = () => {
+        console.log(getValues('email'))
+    }
 
     const onSubmit = async (data) => {
+        console.log('onSubmit 시작')
+        console.log(data)
         const response = await loginService(data);
         if(response.status==='success') {
             //로그인에 성공하면 token을 state에 저장하고, 강의 목록 페이지로 이동한다.
@@ -53,6 +60,7 @@ export const LoginForm = () => {
                 placeholder='이메일을 입력해 주세요.'
                 register={register}
                 required={true}
+                onChange={handleEmailChange}
                 pattern={/^[^\s@]+@[^\s@]+\.[^\s@]+$/i}/>
             { errors.email && errors.email.type==='required' &&
                     <InputErrorTypo isDark={isDark}>이메일을 입력해 주세요.</InputErrorTypo> }
