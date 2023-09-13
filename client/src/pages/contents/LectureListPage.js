@@ -133,7 +133,7 @@ const LectureListPage = () => {
 
   //page state가 변경되면 데이터를 추가로 불러옴
   useEffect(() => {
-    if (lectures !== [] && page !== 1) {
+    if (page !== 1) {
       axios.get(
         `https://api.itprometheus.net/videos?sort=${
           filterState.sortBy.value

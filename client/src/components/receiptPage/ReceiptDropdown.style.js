@@ -1,6 +1,7 @@
 import { keyframes, styled } from 'styled-components';
 import tokens from '../../styles/tokens.json';
 import { TextButton } from '../../atoms/buttons/Buttons'
+import { BodyTextTypo } from '../../atoms/typographys/Typographys';
 
 const globalTokens = tokens.global;
 
@@ -11,6 +12,11 @@ export const ReceiptDropdownContainer = styled.section`
 `
 export const DropdownWrapper = styled.div`
     margin: ${globalTokens.Spacing8.value}px ${globalTokens.Spacing12.value}px;
+`
+export const DropdownContainer = styled.div`
+    position: relative;
+    top: 0;
+    left: 0;
 `
 export const DropdownButton = styled(TextButton)`
     position: relative;
@@ -34,7 +40,7 @@ export const DropdownButtonIcon = styled.img`
 `
 export const DropdownMenuWrapper = styled.div`
     margin-top: ${globalTokens.Spacing4.value}px;
-    padding: ${globalTokens.Spacing8.value}px;
+    padding: ${globalTokens.Spacing8.value}px ${globalTokens.Spacing12.value};
     position: absolute;
     top: 30px;
     left: 0;
@@ -47,8 +53,15 @@ export const DropdownMenuWrapper = styled.div`
     border-radius: ${globalTokens.RegularRadius.value}px;
     border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
     z-index: 1;
+    visibility: ${props=>props.isDropdownOpen?'visible':'hidden'};
+    opacity: ${props=>props.isDropdownOpen?1:0};
+`
+export const DropdownTextTypo = styled(BodyTextTypo)`
+    flex-grow: 1;
 `
 export const DropdownMenuButton = styled(TextButton)`
     width: 150px;
     padding: ${globalTokens.Spacing4.value};
+    visibility: ${props=>props.isDropdownOpen?'visible':'hidden'};
+    opacity: ${props=>props.isDropdownOpen?1:0};
 `

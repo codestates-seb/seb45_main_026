@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PageContainer } from '../../atoms/layouts/PageContainer';
 import { useSelector } from 'react-redux';
 import { ContentNothing, RewardContentContainer, RewardMainContainer, RewardTitle } from './RewardPage';
@@ -8,6 +8,7 @@ import { getReceiptService } from '../../services/receiptServices';
 import { useToken } from '../../hooks/useToken';
 import { useInView } from 'react-intersection-observer';
 import { BottomDiv } from '../../pages/contents/LectureListPage';
+import ReceiptDropdown from '../../components/receiptPage/ReceiptDropdown';
 
 const ReceiptPage = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
@@ -21,7 +22,6 @@ const ReceiptPage = () => {
 
     //첫 페이지 데이터를 불러옴
     useEffect(()=>{
-        console.log('첫 페이지 불러옴 ')
         if(page>1) return;
         getReceiptService(
             accessToken.authorization, page, 20, month
@@ -59,7 +59,6 @@ const ReceiptPage = () => {
 
     //바닥 요소가 보이면 현재 페이지 값을 1 증가
     useEffect(()=>{
-        console.log(`inview 변경됨 : ${inView}`)
         if(inView) {
             setLoading(true);
             setPage(page+1);
@@ -74,6 +73,8 @@ const ReceiptPage = () => {
                 <RewardContentContainer>
                 { receiptList.length===0 &&
                     <ContentNothing>결제 내역이 없습니다.</ContentNothing> }
+                { receiptList.length>0 && 
+                    <ReceiptDropdown category={month} setCategory={setMonth}/> }
                 { receiptList.length>0 && 
                     receiptList.map((e, idx)=>{ 
                         return <ReceiptItem key={e.orderId} item={e} idx={idx}/>})
