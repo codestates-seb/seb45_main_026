@@ -8,8 +8,14 @@ import { ReactComponent as StarYellow } from "../../../assets/images/icons/star/
 import ReviewStar from "../../../components/DetailPage/ReviewStar";
 import ReviewList from "../../../components/DetailPage/ReviewList";
 import Pagination from "../../../components/DetailPage/Pagination";
+import tokens from '../../../styles/tokens.json';
+import { BodyTextTypo, Heading5Typo } from "../../../atoms/typographys/Typographys";
+import { RegularButton, TextButton } from "../../../atoms/buttons/Buttons";
+
+const globalTokens = tokens.global;
 
 const DetailReview = () => {
+  const isDark = useSelector(state=>state.uiSetting.isDark);
   const { videoId } = useParams();
   const token = useSelector((state) => state.loginInfo.accessToken);
   const [isParams, setParams] = useState({
@@ -80,20 +86,22 @@ const DetailReview = () => {
   }, [isParams.page, isParams.sort, isParams.star]);
 
   return (
-    <ReviewContainer>
-      <ReviewTitle>수강평 {isReviews.length}</ReviewTitle>
+    <ReviewContainer isDark={isDark}>
+      <ReviewTitle isDark={isDark}>수강평 {isReviews.length}</ReviewTitle>
 
-      <ReviewForm>
-        <ReviewLabel>리뷰</ReviewLabel>
-        <WriteTitle>별점을 선택해주세요.</WriteTitle>
-        <ReviewStar isStar={isReply} setStar={setReply} />
-        <ReviewSubmit>
-          <ReviewInput
+      <ReviewForm isDark={isDark}>
+        <ReviewLabel isDark={isDark}>리뷰</ReviewLabel>
+        <WriteTitle isDark={isDark}>별점을 선택해주세요.</WriteTitle>
+        <ReviewStar isDark={isDark} isStar={isReply} setStar={setReply} />
+        <ReviewSubmit isDark={isDark}>
+          <ReviewInput 
+            isDark={isDark}
             placeholder="한 줄 감상평을 등록해주세요."
             value={isReply.content}
             onChange={(e) => handleChangeReply(e)}
           />
           <ReviewBtn
+            isDark={isDark}
             onClick={(e) => {
               e.preventDefault();
               postReview();
@@ -104,9 +112,10 @@ const DetailReview = () => {
         </ReviewSubmit>
       </ReviewForm>
 
-      <Reviews>
-        <FilterBtns>
+      <Reviews isDark={isDark}>
+        <FilterBtns isDark={isDark}>
           <FilterBtn
+            isDark={isDark}
             isActive={isActive === 1}
             onClick={() => {
               setActive(1);
@@ -116,6 +125,7 @@ const DetailReview = () => {
             최신순
           </FilterBtn>
           <FilterBtn
+            isDark={isDark}
             isActive={isActive === 2}
             onClick={() => {
               setActive(2);
@@ -125,6 +135,7 @@ const DetailReview = () => {
             별점순
           </FilterBtn>
           <FilterBtn
+            isDark={isDark}
             isActive={isActive === 3}
             onClick={() => {
               setActive(3);
@@ -150,13 +161,13 @@ const DetailReview = () => {
           </FilterBtn>
         </FilterBtns>
 
-        <ReviewLists>
+        <ReviewLists isDark={isDark}>
           {isReviews.map((el, idx) => (
             <ReviewList key={idx} el={el} />
           ))}
         </ReviewLists>
       </Reviews>
-      <Pagination isPage={isPage} setParams={setParams} isParams={isParams} />
+      <Pagination isDark={isDark} isPage={isPage} setParams={setParams} isParams={isParams} />
     </ReviewContainer>
   );
 };
@@ -165,22 +176,20 @@ export default DetailReview;
 
 export const ReviewContainer = styled.div`
   width: 100%;
-  border-radius: 20px;
+  border-radius: ${globalTokens.BigRadius.value}px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   margin: 20px 0px;
   padding: 5px 20px;
-  background-color: white;
+  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
 `;
 
-export const ReviewTitle = styled.div`
+export const ReviewTitle = styled(Heading5Typo)`
   width: 100%;
-  border-bottom: 2px solid rgb(236, 236, 236);
-  font-weight: bold;
-  font-size: 18px;
-  background-color: white;
+  border-bottom: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+  font-weight: ${globalTokens.Bold.value};
   padding: 5px;
   margin: 10px 0px;
 `;
@@ -192,21 +201,23 @@ export const ReviewForm = styled.form`
   align-items: center;
   width: 100%;
   padding: 10px;
-  background-color: rgb(220, 220, 250);
+  border-radius: ${globalTokens.RegularRadius.value}px;
+  background-color: ${props=>props.isDark?globalTokens.Black.value:globalTokens.Background.value};
 `;
 
-export const ReviewLabel = styled.span`
-  border: 2px solid rgb(250, 250, 220);
-  border-radius: 20px;
+export const ReviewLabel = styled(BodyTextTypo)`
+  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+  border-radius: ${globalTokens.BigRadius.value}px;
   width: 60px;
   height: 30px;
   text-align: center;
-  padding: 1px 0px;
-  margin: 10px 0px;
+  padding: 0px;
+  margin: ${globalTokens.Spacing8.value}px 0px;
 `;
 
-export const WriteTitle = styled.span`
+export const WriteTitle = styled(BodyTextTypo)`
   margin-bottom: 10px;
+
 `;
 
 export const ReviewSubmit = styled.div`
@@ -218,17 +229,14 @@ export const ReviewSubmit = styled.div`
 export const ReviewInput = styled(RegularInput)`
   width: 100%;
   max-width: 500px;
-  height: 50px;
-  font-size: 16px;
-  margin-right: 20px;
+  height: 45px;
+  margin-right: ${globalTokens.Spacing8.value}px;
 `;
 
-export const ReviewBtn = styled.button`
+export const ReviewBtn = styled(RegularButton)`
   width: 100%;
   max-width: 80px;
-  height: 50px;
-  font-size: 16px;
-  border-radius: 10px;
+  height: 45px;
 `;
 
 export const Reviews = styled.div`
@@ -241,16 +249,18 @@ export const FilterBtns = styled.div`
   justify-content: start;
 `;
 
-export const FilterBtn = styled.button`
+export const FilterBtn = styled(TextButton)`
   background: none;
-  font-size: 16px;
-  border-radius: 8px;
-  border: 1px solid black;
-  background-color: ${(props) => (props.isActive ? "black" : "white")};
-  color: ${(props) => (props.isActive ? "white" : "black")};
+  border-radius: ${globalTokens.RegularRadius.value}px;
+  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+  background-color: ${(props) => (
+    props.isActive&&props.isDark? globalTokens.Black.value 
+    : props.isActive&&!props.isDark? globalTokens.Background.value
+    : !props.isActive&&props.isDark? 'rgba(0,0,0,0)'
+    : globalTokens.White.value)};
   padding: 5px 10px;
-  margin-left: 10px;
-  margin-top: 30px;
+  margin-left: ${globalTokens.Spacing8.value}px;
+  margin-top: ${globalTokens.Spacing20.value}px;
   display: flex;
   justify-content: start;
   align-items: center;

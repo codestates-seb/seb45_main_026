@@ -2,8 +2,8 @@ import { styled } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { setContnentOpen } from "../../../redux/createSlice/VideoInfoSlice";
 import tokens from '../../../styles/tokens.json';
-import { BodyTextTypo, SmallTextTypo } from '../../../atoms/typographys/Typographys'
-import { TextButton } from '../../../atoms/buttons/Buttons'
+import { BodyTextTypo, Heading5Typo, SmallTextTypo } from '../../../atoms/typographys/Typographys'
+import { PositiveTextButton, TextButton } from '../../../atoms/buttons/Buttons'
 
 const globalTokens = tokens.global;
 
@@ -55,11 +55,10 @@ export const ContentInfo = styled.div`
   background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
 `;
 
-export const ContentTitle = styled(BodyTextTypo)`
+export const ContentTitle = styled(Heading5Typo)`
   width: 100%;
   border-bottom: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
   font-weight: ${globalTokens.Bold.value};
-  font-size: ${globalTokens.BodyText.value}px;
   padding: ${globalTokens.Spacing8.value}px;
 `;
 
@@ -102,7 +101,7 @@ export const CategoryLists = styled.li`
   font-size: ${globalTokens.BodyText.value}px;
 `;
 
-export const ContentBtn = styled(TextButton)`
+export const ContentBtn = styled(PositiveTextButton)`
   padding-left: ${globalTokens.Spacing8.value}px;
   margin-bottom: ${globalTokens.Spacing12.value}px;
 `;
