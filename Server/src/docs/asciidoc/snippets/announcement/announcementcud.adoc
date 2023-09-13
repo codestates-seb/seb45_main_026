@@ -41,3 +41,13 @@ include::{snippets}/announcement/updateannouncement/request-body.adoc[]
 include::{snippets}/announcement/updateannouncement/request-fields.adoc[]
 === HTTP Response
 include::{snippets}/announcement/updateannouncement/http-response.adoc[]
+
+== 공지사항 삭제
+=== HTTP Request
+include::{snippets}/announcement/deleteannouncement/http-request.adoc[]
+==== Request Path Parameters
+include::{snippets}/announcement/deleteannouncement/path-parameters.adoc[]
+==== Request Headers
+include::{snippets}/announcement/deleteannouncement/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/announcement/deleteannouncement/http-response.adoc[]
