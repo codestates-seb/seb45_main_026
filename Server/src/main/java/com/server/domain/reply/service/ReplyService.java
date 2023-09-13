@@ -113,16 +113,16 @@ public class ReplyService {
     }
 
     public void deleteReply(Long replyId, Long loginMemberId) {
-
-        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
+        Reply reply = replyRepository.findByIdWithVideo(replyId).orElseThrow(ReplyNotFoundException::new);
 
         if (!reply.getMember().getMemberId().equals(loginMemberId)) {
             throw new MemberAccessDeniedException();
         }
 
         Video video = reply.getVideo();
-        replyRepository.deleteById(replyId);
-        videoRepository.save(video);
+        video.getReplies().remove(reply);
+
+        replyRepository.delete(reply);
 
         video.calculateStar();
     }

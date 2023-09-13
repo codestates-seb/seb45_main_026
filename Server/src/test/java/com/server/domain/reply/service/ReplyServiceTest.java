@@ -482,8 +482,10 @@ class ReplyServiceTest extends ServiceTest {
     @DisplayName("댓글을 삭제한다.")
     public void testDeleteReply() {
         //given
-        Member member = createAndSaveMember();
-        Channel channel = createAndSaveChannel(member);
+        Member loginMember = createAndSaveMember();
+        Member member1 = createAndSaveMember();
+        Member member2 = createAndSaveMember();
+        Channel channel = createAndSaveChannel(loginMember);
 
         Video video = Video.builder()
                 .videoName("title")
@@ -494,27 +496,28 @@ class ReplyServiceTest extends ServiceTest {
                 .star(7.0F)
                 .price(1000)
                 .videoStatus(VideoStatus.CREATED)
-                .channel(member.getChannel())
+                .channel(loginMember.getChannel())
                 .build();
 
-        Order order = Order.createOrder(member, List.of(video), 0);
+        Order order = Order.createOrder(loginMember, List.of(video), 0);
         order.completeOrder(LocalDateTime.now(), "paymentKey");
 
         videoRepository.save(video);
         orderRepository.save(order);
 
-        Reply reply = createAndSaveReply(member, video);
+       Reply reply = createAndSaveReply(loginMember, video);
+       Reply reply1 = createAndSaveReply(member1, video);
+       Reply reply2 = createAndSaveReply(member2, video);
 
-        em.flush();
-        em.clear();
+       em.flush();
+       em.clear();
 
         //when
-        replyService.deleteReply(reply.getReplyId(), member.getMemberId());
+        replyService.deleteReply(reply.getReplyId(), loginMember.getMemberId());
 
         //then
-        Reply deletedReply = replyRepository.findById(reply.getReplyId()).orElse(null);
+        assertThat(replyRepository.findById(reply.getReplyId())).isEmpty();
 
-        assertThat(deletedReply).isNull();
     }
 
     @Test
