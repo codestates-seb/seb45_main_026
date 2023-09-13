@@ -7,6 +7,7 @@ const globalTokens = tokens.global;
 export const PageContainer = styled.div`
     background-color: ${(props)=>props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
     width: 100vw;
+    min-height: 60vh;
     display: flex;
     flex-direction: row;
     justify-content: center;

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { PageContainer } from '../../atoms/layouts/PageContainer';
 import { useSelector } from 'react-redux';
-import { ContentNothing, RewardContentContainer, RewardMainContainer, RewardTitle } from './RewardPage';
+import { 
+    ContentNothing, 
+    RewardContentContainer, 
+    RewardMainContainer, 
+    RewardTitle } from './RewardPage';
 import RewardCategory from '../../components/rewardPage/RewardCategory';
 import ReceiptItem from '../../components/receiptPage/ReceiptItem';
 import { getReceiptService } from '../../services/receiptServices';
