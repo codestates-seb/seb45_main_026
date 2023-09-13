@@ -113,7 +113,6 @@ public class ReplyService {
     }
 
     public void deleteReply(Long replyId, Long loginMemberId) {
-
         Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
 
         if (!reply.getMember().getMemberId().equals(loginMemberId)) {
@@ -121,8 +120,7 @@ public class ReplyService {
         }
 
         Video video = reply.getVideo();
-        replyRepository.deleteById(replyId);
-        videoRepository.save(video);
+        replyRepository.delete(reply);
 
         video.calculateStar();
     }
