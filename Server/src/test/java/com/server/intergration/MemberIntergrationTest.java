@@ -1,10 +1,14 @@
 package com.server.intergration;
 
 import static com.server.auth.util.AuthConstant.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.DynamicTest.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -15,17 +19,26 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+import org.springframework.data.web.JsonPath;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.controller.dto.MemberApiRequest;
 import com.server.domain.member.entity.Member;
+import com.server.domain.member.service.dto.response.ProfileResponse;
+import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.order.entity.Order;
+import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
+import com.server.domain.reward.entity.Reward;
+import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
+import com.server.global.reponse.ApiPageResponse;
+import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
 
 public class MemberIntergrationTest extends IntegrationTest {
@@ -39,6 +52,7 @@ public class MemberIntergrationTest extends IntegrationTest {
 	List<Subscribe> loginMemberSubscribes = new ArrayList<>();
 	List<Watch> loginMemberWatches = new ArrayList<>();
 	List<Reply> loginMemberReplies = new ArrayList<>();
+	List<Reward> loginMemberRewards = new ArrayList<>();
 	String loginMemberEmail = "login@email.com";
 	String loginMemberPassword = "qwer1234!";
 	String loginMemberAccessToken;
@@ -59,28 +73,122 @@ public class MemberIntergrationTest extends IntegrationTest {
 	List<Video> otherMemberVideos3 = new ArrayList<>();
 	List<Video> otherMemberVideos4 = new ArrayList<>();
 
+	List<Question> otherMemberQuestions1 = new ArrayList<>();
+	List<Question> otherMemberQuestions2 = new ArrayList<>();
+	List<Question> otherMemberQuestions3 = new ArrayList<>();
+	List<Question> otherMemberQuestions4 = new ArrayList<>();
+
 	String otherMemberEmail1 = "other1@email.com";
 	String otherMemberEmail2 = "other2@email.com";
 	String otherMemberEmail3 = "other3@email.com";
 	String otherMemberEmail4 = "other4@email.com";
 	String otherMemberPassword = "other1234!";
-	String otherMemberAccessToken1;
-	String otherMemberAccessToken2;
-	String otherMemberAccessToken3;
-	String otherMemberAccessToken4;
 
 	@BeforeAll
+	@Transactional
 	void pre() {
+		loginMember = createAndSaveMemberWithEmailPassword(loginMemberEmail, loginMemberPassword);
+		loginMemberChannel = createChannel(loginMember);
 
+		for (int i = 0; i < 2; i++) {
+			loginMemberVideos.add(createAndSaveFreeVideo(loginMemberChannel));
+			loginMemberVideos.add(createAndSavePaidVideo(loginMemberChannel, 10000));
+		}
+
+		loginMemberAccessToken = BEARER + createAccessToken(loginMember, 36000);
+
+		otherMember1 = createAndSaveMemberWithEmailPassword(otherMemberEmail1, otherMemberPassword);
+		otherMember2 = createAndSaveMemberWithEmailPassword(otherMemberEmail2, otherMemberPassword);
+		otherMember3 = createAndSaveMemberWithEmailPassword(otherMemberEmail3, otherMemberPassword);
+		otherMember4 = createAndSaveMemberWithEmailPassword(otherMemberEmail4, otherMemberPassword);
+
+		otherMemberChannel1 = createChannel(otherMember1);
+		otherMemberChannel2 = createChannel(otherMember2);
+		otherMemberChannel3 = createChannel(otherMember3);
+		otherMemberChannel4 = createChannel(otherMember4);
+
+		for (int i = 0; i < 3; i++) {
+			otherMemberVideos1.add(createAndSavePaidVideo(otherMemberChannel1, 10000));
+			otherMemberVideos2.add(createAndSavePaidVideo(otherMemberChannel2, 10000));
+			otherMemberVideos3.add(createAndSavePaidVideo(otherMemberChannel3, 10000));
+			otherMemberVideos4.add(createAndSavePaidVideo(otherMemberChannel4, 10000));
+		}
+
+		for (int i = 0; i < 2; i++) {
+			otherMemberVideos1.add(createAndSaveFreeVideo(otherMemberChannel1));
+			otherMemberVideos2.add(createAndSaveFreeVideo(otherMemberChannel2));
+			otherMemberVideos3.add(createAndSaveFreeVideo(otherMemberChannel3));
+			otherMemberVideos4.add(createAndSaveFreeVideo(otherMemberChannel4));
+		}
+
+		for (int i = 0; i < otherMemberVideos1.size(); i++) {
+			List<Video> videos = List.of(
+				otherMemberVideos1.get(i),
+				otherMemberVideos2.get(i),
+				otherMemberVideos3.get(i)
+			);
+
+			loginMemberOrders.add(
+				createAndSaveOrderWithPurchaseComplete(loginMember, videos, 0)
+			);
+		}
+
+		loginMemberCarts.add(createAndSaveCart(loginMember, otherMemberVideos1.get(0)));
+		loginMemberCarts.add(createAndSaveCart(loginMember, otherMemberVideos1.get(1)));
+		loginMemberCarts.add(createAndSaveCart(loginMember, otherMemberVideos1.get(2)));
+
+		loginMemberSubscribes.add(createAndSaveSubscribe(loginMember, otherMemberChannel1));
+		loginMemberSubscribes.add(createAndSaveSubscribe(loginMember, otherMemberChannel2));
+
+		for (int i = 0; i < 5; i+=2) {
+			loginMemberWatches.add(createAndSaveWatch(loginMember, otherMemberVideos1.get(i)));
+			loginMemberWatches.add(createAndSaveWatch(loginMember, otherMemberVideos2.get(i)));
+			loginMemberWatches.add(createAndSaveWatch(loginMember, otherMemberVideos3.get(i)));
+		}
+
+		for (int i = 0; i < 3; i++) {
+			loginMemberReplies.add(createAndSaveReply(loginMember, otherMemberVideos1.get(i)));
+			loginMemberReplies.add(createAndSaveReply(loginMember, otherMemberVideos2.get(i)));
+			loginMemberReplies.add(createAndSaveReply(loginMember, otherMemberVideos3.get(i)));
+		}
+
+		for (int i = 0; i < 5; i++) {
+			Question question1 = createAndSaveQuestion(otherMemberVideos1.get(i));
+			Question question2 = createAndSaveQuestion(otherMemberVideos2.get(i));
+			Question question3 = createAndSaveQuestion(otherMemberVideos3.get(i));
+			Question question4 = createAndSaveQuestion(otherMemberVideos4.get(i));
+
+			otherMemberQuestions1.add(question1);
+			otherMemberQuestions2.add(question2);
+			otherMemberQuestions3.add(question3);
+			otherMemberQuestions4.add(question4);
+		}
+
+		for (int i = 0; i < 5; i++) {
+			loginMemberRewards.add(createAndSaveReward(loginMember, otherMemberQuestions1.get(i)));
+			loginMemberRewards.add(createAndSaveReward(loginMember, otherMemberQuestions2.get(i)));
+			loginMemberRewards.add(createAndSaveReward(loginMember, otherMemberQuestions3.get(i)));
+			loginMemberRewards.add(createAndSaveReward(loginMember, otherMemberQuestions4.get(i)));
+
+			loginMemberRewards.add(createAndSaveReward(loginMember, otherMemberVideos1.get(i)));
+			loginMemberRewards.add(createAndSaveReward(loginMember, otherMemberVideos2.get(i)));
+			loginMemberRewards.add(createAndSaveReward(loginMember, otherMemberVideos3.get(i)));
+			loginMemberRewards.add(createAndSaveReward(loginMember, otherMemberVideos4.get(i)));
+		}
+
+		for (int i = 0; i < loginMemberReplies.size(); i++) {
+			loginMemberRewards.add(createAndSaveReward(loginMember, loginMemberReplies.get(i)));
+		}
+
+		flushAll();
 	}
 
-	@AfterAll
-	void post() {
-
-	}
 	@TestFactory
 	@DisplayName("자신의 프로필이미지, 이메일, 닉네임을 조회한다.")
 	Collection<DynamicTest> getMember() throws Exception {
+
+		em.flush();
+		em.clear();
 
 		ResultActions actions = mockMvc.perform(
 			get("/members")
@@ -88,28 +196,49 @@ public class MemberIntergrationTest extends IntegrationTest {
 				.accept(APPLICATION_JSON)
 		);
 
+		actions
+			.andDo(print())
+			.andExpect(status().isOk());
+
+		ProfileResponse profileResponse = getApiSingleResponseFromResult(actions, ProfileResponse.class).getData();
+
 		return List.of(
 			dynamicTest(
-				"1",
+				"조회되는 회원의 아이디가 로그인한 회원과 일치하는가",
 				() -> {
-
+					assertThat(profileResponse.getMemberId()).isEqualTo(loginMember.getMemberId());
 				}
 			),
 			dynamicTest(
-				"1",
+				"조회되는 회원의 이메일이 로그인한 회원과 일치하는가",
 				() -> {
-
+					assertThat(profileResponse.getEmail()).isEqualTo(loginMemberEmail);
 				}
 			),
 			dynamicTest(
-				"1",
+				"조회되는 회원의 닉네임이 로그인한 회원과 일치하는가",
 				() -> {
-
+					assertThat(profileResponse.getNickname()).isEqualTo(loginMember.getNickname());
 				}
 			),dynamicTest(
-				"1",
+				"조회되는 회원의 프로필 이미지가 로그인한 회원과 일치하는가",
 				() -> {
-
+					assertThat(profileResponse.getImageUrl()).isEqualTo(getProfileUrl(loginMember));
+				}
+			),dynamicTest(
+				"조회되는 회원의 등급이 로그인한 회원과 일치하는가",
+				() -> {
+					assertThat(profileResponse.getGrade()).isEqualTo(loginMember.getGrade());
+				}
+			),dynamicTest(
+				"조회되는 회원의 보유한 리워드가 로그인한 회원과 일치하는가",
+				() -> {
+					assertThat(profileResponse.getReward()).isEqualTo(loginMember.getReward());
+				}
+			),dynamicTest(
+				"조회되는 회원의 가입일이 로그인한 회원과 일치하는가",
+				() -> {
+					assertThat(profileResponse.getCreatedDate()).isBeforeOrEqualTo(loginMember.getCreatedDate());
 				}
 			)
 		);
@@ -126,6 +255,13 @@ public class MemberIntergrationTest extends IntegrationTest {
 				.param("size","16")
 				.accept(APPLICATION_JSON)
 		);
+
+		actions
+			.andDo(print())
+			.andExpect(status().isOk());
+
+		ApiPageResponse<RewardsResponse> rewardsResponse =
+			getApiPageResponseFromResult(actions, RewardsResponse.class);
 
 		return List.of(
 			dynamicTest(
