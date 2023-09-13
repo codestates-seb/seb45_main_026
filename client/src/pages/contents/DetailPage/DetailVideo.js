@@ -133,11 +133,13 @@ const DetailVideo = () => {
           </ProfileRight>
         </Profile>
 
-        <SubscribeBtn
-          memberId={videoDatas.channel.memberId}
-          channelInfo={channelInfo}
-          setSub={setSub}
-        />
+        {myId === videoDatas.channel.memberId || (
+          <SubscribeBtn
+            memberId={videoDatas.channel.memberId}
+            channelInfo={channelInfo}
+            setSub={setSub}
+          />
+        )}
       </VideoInfo>
     </VideoContainer>
   );

@@ -1,10 +1,10 @@
-import { styled } from "styled-components";
 import axios from "axios";
-import { useSelector } from "react-redux";
-import Stars from "../contentListItems/Stars";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { styled } from "styled-components";
+import Stars from "../contentListItems/Stars";
 
-const ReviewList = ({ el }) => {
+const ReviewList = ({ el, getReview }) => {
   const myId = useSelector((state) => state.loginInfo.myid);
   const token = useSelector((state) => state.loginInfo.accessToken);
   const [isEditMode, setEditMode] = useState(false);
@@ -21,7 +21,8 @@ const ReviewList = ({ el }) => {
       .then((res) => {
         console.log(res);
         if (res.status === 204) {
-          window.location.reload();
+          // window.location.reload();
+          getReview();
         }
       })
       .catch((err) => console.log(err));
@@ -35,7 +36,8 @@ const ReviewList = ({ el }) => {
       .then((res) => {
         console.log(res);
         if (res.status === 204) {
-          window.location.reload();
+          // window.location.reload();
+          getReview();
         }
       })
       .catch((err) => console.log(err));
