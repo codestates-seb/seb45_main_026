@@ -177,11 +177,11 @@
 
 |회원가입 페이지|비밀번호 찾기 페이지|
 |------|---|
-|<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/b11a0e69-7f69-48e7-b3c7-8c3e462da768" width="400px"/>|<img width="400px" alt="스크린샷 2023-09-14 오후 2 49 40" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/15fabf7d-a5eb-4c09-a043-13b89e0e8e13">|
+|<img width="400px" alt="스크린샷 2023-09-14 오후 2 50 35" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/312ce2c2-41af-4ca3-8ba5-afb202ce8a98">|<img width="400px" alt="스크린샷 2023-09-14 오후 2 59 44" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/fb0de012-39e4-4631-9481-43875c02eaa4">|
 
 |강의 목록 페이지|강의 상세 페이지|
 |------|---|
-|<img width="400px" alt="스크린샷 2023-09-14 오후 2 52 43" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/e414b268-a78d-461b-81e1-fda4b641c411">|<img width="400px" alt="스크린샷 2023-09-14 오후 2 53 21" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/ea065f95-f823-45a9-a270-ea4a0b3f6d01">|
+|<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/ee639775-1105-45ca-b3a8-dadf2ed3f912" width="400px"/>|<img width="400px" alt="스크린샷 2023-09-14 오후 2 53 21" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/ea065f95-f823-45a9-a270-ea4a0b3f6d01">|
 
 |문제풀기 페이지|장바구니 페이지|
 |------|---|
