@@ -13,5 +13,5 @@ public interface AwsService {
 
     void deleteFile(String fileName, FileType fileType);
 
-    boolean isExistFile(Long memberId, String fileName, FileType fileType);
+    boolean isExistFile(String fileName, FileType fileType);
 }

@@ -136,7 +136,7 @@ public class VideoService {
                 verifiedCategories(request.getCategories())
         );
 
-        checkIfVideoUploaded(loginMemberId, video);
+        checkIfVideoUploaded(video);
 
         return video.getVideoId();
     }
@@ -292,9 +292,9 @@ public class VideoService {
         return videoRepository.findVideoIdInCart(member.getMemberId(), videoIds);
     }
 
-    private void checkIfVideoUploaded(Long loginMemberId, Video video) {
-        boolean existVideo = awsService.isExistFile(loginMemberId, video.getVideoFile(), FileType.VIDEO);
-        boolean existThumbnail = awsService.isExistFile(loginMemberId, video.getThumbnailFile(), FileType.THUMBNAIL);
+    private void checkIfVideoUploaded(Video video) {
+        boolean existVideo = awsService.isExistFile(video.getVideoFile(), FileType.VIDEO);
+        boolean existThumbnail = awsService.isExistFile(video.getThumbnailFile(), FileType.THUMBNAIL);
 
         if(!existVideo) {
             throw new VideoNotUploadedException(video.getVideoName());
