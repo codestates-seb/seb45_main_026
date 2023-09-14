@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { BodyTextTypo, SmallTextTypo } from "../../atoms/typographys/Typographys";
 import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
 import NoticeSubmit from "./NoticeSubmit";
+import { PositiveTextButton } from "../../atoms/buttons/Buttons";
 import axios from "axios";
 import { useToken } from "../../hooks/useToken";
 
@@ -15,7 +16,7 @@ const ItemBody = styled.div`
     min-height: 200px;
     padding: ${globalTokens.Spacing20.value}px;
     gap: ${globalTokens.Spacing28.value}px;
-    border: 1px ${props=>props.isDark?globalTokens.White.value:globalTokens.Gray.value} solid;
+    border: 1px ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value} solid;
     border-radius: ${globalTokens.RegularRadius.value}px;
     display: flex;
     flex-direction: column;
@@ -50,14 +51,12 @@ const TextInfor = styled.div`
     justify-content: center;
 `
 const AuthorName = styled(BodyTextTypo)`
-    font-size: ${globalTokens.Heading5.value}px;
     font-weight: ${globalTokens.Bold.value};
 `
 const CreatedAt = styled(SmallTextTypo)`
-    font-size: ${globalTokens.BodyText.value}px;
+  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
 `
 const NoticeContent = styled(BodyTextTypo)`
-    font-size: ${globalTokens.Heading5.value}px;
     margin-bottom: ${globalTokens.Spacing28.value}px;
 `
 const ButtonContainer = styled.div`
@@ -67,15 +66,7 @@ const ButtonContainer = styled.div`
   justify-content: end;
   height: 30px;
 `
-const NoticeButton = styled.button`
-  width: 30px;
-  height: 30px;
-  border-bottom: 1px solid gray;
-  color: gray;
-  &:hover{
-    color: lightgray;
-    border-bottom: 1px solid lightgray;
-  }
+const NoticeButton = styled(PositiveTextButton)`
 `
 
 export default function NoticeItem({ channelInfor, notice, accessToken, getHandler, userId }) {
@@ -105,7 +96,7 @@ export default function NoticeItem({ channelInfor, notice, accessToken, getHandl
       });
   };
   return (
-    <ItemBody>
+    <ItemBody isDark={isDark}>
       <ProfileContainer>
         <ImgContainer>
           <ProfileImg
@@ -133,8 +124,9 @@ export default function NoticeItem({ channelInfor, notice, accessToken, getHandl
         <NoticeContent isDark={isDark}>{notice.content}</NoticeContent>
       )}
       <ButtonContainer>
-        <NoticeButton onClick={() => deleteHandler()}>삭제</NoticeButton>
-        <NoticeButton onClick={() => setOpenEdit(!openEdit)}>수정</NoticeButton>
+        <NoticeButton isDark={isDark} onClick={() => deleteHandler()}>삭제</NoticeButton>
+        <NoticeButton isDark={isDark} onClick={() => setOpenEdit(!openEdit)}>수정</NoticeButton>
+
       </ButtonContainer>
     </ItemBody>
   );

@@ -13,21 +13,20 @@ const globalTokens = tokens.global;
 
 const NoticeBody = styled.div`
     width: 100%;
+    padding: ${globalTokens.Spacing20.value}px;
     max-width: 1170px;
     min-height: 600px;
     padding-top: ${globalTokens.Spacing24.value}px;
     display: flex;
     flex-direction: column;
+    align-items: center;
     background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
     border-radius: 0 0 ${globalTokens.RegularRadius.value}px ${globalTokens.RegularRadius.value}px;
 
 `
 const NoticeTitle = styled(HomeTitle)`
-    /* height: 20px;
-    font-size: ${globalTokens.Heading5.value}px;
-    font-weight: ${globalTokens.Bold.value};
-    margin-left: ${globalTokens.Spacing28.value}px;
-    margin-bottom: ${globalTokens.Spacing20.value}px; */
+    margin-left: ${globalTokens.Spacing40.value}px;
+    margin-bottom: 0;
 `
 const ItemContainer = styled.div`
     width: 100%;

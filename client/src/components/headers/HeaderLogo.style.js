@@ -4,6 +4,12 @@ import { BodyTextTypo } from '../../atoms/typographys/Typographys';
 
 const globalTokens = tokens.global;
 
+export const HeaderLogoToggleContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+`
+
 export const HeaderLogoContainer = styled.section`
     display: flex;
     flex-direction: row;
