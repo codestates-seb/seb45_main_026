@@ -1,13 +1,11 @@
 import axios from "axios";
 import { useState } from "react";
-import { useSelector } from "react-redux";
 import { styled } from "styled-components";
 import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { setContnentOpen } from "../../../redux/createSlice/VideoInfoSlice";
+import { useSelector } from "react-redux";
 import tokens from '../../../styles/tokens.json';
 import { BodyTextTypo, Heading5Typo, SmallTextTypo } from '../../../atoms/typographys/Typographys'
-import { PositiveTextButton, TextButton } from '../../../atoms/buttons/Buttons'
+import { PositiveTextButton } from '../../../atoms/buttons/Buttons'
 
 const globalTokens = tokens.global;
 
@@ -15,7 +13,6 @@ const DetailContent = ({ getVideoInfo }) => {
   const { videoId } = useParams();
   const myId = useSelector((state) => state.loginInfo.myid);
   const isDark = useSelector(state=>state.uiSetting.isDark);
-  const dispatch = useDispatch();
   const videoDatas = useSelector((state) => state.videoInfo.data);
   const token = useSelector((state) => state.loginInfo.accessToken);
   const [isEdit, setEdit] = useState(false);

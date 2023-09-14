@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { styled } from "styled-components";
 import Stars from "../contentListItems/Stars";
-import { useState } from "react";
 import tokens from '../../styles/tokens.json';
 import { NegativeTextButton, PositiveTextButton } from "../../atoms/buttons/Buttons";
 import { BodyTextTypo, SmallTextTypo } from "../../atoms/typographys/Typographys";

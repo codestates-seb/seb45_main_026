@@ -123,7 +123,7 @@ export const UploadNavBtn = styled.button`
 
 export const ProblemContainer = styled.section`
   width: 100%;
-  max-width: 1000px;
+  max-width: 1170px;
   margin-top: ${globalTokens.Spacing40.value}px;
   margin-bottom: ${globalTokens.Spacing40.value}px;
   padding: 50px 0px 100px 0px;
@@ -143,9 +143,9 @@ export const HeaderBox = styled.div`
 `;
 
 export const LectureBtn = styled.button`
-  font-size: ${globalTokens.SmallText.value}px;
+  font-size: ${globalTokens.BodyText.value}px;
   color: ${props=>props.isDark?globalTokens.LightRed.value:globalTokens.Negative.value};
-  margin: 0px 0px 20px -50px;
+  margin: 0px 0px ${globalTokens.Spacing16.value}px -50px;
 `;
 
 export const ProblemHeader = styled.h2`
