@@ -236,6 +236,7 @@ public class IntegrationTest {
 		Channel channel = Channel.builder()
 			.member(member)
 			.channelName("channelName")
+			.description("channelDescription")
 			.build();
 
 		return channelRepository.save(channel);
