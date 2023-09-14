@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import tokens from "../../styles/tokens.json";
 import { useDispatch, useSelector } from "react-redux";
-import { setSort, setIsPurchased, setCategory, setIsFree, setIsSubscribed } from "../../redux/createSlice/FilterSlice";
+import { setSort, setIsPurchased, setCategory, setIsFree, setIsSubscribed,setWatchedDate } from "../../redux/createSlice/FilterSlice";
 
 const globalTokens = tokens.global;
 
@@ -39,7 +39,8 @@ export default function FilterDropdown({ options, actionName }) {
         setIsPurchased,
         setCategory,
         setIsFree,
-        setIsSubscribed
+        setIsSubscribed,
+        setWatchedDate
     };
     return (
         <DropdownContainer isDark={isDark}>

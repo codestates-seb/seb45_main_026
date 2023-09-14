@@ -1,7 +1,7 @@
 import React from "react";
 import tokens from "../../styles/tokens.json";
 import { styled } from "styled-components";
-import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
+import profileGray from "../../assets/images/icons/profile/profileGray.svg";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { BodyTextTypo, Heading5Typo, SmallTextTypo } from "../../atoms/typographys/Typographys";
@@ -160,10 +160,6 @@ const PriceText = styled(Heading5Typo)`
     align-items: center;
     gap: 4px;
 `
-const CartBut = styled.img`
-  height: 28px;
-  object-fit: cover;
-`
 
 export default function HorizonItem({lecture, channel}) {
   const isDark = useSelector(state=>state.uiSetting.isDark);
@@ -173,30 +169,45 @@ export default function HorizonItem({lecture, channel}) {
   date.setHours(date.getHours() + 9);
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
+  const ChannelNavigateHandler = (memberId) => {
+    if (memberId !== null) {
+      navigate(`/channels/${memberId}`);
+    }
+  };
     return (
       <ComponentBody isDark={isDark}>
-        <ThumbnailContainer onClick={()=>navigate(`/videos/${lecture.videoId}`)}>
+        <ThumbnailContainer
+          onClick={() => navigate(`/videos/${lecture.videoId}`)}
+        >
           <Thumbnail src={thumbnailUrl} alt="thumbnail" />
         </ThumbnailContainer>
         <ItemInfors>
-          <Title isDark={isDark} onClick={() => navigate(`/videos/${lecture.videoId}`)} >{videoName}</Title>
+          <Title
+            isDark={isDark}
+            onClick={() => navigate(`/videos/${lecture.videoId}`)}
+          >
+            {videoName}
+          </Title>
           <Description isDark={isDark}>{description}</Description>
           <InforContainer>
             <InforContainerLeft>
               <AuthorContainer>
-                <ImgContainer onClick={()=>navigate(`/channels/${channel.memberId}`)}>
+                <ImgContainer
+                  onClick={() => ChannelNavigateHandler(channel.memberId)}
+                >
                   <ProfileImg
-                    src={
-                      channel.imageUrl
-                        ? channel.imageUrl
-                        : frofileGray
-                    }
+                    src={channel.imageUrl ? channel.imageUrl : profileGray}
                     alt="profile"
                   />
                 </ImgContainer>
-                <AuthorName isDark={isDark} onClick={()=>navigate(`/channels/${channel.memberId}`)}>{channel.channelName}</AuthorName>
+                <AuthorName
+                  isDark={isDark}
+                  onClick={() => ChannelNavigateHandler(channel.memberId)}
+                >
+                  {channel.channelName}
+                </AuthorName>
                 <CreatedAt isDark={isDark}>
-                  {month}월{day}일 업로드됨 
+                  {month}월{day}일 업로드됨
                 </CreatedAt>
               </AuthorContainer>
             </InforContainerLeft>
@@ -207,7 +218,15 @@ export default function HorizonItem({lecture, channel}) {
                   <Stars score={star} />
                 </StarContainer>
               </ScoreContainer>
-              {isPurchased ? <PriceText isDark={isDark}>구매됨</PriceText> :isPurchased===false?<PriceText isDark={isDark}>{price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원</PriceText>:<></>}
+              {isPurchased ? (
+                <PriceText isDark={isDark}>구매됨</PriceText>
+              ) : isPurchased === false ? (
+                <PriceText isDark={isDark}>
+                  {price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원
+                </PriceText>
+              ) : (
+                <></>
+              )}
             </InforContainerRight>
           </InforContainer>
         </ItemInfors>

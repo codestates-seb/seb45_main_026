@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components"
 import tokens from "../../styles/tokens.json";
 import Stars from "./Stars";
-import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
+import profileGray from "../../assets/images/icons/profile/profileGray.svg";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { BodyTextTypo, SmallTextTypo } from "../../atoms/typographys/Typographys";
@@ -130,12 +130,17 @@ const StarContainer = styled.div`
 
 export default function VerticalItem({ lecture ,channel}) { 
   const isDark = useSelector(state=>state.uiSetting.isDark);
-  const {videoName,thumbnailUrl,createdDate,isPurchased,price,star}=lecture
+  const {videoName,thumbnailUrl,createdDate,modifiedDate,isPurchased,price,star}=lecture
   const navigate=useNavigate()
-  const date = new Date(createdDate);
+  const date = new Date(modifiedDate||createdDate);
   date.setHours(date.getHours() + 9);
   const month = (date.getMonth() + 1).toString().padStart(2, "0"); // 월은 0부터 시작하므로 +1
   const day = date.getDate().toString().padStart(2, "0");
+  const ChannelNavigateHandler = (memberId) => {
+    if (memberId !== null) {
+      navigate(`/channels/${memberId}`)
+    }
+  }
     return (
       <ComponentBody isDark={isDark}>
         <ThumbnailContainer
@@ -152,23 +157,20 @@ export default function VerticalItem({ lecture ,channel}) {
             <AuthorInfor isDark={isDark}>
               <ImgContainer
                 isDark={isDark}
-                onClick={() => navigate(`/channels/${channel.memberId}`)}
+                onClick={() => ChannelNavigateHandler(channel.memberId)}
               >
                 <ProfileImg
-                  isDark={isDark}
-                  src={channel.imageUrl ? channel.imageUrl : frofileGray}
+                  src={channel.imageUrl ? channel.imageUrl : profileGray}
                 />
               </ImgContainer>
               <AuthorName
                 isDark={isDark}
-                onClick={() => navigate(`/channels/${channel.memberId}`)}
-              >
+                onClick={() => ChannelNavigateHandler(channel.memberId)}>
                 {channel.channelName}
               </AuthorName>
             </AuthorInfor>
-            <DateInfor isDark={isDark}>
-              {month}월{day}일 업로드됨
-            </DateInfor>
+            <DateInfor isDark={isDark}>{createdDate?`${month}월${day}일 업로드됨`:`${month}월${day}일 시청함`}</DateInfor>
+
           </InforContainerLeft>
           <InforContainerRight>
             <ScoreContainer>

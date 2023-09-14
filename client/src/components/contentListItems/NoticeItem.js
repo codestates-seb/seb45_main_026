@@ -6,6 +6,8 @@ import { BodyTextTypo, SmallTextTypo } from "../../atoms/typographys/Typographys
 import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
 import NoticeSubmit from "./NoticeSubmit";
 import { PositiveTextButton } from "../../atoms/buttons/Buttons";
+import axios from "axios";
+import { useToken } from "../../hooks/useToken";
 
 const globalTokens = tokens.global;
 
@@ -64,16 +66,35 @@ const ButtonContainer = styled.div`
   justify-content: end;
   height: 30px;
 `
-const OpenEditButton = styled(PositiveTextButton)`
+const NoticeButton = styled(PositiveTextButton)`
 `
 
-export default function NoticeItem({ channelInfor, notice, accessToken, setNotices,userId }) {
+export default function NoticeItem({ channelInfor, notice, accessToken, getHandler, userId }) {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const [openEdit, setOpenEdit] = useState(false);
+  const refreshToken = useToken();
   const date = new Date(notice.createdDate);
   date.setHours(date.getHours() + 9);
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
+
+  const deleteHandler = () => {
+    axios
+      .delete(
+        `https://api.itprometheus.net/announcements/${notice.announcementId}`,
+        { headers: { Authorization: accessToken.authorization } }
+      )
+      .then((res) => {
+        getHandler(userId)
+      })
+      .catch((err) => {
+        if (err.response.data.message === "만료된 토큰입니다.") {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
+  };
   return (
     <ItemBody isDark={isDark}>
       <ProfileContainer>
@@ -94,7 +115,7 @@ export default function NoticeItem({ channelInfor, notice, accessToken, setNotic
           announcementId={notice.announcementId}
           fixValue={notice.content}
           accessToken={accessToken}
-          setNotices={setNotices}
+          getHandler={getHandler}
           todo="patch"
           userId={userId}
           setOpenEdit={setOpenEdit}
@@ -103,9 +124,9 @@ export default function NoticeItem({ channelInfor, notice, accessToken, setNotic
         <NoticeContent isDark={isDark}>{notice.content}</NoticeContent>
       )}
       <ButtonContainer>
-        <OpenEditButton isDark={isDark} onClick={() => setOpenEdit(!openEdit)}>
-          수정
-        </OpenEditButton>
+        <NoticeButton isDark={isDark} onClick={() => deleteHandler()}>삭제</NoticeButton>
+        <NoticeButton isDark={isDark} onClick={() => setOpenEdit(!openEdit)}>수정</NoticeButton>
+
       </ButtonContainer>
     </ItemBody>
   );

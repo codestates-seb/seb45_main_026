@@ -39,7 +39,7 @@ export default function NoticeSubmit({
   accessToken,
   todo,
   announcementId,
-  setNotices,
+  getHandler,
   setOpenEdit,
 }) {
   const isDark = useSelector(state=>state.uiSetting.isDark);
@@ -56,14 +56,6 @@ export default function NoticeSubmit({
     setNoticeContent(event.target.value);
     handleTextareaResize();
   };
-  const getHandler = (userId) => {
-    return axios
-      .get(
-        `https://api.itprometheus.net/channels/${userId}/announcements?page=1&size=10`
-      )
-      .then((res) => setNotices(res.data.data))
-      .catch((err) => console.log(err));
-  };
   const submitHandler = (userId) => {
     if (todo === "post" && noticeContent !== "") {
       axios
@@ -74,7 +66,7 @@ export default function NoticeSubmit({
         )
         .then((res) => {
           getHandler(userId);
-          setNoticeContent("")
+          setNoticeContent("");
         })
         .catch((err) => {
           if (err.response.data.message === "만료된 토큰입니다.") {
@@ -92,7 +84,7 @@ export default function NoticeSubmit({
         )
         .then((res) => {
           getHandler(userId);
-          setOpenEdit(false)
+          setOpenEdit(false);
         })
         .catch((err) => {
           if (err.response.data.message === "만료된 토큰입니다.") {
