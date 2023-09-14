@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+import com.server.auth.oauth.service.OAuthProvider;
 import com.server.domain.category.service.dto.response.CategoryResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
@@ -531,7 +532,7 @@ public class MemberControllerTest extends ControllerTest {
 			fieldWithPath("data[].orderId").description("결제 번호"),
 			fieldWithPath("data[].amount").description("총 결제 금액(실제 가격 - 리워드 사용량)"),
 			fieldWithPath("data[].orderCount").description("결제한 강의 수"),
-			fieldWithPath("data[].orderStatus").description("주문 상태"),
+			fieldWithPath("data[].orderStatus").description(generateLinkCode(OrderStatus.class)),
 			fieldWithPath("data[].createdDate").description("결제일"),
 			fieldWithPath("data[].completedDate").description("결제완료일"),
 			fieldWithPath("data[].orderVideos[]").description("결제한 강의 목록"),
@@ -941,7 +942,7 @@ public class MemberControllerTest extends ControllerTest {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("알고리즘")
-				.thumbnailFile(awsService.getFileUrl(1L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailFile(awsService.getFileUrl("test22", FileType.PROFILE_IMAGE))
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -952,7 +953,7 @@ public class MemberControllerTest extends ControllerTest {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("리액트")
-				.thumbnailFile(awsService.getFileUrl(1L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailFile(awsService.getFileUrl( "test22", FileType.PROFILE_IMAGE))
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -963,7 +964,7 @@ public class MemberControllerTest extends ControllerTest {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("스프링")
-				.thumbnailFile(awsService.getFileUrl(1L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailFile(awsService.getFileUrl("test22", FileType.PROFILE_IMAGE))
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -974,7 +975,7 @@ public class MemberControllerTest extends ControllerTest {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("자바")
-				.thumbnailFile(awsService.getFileUrl(1L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailFile(awsService.getFileUrl( "test22", FileType.PROFILE_IMAGE))
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)

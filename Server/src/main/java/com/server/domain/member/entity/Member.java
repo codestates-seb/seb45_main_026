@@ -99,7 +99,7 @@ public class Member extends BaseEntity {
 
 
 	public void updateImageFile(String imageFile) {
-		this.imageFile = imageFile;
+		this.imageFile = this.memberId + "/profile/" + imageFile;
 	}
 
 	public void deleteImageFile() {

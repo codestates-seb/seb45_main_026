@@ -577,9 +577,9 @@ class VideoServiceTest extends ServiceTest {
                 .categories(List.of("category1"))
                 .build();
 
-        given(awsService.isExistFile(anyLong(), anyString(), eq(FileType.THUMBNAIL)))
+        given(awsService.isExistFile(anyString(), eq(FileType.THUMBNAIL)))
                 .willReturn(true);
-        given(awsService.isExistFile(anyLong(), anyString(), eq(FileType.VIDEO)))
+        given(awsService.isExistFile(anyString(), eq(FileType.VIDEO)))
                 .willReturn(false);
 
         //when & then
@@ -604,9 +604,9 @@ class VideoServiceTest extends ServiceTest {
                 .categories(List.of("category1"))
                 .build();
 
-        given(awsService.isExistFile(anyLong(), anyString(), eq(FileType.THUMBNAIL)))
+        given(awsService.isExistFile(anyString(), eq(FileType.THUMBNAIL)))
                 .willReturn(false);
-        given(awsService.isExistFile(anyLong(), anyString(), eq(FileType.VIDEO)))
+        given(awsService.isExistFile(anyString(), eq(FileType.VIDEO)))
                 .willReturn(true);
 
         //when & then
@@ -932,11 +932,11 @@ class VideoServiceTest extends ServiceTest {
     }
 
     void setVideoUploadSuccess() {
-        given(awsService.isExistFile(anyLong(), anyString(), any(FileType.class))).willReturn(true);
+        given(awsService.isExistFile(anyString(), any(FileType.class))).willReturn(true);
     }
 
     void setFileGetUrlSuccess() {
-        given(awsService.getFileUrl(anyLong(), anyString(), any(FileType.class))).willReturn("https://test.com");
+        given(awsService.getFileUrl(anyString(), any(FileType.class))).willReturn("https://test.com");
         given(awsService.getUploadVideoUrl(anyLong(), anyString())).willReturn("https://test.com");
         given(awsService.getImageUploadUrl(anyLong(), anyString(), any(FileType.class), any(ImageType.class))).willReturn("https://test.com");
     }
