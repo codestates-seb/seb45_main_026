@@ -1,7 +1,7 @@
 import React from "react";
 import tokens from "../../styles/tokens.json";
 import { styled } from "styled-components";
-import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
+import profileGray from "../../assets/images/icons/profile/profileGray.svg";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { BodyTextTypo, Heading5Typo, SmallTextTypo } from "../../atoms/typographys/Typographys";
@@ -189,7 +189,7 @@ export default function HorizonItem({lecture, channel}) {
                     src={
                       channel.imageUrl
                         ? channel.imageUrl
-                        : frofileGray
+                        : profileGray
                     }
                     alt="profile"
                   />

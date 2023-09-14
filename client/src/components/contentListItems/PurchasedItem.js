@@ -4,6 +4,7 @@ import { styled } from "styled-components";
 import arrowDown from "../../assets/images/icons/arrow/subscribe_arrow_down.svg";
 import arrowUp from "../../assets/images/icons/arrow/subscribe_arrow_up.svg";
 import HorizonItem from "./HorizonItem";
+import profileGray from "../../assets/images/icons/profile/profileGray.svg";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -92,8 +93,6 @@ const HorizonItemContainer = styled.ul`
     flex-direction: column;
     gap: ${globalTokens.Spacing16.value}px;
     margin-bottom: ${globalTokens.Spacing28.value}px;
-    /* max-height: ${(props)=>props.isOpen?'10000px':'0px'};
-    overflow: hidden; */
     max-height: 1000px;
     transition: 500ms;
 `
@@ -199,7 +198,7 @@ export default function PurchasedItem({ channel, setChannelList }) {
       <ItemBody isDark={isDark}>
         <ProfileContainer isDark={isDark} onClick={()=>navigate(`/channels/${channel.memberId}`)} >
           <ImgContainer>
-            <ProfileImg src={channel.imageUrl} />
+            <ProfileImg src={channel.imageUrl?channel.imageUrl:profileGray} />
           </ImgContainer>
           <TextInfor>
             <AuthorName isDark={isDark}>{channel.channelName}</AuthorName>

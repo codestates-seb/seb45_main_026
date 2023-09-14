@@ -5,13 +5,15 @@ import { useSelector } from "react-redux";
 import { BodyTextTypo, SmallTextTypo } from "../../atoms/typographys/Typographys";
 import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
 import NoticeSubmit from "./NoticeSubmit";
+import axios from "axios";
+import { useToken } from "../../hooks/useToken";
 
 const globalTokens = tokens.global;
 
 const ItemBody = styled.div`
     width: 100%;
-    min-height: 300px;
-    padding: ${globalTokens.Spacing28.value}px;
+    min-height: 200px;
+    padding: ${globalTokens.Spacing20.value}px;
     gap: ${globalTokens.Spacing28.value}px;
     border: 1px ${props=>props.isDark?globalTokens.White.value:globalTokens.Gray.value} solid;
     border-radius: ${globalTokens.RegularRadius.value}px;
@@ -65,20 +67,43 @@ const ButtonContainer = styled.div`
   justify-content: end;
   height: 30px;
 `
-const OpenEditButton = styled.button`
-  height: 30px;
+const NoticeButton = styled.button`
   width: 30px;
-  border-radius: ${globalTokens.RegularRadius.value}px;
-  background-color: lightgray;
+  height: 30px;
+  border-bottom: 1px solid gray;
+  color: gray;
+  &:hover{
+    color: lightgray;
+    border-bottom: 1px solid lightgray;
+  }
 `
 
-export default function NoticeItem({ channelInfor, notice, accessToken, setNotices,userId }) {
+export default function NoticeItem({ channelInfor, notice, accessToken, getHandler, userId }) {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const [openEdit, setOpenEdit] = useState(false);
+  const refreshToken = useToken();
   const date = new Date(notice.createdDate);
   date.setHours(date.getHours() + 9);
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
+
+  const deleteHandler = () => {
+    axios
+      .delete(
+        `https://api.itprometheus.net/announcements/${notice.announcementId}`,
+        { headers: { Authorization: accessToken.authorization } }
+      )
+      .then((res) => {
+        getHandler(userId)
+      })
+      .catch((err) => {
+        if (err.response.data.message === "만료된 토큰입니다.") {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
+  };
   return (
     <ItemBody>
       <ProfileContainer>
@@ -99,7 +124,7 @@ export default function NoticeItem({ channelInfor, notice, accessToken, setNotic
           announcementId={notice.announcementId}
           fixValue={notice.content}
           accessToken={accessToken}
-          setNotices={setNotices}
+          getHandler={getHandler}
           todo="patch"
           userId={userId}
           setOpenEdit={setOpenEdit}
@@ -108,9 +133,8 @@ export default function NoticeItem({ channelInfor, notice, accessToken, setNotic
         <NoticeContent isDark={isDark}>{notice.content}</NoticeContent>
       )}
       <ButtonContainer>
-        <OpenEditButton onClick={() => setOpenEdit(!openEdit)}>
-          수정
-        </OpenEditButton>
+        <NoticeButton onClick={() => deleteHandler()}>삭제</NoticeButton>
+        <NoticeButton onClick={() => setOpenEdit(!openEdit)}>수정</NoticeButton>
       </ButtonContainer>
     </ItemBody>
   );
