@@ -13,6 +13,7 @@ import { useToken } from '../../hooks/useToken';
 import { useInView } from 'react-intersection-observer';
 import { BottomDiv } from '../../pages/contents/LectureListPage';
 import ReceiptDropdown from '../../components/receiptPage/ReceiptDropdown';
+import ReceiptListHeader from '../../components/receiptPage/ReceiptListHeader';
 
 const ReceiptPage = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
@@ -33,8 +34,8 @@ const ReceiptPage = () => {
         ).then((res)=> {
             if(res.status==='success') {
                 setReceiptList(res.data.data);
-                setLoading(false);
                 setMaxPage(res.data.pageInfo.totalPage);
+                setLoading(false);
             } else if(res.data==='만료된 토큰입니다.') {
                 refreshToken();
             } else {
@@ -80,6 +81,7 @@ const ReceiptPage = () => {
                     <ContentNothing>결제 내역이 없습니다.</ContentNothing> }
                 { receiptList.length>0 && 
                     <ReceiptDropdown category={month} setCategory={setMonth}/> }
+                { receiptList.length>0 && <ReceiptListHeader/> }
                 { receiptList.length>0 && 
                     receiptList.map((e, idx)=>{ 
                         return <ReceiptItem key={e.orderId} item={e} idx={idx}/>})

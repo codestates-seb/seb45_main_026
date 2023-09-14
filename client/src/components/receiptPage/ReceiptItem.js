@@ -14,17 +14,23 @@ export const ReceiptItemContainer = styled.section`
     align-items: center;
     border-bottom: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
 `
-export const RewardGrayTypo = styled(BodyTextTypo)`
+export const ReceiptGrayTypo = styled(BodyTextTypo)`
+    width: 150px;
     color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
 `
-export const RewardTitleTypo = styled(BodyTextTypo)`
+export const ReceiptTitleTypo = styled(BodyTextTypo)`
     width: 350px;
     font-weight: ${globalTokens.Bold.value};
     padding-left: ${globalTokens.Spacing20.value}px;
 `
-export const RewardAmountTypo = styled(BodyTextTypo)`
+export const ReceiptAmountTypo = styled(BodyTextTypo)`
     width: 100px;
-    padding-left: ${globalTokens.Spacing20.value}px;
+    text-align: center;
+`
+export const ReceiptStatusTypo = styled(BodyTextTypo)`
+    width: 150px;
+    color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+    text-align: center;
 `
 const ReceiptItem = ({item}) => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
@@ -36,12 +42,19 @@ const ReceiptItem = ({item}) => {
 
     return (
         <ReceiptItemContainer>
-            <RewardGrayTypo isDark={isDark}>
+            <ReceiptGrayTypo isDark={isDark}>
                 {`${createDay} ${createTime}`}
-            </RewardGrayTypo>
-            <RewardTitleTypo isDark={isDark}>{titleName}</RewardTitleTypo>
-            <RewardAmountTypo isDark={isDark}>{`${amount}원`}</RewardAmountTypo>
-            <RewardGrayTypo isDark={isDark}>{item.orderStatus}</RewardGrayTypo>
+            </ReceiptGrayTypo>
+            <ReceiptTitleTypo isDark={isDark}>{titleName}</ReceiptTitleTypo>
+            <ReceiptAmountTypo isDark={isDark}>{`${amount}원`}</ReceiptAmountTypo>
+            <ReceiptStatusTypo isDark={isDark}>
+            {
+                item.orderStatus==='COMPLETED'? '결제 완료'
+                : item.orderStatus==='CANCELED'? '결제 취소'
+                : item.orderStatus==='ORDERED'? '결제 대기'
+                : null
+            }
+            </ReceiptStatusTypo>
         </ReceiptItemContainer>
     );
 };
