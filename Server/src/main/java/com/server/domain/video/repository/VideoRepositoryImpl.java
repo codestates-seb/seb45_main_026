@@ -1,8 +1,10 @@
 package com.server.domain.video.repository;
 
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.order.entity.OrderStatus;
@@ -31,9 +33,11 @@ import static com.server.domain.videoCategory.entity.QVideoCategory.*;
 public class VideoRepositoryImpl implements VideoRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
+    private final EntityManager em;
 
     public VideoRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
+        this.em = em;
     }
 
     @Override
@@ -172,6 +176,64 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
     }
 
     @Override
+    public Page<Video> findAllByCond(String keyword, VideoGetDataRequest request) {
+
+        JPAQuery<Video> query = queryFactory
+                .selectFrom(video)
+                .distinct()
+                .offset(request.getPageable().getOffset())
+                .limit(request.getPageable().getPageSize())
+                .where(
+                        searchKeyword(keyword),
+                        getCreateVideo(),
+                        hasChannel(),
+                        freeOrPaid(request.getFree()),
+                        whetherIncludePurchased(request),
+                        whetherIncludeOnlySubscribed(request)
+                );
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(video.count())
+                .from(video)
+                .distinct()
+                .where(
+                        searchKeyword(keyword),
+                        getCreateVideo(),
+                        hasChannel(),
+                        freeOrPaid(request.getFree()),
+                        whetherIncludePurchased(request),
+                        whetherIncludeOnlySubscribed(request)
+                );
+
+        if (hasCategory(request.getCategoryName())) {
+            query
+                    .join(video.videoCategories, videoCategory)
+                    .join(videoCategory.category, category)
+                    .where(category.categoryName.eq(request.getCategoryName()));
+
+            countQuery
+                    .join(video.videoCategories, videoCategory)
+                    .join(videoCategory.category, category)
+                    .where(category.categoryName.eq(request.getCategoryName()));
+        }
+
+        if(request.getSort() != null) {
+            query.orderBy(getSort(request.getSort()));
+        }
+
+        return new PageImpl<>(query.fetch(), request.getPageable(), countQuery.fetchOne());
+    }
+
+    private BooleanExpression searchKeyword(String keyword) {
+        if (StringUtils.isBlank(keyword)) {
+            return null;
+        }
+
+        return Expressions.numberTemplate(Double.class,
+                "function('matchVideo', {0}, {1})", video.videoName, keyword).gt(0);
+    }
+
+    @Override
     public Page<Video> findChannelVideoByCond(ChannelVideoGetDataRequest request) {
 
         JPAQuery<Video> query = queryFactory
@@ -210,6 +272,8 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
 
         return new PageImpl<>(query.fetch(), request.getPageable(), countQuery.fetchOne());
     }
+
+
 
     private OrderSpecifier[] getSort(String sort) {
 

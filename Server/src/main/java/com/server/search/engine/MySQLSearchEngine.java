@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Tuple;
 
+import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
+import com.server.domain.video.service.dto.response.VideoPageResponse;
 import org.springframework.stereotype.Service;
 
 import com.server.domain.channel.respository.ChannelRepository;
