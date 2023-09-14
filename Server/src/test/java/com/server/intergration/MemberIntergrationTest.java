@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -483,7 +484,12 @@ public class MemberIntergrationTest extends IntegrationTest {
 					Video firstVideo = videos.get(0);
 
 					assertThat(responses.get(0).getVideoId()).isEqualTo(firstVideo.getVideoId());
-
+					assertThat(responses.get(0).getVideoName()).isEqualTo(firstVideo.getVideoName());
+					assertThat(responses.get(0).getStar()).isEqualTo(firstVideo.getStar());
+					assertThat(responses.get(0).getThumbnailUrl()).isEqualTo(getThumbnailUrl(firstVideo));
+					assertThat(responses.get(0).getChannel().getMemberId()).isEqualTo(firstVideo.getChannel().getMember().getMemberId());
+					assertThat(responses.get(0).getChannel().getChannelName()).isEqualTo(firstVideo.getChannel().getChannelName());
+					assertThat(responses.get(0).getChannel().getImageUrl()).isEqualTo(getProfileUrl(firstVideo.getChannel().getMember()));
 				}
 			),
 			dynamicTest(
@@ -511,7 +517,15 @@ public class MemberIntergrationTest extends IntegrationTest {
 					PageInfo pageInfo = playlistsResponseApiPageResponse.getPageInfo();
 					List<PlaylistsResponse> responses = playlistsResponseApiPageResponse.getData();
 
-					int totalSize = loginMemberPlaylist.size();
+					List<Video> videos = new ArrayList<>();
+
+					memberRepository.findById(loginMember.getMemberId()).orElseThrow().getOrders().forEach(
+						order -> order.getOrderVideos().forEach(orderVideo -> videos.add(orderVideo.getVideo()))
+					);
+
+					videos.sort(Comparator.comparing(Video::getStar));
+
+					int totalSize = videos.size();
 
 					assertThat(responses).isSortedAccordingTo(Comparator.comparing(PlaylistsResponse::getStar).reversed());
 
@@ -519,6 +533,16 @@ public class MemberIntergrationTest extends IntegrationTest {
 					assertThat(pageInfo.getPage()).isEqualTo(1);
 					assertThat(pageInfo.getSize()).isEqualTo(16);
 					assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
+
+					Video firstVideo = videos.get(videos.size() - 1);
+
+					assertThat(responses.get(0).getVideoId()).isEqualTo(firstVideo.getVideoId());
+					assertThat(responses.get(0).getVideoName()).isEqualTo(firstVideo.getVideoName());
+					assertThat(responses.get(0).getStar()).isEqualTo(firstVideo.getStar());
+					assertThat(responses.get(0).getThumbnailUrl()).isEqualTo(getThumbnailUrl(firstVideo));
+					assertThat(responses.get(0).getChannel().getMemberId()).isEqualTo(firstVideo.getChannel().getMember().getMemberId());
+					assertThat(responses.get(0).getChannel().getChannelName()).isEqualTo(firstVideo.getChannel().getChannelName());
+					assertThat(responses.get(0).getChannel().getImageUrl()).isEqualTo(getProfileUrl(firstVideo.getChannel().getMember()));
 				}
 			),
 			dynamicTest(
@@ -546,7 +570,15 @@ public class MemberIntergrationTest extends IntegrationTest {
 					PageInfo pageInfo = playlistsResponseApiPageResponse.getPageInfo();
 					List<PlaylistsResponse> responses = playlistsResponseApiPageResponse.getData();
 
-					int totalSize = loginMemberPlaylist.size();
+					List<Video> videos = new ArrayList<>();
+
+					memberRepository.findById(loginMember.getMemberId()).orElseThrow().getOrders().forEach(
+						order -> order.getOrderVideos().forEach(orderVideo -> videos.add(orderVideo.getVideo()))
+					);
+
+					videos.sort(Comparator.comparing(Video::getCreatedDate));
+
+					int totalSize = videos.size();
 
 					assertThat(responses).isSortedAccordingTo(Comparator.comparing(PlaylistsResponse::getCreatedDate).reversed());
 
@@ -555,18 +587,15 @@ public class MemberIntergrationTest extends IntegrationTest {
 					assertThat(pageInfo.getSize()).isEqualTo(16);
 					assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
 
-					PlaylistsResponse firstContent = responses.get(0);
-					Video firstVideo = loginMemberPlaylist.get(totalSize - 1);
+					Video firstVideo = videos.get(videos.size() - 1);
 
-					assertThat(firstContent.getVideoId()).isEqualTo(firstVideo.getVideoId());
-					assertThat(firstContent.getVideoName()).isEqualTo(firstVideo.getVideoName());
-					assertThat(firstContent.getThumbnailUrl()).isEqualTo(getThumbnailUrl(firstVideo));
-					assertThat(firstContent.getStar()).isEqualTo(firstVideo.getStar());
-					assertThat(firstContent.getCreatedDate()).isNotNull();
-					assertThat(firstContent.getModifiedDate()).isNotNull();
-					assertThat(firstContent.getChannel().getMemberId()).isEqualTo(firstVideo.getChannel().getMember().getMemberId());
-					assertThat(firstContent.getChannel().getChannelName()).isEqualTo(firstVideo.getChannel().getChannelName());
-					assertThat(firstContent.getChannel().getImageUrl()).isEqualTo(getProfileUrl(firstVideo.getChannel().getMember()));
+					assertThat(responses.get(0).getVideoId()).isEqualTo(firstVideo.getVideoId());
+					assertThat(responses.get(0).getVideoName()).isEqualTo(firstVideo.getVideoName());
+					assertThat(responses.get(0).getStar()).isEqualTo(firstVideo.getStar());
+					assertThat(responses.get(0).getThumbnailUrl()).isEqualTo(getThumbnailUrl(firstVideo));
+					assertThat(responses.get(0).getChannel().getMemberId()).isEqualTo(firstVideo.getChannel().getMember().getMemberId());
+					assertThat(responses.get(0).getChannel().getChannelName()).isEqualTo(firstVideo.getChannel().getChannelName());
+					assertThat(responses.get(0).getChannel().getImageUrl()).isEqualTo(getProfileUrl(firstVideo.getChannel().getMember()));
 				}
 			)
 		);
@@ -591,20 +620,47 @@ public class MemberIntergrationTest extends IntegrationTest {
 		em.flush();
 		em.clear();
 
+		// api 응답값
 		ApiPageResponse<PlaylistChannelResponse> playlistsChannelResponseApiPageResponse =
 			getApiPageResponseFromResult(actions, PlaylistChannelResponse.class);
 
+		// 페이징 응답값 정리
 		PageInfo pageInfo = playlistsChannelResponseApiPageResponse.getPageInfo();
 		List<PlaylistChannelResponse> responses = playlistsChannelResponseApiPageResponse.getData();
 
-		List<String> channelName = loginMemberPlaylist.stream()
+		// 로그인한 회원 조회
+		Member member = memberRepository.findById(loginMember.getMemberId()).orElseThrow();
+
+		// 구매한 비디오 목록
+		List<Video> videos = new ArrayList<>();
+
+		member.getOrders().forEach(
+			order -> order.getOrderVideos().forEach(orderVideo -> videos.add(orderVideo.getVideo()))
+		);
+
+		videos.sort(Comparator.comparing(video -> video.getChannel().getChannelName()));
+
+		// 구매한 강의들이 몇개의 채널에 속하는지
+		List<String> channelName = videos.stream()
 			.map(video -> video.getChannel().getChannelName())
 			.distinct()
-			.sorted()
 			.collect(Collectors.toList());
 
 		int totalSize = channelName.size();
 
+		// 채널별 구매한 강의 수
+		List<String> channelNames = videos.stream()
+			.map(video -> video.getChannel().getChannelName())
+			.collect(Collectors.toList());
+
+		Map<String, Long> channelVideoCount = channelNames.stream()
+			.collect(Collectors.groupingBy(name -> name, Collectors.counting()));
+
+		boolean isSubscribed = member.getSubscribes().stream()
+			.anyMatch(subscribe -> subscribe.getChannel().getChannelId() == videos.get(0).getChannel().getChannelId());
+
+
+		// then
 		assertThat(responses).isSortedAccordingTo(Comparator.comparing(PlaylistChannelResponse::getChannelName));
 
 		assertThat(pageInfo.getTotalPage()).isEqualTo((int) Math.ceil(totalSize / 16.0));
@@ -615,17 +671,44 @@ public class MemberIntergrationTest extends IntegrationTest {
 		assertThat(responses.get(0).getChannelName()).isEqualTo(channelName.get(0));
 		assertThat(responses.get(1).getChannelName()).isEqualTo(channelName.get(1));
 		assertThat(responses.get(2).getChannelName()).isEqualTo(channelName.get(2));
+
+		assertThat(responses.get(0).getMemberId()).isEqualTo(videos.get(0).getMemberId());
+		assertThat(responses.get(0).getChannelName()).isEqualTo(videos.get(0).getChannel().getChannelName());
+		assertThat(responses.get(0).getImageUrl()).isEqualTo(getProfileUrl(videos.get(0).getChannel().getMember()));
+		assertThat(responses.get(0).getSubscribers()).isEqualTo(videos.get(0).getChannel().getSubscribes().size());
+		assertThat(responses.get(0).getVideoCount()).isEqualTo(channelVideoCount.get(channelNames.get(0)));
+		assertThat(responses.get(0).getIsSubscribed()).isEqualTo(isSubscribed);
+		assertThat(responses.get(0).getList().size()).isEqualTo(0);
 	}
 
 	@Test
 	@DisplayName("자신의 구매한 강의 목록을 채널별로 상세 조회한다.")
 	void getPlaylistChannelDetails() throws Exception {
-		List<Video> videos = loginMemberPlaylist.stream()
-			.sorted(Comparator.comparing(video -> video.getChannel().getChannelName()))
+		// given
+		Member member = memberRepository.findById(loginMember.getMemberId()).orElseThrow();
+
+		List<Video> videos = new ArrayList<>();
+
+		member.getOrders().forEach(
+			order -> order.getOrderVideos().forEach(orderVideo -> videos.add(orderVideo.getVideo()))
+		);
+
+		videos.sort(Comparator.comparing(Video::getVideoName));
+
+		List<Video> expect = videos.stream()
+			.filter(video -> {
+				Channel channel1 = videos.get(0).getChannel();
+				Channel channel2 = video.getChannel();
+				return channel1.getChannelName().equals(channel2.getChannelName());
+			})
+			.sorted(Comparator.comparing(Video::getVideoName))
 			.collect(Collectors.toList());
+
+		int totalSize = expect.size();
 
 		Long channelId = videos.get(0).getChannel().getChannelId();
 
+		// when
 		ResultActions actions = mockMvc.perform(
 			get("/members/playlists/channels/details")
 				.header(AUTHORIZATION, loginMemberAccessToken)
@@ -648,13 +731,6 @@ public class MemberIntergrationTest extends IntegrationTest {
 		PageInfo pageInfo = playlistsChannelDetailsResponseApiPageResponse.getPageInfo();
 		List<PlaylistChannelDetailsResponse> responses =
 			playlistsChannelDetailsResponseApiPageResponse.getData();
-
-		List<Video> expect = loginMemberPlaylist.stream()
-			.filter(video -> videos.get(0).getChannel().getChannelName().equals(video.getChannel().getChannelName()))
-			.sorted(Comparator.comparing(Video::getVideoName))
-			.collect(Collectors.toList());
-
-		int totalSize = expect.size();
 
 		assertThat(responses)
 			.isSortedAccordingTo(Comparator.comparing(PlaylistChannelDetailsResponse::getVideoName));
