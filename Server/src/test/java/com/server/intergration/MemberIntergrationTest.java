@@ -480,7 +480,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 					assertThat(pageInfo.getSize()).isEqualTo(16);
 					assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
 
-					// assertThat(responses.get(0).getVideoId())
+					Video firstVideo = videos.get(0);
+
+					assertThat(responses.get(0).getVideoId()).isEqualTo(firstVideo.getVideoId());
 				}
 			),
 			dynamicTest(
