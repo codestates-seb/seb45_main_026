@@ -7,7 +7,7 @@ import tokens from '../../styles/tokens.json';
 const globalTokens = tokens.global;
 
 export const ReceiptItemHeadContainer = styled(ReceiptItemContainer)`
-    background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.Background.value};
+    background-color: ${props=>props.isDark?globalTokens.Black.value:globalTokens.Background.value};
     border: none;
 `
 export const ReceiptDateHeadTypo = styled(ReceiptGrayTypo)`
