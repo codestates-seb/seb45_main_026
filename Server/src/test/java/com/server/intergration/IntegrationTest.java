@@ -409,7 +409,6 @@ public class IntegrationTest {
 
 	protected String getProfileUrl(Member member) {
 		return awsService.getFileUrl(
-			member.getMemberId(),
 			member.getImageFile(),
 			FileType.PROFILE_IMAGE
 		);
@@ -417,7 +416,6 @@ public class IntegrationTest {
 
 	protected String getThumbnailUrl(Video video) {
 		return awsService.getFileUrl(
-			video.getMemberId(),
 			video.getThumbnailFile(),
 			FileType.THUMBNAIL
 		);

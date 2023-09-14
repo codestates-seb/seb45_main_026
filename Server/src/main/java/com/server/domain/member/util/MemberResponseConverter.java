@@ -183,12 +183,11 @@ public class MemberResponseConverter {
 	}
 
 	private String getThumbnailUrl(Long memberId, String thumbnailFile) {
-		return awsService.getFileUrl(memberId, thumbnailFile, FileType.THUMBNAIL);
+		return awsService.getFileUrl(thumbnailFile, FileType.THUMBNAIL);
 	}
 
 	private String getProfileUrl(Long memberId, String profileImageName) {
 			return awsService.getFileUrl(
-				memberId,
 				profileImageName,
 				FileType.PROFILE_IMAGE
 			);

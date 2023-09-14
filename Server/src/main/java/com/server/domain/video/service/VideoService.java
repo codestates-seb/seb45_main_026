@@ -247,15 +247,15 @@ public class VideoService {
     }
 
     private String getVideoUrl(Video video, Member owner) {
-        return awsService.getFileUrl(owner.getMemberId(), video.getVideoFile(), FileType.VIDEO);
+        return awsService.getFileUrl(video.getVideoFile(), FileType.VIDEO);
     }
 
     private String getImageUrl(Member member) {
-        return awsService.getFileUrl(member.getMemberId(), member.getImageFile(), FileType.PROFILE_IMAGE);
+        return awsService.getFileUrl(member.getImageFile(), FileType.PROFILE_IMAGE);
     }
 
     private String getThumbnailUrl(Long memberId, Video video) {
-        return awsService.getFileUrl(memberId, video.getThumbnailFile(), FileType.THUMBNAIL);
+        return awsService.getFileUrl(video.getThumbnailFile(), FileType.THUMBNAIL);
     }
 
 
