@@ -223,13 +223,6 @@ public class MemberIntergrationTest extends IntegrationTest {
 
 		Member member = memberRepository.findById(loginMember.getMemberId()).orElseThrow();
 
-		// assertThat(profileResponse.getMemberId()).isEqualTo(loginMember.getMemberId());
-		// assertThat(profileResponse.getEmail()).isEqualTo(loginMemberEmail);
-		// assertThat(profileResponse.getNickname()).isEqualTo(loginMember.getNickname());
-		// assertThat(profileResponse.getImageUrl()).isEqualTo(getProfileUrl(loginMember));
-		// assertThat(profileResponse.getGrade()).isEqualTo(loginMember.getGrade());
-		// assertThat(profileResponse.getReward()).isEqualTo(loginMember.getReward());
-
 		assertThat(profileResponse.getMemberId()).isEqualTo(member.getMemberId());
 		assertThat(profileResponse.getEmail()).isEqualTo(member.getEmail());
 		assertThat(profileResponse.getNickname()).isEqualTo(member.getNickname());
@@ -264,7 +257,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 		PageInfo pageInfo = rewardsResponse.getPageInfo();
 		List<RewardsResponse> responses = rewardsResponse.getData();
 
-		int totalSize = loginMemberRewards.size();
+		List<Reward> rewards = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getRewards();
+
+		int totalSize = rewards.size();
 
 		assertThat(pageInfo.getTotalPage()).isEqualTo((int) Math.ceil(totalSize / 16.0));
 		assertThat(pageInfo.getPage()).isEqualTo(1);
@@ -272,10 +267,11 @@ public class MemberIntergrationTest extends IntegrationTest {
 		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
 
 		RewardsResponse firstContent = responses.get(0);
-		Reward firstReward = loginMemberRewards.get(totalSize - 1);
+		Reward firstReward = rewards.get(totalSize - 1);
 
 		assertThat(responses).isSortedAccordingTo(Comparator.comparing(RewardsResponse::getCreatedDate).reversed());
 
+		assertThat(firstContent.getRewardId()).isEqualTo(firstReward.getRewardId());
 		assertThat(firstContent.getRewardType()).isEqualTo(firstReward.getRewardType());
 		assertThat(firstContent.getRewardPoint()).isEqualTo(firstReward.getRewardPoint());
 	}
@@ -348,7 +344,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 		PageInfo pageInfo = cartsResponse.getPageInfo();
 		List<CartsResponse> responses = cartsResponse.getData();
 
-		int totalSize = loginMemberCarts.size();
+		List<Cart> carts = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getCarts();
+
+		int totalSize = carts.size();
 
 		assertThat(pageInfo.getTotalPage()).isEqualTo((int) Math.ceil(totalSize / 16.0));
 		assertThat(pageInfo.getPage()).isEqualTo(1);
@@ -356,7 +354,7 @@ public class MemberIntergrationTest extends IntegrationTest {
 		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
 
 		CartsResponse firstContent = responses.get(0);
-		Cart firstCart = loginMemberCarts.get(totalSize - 1);
+		Cart firstCart = carts.get(totalSize - 1);
 
 		assertThat(firstContent.getVideoId()).isEqualTo(firstCart.getVideo().getVideoId());
 		assertThat(firstContent.getVideoName()).isEqualTo(firstCart.getVideo().getVideoName());
@@ -402,7 +400,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 		PageInfo pageInfo = ordersResponse.getPageInfo();
 		List<OrdersResponse> responses = ordersResponse.getData();
 
-		int totalSize = loginMemberOrders.size();
+		List<Order> orders = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getOrders();
+
+		int totalSize = orders.size();
 
 		assertThat(pageInfo.getTotalPage()).isEqualTo((int) Math.ceil(totalSize / 4.0));
 		assertThat(pageInfo.getPage()).isEqualTo(1);
@@ -410,7 +410,7 @@ public class MemberIntergrationTest extends IntegrationTest {
 		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
 
 		OrdersResponse firstContent = responses.get(0);
-		Order firstOrder = loginMemberOrders.get(totalSize - 1);
+		Order firstOrder = orders.get(totalSize - 1);
 
 		assertThat(firstContent.getOrderId()).isEqualTo(firstOrder.getOrderId());
 		assertThat(firstContent.getAmount())
@@ -463,7 +463,15 @@ public class MemberIntergrationTest extends IntegrationTest {
 					PageInfo pageInfo = playlistsResponseApiPageResponse.getPageInfo();
 					List<PlaylistsResponse> responses = playlistsResponseApiPageResponse.getData();
 
-					int totalSize = loginMemberPlaylist.size();
+					List<Video> videos = new ArrayList<>();
+
+					memberRepository.findById(loginMember.getMemberId()).orElseThrow().getOrders().forEach(
+						order -> order.getOrderVideos().forEach(orderVideo -> videos.add(orderVideo.getVideo()))
+					);
+
+					videos.sort(Comparator.comparing(Video::getVideoName));
+
+					int totalSize = videos.size();
 
 					assertThat(responses).isSortedAccordingTo(Comparator.comparing(PlaylistsResponse::getVideoName));
 
@@ -471,6 +479,8 @@ public class MemberIntergrationTest extends IntegrationTest {
 					assertThat(pageInfo.getPage()).isEqualTo(1);
 					assertThat(pageInfo.getSize()).isEqualTo(16);
 					assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
+
+					// assertThat(responses.get(0).getVideoId())
 				}
 			),
 			dynamicTest(
