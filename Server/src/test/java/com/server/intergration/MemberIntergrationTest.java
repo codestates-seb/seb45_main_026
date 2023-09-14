@@ -317,7 +317,7 @@ public class MemberIntergrationTest extends IntegrationTest {
 		assertThat(firstContent.getMemberId()).isEqualTo(firstSubscribe.getChannel().getMember().getMemberId());
 		assertThat(firstContent.getChannelName()).isEqualTo(firstSubscribe.getChannel().getChannelName());
 		assertThat(firstContent.getImageUrl()).isEqualTo(getProfileUrl(firstSubscribe.getChannel().getMember()));
-		assertThat(firstContent.getSubscribes()).isEqualTo(1);
+		assertThat(firstContent.getSubscribes()).isEqualTo(firstSubscribe.getChannel().getSubscribers());
 	}
 
 	@Test
@@ -371,7 +371,7 @@ public class MemberIntergrationTest extends IntegrationTest {
 			.isEqualTo(firstCart.getVideo().getChannel().getMember().getMemberId());
 		assertThat(firstContent.getChannel().getChannelName())
 			.isEqualTo(firstCart.getVideo().getChannel().getChannelName());
-		assertThat(firstContent.getChannel().getSubscribes()).isEqualTo(0);
+		assertThat(firstContent.getChannel().getSubscribes()).isEqualTo(firstCart.getVideo().getChannel().getSubscribers());
 		assertThat(firstContent.getChannel().getImageUrl()).isEqualTo(getProfileUrl(firstCart.getVideo().getChannel().getMember()));
 	}
 
@@ -776,7 +776,11 @@ public class MemberIntergrationTest extends IntegrationTest {
 		PageInfo pageInfo = watchsResponses.getPageInfo();
 		List<WatchsResponse> responses = watchsResponses.getData();
 
-		int totalSize = loginMemberWatches.size();
+		Member member = memberRepository.findById(loginMember.getMemberId()).orElseThrow();
+
+		List<Watch> watches = member.getWatches();
+
+		int totalSize = watches.size();
 
 		assertThat(responses).isSortedAccordingTo(Comparator.comparing(WatchsResponse::getModifiedDate).reversed());
 
@@ -786,7 +790,7 @@ public class MemberIntergrationTest extends IntegrationTest {
 		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
 
 		WatchsResponse firstContent = responses.get(0);
-		Watch firstWatch = loginMemberWatches.get(totalSize - 1);
+		Watch firstWatch = watches.get(totalSize - 1);
 
 		assertThat(firstContent.getVideoId()).isEqualTo(firstWatch.getVideo().getVideoId());
 		assertThat(firstContent.getVideoName()).isEqualTo(firstWatch.getVideo().getVideoName());
@@ -827,13 +831,18 @@ public class MemberIntergrationTest extends IntegrationTest {
 		assertThat(member.getNickname()).isEqualTo(nickname.getNickname());
 	}
 
-	@TestFactory
+	@Test
 	@DisplayName("프로필 이미지를 변경한다.")
-	Collection<DynamicTest> updateImage() throws Exception {
+	void updateImage() throws Exception {
+		String change = "newImageName";
 
-		String imageName = "profile20230907140835";
+		Member member = memberRepository.findById(loginMember.getMemberId()).orElseThrow();
+
+		String before = member.getImageFile();
+		String expect = member.getMemberId() + "/profile/" + change;
+
 		MemberApiRequest.Image request = new MemberApiRequest.Image(
-			imageName, ImageType.JPG
+			change, ImageType.JPG
 		);
 
 		String content = objectMapper.writeValueAsString(request);
@@ -845,18 +854,18 @@ public class MemberIntergrationTest extends IntegrationTest {
 				.content(content)
 		);
 
-		return List.of(
-			dynamicTest(
-				"1",
-				() -> {
+		actions
+			.andDo(print())
+			.andExpect(status().isOk());
 
-				}
-			)
-		);
+		String after = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getImageFile();
+
+		assertThat(before).isNotEqualTo(after);
+		assertThat(after).isEqualTo(expect);
 	}
 
 	@TestFactory
-	@DisplayName("비밀번호 변경 시 새 비밀번호를 입력하고 비밀번호를 변경한다.")
+	@DisplayName("비밀번호 변경 테스트")
 	Collection<DynamicTest> updatePassword() throws Exception {
 
 		MemberApiRequest.Password request = new MemberApiRequest.Password(
