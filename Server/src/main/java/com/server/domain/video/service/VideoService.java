@@ -225,7 +225,7 @@ public class VideoService {
 
                     Map<String, String> urls = new HashMap<>();
 
-                    urls.put("thumbnailUrl", getThumbnailUrl(member.getMemberId(), video));
+                    urls.put("thumbnailUrl", getThumbnailUrl(video));
                     urls.put("imageUrl", getImageUrl(member));
 
                     return urls;
@@ -237,24 +237,29 @@ public class VideoService {
 
         Map<String, String> urls = new HashMap<>();
 
-        Member owner = video.getChannel().getMember();
+        Member owner = video.getChannel() == null ? null : video.getChannel().getMember();
 
-        urls.put("videoUrl", getVideoUrl(video, owner));
-        urls.put("thumbnailUrl", getThumbnailUrl(owner.getMemberId(), video));
+        urls.put("videoUrl", getVideoUrl(video));
+        urls.put("thumbnailUrl", getThumbnailUrl(video));
         urls.put("imageUrl", getImageUrl(owner));
 
         return urls;
     }
 
-    private String getVideoUrl(Video video, Member owner) {
+    private String getVideoUrl(Video video) {
         return awsService.getFileUrl(video.getVideoFile(), FileType.VIDEO);
     }
 
     private String getImageUrl(Member member) {
+
+        if(member == null) {
+            return "삭제된 채널";
+        }
+
         return awsService.getFileUrl(member.getImageFile(), FileType.PROFILE_IMAGE);
     }
 
-    private String getThumbnailUrl(Long memberId, Video video) {
+    private String getThumbnailUrl(Video video) {
         return awsService.getFileUrl(video.getThumbnailFile(), FileType.THUMBNAIL);
     }
 

@@ -18,6 +18,16 @@ public class VideoChannelResponse {
     private String imageUrl;
 
     public static VideoChannelResponse of(Channel channel, boolean isSubscribed, String imageUrl) {
+
+        if(channel == null)
+            return VideoChannelResponse.builder()
+                    .memberId(null)
+                    .channelName("삭제된 채널")
+                    .subscribes(0)
+                    .isSubscribed(null)
+                    .imageUrl(null)
+                    .build();
+
         return VideoChannelResponse.builder()
                 .memberId(channel.getMember().getMemberId())
                 .channelName(channel.getChannelName())
