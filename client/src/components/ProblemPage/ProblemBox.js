@@ -49,7 +49,7 @@ const ProblemBox = ({ el }) => {
               key={idx}
               isTrue={
                 (isDisable && isTrue && isAnswer === idx + 1) ||
-                (isDisable && el.questionAnswer === idx + 1)
+                (isDisable && parseInt(el.questionAnswer) === idx + 1)
               }
               isFalse={isDisable && !isTrue && isAnswer === idx + 1}
             >

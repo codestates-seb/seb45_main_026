@@ -39,7 +39,7 @@ const UploadModal = ({
                   onChange={(e) => {
                     handleChangeContent(e, el);
                   }}
-                  checked={isProblem.questionAnswer.includes(el)}
+                  checked={isProblem.questionAnswer === el}
                 />
                 <ListLabel>{el}번 문항</ListLabel>
                 <ListInput

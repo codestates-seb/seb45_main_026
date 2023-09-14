@@ -10,15 +10,18 @@ const Pagination = ({ isPage, isParams, setParams }) => {
 
   return (
     <PageBox>
-      {pageList.map((el) => {
+      {pageList.map((el, idx) => {
         if (el >= 1 && el <= isPage.totalPage) {
           return (
-            <PageBtn onClick={() => setParams({ ...isParams, page: el })}>
+            <PageBtn
+              key={idx}
+              onClick={() => setParams({ ...isParams, page: el })}
+            >
               {el}
             </PageBtn>
           );
         } else {
-          return <NoneBtn />;
+          return <NoneBtn key={idx} />;
         }
       })}
     </PageBox>

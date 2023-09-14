@@ -7,22 +7,34 @@ const ReviewStar = ({ isStar, setStar }) => {
 
   return (
     <StarBox>
-      {reviewStars.map((el) => {
+      {reviewStars.map((el, idx) => {
         if (el % 2 !== 0 && el > isStar.star) {
           return (
-            <StarLeftWhite onClick={() => setStar({ ...isStar, star: el })} />
+            <StarLeftWhite
+              key={idx}
+              onClick={() => setStar({ ...isStar, star: el })}
+            />
           );
         } else if (el % 2 !== 0 && el <= isStar.star) {
           return (
-            <StarLeftYellow onClick={() => setStar({ ...isStar, star: el })} />
+            <StarLeftYellow
+              key={idx}
+              onClick={() => setStar({ ...isStar, star: el })}
+            />
           );
         } else if (el % 2 === 0 && el > isStar.star) {
           return (
-            <StarRightWhite onClick={() => setStar({ ...isStar, star: el })} />
+            <StarRightWhite
+              key={idx}
+              onClick={() => setStar({ ...isStar, star: el })}
+            />
           );
         } else if (el % 2 === 0 && el <= isStar.star) {
           return (
-            <StarRightYellow onClick={() => setStar({ ...isStar, star: el })} />
+            <StarRightYellow
+              key={idx}
+              onClick={() => setStar({ ...isStar, star: el })}
+            />
           );
         }
       })}
