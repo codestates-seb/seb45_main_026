@@ -8,15 +8,12 @@ const globalTokens = tokens.global;
 
 export const RegularTextArea = styled.textarea`
     width: ${ (props)=>props.width };
-    background-color: rgba(255,255,255,0.25);
+    background-color: rgba(255,255,255,0.15);
     padding: ${globalTokens.Spacing8.value}px;
     border-radius: ${globalTokens.RegularRadius.value}px;
-    border: ${globalTokens.ThinHeight.value}px solid ${globalTokens.LightGray.value};
+    border: ${globalTokens.ThinHeight.value}px solid ${props=>props.isDark? globalTokens.Gray.value : globalTokens.LightGray.value};
     font-size: ${globalTokens.BodyText.value}px;
     color: ${(props)=>props.isDark ? globalTokens.White.value : globalTokens.Black.value};
-    &::placeholder {
-        color: ${(props)=>props.isDark? globalTokens.LightGray.value : globalTokens.Gray.value};
-    }
 `
 
 export const Textarea = ({

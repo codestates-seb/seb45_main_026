@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { PageContainer } from '../../atoms/layouts/PageContainer';
 import { useSelector } from 'react-redux';
-import { ContentNothing, RewardContentContainer, RewardMainContainer, RewardTitle } from './RewardPage';
+import { 
+    ContentNothing, 
+    RewardContentContainer, 
+    RewardMainContainer, 
+    RewardTitle } from './RewardPage';
 import RewardCategory from '../../components/rewardPage/RewardCategory';
 import ReceiptItem from '../../components/receiptPage/ReceiptItem';
 import { getReceiptService } from '../../services/receiptServices';
@@ -9,6 +13,7 @@ import { useToken } from '../../hooks/useToken';
 import { useInView } from 'react-intersection-observer';
 import { BottomDiv } from '../../pages/contents/LectureListPage';
 import ReceiptDropdown from '../../components/receiptPage/ReceiptDropdown';
+import ReceiptListHeader from '../../components/receiptPage/ReceiptListHeader';
 
 const ReceiptPage = () => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
@@ -16,6 +21,7 @@ const ReceiptPage = () => {
     const refreshToken = useToken();
     const [ receiptList, setReceiptList ] = useState([]);
     let [ page, setPage ] = useState(1);
+    let [ maxPage, setMaxPage ] = useState(10);
     const [ month, setMonth ] = useState(1);
     const [ loading, setLoading ] = useState(true);
     const [ ref, inView ] = useInView();
@@ -28,6 +34,7 @@ const ReceiptPage = () => {
         ).then((res)=> {
             if(res.status==='success') {
                 setReceiptList(res.data.data);
+                setMaxPage(res.data.pageInfo.totalPage);
                 setLoading(false);
             } else if(res.data==='만료된 토큰입니다.') {
                 refreshToken();
@@ -40,7 +47,6 @@ const ReceiptPage = () => {
     //페이지값이 증가하면 새로운 데이터를 불러옴
     useEffect(()=>{
         if(page>1) {
-            console.log(page)
             getReceiptService(
                 accessToken.authorization, page, 20, month
             ).then((res)=>{
@@ -59,7 +65,7 @@ const ReceiptPage = () => {
 
     //바닥 요소가 보이면 현재 페이지 값을 1 증가
     useEffect(()=>{
-        if(inView) {
+        if(inView && maxPage>page) {
             setLoading(true);
             setPage(page+1);
         }
@@ -75,12 +81,13 @@ const ReceiptPage = () => {
                     <ContentNothing>결제 내역이 없습니다.</ContentNothing> }
                 { receiptList.length>0 && 
                     <ReceiptDropdown category={month} setCategory={setMonth}/> }
+                { receiptList.length>0 && <ReceiptListHeader/> }
                 { receiptList.length>0 && 
                     receiptList.map((e, idx)=>{ 
                         return <ReceiptItem key={e.orderId} item={e} idx={idx}/>})
                 }
                 </RewardContentContainer>
-                { !loading && <BottomDiv ref={ref}>바닥 요소</BottomDiv> }
+                { !loading && <BottomDiv ref={ref}/> }
             </RewardMainContainer>
         </PageContainer>
     );

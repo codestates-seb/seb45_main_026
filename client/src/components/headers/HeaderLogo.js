@@ -5,7 +5,8 @@ import { setIsDark } from '../../redux/createSlice/UISettingSlice'
 import logo from '../../assets/images/logos/logo.png'
 import lightLogo from  '../../assets/images/logos/lightLogo.png'
 import { useLongPress } from '../../hooks/useLongPress';
-import { HeaderLogoContainer, HeaderLogoImg, HeaderLogoTitle } from './HeaderLogo.style';
+import { HeaderLogoContainer, HeaderLogoImg, HeaderLogoTitle, HeaderLogoToggleContainer } from './HeaderLogo.style';
+import Toggle from '../../atoms/buttons/Toggle';
 
 const HeaderLogo = () => {
     const navigate = useNavigate();
@@ -28,10 +29,13 @@ const HeaderLogo = () => {
     const longPressEvent = useLongPress(onLongPress, onClick, defaultOptions);
     
     return (
-        <HeaderLogoContainer {...longPressEvent}>
-            <HeaderLogoTitle isDark={isDark}>IT Prometheus</HeaderLogoTitle>
-            <HeaderLogoImg src={isDark?lightLogo:logo}/>
-        </HeaderLogoContainer>
+        <HeaderLogoToggleContainer>
+            <HeaderLogoContainer {...longPressEvent}>
+                <HeaderLogoTitle isDark={isDark}>IT Prometheus</HeaderLogoTitle>
+                <HeaderLogoImg src={isDark?lightLogo:logo}/>
+            </HeaderLogoContainer>
+            <Toggle/>
+        </HeaderLogoToggleContainer>
     );
 };
 

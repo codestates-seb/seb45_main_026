@@ -5,6 +5,7 @@ import axios from "axios";
 import { useState } from "react";
 import { BodyTextTypo } from "../../atoms/typographys/Typographys";
 import tokens from "../../styles/tokens.json";
+import { RoundButton } from '../../atoms/buttons/Buttons';
 
 const globalTokens = tokens.global;
 
@@ -39,13 +40,14 @@ const ProblemBox = ({ el }) => {
 
   return (
     <>
-      <ProblemTitle>
+      <ProblemTitle isDark={isDark}>
         <ProblemContent isDark={isDark}>{el.content}</ProblemContent>
       </ProblemTitle>
-      <ProblemLists>
+      <ProblemLists isDark={isDark}>
         {el.choice ? (
           el.selections.map((li, idx) => (
             <ProblemList
+              isDark={isDark}
               key={idx}
               isTrue={
                 (isDisable && isTrue && isAnswer === idx + 1) ||
@@ -135,11 +137,11 @@ export const ProblemTitle = styled.div`
   width: 100%;
   margin: 20px 0px;
   padding: 60px 20px;
-  border: 2px solid rgb(236, 236, 236);
+  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
   border-radius: 8px;
 `;
 
-export const ProblemContent = styled.span``;
+export const ProblemContent = styled(BodyTextTypo)``;
 
 export const ProblemLists = styled.ul`
   width: 100%;
@@ -150,14 +152,18 @@ export const ProblemList = styled.li`
   width: 100%;
   margin: 15px 0px;
   padding: 10px 20px;
-  border: 2px solid rgb(236, 236, 236);
-  border-radius: 8px;
+  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+  border-radius: ${globalTokens.RegularRadius.value}px;
   background-color: ${(props) =>
-    props.isTrue
-      ? "rgb(255, 100, 100)"
-      : props.isFalse
-      ? "rgb(100, 100, 255)"
-      : "white"};
+    !props.isTrue && !props.isFalse && props.isDark? 'rgba(255,255,255,0)'
+    : !props.isTrue && !props.isFalse && !props.isDark? globalTokens.White.value
+    : props.isTrue && !props.isFalse && props.isDark? globalTokens.Positive.value
+    : props.isTrue && !props.isFalse && !props.isDark? globalTokens.LightNavy.value
+    : !props.isTrue && props.isFalse && props.isDark ? globalTokens.Negative.value
+    : !props.isTrue && props.isFalse && !props.isDark? globalTokens.LightRed.value
+    : 'rgba(0,0,0,0)'
+  };
+  color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
   display: flex;
   flex-direction: row;
   justify-content: start;
@@ -199,9 +205,12 @@ export const PrevBtn = styled(RegularBtn)`
   left: 3%;
 `;
 export const ConfirmBtn = styled(RegularBtn)`
-  background-color: ${(props) =>
-    props.isOpened ? "rgb(255, 100, 100)" : "white"};
-  color: ${(props) => (props.isOpened ? "white" : globalTokens.Black.value)};
+  background-color: ${ (props) =>
+    props.isOpened && props.isDark? globalTokens.MainRed.value
+    : props.isOpened && !props.isDark? globalTokens.LightRed.value
+    : !props.isOpened && props.isDark? 'rgba(255,255,255,0.15)'
+    : globalTokens.White.value };
+  color: ${(props) => props.isDark? globalTokens.White.value : globalTokens.Black.value};
 `;
 
 export const NextBtn = styled(RegularBtn)`
@@ -210,12 +219,10 @@ export const NextBtn = styled(RegularBtn)`
   right: 3%;
 `;
 
-export const SubmitBtn = styled(RegularBtn)`
+export const SubmitBtn = styled(RoundButton)`
   position: absolute;
   top: 0;
   right: 3%;
-  background-color: rgb(255, 100, 100);
-  color: white;
 `;
 
 export const DiscBox = styled.div`
@@ -231,8 +238,8 @@ export const DiscName = styled(BodyTextTypo)`
   padding-left: 10px;
 `;
 
-export const DiscContent = styled.div`
-  border: 2px solid rgb(236, 236, 236);
+export const DiscContent = styled(BodyTextTypo)`
+  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
   border-radius: 8px;
   margin-top: 10px;
   padding: 20px;
@@ -244,7 +251,7 @@ export const ProblemInputBox = styled.div`
   display: flex;
   justify-content: end;
   align-items: center;
-  font-weight: 600;
+  font-weight: ${globalTokens.Bold.value};
 `;
 
 export const ProblemInput = styled.input`

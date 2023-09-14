@@ -30,6 +30,7 @@ import { useLogout } from "./hooks/useLogout";
 import { useToken } from "./hooks/useToken";
 import RewardPage from "./pages/userInfo/RewardPage";
 import ReceiptPage from "./pages/userInfo/ReceiptPage";
+import WatchedListPage from "./pages/contents/WatchedListPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -107,8 +108,9 @@ function App() {
         <Route path="/videos/:videoId/problems" element={<ProblemPage />} />
         <Route path="/purchased" element={<PurchasedListPage />} />
         <Route path="/channellist" element={<ChannelListPage />} />
-        <Route path="/activity/reward" element={<RewardPage />} />
-        <Route path="activity/receipt" element={<ReceiptPage />} />
+        <Route path="/activity/reward" element={<RewardPage/>}/>
+        <Route path="/activity/receipt" element={<ReceiptPage/>}/>
+        <Route path="/watched" element={<WatchedListPage/>}/>
       </Routes>
       <Footer />
     </BrowserRouter>

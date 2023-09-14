@@ -10,7 +10,8 @@ import { useMatch } from 'react-router-dom';
 const globalTokens = tokens.global;
 
 export const FooterContainer = styled.footer`
-    min-height: 10vh;
+    min-height: 150px;
+    height: 15vh;
     padding: ${globalTokens.Spacing20.value}px;
     background-color: ${globalTokens.DarkGray.value};
     transition: 300ms;
