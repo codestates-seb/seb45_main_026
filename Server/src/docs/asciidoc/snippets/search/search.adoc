@@ -33,7 +33,7 @@ include::{snippets}/search/videosearch/http-response.adoc[]
 ==== Response Fields
 include::{snippets}/search/videosearch/response-fields.adoc[]
 
-== 비디오 검색
+== 채널 검색
 === HTTP Request
 include::{snippets}/search/channelsearch/http-request.adoc[]
 ==== Request Headers

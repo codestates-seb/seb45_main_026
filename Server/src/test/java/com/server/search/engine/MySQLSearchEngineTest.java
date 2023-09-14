@@ -19,11 +19,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.global.testhelper.ServiceTest;
+import com.server.search.engine.dto.ChannelResultResponse;
 import com.server.search.engine.dto.ChannelSearchResponse;
 import com.server.search.engine.dto.VideoChannelSearchResponse;
 import com.server.search.engine.dto.VideoSearchResponse;
@@ -44,7 +48,7 @@ public class MySQLSearchEngineTest extends ServiceTest {
 	private ChannelRepository mockChannelRepository;
 
 	@Test
-	@DisplayName("비디오 검색 테스트")
+	@DisplayName("비디오 및 채널 검색 테스트")
 	void searchVideosAndChannels() {
 		List<Tuple> videoTuple = createVideoTupleList();
 		List<Tuple> channelTuple = createChannelTupleList();
@@ -56,6 +60,21 @@ public class MySQLSearchEngineTest extends ServiceTest {
 
 		assertThat(videoChannelSearchResults.getVideos().size(), equalTo(LIMIT));
 		assertThat(videoChannelSearchResults.getChannels().size(), equalTo(LIMIT));
+	}
+
+	@Test
+	@DisplayName("채널 검색 테스트")
+	void searchChannels() {
+		List<Tuple> channelTuple = createChannelResultTupleList();
+		Page<Tuple> channelPageTuple = new PageImpl<>(channelTuple);
+
+		given(mockChannelRepository.findChannelResultByKeyword(KEYWORD, PageRequest.of(0, 3)))
+			.willReturn(channelPageTuple);
+
+		Page<ChannelResultResponse> channelResultResponses =
+			searchEngine.searchChannelResults(KEYWORD, 1, 3, "default", 1L);
+
+		assertThat(channelResultResponses.getContent().size(), equalTo(3));
 	}
 
 	private List<Tuple> createVideoTupleList() {
@@ -120,6 +139,49 @@ public class MySQLSearchEngineTest extends ServiceTest {
 		String[] allias = new String[]{
 			"channel_name",
 			"member_id",
+			"image_file"
+		};
+
+		List<Tuple> tuples = new ArrayList<>();
+
+		tuples.add((Tuple)queryTupleTransformer.transformTuple(objects1, allias));
+		tuples.add((Tuple)queryTupleTransformer.transformTuple(objects2, allias));
+		tuples.add((Tuple)queryTupleTransformer.transformTuple(objects3, allias));
+
+		return tuples;
+	}
+
+	private List<Tuple> createChannelResultTupleList() {
+
+		Object[] objects1 = new Object[]{
+			new BigInteger("1"),
+			"공부 채널1",
+			"채널 설명",
+			1,
+			"image1"
+		};
+
+		Object[] objects2 = new Object[]{
+			new BigInteger("2"),
+			"공부 채널2",
+			"채널 설명",
+			2,
+			"image2"
+		};
+
+		Object[] objects3 = new Object[]{
+			new BigInteger("3"),
+			"공부 채널3",
+			"채널 설명",
+			3,
+			"image3"
+		};
+
+		String[] allias = new String[]{
+			"channel_id",
+			"channel_name",
+			"description",
+			"subscribers",
 			"image_file"
 		};
 
