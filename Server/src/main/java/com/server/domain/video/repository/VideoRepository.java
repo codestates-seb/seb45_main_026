@@ -17,7 +17,7 @@ public interface VideoRepository extends JpaRepository<Video, Long>, VideoReposi
     List<Video> findAllByVideoIdIn(List<Long> videoIds);
 
     @Modifying
-    @Query("UPDATE Video v SET v.channel = null WHERE v.channel = :channel")
+    @Query("UPDATE Video v SET v.channel = null, v.videoStatus = 'CLOSED' WHERE v.channel = :channel")
     void disconnectVideosFromChannel(@Param("channel") Channel channel);
 
     @Modifying

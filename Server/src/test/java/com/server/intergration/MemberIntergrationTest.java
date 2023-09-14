@@ -658,7 +658,7 @@ public class MemberIntergrationTest extends IntegrationTest {
 
 		assertThat(firstContent.getVideoId()).isEqualTo(firstWatch.getVideo().getVideoId());
 		assertThat(firstContent.getVideoName()).isEqualTo(firstWatch.getVideo().getVideoName());
-		assertThat(firstContent.getThumbnailFile()).isEqualTo(getThumbnailUrl(firstWatch.getVideo()));
+		assertThat(firstContent.getThumbnailUrl()).isEqualTo(getThumbnailUrl(firstWatch.getVideo()));
 		assertThat(firstContent.getModifiedDate()).isNotNull();
 		assertThat(firstContent.getChannel().getMemberId())
 			.isEqualTo(firstWatch.getVideo().getChannel().getMember().getMemberId());
