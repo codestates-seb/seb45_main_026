@@ -223,7 +223,6 @@ class ChannelServiceTest extends ServiceTest {
         assertThat(channelInfo.getSubscribers()).isEqualTo(channel.getSubscribers());
         assertThat(channelInfo.getDescription()).isEqualTo(channel.getDescription());
         assertThat(channelInfo.getImageUrl()).isEqualTo(awsService.getFileUrl(
-                channel.getMember().getMemberId(),
                 member.getImageFile(),
                 FileType.PROFILE_IMAGE
         ));
@@ -357,7 +356,6 @@ class ChannelServiceTest extends ServiceTest {
         assertThat(channelInfo.getDescription()).isEqualTo(channel.getDescription());
         assertThat(channelInfo.getSubscribers()).isEqualTo(channel.getSubscribers());
         assertThat(channelInfo.getImageUrl()).isEqualTo(awsService.getFileUrl(
-                channel.getMember().getMemberId(),
                 member.getImageFile(),
                 FileType.PROFILE_IMAGE
         ));
@@ -511,7 +509,6 @@ class ChannelServiceTest extends ServiceTest {
         assertThat(channelInfo.getDescription()).isEqualTo(channel.getDescription());
         assertThat(channelInfo.getSubscribers()).isEqualTo(channel.getSubscribers());
         assertThat(channelInfo.getImageUrl()).isEqualTo(awsService.getFileUrl(
-                channel.getMember().getMemberId(),
                 member.getImageFile(),
                 FileType.PROFILE_IMAGE
         ));

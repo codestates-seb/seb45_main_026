@@ -112,7 +112,7 @@ public class MemberEntityTest {
 				() -> {
 					member.updateImageFile(imageFile);
 
-					assertThat(member.getImageFile()).isEqualTo(imageFile);
+					assertThat(member.getImageFile()).isEqualTo(member.getMemberId() + "/profile/" + imageFile);
 				}
 			),
 			DynamicTest.dynamicTest(

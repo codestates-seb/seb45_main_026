@@ -2,6 +2,7 @@ package com.server.domain.video.repository;
 
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.repository.dto.VideoGetDataRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -17,7 +18,7 @@ public interface VideoRepository extends JpaRepository<Video, Long>, VideoReposi
     List<Video> findAllByVideoIdIn(List<Long> videoIds);
 
     @Modifying
-    @Query("UPDATE Video v SET v.channel = null WHERE v.channel = :channel")
+    @Query("UPDATE Video v SET v.channel = null, v.videoStatus = 'CLOSED' WHERE v.channel = :channel")
     void disconnectVideosFromChannel(@Param("channel") Channel channel);
 
     @Modifying
@@ -29,4 +30,6 @@ public interface VideoRepository extends JpaRepository<Video, Long>, VideoReposi
         "from video v join channel c on v.channel_id = c.channel_id " +
         "where match(v.video_name) against(?1 in boolean mode) limit ?2", nativeQuery = true)
     List<Tuple> searchVideoByKeyword(String keyword, int limit);
+
+
 }

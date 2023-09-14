@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
-import com.server.auth.oauth.service.OAuthProvider;
 import com.server.domain.category.service.dto.response.CategoryResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
@@ -942,7 +941,10 @@ public class MemberControllerTest extends ControllerTest {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("알고리즘")
-				.thumbnailFile(awsService.getFileUrl(1L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailUrl(awsService.getFileUrl("test22", FileType.PROFILE_IMAGE))
+				.star(7.7F)
+				.price(10000)
+				.isPurchased(true)
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -953,7 +955,10 @@ public class MemberControllerTest extends ControllerTest {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("리액트")
-				.thumbnailFile(awsService.getFileUrl(1L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailUrl(awsService.getFileUrl( "test22", FileType.PROFILE_IMAGE))
+				.star(7.7F)
+				.price(10000)
+				.isPurchased(true)
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -964,7 +969,10 @@ public class MemberControllerTest extends ControllerTest {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("스프링")
-				.thumbnailFile(awsService.getFileUrl(1L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailUrl(awsService.getFileUrl("test22", FileType.PROFILE_IMAGE))
+				.star(7.7F)
+				.price(10000)
+				.isPurchased(true)
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -975,7 +983,10 @@ public class MemberControllerTest extends ControllerTest {
 			WatchsResponse.builder()
 				.videoId(791L)
 				.videoName("자바")
-				.thumbnailFile(awsService.getFileUrl(1L, "test22", FileType.PROFILE_IMAGE))
+				.thumbnailUrl(awsService.getFileUrl( "test22", FileType.PROFILE_IMAGE))
+				.star(7.7F)
+				.price(10000)
+				.isPurchased(false)
 				.modifiedDate(LocalDateTime.now())
 				.channel(WatchsResponse.Channel.builder()
 					.memberId(4325L)
@@ -1005,8 +1016,11 @@ public class MemberControllerTest extends ControllerTest {
 			fieldWithPath("data[]").description("시청 기록"),
 			fieldWithPath("data[].videoId").description("시청한 영상 ID"),
 			fieldWithPath("data[].videoName").description("시청한 영상명"),
-			fieldWithPath("data[].thumbnailFile").description("영상의 썸네일 이미지 주소"),
+			fieldWithPath("data[].thumbnailUrl").description("영상의 썸네일 이미지 주소"),
 			fieldWithPath("data[].modifiedDate").description("영상 시청일"),
+			fieldWithPath("data[].star").description("영상 별점"),
+			fieldWithPath("data[].price").description("영상 가격"),
+			fieldWithPath("data[].isPurchased").description("영상 구매여부"),
 			fieldWithPath("data[].channel").description("영상 업로더의 채널 정보"),
 			fieldWithPath("data[].channel.memberId").description("업로더의 아이디"),
 			fieldWithPath("data[].channel.channelName").description("업로더의 채널명"),

@@ -5,15 +5,11 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.testhelper.RepositoryTest;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class WatchRepositoryTest extends RepositoryTest {
 
@@ -35,7 +31,7 @@ class WatchRepositoryTest extends RepositoryTest {
         em.clear();
 
         // when
-        Watch findWatch = watchRepository.findByMemberAndVideo(loginMember, video).orElseThrow();
+        Watch findWatch = watchRepository.findByMemberAndVideo(loginMember.getMemberId(), video.getVideoId()).orElseThrow();
 
         // then
         assertThat(findWatch.getMember().getMemberId()).isEqualTo(loginMember.getMemberId());

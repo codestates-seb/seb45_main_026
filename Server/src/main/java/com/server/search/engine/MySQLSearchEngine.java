@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Tuple;
 
+import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
+import com.server.domain.video.service.dto.response.VideoPageResponse;
 import org.springframework.stereotype.Service;
 
 import com.server.domain.channel.respository.ChannelRepository;
@@ -44,7 +46,7 @@ public class MySQLSearchEngine implements SearchEngine {
 				.videoId(result.getVideoId())
 				.videoName(result.getVideoName())
 				.thumbnailUrl(
-					getImageUrl(result.getMemberId(), result.getThumbnailFile(), FileType.THUMBNAIL)
+					getImageUrl(result.getThumbnailFile(), FileType.THUMBNAIL)
 				)
 				.build()
 			)
@@ -66,7 +68,7 @@ public class MySQLSearchEngine implements SearchEngine {
 				.memberId(result.getMemberId())
 				.channelName(result.getChannelName())
 				.imageUrl(
-					getImageUrl(result.getMemberId(), result.getImageFile(), FileType.PROFILE_IMAGE)
+					getImageUrl(result.getImageFile(), FileType.PROFILE_IMAGE)
 				)
 				.build()
 			)
@@ -88,7 +90,7 @@ public class MySQLSearchEngine implements SearchEngine {
 			.build();
 	}
 
-	private String getImageUrl(Long memberId, String fileName, FileType fileType) {
-		return awsService.getFileUrl(memberId, fileName, fileType);
+	private String getImageUrl(String fileName, FileType fileType) {
+		return awsService.getFileUrl(fileName, fileType);
 	}
 }

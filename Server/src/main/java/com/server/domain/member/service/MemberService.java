@@ -157,7 +157,11 @@ public class MemberService {
 
 		Page<Watch> watches = memberRepository.findWatchesForMember(member.getMemberId(), pageable, day);
 
-		return converter.convertWatchToWatchResponses(watches);
+		List<Long> videos = watches.getContent().stream().map(watch -> watch.getVideo().getVideoId()).collect(Collectors.toList());
+
+		List<Boolean> isPurchased = memberRepository.checkMemberPurchaseVideos(loginId, videos);
+
+		return converter.convertWatchToWatchResponses(watches, isPurchased);
 	}
 
 	public Page<PlaylistChannelResponse> getChannelForPlaylist(Long loginId, int page, int size) {
@@ -174,7 +178,7 @@ public class MemberService {
 		Page<Video> videos =
 			memberRepository.findPlaylistChannelDetails(loginId, memberId, pageable);
 
-		return converter.convertVideoToPlaylistChannelDetailsResponse(videos, memberId);
+		return converter.convertVideoToPlaylistChannelDetailsResponse(videos);
 	}
 
 	@Transactional
@@ -225,7 +229,7 @@ public class MemberService {
 	public void deleteImage(Long loginId) {
 		Member member = validateMember(loginId);
 
-		awsService.deleteFile(loginId, member.getImageFile(), FileType.PROFILE_IMAGE);
+		awsService.deleteFile(member.getImageFile(), FileType.PROFILE_IMAGE);
 		member.deleteImageFile();
 	}
 
@@ -253,7 +257,6 @@ public class MemberService {
 
 	private String getProfileUrl(Member member) {
 		return awsService.getFileUrl(
-			member.getMemberId(),
 			member.getImageFile(),
 			FileType.PROFILE_IMAGE);
 	}

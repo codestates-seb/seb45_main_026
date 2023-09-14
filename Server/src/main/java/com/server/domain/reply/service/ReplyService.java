@@ -58,7 +58,7 @@ public class ReplyService {
                 : replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
 
         Page<ReplyInfo> replyInfoPage = replies.map(reply -> {
-            String imageUrl = awsService.getFileUrl(reply.getMember().getMemberId(), reply.getMember().getImageFile(), FileType.PROFILE_IMAGE);
+            String imageUrl = awsService.getFileUrl(reply.getMember().getImageFile(), FileType.PROFILE_IMAGE);
             return ReplyInfo.of(reply, imageUrl);
         });
 
@@ -106,7 +106,7 @@ public class ReplyService {
                 .content(reply.getContent())
                 .star(reply.getStar())
                 .member(MemberInfo.of(reply.getMember().getMemberId(),
-                                      awsService.getFileUrl(reply.getMember().getMemberId(), reply.getMember().getImageFile(), FileType.PROFILE_IMAGE),
+                                      awsService.getFileUrl(reply.getMember().getImageFile(), FileType.PROFILE_IMAGE),
                                       reply.getMember().getNickname()))
                 .createdDate(reply.getCreatedDate())
                 .build();
