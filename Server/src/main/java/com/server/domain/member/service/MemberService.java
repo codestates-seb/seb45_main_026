@@ -225,7 +225,7 @@ public class MemberService {
 	public void deleteImage(Long loginId) {
 		Member member = validateMember(loginId);
 
-		awsService.deleteFile(loginId, member.getImageFile(), FileType.PROFILE_IMAGE);
+		awsService.deleteFile(member.getImageFile(), FileType.PROFILE_IMAGE);
 		member.deleteImageFile();
 	}
 
@@ -253,7 +253,6 @@ public class MemberService {
 
 	private String getProfileUrl(Member member) {
 		return awsService.getFileUrl(
-			member.getMemberId(),
 			member.getImageFile(),
 			FileType.PROFILE_IMAGE);
 	}

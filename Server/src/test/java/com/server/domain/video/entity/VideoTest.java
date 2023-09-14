@@ -131,8 +131,8 @@ class VideoTest {
         assertThat(video.getPrice()).isEqualTo(price);
         assertThat(video.getDescription()).isEqualTo(description);
         assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.CREATED);
-        assertThat(video.getThumbnailFile()).isEqualTo(videoId + "/" + video.getVideoName());
-        assertThat(video.getVideoFile()).isEqualTo(videoId + "/" + video.getVideoName());
+        assertThat(video.getThumbnailFile()).isEqualTo(member.getMemberId() + "/videos/" + videoId + "/" + video.getVideoName());
+        assertThat(video.getVideoFile()).isEqualTo(member.getMemberId() + "/videos/" + videoId + "/" + video.getVideoName());
         assertThat(video.getVideoCategories()).hasSize(2)
                 .extracting("category.categoryName")
                 .containsExactlyInAnyOrder("category1", "category2");

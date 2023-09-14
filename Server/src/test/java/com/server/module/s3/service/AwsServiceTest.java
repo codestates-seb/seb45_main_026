@@ -38,10 +38,10 @@
      @DisplayName("path 를 통해 image 의 url 을 가져온다.")
      void getImageUrl() throws Exception {
          //given
-         String fileName = "test";
+         String fileName = mockVideoId + "/profile/test";
 
          //when
-         String imageUrl = awsService.getFileUrl(mockMemberId, fileName, FileType.PROFILE_IMAGE);
+         String imageUrl = awsService.getFileUrl(fileName, FileType.PROFILE_IMAGE);
 
          //then
          System.out.println("imageUrl = " + imageUrl);
@@ -89,7 +89,7 @@
                  }),
                  dynamicTest("filename 으로 해당 이미지를 삭제한다.", ()-> {
                      //when & then
-                     awsService.deleteFile(mockMemberId, fileName, FileType.PROFILE_IMAGE);
+                     awsService.deleteFile(mockMemberId + "/profile/" + fileName, FileType.PROFILE_IMAGE);
 
                  })
          );
@@ -99,10 +99,10 @@
      @DisplayName("path 를 통해 thumbnail 의 Url 을 가져온다.")
      void getThumbnailUrl() throws Exception {
          //given
-         String fileName = mockVideoId + "/testthumbnail";
+         String fileName = mockMemberId + "/videos/" + mockVideoId + "/testthumbnail";
 
          //when
-         String thumbnailUrl = awsService.getFileUrl(mockMemberId, fileName, FileType.THUMBNAIL);
+         String thumbnailUrl = awsService.getFileUrl(fileName, FileType.THUMBNAIL);
 
          //then
          System.out.println("thumbnailUrl = " + thumbnailUrl);
@@ -146,7 +146,7 @@
                  }),
                  dynamicTest("filename 으로 해당 이미지를 삭제한다.", ()-> {
                      //when & then
-                     awsService.deleteFile(mockMemberId, fileName, FileType.THUMBNAIL);
+                     awsService.deleteFile(mockMemberId + "/videos/" + fileName, FileType.THUMBNAIL);
 
                  })
          );
@@ -156,10 +156,10 @@
      @DisplayName("path 를 통해 비디오 url 을 가져온다.")
      void getVideoUrl() throws Exception {
          //given
-         String fileName = mockVideoId + "/test";
+         String fileName = mockMemberId + "/videos/" + mockVideoId + "/test";
 
          //when
-         String videoUrl = awsService.getFileUrl(mockMemberId, fileName, FileType.VIDEO);
+         String videoUrl = awsService.getFileUrl(fileName, FileType.VIDEO);
 
          //then
          System.out.println("videoUrl = " + videoUrl);
@@ -201,7 +201,7 @@
                 }),
                  dynamicTest("memberId 와 filename 으로 해당 파일을 삭제한다.", ()-> {
                          //when & then
-                         awsService.deleteFile(mockMemberId, fileName, FileType.VIDEO);
+                         awsService.deleteFile(mockMemberId + "/videos/" + fileName, FileType.VIDEO);
 
                  })
          );

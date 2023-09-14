@@ -74,7 +74,7 @@ public class MemberServiceTest extends ServiceTest {
 
 		String fileUrl = "www.imageUrl.com";
 
-		given(awsService.getFileUrl(Mockito.anyLong(), Mockito.anyString(), Mockito.any(FileType.class))).willReturn(fileUrl);
+		given(awsService.getFileUrl(Mockito.anyString(), Mockito.any(FileType.class))).willReturn(fileUrl);
 
 		assertThat(memberService.getMember(id).getImageUrl()).isEqualTo(fileUrl);
 	}
@@ -531,7 +531,7 @@ public class MemberServiceTest extends ServiceTest {
 
 		memberService.updateImage(loginId, imageName);
 
-		assertThat(member.getImageFile()).isNotNull().isEqualTo(imageName);
+		assertThat(member.getImageFile()).isNotNull().isEqualTo(member.getMemberId() + "/profile/" + imageName);
 	}
 
 	@Test

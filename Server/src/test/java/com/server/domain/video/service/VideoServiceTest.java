@@ -936,7 +936,7 @@ class VideoServiceTest extends ServiceTest {
     }
 
     void setFileGetUrlSuccess() {
-        given(awsService.getFileUrl(anyLong(), anyString(), any(FileType.class))).willReturn("https://test.com");
+        given(awsService.getFileUrl(anyString(), any(FileType.class))).willReturn("https://test.com");
         given(awsService.getUploadVideoUrl(anyLong(), anyString())).willReturn("https://test.com");
         given(awsService.getImageUploadUrl(anyLong(), anyString(), any(FileType.class), any(ImageType.class))).willReturn("https://test.com");
     }

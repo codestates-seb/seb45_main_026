@@ -48,17 +48,17 @@ public class AwsServiceImpl implements AwsService {
     }
 
     @Override
-    public String getFileUrl(Long memberId, String fileName, FileType fileType) {
+    public String getFileUrl(String path, FileType fileType) {
 
-        if(fileName == null) return null;
+        if(path == null) return null;
 
         if(fileType.isRequiredAuth()) {
             Instant tenSecondsLater = getInstantDuration(300);
 
-            return getFilePresignedUrl(fileType.getLocation(memberId, fileName), tenSecondsLater);
+            return getFilePresignedUrl(fileType.getFullLocation(path), tenSecondsLater);
         }
 
-        return fileType.getLocation(memberId, fileName);
+        return fileType.getFullLocation(path);
     }
 
     @Override
@@ -97,11 +97,11 @@ public class AwsServiceImpl implements AwsService {
     }
 
     @Override
-    public void deleteFile(Long memberId, String fileName, FileType fileType) {
+    public void deleteFile(String fileName, FileType fileType) {
 
         checkValidFile(fileName);
 
-        deleteFile(fileType.s3Location(memberId, fileName));
+        deleteFile(fileType.s3FullLocation(fileName));
     }
 
     @Override

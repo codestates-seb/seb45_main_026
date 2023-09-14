@@ -123,11 +123,13 @@ public class Video extends BaseEntity implements Rewardable {
 
         checkIsUploading();
 
+        String filePath = getMemberId() + "/videos/" + this.videoId + "/" + this.videoName;
+
         this.price = price;
         this.description = description;
         this.videoStatus = VideoStatus.CREATED;
-        this.thumbnailFile = this.videoId + "/" + this.videoName;
-        this.videoFile = this.videoId + "/" + this.videoName;
+        this.thumbnailFile = filePath;
+        this.videoFile = filePath;
 
         this.videoCategories.clear();
         for (Category category : categories) {
