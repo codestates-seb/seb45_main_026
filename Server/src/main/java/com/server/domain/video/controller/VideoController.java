@@ -106,7 +106,7 @@ public class VideoController {
                 .isPurchased(isPurchased)
                 .build();
 
-        Page<VideoPageResponse> videos = videoService.getVideos(loginMemberId, request);
+        Page<VideoPageResponse> videos = videoService.getVideos(request);
 
         return ResponseEntity.ok(ApiPageResponse.ok(videos, "비디오 목록 조회 성공"));
     }
