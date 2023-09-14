@@ -188,13 +188,10 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
         JPAQuery<Order> query = queryFactory
             .selectFrom(order)
-            .leftJoin(order.orderVideos, orderVideo).fetchJoin()
-            .leftJoin(orderVideo.video, video).fetchJoin()
-            .leftJoin(video.channel, channel).fetchJoin()
-            .leftJoin(channel.member, member).fetchJoin()
+            .join(order.member, member)
             .where(
                 order.member.memberId.eq(memberId)
-                .and(order.createdDate.between(startDateTime, endDateTime))
+                    .and(order.createdDate.between(startDateTime, endDateTime))
             )
             .orderBy(order.createdDate.desc(), order.orderId.desc())
             .distinct();

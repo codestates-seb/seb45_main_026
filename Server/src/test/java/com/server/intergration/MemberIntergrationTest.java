@@ -29,10 +29,13 @@ import com.server.domain.member.controller.dto.MemberApiRequest;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.dto.response.CartsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
 import com.server.domain.member.service.dto.response.PlaylistsResponse;
 import com.server.domain.member.service.dto.response.ProfileResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.SubscribesResponse;
+import com.server.domain.member.service.dto.response.WatchsResponse;
 import com.server.domain.order.entity.Order;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
@@ -522,9 +525,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 		);
 	}
 
-	@TestFactory
+	@Test
 	@DisplayName("자신의 구매한 강의 목록을 채널별로 그룹화 해서 조회한다.")
-	Collection<DynamicTest> getPlaylistChannels() throws Exception {
+	void getPlaylistChannels() throws Exception {
 
 		ResultActions actions = mockMvc.perform(
 			get("/members/playlists/channels")
@@ -534,40 +537,94 @@ public class MemberIntergrationTest extends IntegrationTest {
 				.accept(APPLICATION_JSON)
 		);
 
-		return List.of(
-			dynamicTest(
-				"1",
-				() -> {
+		actions
+			.andDo(print())
+			.andExpect(status().isOk());
 
-				}
-			)
-		);
+		ApiPageResponse<PlaylistChannelResponse> playlistsChannelResponseApiPageResponse =
+			getApiPageResponseFromResult(actions, PlaylistChannelResponse.class);
+
+		PageInfo pageInfo = playlistsChannelResponseApiPageResponse.getPageInfo();
+		List<PlaylistChannelResponse> responses = playlistsChannelResponseApiPageResponse.getData();
+
+		List<String> channelName = loginMemberPlaylist.stream()
+			.map(video -> video.getChannel().getChannelName())
+			.distinct()
+			.sorted()
+			.collect(Collectors.toList());
+
+		int totalSize = channelName.size();
+
+		assertThat(responses).isSortedAccordingTo(Comparator.comparing(PlaylistChannelResponse::getChannelName));
+
+		assertThat(pageInfo.getTotalPage()).isEqualTo((int) Math.ceil(totalSize / 16.0));
+		assertThat(pageInfo.getPage()).isEqualTo(1);
+		assertThat(pageInfo.getSize()).isEqualTo(16);
+		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
+
+		assertThat(responses.get(0).getChannelName()).isEqualTo(channelName.get(0));
+		assertThat(responses.get(1).getChannelName()).isEqualTo(channelName.get(1));
+		assertThat(responses.get(2).getChannelName()).isEqualTo(channelName.get(2));
 	}
 
-	@TestFactory
+	@Test
 	@DisplayName("자신의 구매한 강의 목록을 채널별로 상세 조회한다.")
-	Collection<DynamicTest> getPlaylistChannelDetails() throws Exception {
+	void getPlaylistChannelDetails() throws Exception {
+		List<Video> videos = loginMemberPlaylist.stream()
+			.sorted(Comparator.comparing(video -> video.getChannel().getChannelName()))
+			.collect(Collectors.toList());
+
+		Long channelId = videos.get(0).getChannel().getChannelId();
 
 		ResultActions actions = mockMvc.perform(
 			get("/members/playlists/channels/details")
 				.header(AUTHORIZATION, loginMemberAccessToken)
-				.param("member-id","1")
+				.param("page","1")
+				.param("size","16")
+				.param("member-id",channelId + "")
 				.accept(APPLICATION_JSON)
 		);
 
-		return List.of(
-			dynamicTest(
-				"1",
-				() -> {
+		actions
+			.andDo(print())
+			.andExpect(status().isOk());
 
-				}
-			)
-		);
+		ApiPageResponse<PlaylistChannelDetailsResponse> playlistsChannelDetailsResponseApiPageResponse =
+			getApiPageResponseFromResult(actions, PlaylistChannelDetailsResponse.class);
+
+		PageInfo pageInfo = playlistsChannelDetailsResponseApiPageResponse.getPageInfo();
+		List<PlaylistChannelDetailsResponse> responses =
+			playlistsChannelDetailsResponseApiPageResponse.getData();
+
+		List<Video> expect = loginMemberPlaylist.stream()
+			.filter(video -> videos.get(0).getChannel().getChannelName().equals(video.getChannel().getChannelName()))
+			.sorted(Comparator.comparing(Video::getVideoName))
+			.collect(Collectors.toList());
+
+		int totalSize = expect.size();
+
+		assertThat(responses)
+			.isSortedAccordingTo(Comparator.comparing(PlaylistChannelDetailsResponse::getVideoName));
+
+		assertThat(pageInfo.getTotalPage()).isEqualTo((int) Math.ceil(totalSize / 16.0));
+		assertThat(pageInfo.getPage()).isEqualTo(1);
+		assertThat(pageInfo.getSize()).isEqualTo(16);
+		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
+
+		for (int i = 0; i < 5; i++) {
+			assertThat(responses.get(i).getVideoId()).isEqualTo(expect.get(i).getVideoId());
+			assertThat(responses.get(i).getVideoName()).isEqualTo(expect.get(i).getVideoName());
+			assertThat(responses.get(i).getDescription()).isEqualTo(expect.get(i).getDescription());
+			assertThat(responses.get(i).getThumbnailUrl()).isEqualTo(getThumbnailUrl(expect.get(i)));
+			assertThat(responses.get(i).getView()).isEqualTo(expect.get(i).getView());
+			assertThat(responses.get(i).getStar()).isEqualTo(expect.get(i).getStar());
+			assertThat(responses.get(i).getCreatedDate()).isNotNull();
+		}
 	}
 
-	@TestFactory
+	@Test
 	@DisplayName("자신의 시청 기록을 조회한다.")
-	Collection<DynamicTest> getWatchs() throws Exception {
+	void getWatchs() throws Exception {
 
 		ResultActions actions = mockMvc.perform(
 			get("/members/watchs")
@@ -577,19 +634,43 @@ public class MemberIntergrationTest extends IntegrationTest {
 				.param("day", "30")
 		);
 
-		return List.of(
-			dynamicTest(
-				"1",
-				() -> {
+		actions
+			.andDo(print())
+			.andExpect(status().isOk());
 
-				}
-			)
-		);
+		ApiPageResponse<WatchsResponse> watchsResponses =
+			getApiPageResponseFromResult(actions, WatchsResponse.class);
+
+		PageInfo pageInfo = watchsResponses.getPageInfo();
+		List<WatchsResponse> responses = watchsResponses.getData();
+
+		int totalSize = loginMemberWatches.size();
+
+		assertThat(responses).isSortedAccordingTo(Comparator.comparing(WatchsResponse::getModifiedDate).reversed());
+
+		assertThat(pageInfo.getTotalPage()).isEqualTo((int) Math.ceil(totalSize / 16.0));
+		assertThat(pageInfo.getPage()).isEqualTo(1);
+		assertThat(pageInfo.getSize()).isEqualTo(16);
+		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
+
+		WatchsResponse firstContent = responses.get(0);
+		Watch firstWatch = loginMemberWatches.get(totalSize - 1);
+
+		assertThat(firstContent.getVideoId()).isEqualTo(firstWatch.getVideo().getVideoId());
+		assertThat(firstContent.getVideoName()).isEqualTo(firstWatch.getVideo().getVideoName());
+		assertThat(firstContent.getThumbnailFile()).isEqualTo(getThumbnailUrl(firstWatch.getVideo()));
+		assertThat(firstContent.getModifiedDate()).isNotNull();
+		assertThat(firstContent.getChannel().getMemberId())
+			.isEqualTo(firstWatch.getVideo().getChannel().getMember().getMemberId());
+		assertThat(firstContent.getChannel().getChannelName())
+			.isEqualTo(firstWatch.getVideo().getChannel().getChannelName());
+		assertThat(firstContent.getChannel().getImageUrl())
+			.isEqualTo(getProfileUrl(firstWatch.getVideo().getChannel().getMember()));
 	}
 
-	@TestFactory
+	@Test
 	@DisplayName("자신의 닉네임을 변경한다.")
-	Collection<DynamicTest> updateNickname() throws Exception {
+	void updateNickname() throws Exception {
 
 		MemberApiRequest.Nickname nickname = new MemberApiRequest.Nickname("testnickname");
 
@@ -602,14 +683,13 @@ public class MemberIntergrationTest extends IntegrationTest {
 				.content(content)
 		);
 
-		return List.of(
-			dynamicTest(
-				"1",
-				() -> {
+		actions
+			.andDo(print())
+			.andExpect(status().isNoContent());
 
-				}
-			)
-		);
+		Member member = memberRepository.findById(loginMember.getMemberId()).orElseThrow();
+
+		assertThat(member.getNickname()).isEqualTo(nickname.getNickname());
 	}
 
 	@TestFactory
