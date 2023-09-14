@@ -1,10 +1,12 @@
 package com.server.intergration;
 
 import java.io.UnsupportedEncodingException;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import javax.persistence.EntityManager;
 
@@ -65,7 +67,6 @@ import com.server.module.s3.service.dto.FileType;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-// @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class IntegrationTest {
 	// 레포지토리
 	@Autowired protected AnnouncementRepository announcementRepository;
@@ -112,8 +113,6 @@ public class IntegrationTest {
 		watchRepository.flush();
 		rewardRepository.flush();
 		memberRepository.flush();
-		em.flush();
-		em.clear();
 	}
 
 	protected void deleteAll() {
@@ -176,7 +175,7 @@ public class IntegrationTest {
 
 		Member member = Member.builder()
 			.email(email)
-			.nickname("test")
+			.nickname(generateRandomString())
 			.password(passwordEncoder.encode(password))
 			.imageFile("imageFile")
 			.authority(Authority.ROLE_USER)
@@ -188,7 +187,7 @@ public class IntegrationTest {
 	protected Member createMemberWithEmail(String email) {
 		Member member = Member.builder()
 			.email(email)
-			.nickname("test")
+			.nickname(generateRandomString())
 			.password(passwordEncoder.encode("qwer1234!"))
 			.authority(Authority.ROLE_USER)
 			.build();
@@ -199,7 +198,7 @@ public class IntegrationTest {
 	protected Member createAndSaveMemberWithPassword(String password) {
 		Member member = Member.builder()
 			.email("test@email.com")
-			.nickname("test")
+			.nickname(generateRandomString())
 			.password(passwordEncoder.encode(password))
 			.authority(Authority.ROLE_USER)
 			.build();
@@ -211,7 +210,7 @@ public class IntegrationTest {
 		Member member = Member.builder()
 			.email("test@email.com")
 			.password("qwer1234!")
-			.nickname("test")
+			.nickname(generateRandomString())
 			.authority(Authority.ROLE_USER)
 			.reward(reward)
 			.imageFile("imageFile")
@@ -225,7 +224,7 @@ public class IntegrationTest {
 	protected Member createAndSaveMember() {
 		Member member = Member.builder()
 			.email("test@email.com")
-			.nickname("test")
+			.nickname(generateRandomString())
 			.password(passwordEncoder.encode("qwer1234!"))
 			.authority(Authority.ROLE_USER)
 			.build();
@@ -242,14 +241,23 @@ public class IntegrationTest {
 		return channelRepository.save(channel);
 	}
 
+	protected Channel createChannelWithRandomName(Member member) {
+		Channel channel = Channel.builder()
+			.member(member)
+			.channelName(generateRandomString())
+			.build();
+
+		return channelRepository.save(channel);
+	}
+
 	protected Video createAndSavePaidVideo(Channel channel, int price) {
 		Video video = Video.builder()
-			.videoName("videoName")
+			.videoName(generateRandomString())
 			.description("description")
 			.thumbnailFile("thumbnailFile")
 			.videoFile("videoFile")
 			.view(0)
-			.star(0.0F)
+			.star(generateRandomStar())
 			.price(price)
 			.videoCategories(new ArrayList<>())
 			.videoStatus(VideoStatus.CREATED)
@@ -262,12 +270,12 @@ public class IntegrationTest {
 
 	protected Video createAndSaveFreeVideo(Channel channel) {
 		Video video = Video.builder()
-			.videoName("videoName")
+			.videoName(generateRandomString())
 			.description("description")
 			.thumbnailFile("thumbnailFile")
 			.videoFile("videoFile")
 			.view(0)
-			.star(0.0F)
+			.star(generateRandomStar())
 			.price(0)
 			.videoCategories(new ArrayList<>())
 			.videoStatus(VideoStatus.CREATED)
@@ -437,5 +445,23 @@ public class IntegrationTest {
 		JavaType javaType = objectMapper.getTypeFactory().constructParametricType(ApiPageResponse.class, clazz);
 
 		return objectMapper.readValue(contentAsString, javaType);
+	}
+
+	private String generateRandomString() {
+		String characters = "abcdefghijklmnopqrstuvwxyz123456789";
+		StringBuilder randomString = new StringBuilder(10);
+		Random random = new SecureRandom();
+
+		for (int i = 0; i < 10; i++) {
+			int randomIndex = random.nextInt(characters.length());
+			char randomChar = characters.charAt(randomIndex);
+			randomString.append(randomChar);
+		}
+
+		return randomString.toString();
+	}
+
+	private Float generateRandomStar() {
+		return Math.round((0.0f + (10.0f - 0.0f) * new Random().nextFloat()) * 10.0f) / 10.0f;
 	}
 }
