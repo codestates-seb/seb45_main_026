@@ -42,3 +42,4 @@ prometheus.pem
 spy.log
 src/main/resources/static/
 logs/
+hotspot_*.log
