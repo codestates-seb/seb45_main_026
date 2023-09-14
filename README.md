@@ -181,7 +181,7 @@
 
 |강의 목록 페이지|강의 상세 페이지|
 |------|---|
-|<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/ee639775-1105-45ca-b3a8-dadf2ed3f912" width="400px"/>|<img width="400px" alt="스크린샷 2023-09-14 오후 2 53 21" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/ea065f95-f823-45a9-a270-ea4a0b3f6d01">|
+|<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/32fb4636-6503-4a09-8ab1-094b4a6f2e7c" width="400px"/>|<img width="400px" alt="스크린샷 2023-09-14 오후 2 53 21" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/ea065f95-f823-45a9-a270-ea4a0b3f6d01">|
 
 |문제풀기 페이지|장바구니 페이지|
 |------|---|
