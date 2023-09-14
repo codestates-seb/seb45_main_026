@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { HeaderProfileContainer, HeaderProfileImg, HeaderProfileImgContainer, HeaderProfileInfo } from './HeaderProfile.style';
+import { HeaderProfileContainer, HeaderProfileImg, HeaderProfileImgContainer, HeaderProfileInfo, HeaderProfileWrapper } from './HeaderProfile.style';
 import { BodyTextTypo } from '../../atoms/typographys/Typographys';
 import ProfileGray from '../../assets/images/icons/profile/profileGray.svg'
 import { setIsSideBar } from '../../redux/createSlice/UISettingSlice';
@@ -28,20 +28,24 @@ const HeaderProfile = () => {
     }
 
     return (
-        <HeaderProfileContainer 
-            onClick= {handleHeaderProfileClick} 
-            onBlur={handleHeaderProfileBlur}>
-                <HeaderProfileInfo isDark={isDark} onClick={handleRewardClick}>
+        <HeaderProfileWrapper>
+        
+            <HeaderProfileInfo isDark={isDark} onClick={handleRewardClick}>
                     보유 포인트 : {userInfo.reward}p
                 </HeaderProfileInfo>
-                <BodyTextTypo 
+                
+                <HeaderProfileContainer 
+                    onClick= {handleHeaderProfileClick} 
+                    onBlur={handleHeaderProfileBlur}>
+                    <BodyTextTypo 
                     isDark={isDark}>{userInfo.nickname}</BodyTextTypo>
-                <HeaderProfileImgContainer>
-                    <HeaderProfileImg 
-                        src={userInfo.imgUrl!=='프로필 이미지 미등록'?userInfo.imgUrl:ProfileGray}/>
-                </HeaderProfileImgContainer>
+                    <HeaderProfileImgContainer>
+                        <HeaderProfileImg 
+                            src={userInfo.imgUrl!=='프로필 이미지 미등록'?userInfo.imgUrl:ProfileGray}/>
+                    </HeaderProfileImgContainer>
                 <SideBar/>
-        </HeaderProfileContainer>
+            </HeaderProfileContainer>
+        </HeaderProfileWrapper>
     );
 };
 

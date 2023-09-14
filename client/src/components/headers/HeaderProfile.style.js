@@ -3,8 +3,14 @@ import tokens from '../../styles/tokens.json'
 import { TextButton } from '../../atoms/buttons/Buttons';
 const globalTokens = tokens.global;
 
+export const HeaderProfileWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+`
 export const HeaderProfileContainer = styled.button`
-    padding: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing32.value}px;
+    padding: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing32.value}px ${globalTokens.Spacing4.value}px ${globalTokens.Spacing4.value}px;
     display: flex;
     flex-direction: row;
     align-items: center;
