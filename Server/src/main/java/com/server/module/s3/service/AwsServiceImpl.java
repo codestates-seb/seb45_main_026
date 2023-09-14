@@ -7,7 +7,6 @@ import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
 import software.amazon.awssdk.services.cloudfront.model.CustomSignerRequest;
 import software.amazon.awssdk.services.cloudfront.url.SignedUrl;
@@ -55,10 +54,10 @@ public class AwsServiceImpl implements AwsService {
         if(fileType.isRequiredAuth()) {
             Instant tenSecondsLater = getInstantDuration(300);
 
-            return getFilePresignedUrl(fileType.getFullLocation(path), tenSecondsLater);
+            return getFilePresignedUrl(fileType.getCloudFrontFullLocation(path), tenSecondsLater);
         }
 
-        return fileType.getFullLocation(path);
+        return fileType.getCloudFrontFullLocation(path);
     }
 
     @Override
@@ -105,8 +104,8 @@ public class AwsServiceImpl implements AwsService {
     }
 
     @Override
-    public boolean isExistFile(Long memberId, String fileName, FileType fileType) {
-        return isExistFile(fileType.s3Location(memberId, fileName));
+    public boolean isExistFile(String fileName, FileType fileType) {
+        return isExistFile(fileType.s3FullLocation(fileName));
     }
 
     private void checkValidFile(String fileName) {

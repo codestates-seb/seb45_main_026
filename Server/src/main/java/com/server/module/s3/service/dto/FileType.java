@@ -19,7 +19,7 @@ public enum FileType implements BaseEnum {
             (attributes) -> getImageBucketName() + attributes.get(0)),
     VIDEO("video", true,
             (attributes) -> getVideoBucketName() + attributes.get(0) + "/videos/" + attributes.get(1),
-            (attributes) -> getImageCloudFrontUrl() + attributes.get(0),
+            (attributes) -> getVideoCloudFrontUrl() + attributes.get(0),
             (attributes) -> getVideoBucketName() + attributes.get(0)),
             ;
 
@@ -34,7 +34,7 @@ public enum FileType implements BaseEnum {
         return this.s3Url.apply(List.of(String.valueOf(memberId), path));
     }
 
-    public String getFullLocation(String path) {
+    public String getCloudFrontFullLocation(String path) {
         return this.getFullCloudFrontUrl.apply(List.of(path));
     }
 
