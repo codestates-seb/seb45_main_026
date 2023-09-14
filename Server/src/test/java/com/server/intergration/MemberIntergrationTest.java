@@ -483,6 +483,7 @@ public class MemberIntergrationTest extends IntegrationTest {
 					Video firstVideo = videos.get(0);
 
 					assertThat(responses.get(0).getVideoId()).isEqualTo(firstVideo.getVideoId());
+
 				}
 			),
 			dynamicTest(
