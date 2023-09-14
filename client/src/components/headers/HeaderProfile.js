@@ -31,12 +31,11 @@ const HeaderProfile = () => {
         <HeaderProfileContainer 
             onClick= {handleHeaderProfileClick} 
             onBlur={handleHeaderProfileBlur}>
-                
-                <BodyTextTypo 
-                    isDark={isDark}>{userInfo.nickname}</BodyTextTypo>
                 <HeaderProfileInfo isDark={isDark} onClick={handleRewardClick}>
                     보유 포인트 : {userInfo.reward}p
                 </HeaderProfileInfo>
+                <BodyTextTypo 
+                    isDark={isDark}>{userInfo.nickname}</BodyTextTypo>
                 <HeaderProfileImgContainer>
                     <HeaderProfileImg 
                         src={userInfo.imgUrl!=='프로필 이미지 미등록'?userInfo.imgUrl:ProfileGray}/>
