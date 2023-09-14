@@ -8,14 +8,17 @@ import { ReactComponent as StarYellow } from "../../../assets/images/icons/star/
 import ReviewStar from "../../../components/DetailPage/ReviewStar";
 import ReviewList from "../../../components/DetailPage/ReviewList";
 import Pagination from "../../../components/DetailPage/Pagination";
-import tokens from '../../../styles/tokens.json';
-import { BodyTextTypo, Heading5Typo } from "../../../atoms/typographys/Typographys";
+import tokens from "../../../styles/tokens.json";
+import {
+  BodyTextTypo,
+  Heading5Typo,
+} from "../../../atoms/typographys/Typographys";
 import { RegularButton, TextButton } from "../../../atoms/buttons/Buttons";
 
 const globalTokens = tokens.global;
 
 const DetailReview = () => {
-  const isDark = useSelector(state=>state.uiSetting.isDark);
+  const isDark = useSelector((state) => state.uiSetting.isDark);
   const { videoId } = useParams();
   const [isParams, setParams] = useState({
     page: 1,
@@ -103,7 +106,7 @@ const DetailReview = () => {
         <WriteTitle isDark={isDark}>별점을 선택해주세요.</WriteTitle>
         <ReviewStar isDark={isDark} isStar={isReply} setStar={setReply} />
         <ReviewSubmit isDark={isDark}>
-          <ReviewInput 
+          <ReviewInput
             isDark={isDark}
             placeholder="한 줄 감상평을 등록해주세요."
             value={isReply.content}
@@ -169,14 +172,22 @@ const DetailReview = () => {
             )}
           </FilterBtn>
         </FilterBtns>
-
-        <ReviewLists isDark={isDark}>
-          {isReviews.map((el, idx) => (
-            <ReviewList key={idx} el={el} getReview={getReview} />
-          ))}
-        </ReviewLists>
+        {!isReviews.length ? (
+          <ReviewEmpty>현재 리뷰가 없습니다.</ReviewEmpty>
+        ) : (
+          <ReviewLists isDark={isDark}>
+            {isReviews.map((el, idx) => (
+              <ReviewList key={idx} el={el} getReview={getReview} />
+            ))}
+          </ReviewLists>
+        )}
       </Reviews>
-      <Pagination isDark={isDark} isPage={isPage} setParams={setParams} isParams={isParams} />
+      <Pagination
+        isDark={isDark}
+        isPage={isPage}
+        setParams={setParams}
+        isParams={isParams}
+      />
     </ReviewContainer>
   );
 };
@@ -192,12 +203,15 @@ export const ReviewContainer = styled.div`
   align-items: center;
   margin: 20px 0px;
   padding: 5px 20px;
-  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
+  background-color: ${(props) =>
+    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
 `;
 
 export const ReviewTitle = styled(Heading5Typo)`
   width: 100%;
-  border-bottom: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+  border-bottom: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
   font-weight: ${globalTokens.Bold.value};
   padding: 5px;
   margin: 10px 0px;
@@ -211,11 +225,14 @@ export const ReviewForm = styled.form`
   width: 100%;
   padding: 10px;
   border-radius: ${globalTokens.RegularRadius.value}px;
-  background-color: ${props=>props.isDark?globalTokens.Black.value:globalTokens.Background.value};
+  background-color: ${(props) =>
+    props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
 `;
 
 export const ReviewLabel = styled(BodyTextTypo)`
-  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
   border-radius: ${globalTokens.BigRadius.value}px;
   width: 60px;
   height: 30px;
@@ -226,7 +243,6 @@ export const ReviewLabel = styled(BodyTextTypo)`
 
 export const WriteTitle = styled(BodyTextTypo)`
   margin-bottom: 10px;
-
 `;
 
 export const ReviewSubmit = styled.div`
@@ -261,12 +277,17 @@ export const FilterBtns = styled.div`
 export const FilterBtn = styled(TextButton)`
   background: none;
   border-radius: ${globalTokens.RegularRadius.value}px;
-  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
-  background-color: ${(props) => (
-    props.isActive&&props.isDark? globalTokens.Black.value 
-    : props.isActive&&!props.isDark? globalTokens.Background.value
-    : !props.isActive&&props.isDark? 'rgba(0,0,0,0)'
-    : globalTokens.White.value)};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
+  background-color: ${(props) =>
+    props.isActive && props.isDark
+      ? globalTokens.Black.value
+      : props.isActive && !props.isDark
+      ? globalTokens.Background.value
+      : !props.isActive && props.isDark
+      ? "rgba(0,0,0,0)"
+      : globalTokens.White.value};
   padding: 5px 10px;
   margin-left: ${globalTokens.Spacing8.value}px;
   margin-top: ${globalTokens.Spacing20.value}px;
@@ -302,7 +323,7 @@ export const FilterStar = styled.input`
     background: yellow;
     border-radius: 10px;
     box-shadow: 1px 1px 7px yellow;
-    box-shadow: -100vw 0 0 99vw yellow;
+    box-shadow: -100vw 0 0 99.5vw yellow;
   }
 `;
 
@@ -317,4 +338,14 @@ export const ReviewLists = styled.ul`
     grid-template-columns: repeat(2, 50%);
     grid-column-gap: 10px;
   }
+`;
+
+export const ReviewEmpty = styled.div`
+  width: 100%;
+  height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;
