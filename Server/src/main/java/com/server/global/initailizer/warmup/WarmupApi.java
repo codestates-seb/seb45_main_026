@@ -39,6 +39,7 @@ public class WarmupApi implements ApplicationListener<ContextRefreshedEvent> {
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
+
         if (event.getApplicationContext().getParent() == null && !warmupState.isWarmupCompleted()) {
 
             long startTime = System.currentTimeMillis();

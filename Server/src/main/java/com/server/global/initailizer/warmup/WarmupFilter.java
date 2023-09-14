@@ -29,16 +29,16 @@ public class WarmupFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
 
         if (!warmupState.isWarmupCompleted()) {
+
+            HttpServletRequest httpRequest = (HttpServletRequest) request;
 
             if (!isWarmupRequest(httpRequest)) {
 
                 setRejectResponse(response);
                 return;
             }
-
         }
 
         chain.doFilter(request, response);
@@ -52,6 +52,7 @@ public class WarmupFilter implements Filter {
     }
 
     private void setRejectResponse(ServletResponse response) throws IOException {
+
         ApiSingleResponse<String> apiSingleResponse = ApiSingleResponse.of(
                 "warmup",
                 HttpStatus.SERVICE_UNAVAILABLE,
