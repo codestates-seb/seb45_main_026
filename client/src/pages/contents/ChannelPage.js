@@ -46,6 +46,7 @@ export const ImgContainer = styled.div`
     align-items: center;
     overflow: hidden;
     border: 1px solid ${globalTokens.LightGray.value};
+    background-color: ${globalTokens.White.value};
 `
 const InforContainer = styled.div`
     min-height: 130px;

@@ -94,7 +94,7 @@ export const SideBar = () => {
         navigate('/carts');
     }
     const handleSubscribeClick = () => {
-
+        navigate('/channellist')
     }
     const handleWriteClick = () => {
         navigate('/upload/course');
