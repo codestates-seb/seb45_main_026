@@ -27,7 +27,7 @@ public class WarmupApi implements ApplicationListener<ContextRefreshedEvent> {
     private final WarmupState warmupState;
     private final JpaUserDetailsService jpaUserDetailsService;
     private final JwtProvider jwtProvider;
-    private static final int WARMUP_COUNT = 10;
+    private static final int WARMUP_COUNT = 100;
 
     public WarmupApi(RestTemplate restTemplate, WarmupState warmupState,
                      JpaUserDetailsService jpaUserDetailsService, JwtProvider jwtProvider) {
