@@ -171,7 +171,26 @@
    <summary> 서비스 페이지 확인 (👈 Click)</summary>
 <br />
 
-서비스 페이지 캡처 및 설명
+|시작 페이지|로그인 페이지|
+|------|---|
+|<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/b11a0e69-7f69-48e7-b3c7-8c3e462da768" width="400px"/>|<img width="400px" alt="스크린샷 2023-09-14 오후 2 49 40" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/15fabf7d-a5eb-4c09-a043-13b89e0e8e13">|
+
+|회원가입 페이지|비밀번호 찾기 페이지|
+|------|---|
+|<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/b11a0e69-7f69-48e7-b3c7-8c3e462da768" width="400px"/>|<img width="400px" alt="스크린샷 2023-09-14 오후 2 49 40" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/15fabf7d-a5eb-4c09-a043-13b89e0e8e13">|
+
+|강의 목록 페이지|강의 상세 페이지|
+|------|---|
+|<img width="400px" alt="스크린샷 2023-09-14 오후 2 52 43" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/e414b268-a78d-461b-81e1-fda4b641c411">|<img width="400px" alt="스크린샷 2023-09-14 오후 2 53 21" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/ea065f95-f823-45a9-a270-ea4a0b3f6d01">|
+
+|문제풀기 페이지|장바구니 페이지|
+|------|---|
+|<img width="400px" alt="스크린샷 2023-09-14 오후 2 56 37" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/8c59c502-93d7-4ac7-9f97-626dd456002c">|<img width="400px" alt="스크린샷 2023-09-14 오후 2 56 52" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/16ddf6e1-c662-4e11-8653-4c0779d8aa3a">|
+
+|강의 업로드 페이지|문제 업로드 페이지|
+|------|---|
+|아직css..|<img width="400px" alt="스크린샷 2023-09-14 오후 2 58 13" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/b4e2c9e5-c765-45f8-a8f2-556d51785e53">|
+
 
 </details>
 
