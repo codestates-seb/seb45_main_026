@@ -129,7 +129,20 @@ export default function CategoryFilter({ filterNum }) {
         ],
       },
     ];
-    const filters = {filters1,filters2,filters3}
+  const filters4 = [
+      {
+        name: "watchedDate",
+        initialText: "7일간",
+        initialValue: "7",
+        actionName:"setWatchedDate",
+        options: [
+          {text:"7일간", value:"7"},
+          {text:"14일간", value:"14"},
+          {text:"30일간", value:"30"},
+        ]
+      }
+    ]
+    const filters = {filters1,filters2,filters3,filters4}
     return (
         <FilterContainer>
             {filters[filterNum].map((el,idx)=><CategoryButton key={idx} filter={el} />)}

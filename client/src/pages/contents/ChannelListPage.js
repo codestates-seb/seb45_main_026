@@ -23,7 +23,7 @@ const ChannelListContainer = styled(MainContainer)`
     padding: ${globalTokens.Spacing20.value}px;
     gap: ${globalTokens.Spacing28.value}px;
 `
-const ListTitle = styled(HomeTitle)`
+export const ListTitle = styled(HomeTitle)`
   width: 100%;
   font-size: ${globalTokens.Heading5.value}px;
   font-weight: ${globalTokens.Bold.value};
