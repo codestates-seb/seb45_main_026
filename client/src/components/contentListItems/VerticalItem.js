@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components"
 import tokens from "../../styles/tokens.json";
 import Stars from "./Stars";
-import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
+import profileGray from "../../assets/images/icons/profile/profileGray.svg";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -154,7 +154,7 @@ export default function VerticalItem({ lecture ,channel}) {
                 onClick={() => navigate(`/channels/${channel.memberId}`)}
               >
                 <ProfileImg
-                  src={channel.imageUrl ? channel.imageUrl : frofileGray}
+                  src={channel.imageUrl ? channel.imageUrl : profileGray}
                 />
               </ImgContainer>
               <AuthorName

@@ -8,7 +8,7 @@ import ChannelHome from "../../components/contentListItems/ChannelHome";
 import ChannelList from "../../components/contentListItems/ChannelList";
 import ChannelNotice from "../../components/contentListItems/ChannelNotice";
 import axios from "axios";
-import frofileGray from "../../assets/images/icons/profile/profileGray.svg"
+import profileGray from "../../assets/images/icons/profile/profileGray.svg"
 import Setting from '../../components/contentListItems/Setting';
 import { useParams } from "react-router";
 import { BodyTextTypo, Heading5Typo } from "../../atoms/typographys/Typographys";
@@ -105,7 +105,7 @@ export default function ChannelPage() {
                 src={
                   channelInfor.imageUrl
                     ? `${channelInfor.imageUrl}?${new Date().getTime()}`
-                    : frofileGray
+                    : profileGray
                 }
               />
             </ImgContainer>
