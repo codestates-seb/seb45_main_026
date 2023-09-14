@@ -80,7 +80,7 @@ class VideoServiceTest extends ServiceTest {
                     VideoGetServiceRequest request = new VideoGetServiceRequest(loginMember.getMemberId(), 0, 10, null, null, false, null, true);
 
                     //when
-                    Page<VideoPageResponse> videos = videoService.getVideos(loginMember.getMemberId(), request);
+                    Page<VideoPageResponse> videos = videoService.getVideos(request);
 
                     //then
                     assertThat(videos.getContent()).hasSize(6);
@@ -149,7 +149,7 @@ class VideoServiceTest extends ServiceTest {
         em.clear();
 
         //when
-        Page<VideoPageResponse> videos = videoService.getVideos(loginMember.getMemberId(), request);
+        Page<VideoPageResponse> videos = videoService.getVideos(request);
 
         //then
         assertThat(findVideos(videos, video1).getIsInCart()).isTrue();

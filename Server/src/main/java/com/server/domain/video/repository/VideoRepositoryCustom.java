@@ -26,5 +26,7 @@ public interface VideoRepositoryCustom {
 
     Page<Video> findAllByCond(VideoGetDataRequest request);
 
+    Page<Video> findAllByCond(String keyword, VideoGetDataRequest request);
+
     Page<Video> findChannelVideoByCond(ChannelVideoGetDataRequest request);
 }

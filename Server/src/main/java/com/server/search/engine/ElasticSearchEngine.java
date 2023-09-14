@@ -2,6 +2,8 @@ package com.server.search.engine;
 
 import java.util.List;
 
+import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
+import com.server.domain.video.service.dto.response.VideoPageResponse;
 import org.springframework.stereotype.Service;
 
 import com.server.domain.channel.entity.Channel;
