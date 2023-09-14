@@ -86,12 +86,15 @@ spring:
     hibernate:
       ddl-auto: none
     database: mysql
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    properties:
+      hibernate:
+        dialect: com.server.global.dialect.CustomMySQL8Dialect
+
 
 pem:
   location: /prometheus.pem
 
-decorator:
-  datasource:
-    p6spy:
-      enable-logging: false
+#decorator:
+#  datasource:
+#    p6spy:
+#      enable-logging: false

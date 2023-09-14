@@ -217,7 +217,7 @@ class VideoControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses, "비디오 목록 조회 성공"));
 
-        given(videoService.getVideos(anyLong(), any(VideoGetServiceRequest.class)))
+        given(videoService.getVideos(any(VideoGetServiceRequest.class)))
                 .willReturn(pageResponses);
 
         //when
@@ -1045,7 +1045,7 @@ class VideoControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses, "비디오 목록 조회 성공"));
 
-        given(videoService.getVideos(anyLong(), any(VideoGetServiceRequest.class)))
+        given(videoService.getVideos(any(VideoGetServiceRequest.class)))
                 .willReturn(pageResponses);
 
 

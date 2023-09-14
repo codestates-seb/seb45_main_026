@@ -20,3 +20,15 @@ include::{snippets}/search/search/request-parameters.adoc[]
 include::{snippets}/search/search/http-response.adoc[]
 ==== Response Fields
 include::{snippets}/search/search/response-fields.adoc[]
+
+== 비디오 검색
+=== HTTP Request
+include::{snippets}/search/videosearch/http-request.adoc[]
+==== Request Headers
+include::{snippets}/search/videosearch/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/search/videosearch/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/search/videosearch/http-response.adoc[]
+==== Response Fields
+include::{snippets}/search/videosearch/response-fields.adoc[]
