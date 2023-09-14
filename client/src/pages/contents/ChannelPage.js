@@ -13,6 +13,7 @@ import Setting from '../../components/contentListItems/Setting';
 import { useParams } from "react-router";
 import { BodyTextTypo, Heading5Typo } from "../../atoms/typographys/Typographys";
 import { useToken } from "../../hooks/useToken";
+import SubscribeBtn from "../../components/DetailPage/SubscribeBtn";
 
 const globalTokens = tokens.global;
 
@@ -57,9 +58,9 @@ const InforContainer = styled.div`
     gap: ${globalTokens.Spacing8.value}px;
 `
 const ChannelTitle = styled(Heading5Typo)`
-  /* height: 30px;
-  font-size: ${globalTokens.Heading4.value}px;
-  font-weight: ${globalTokens.Bold.value}; */
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 `;
 const ChannelSubscribers = styled(BodyTextTypo)`
   /* height: 20px;
@@ -80,6 +81,7 @@ export default function ChannelPage() {
   const accessToken = useSelector(state=>state.loginInfo.accessToken);
   const [navigate, setNavigate] = useState(0)
   const [channelInfor, setChannelInfor] = useState({})
+  const [isSub,setSub]=useState('')
   const { userId } = useParams();
 
   useEffect(() => {
@@ -95,7 +97,7 @@ export default function ChannelPage() {
           console.log(err.response.data.message);
         }
       });
-  },[accessToken,userId]);
+  },[accessToken,userId,isSub]);
 
     return (
       <PageContainer isDark={isDark}>
@@ -113,6 +115,11 @@ export default function ChannelPage() {
             <InforContainer>
               <ChannelTitle isDark={isDark}>
                 {channelInfor.channelName}
+                <SubscribeBtn
+                  memberId={channelInfor.memberId}
+                  channelInfo={channelInfor}
+                  setSub={setSub}
+                />
               </ChannelTitle>
               <ChannelSubscribers isDark={isDark}>
                 구독자 {channelInfor.subscribers}명
