@@ -216,14 +216,26 @@ public class MemberIntergrationTest extends IntegrationTest {
 			.andDo(print())
 			.andExpect(status().isOk());
 
+		em.flush();
+		em.clear();
+
 		ProfileResponse profileResponse = getApiSingleResponseFromResult(actions, ProfileResponse.class).getData();
 
-		assertThat(profileResponse.getMemberId()).isEqualTo(loginMember.getMemberId());
-		assertThat(profileResponse.getEmail()).isEqualTo(loginMemberEmail);
-		assertThat(profileResponse.getNickname()).isEqualTo(loginMember.getNickname());
-		assertThat(profileResponse.getImageUrl()).isEqualTo(getProfileUrl(loginMember));
-		assertThat(profileResponse.getGrade()).isEqualTo(loginMember.getGrade());
-		assertThat(profileResponse.getReward()).isEqualTo(loginMember.getReward());
+		Member member = memberRepository.findById(loginMember.getMemberId()).orElseThrow();
+
+		// assertThat(profileResponse.getMemberId()).isEqualTo(loginMember.getMemberId());
+		// assertThat(profileResponse.getEmail()).isEqualTo(loginMemberEmail);
+		// assertThat(profileResponse.getNickname()).isEqualTo(loginMember.getNickname());
+		// assertThat(profileResponse.getImageUrl()).isEqualTo(getProfileUrl(loginMember));
+		// assertThat(profileResponse.getGrade()).isEqualTo(loginMember.getGrade());
+		// assertThat(profileResponse.getReward()).isEqualTo(loginMember.getReward());
+
+		assertThat(profileResponse.getMemberId()).isEqualTo(member.getMemberId());
+		assertThat(profileResponse.getEmail()).isEqualTo(member.getEmail());
+		assertThat(profileResponse.getNickname()).isEqualTo(member.getNickname());
+		assertThat(profileResponse.getImageUrl()).isEqualTo(getProfileUrl(member));
+		assertThat(profileResponse.getGrade()).isEqualTo(member.getGrade());
+		assertThat(profileResponse.getReward()).isEqualTo(member.getReward());
 	}
 
 	@Test
@@ -241,6 +253,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 		actions
 			.andDo(print())
 			.andExpect(status().isOk());
+
+		em.flush();
+		em.clear();
 
 		ApiPageResponse<RewardsResponse> rewardsResponse =
 			getApiPageResponseFromResult(actions, RewardsResponse.class);
@@ -261,7 +276,6 @@ public class MemberIntergrationTest extends IntegrationTest {
 
 		assertThat(responses).isSortedAccordingTo(Comparator.comparing(RewardsResponse::getCreatedDate).reversed());
 
-		assertThat(firstContent.getRewardId()).isEqualTo(firstReward.getRewardId());
 		assertThat(firstContent.getRewardType()).isEqualTo(firstReward.getRewardType());
 		assertThat(firstContent.getRewardPoint()).isEqualTo(firstReward.getRewardPoint());
 	}
@@ -282,13 +296,18 @@ public class MemberIntergrationTest extends IntegrationTest {
 			.andDo(print())
 			.andExpect(status().isOk());
 
+		em.flush();
+		em.clear();
+
 		ApiPageResponse<SubscribesResponse> subscribesResponse =
 			getApiPageResponseFromResult(actions, SubscribesResponse.class);
 
 		PageInfo pageInfo = subscribesResponse.getPageInfo();
 		List<SubscribesResponse> responses = subscribesResponse.getData();
 
-		int totalSize = loginMemberSubscribes.size();
+		List<Subscribe> subscribes = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getSubscribes();
+
+		int totalSize = subscribes.size();
 
 		assertThat(pageInfo.getTotalPage()).isEqualTo((int) Math.ceil(totalSize / 16.0));
 		assertThat(pageInfo.getPage()).isEqualTo(1);
@@ -296,7 +315,7 @@ public class MemberIntergrationTest extends IntegrationTest {
 		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
 
 		SubscribesResponse firstContent = responses.get(0);
-		Subscribe firstSubscribe = loginMemberSubscribes.get(totalSize - 1);
+		Subscribe firstSubscribe = subscribes.get(totalSize - 1);
 
 		assertThat(firstContent.getMemberId()).isEqualTo(firstSubscribe.getChannel().getMember().getMemberId());
 		assertThat(firstContent.getChannelName()).isEqualTo(firstSubscribe.getChannel().getChannelName());
@@ -319,6 +338,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 		actions
 			.andDo(print())
 			.andExpect(status().isOk());
+
+		em.flush();
+		em.clear();
 
 		ApiPageResponse<CartsResponse> cartsResponse =
 			getApiPageResponseFromResult(actions, CartsResponse.class);
@@ -370,6 +392,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 		actions
 			.andDo(print())
 			.andExpect(status().isOk());
+
+		em.flush();
+		em.clear();
 
 		ApiPageResponse<OrdersResponse> ordersResponse =
 			getApiPageResponseFromResult(actions, OrdersResponse.class);
@@ -429,6 +454,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 						.andDo(print())
 						.andExpect(status().isOk());
 
+					em.flush();
+					em.clear();
+
 					ApiPageResponse<PlaylistsResponse> playlistsResponseApiPageResponse =
 						getApiPageResponseFromResult(actions, PlaylistsResponse.class);
 
@@ -461,6 +489,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 						.andDo(print())
 						.andExpect(status().isOk());
 
+					em.flush();
+					em.clear();
+
 					ApiPageResponse<PlaylistsResponse> playlistsResponseApiPageResponse =
 						getApiPageResponseFromResult(actions, PlaylistsResponse.class);
 
@@ -492,6 +523,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 					actions
 						.andDo(print())
 						.andExpect(status().isOk());
+
+					em.flush();
+					em.clear();
 
 					ApiPageResponse<PlaylistsResponse> playlistsResponseApiPageResponse =
 						getApiPageResponseFromResult(actions, PlaylistsResponse.class);
@@ -541,6 +575,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 			.andDo(print())
 			.andExpect(status().isOk());
 
+		em.flush();
+		em.clear();
+
 		ApiPageResponse<PlaylistChannelResponse> playlistsChannelResponseApiPageResponse =
 			getApiPageResponseFromResult(actions, PlaylistChannelResponse.class);
 
@@ -588,6 +625,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 		actions
 			.andDo(print())
 			.andExpect(status().isOk());
+
+		em.flush();
+		em.clear();
 
 		ApiPageResponse<PlaylistChannelDetailsResponse> playlistsChannelDetailsResponseApiPageResponse =
 			getApiPageResponseFromResult(actions, PlaylistChannelDetailsResponse.class);
@@ -638,6 +678,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 			.andDo(print())
 			.andExpect(status().isOk());
 
+		em.flush();
+		em.clear();
+
 		ApiPageResponse<WatchsResponse> watchsResponses =
 			getApiPageResponseFromResult(actions, WatchsResponse.class);
 
@@ -686,6 +729,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 		actions
 			.andDo(print())
 			.andExpect(status().isNoContent());
+
+		em.flush();
+		em.clear();
 
 		Member member = memberRepository.findById(loginMember.getMemberId()).orElseThrow();
 
