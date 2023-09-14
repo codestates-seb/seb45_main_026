@@ -8,7 +8,7 @@ import {
   RegularNavyButton,
   NegativeTextButton,
 } from "../../../atoms/buttons/Buttons";
-import { setPrev } from "../../../redux/createSlice/VideoInfoSlice";
+import { setInCart, setPrev } from "../../../redux/createSlice/VideoInfoSlice";
 import { useToken } from "../../../hooks/useToken";
 import tokens from "../../../styles/tokens.json";
 import {
@@ -17,7 +17,8 @@ import {
   SmallTextTypo,
 } from "../../../atoms/typographys/Typographys";
 import profileGray from "../../../assets/images/icons/profile/profileGray.svg";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import ReactPlayer from "react-player";
 
 const globalTokens = tokens.global;
 
@@ -46,13 +47,34 @@ const DetailVideo = () => {
         }
       )
       .then((res) => {
-        console.log(res.data.data);
         if (res.data.code === 200) {
           setChannelInfo(res.data.data);
         }
       })
       .catch((err) => {
         console.log(err);
+      });
+  };
+
+  const handlePurchase = () => {
+    return axios
+      .post(
+        `https://api.itprometheus.net/orders`,
+        { reward: 0, videoIds: [`${videoId}`] },
+        {
+          headers: { Authorization: token.authorization },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        alert("성공적으로 강의가 구매 되었습니다.");
+      })
+      .catch((err) => {
+        if (err.response.data.message === "만료된 토큰입니다.") {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
       });
   };
 
@@ -77,45 +99,59 @@ const DetailVideo = () => {
       });
   };
 
+  const handleNavProblem = () => {
+    if (!videoDatas.isPurchased && myId !== videoDatas.channel.memberId) {
+      alert("강의를 먼저 구매해주세요.");
+    } else {
+      navigate(`/videos/${videoId}/problems`);
+    }
+  };
+
   return (
     <VideoContainer isDark={isDark}>
       <VideoHeader isDark={isDark}>
-        {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
-          <>
-            강의를 다 들었다면?
-            <Link to={`/videos/${videoId}/problems`}>
-              <HeaderBtn isDark={isDark}>문제 풀러가기 →</HeaderBtn>
-            </Link>
-          </>
-        ) : (
-          <>
-            강의를 듣고 싶다면?
-            <HeaderBtn isDark={isDark} onClick={handleCartNav}>
-              구매하러 가기 →
-            </HeaderBtn>
-          </>
-        )}
+        강의를 다 들었다면?
+        <HeaderBtn isDark={isDark} onClick={handleNavProblem}>
+          문제 풀러가기 →
+        </HeaderBtn>
       </VideoHeader>
 
+      {/* <ReactPlayer /> */}
       {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
         <VideoWindow
           src={videoDatas.videoUrl}
-          controls
+          controls={true}
           loop={false}
-          muted
-          autoPlay={false}
+          muted={false}
+          autoPlay={true}
         />
       ) : (
-        <VideoCover>
-          <PrevBtn onClick={() => dispatch(setPrev(true))}>
+        <VideoCover url={videoDatas.thumbnailUrl}>
+          <PrevBtn
+            onClick={() => {
+              dispatch(setPrev(true));
+              setTimeout(() => {
+                dispatch(setPrev(false));
+              }, 60000);
+            }}
+          >
             1분 미리보기
           </PrevBtn>
-          <PurchaseBtn onClick={handleCartNav}>구매하러 가기</PurchaseBtn>
+          <PurchaseBtn
+            onClick={() => {
+              if (videoDatas.price > 0) {
+                handleCartNav();
+              } else {
+                handlePurchase();
+              }
+            }}
+          >
+            강의 구매하기
+          </PurchaseBtn>
         </VideoCover>
       )}
 
       <VideoTitle isDark={isDark}>{videoDatas.videoName}</VideoTitle>
-
       <VideoInfo>
         <Profile>
           <ProfileImg
@@ -133,11 +169,13 @@ const DetailVideo = () => {
           </ProfileRight>
         </Profile>
 
-        <SubscribeBtn
-          memberId={videoDatas.channel.memberId}
-          channelInfo={channelInfo}
-          setSub={setSub}
-        />
+        {myId === videoDatas.channel.memberId || (
+          <SubscribeBtn
+            memberId={videoDatas.channel.memberId}
+            channelInfo={channelInfo}
+            setSub={setSub}
+          />
+        )}
       </VideoInfo>
     </VideoContainer>
   );
@@ -168,14 +206,32 @@ export const VideoCover = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  position: relative;
+
+  &::before {
+    content: "";
+    background-image: ${(props) => props.url && `url(${props.url})`};
+    background-size: cover;
+    /* background-size: contain; */
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.5;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+  }
 `;
 
 export const PrevBtn = styled(RegularRedButton)`
+  z-index: 10;
   margin: 20px;
   padding: 5px 10px;
 `;
 
 export const PurchaseBtn = styled(RegularNavyButton)`
+  z-index: 10;
   margin: 20px;
   padding: 5px 10px;
 `;

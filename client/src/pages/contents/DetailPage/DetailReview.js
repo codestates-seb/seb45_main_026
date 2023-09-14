@@ -17,7 +17,6 @@ const globalTokens = tokens.global;
 const DetailReview = () => {
   const isDark = useSelector(state=>state.uiSetting.isDark);
   const { videoId } = useParams();
-  const token = useSelector((state) => state.loginInfo.accessToken);
   const [isParams, setParams] = useState({
     page: 1,
     size: 8,
@@ -28,9 +27,12 @@ const DetailReview = () => {
     content: "",
     star: 0,
   });
+  const [isActive, setActive] = useState(1);
   const [isReviews, setReviews] = useState([]);
   const [isPage, setPage] = useState({ page: 1, totalPage: 1 });
-  const [isActive, setActive] = useState(1);
+  const myId = useSelector((state) => state.loginInfo.myid);
+  const videoDatas = useSelector((state) => state.videoInfo.data);
+  const token = useSelector((state) => state.loginInfo.accessToken);
 
   const getReview = () => {
     const queryString = new URLSearchParams(isParams).toString();
@@ -49,6 +51,9 @@ const DetailReview = () => {
   };
 
   const postReview = () => {
+    if (myId === videoDatas.channel.memberId) {
+      return alert("내 강의에는 리뷰를 쓸 수 없습니다.");
+    }
     if (!isReply.content) {
       return alert("감상평을 입력해주세요.");
     }
@@ -64,9 +69,13 @@ const DetailReview = () => {
           alert("성공적으로 댓글이 등록되었습니다.");
         }
         setReply({ content: "", star: 0 });
-        window.location.reload();
+        // window.location.reload();
+        getReview();
       })
       .catch((err) => {
+        if (err.response.status === 403) {
+          alert("구매한 강의만 리뷰를 남길 수 있습니다.");
+        }
         if (err.response.status === 404) {
           alert("수강평은 한 번만 작성할 수 있습니다.");
         }
@@ -163,7 +172,7 @@ const DetailReview = () => {
 
         <ReviewLists isDark={isDark}>
           {isReviews.map((el, idx) => (
-            <ReviewList key={idx} el={el} />
+            <ReviewList key={idx} el={el} getReview={getReview} />
           ))}
         </ReviewLists>
       </Reviews>

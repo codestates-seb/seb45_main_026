@@ -20,13 +20,12 @@ const DetailPage = () => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const token = useSelector((state) => state.loginInfo.accessToken);
 
-  useEffect(() => {
-    axios
+  const getVideoInfo = () => {
+    return axios
       .get(`https://api.itprometheus.net/videos/${videoId}`, {
         headers: { Authorization: token.authorization },
       })
       .then((res) => {
-        // console.log(res.data.data)
         dispatch(setVideoInfo(res.data.data));
       })
       .catch((err) => {
@@ -36,13 +35,17 @@ const DetailPage = () => {
           console.log(err);
         }
       });
+  };
+
+  useEffect(() => {
+    getVideoInfo();
   }, [token]);
 
   return (
     <PageContainer isDark={isDark}>
       <DetailContainer>
         <DetailVideo />
-        <DetailContent />
+        <DetailContent getVideoInfo={getVideoInfo}/>
         <DetailReview />
       </DetailContainer>
     </PageContainer>

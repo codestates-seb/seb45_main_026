@@ -1,6 +1,7 @@
-import { styled } from "styled-components";
 import axios from "axios";
+import { useState } from "react";
 import { useSelector } from "react-redux";
+import { styled } from "styled-components";
 import Stars from "../contentListItems/Stars";
 import { useState } from "react";
 import tokens from '../../styles/tokens.json';
@@ -9,7 +10,7 @@ import { BodyTextTypo, SmallTextTypo } from "../../atoms/typographys/Typographys
 
 const globalTokens = tokens.global;
 
-const ReviewList = ({ el }) => {
+const ReviewList = ({ el, getReview }) => {
   const isDark = useSelector(state=>state.uiSetting.isDark);
   const myId = useSelector((state) => state.loginInfo.myid);
   const token = useSelector((state) => state.loginInfo.accessToken);
@@ -27,7 +28,8 @@ const ReviewList = ({ el }) => {
       .then((res) => {
         console.log(res);
         if (res.status === 204) {
-          window.location.reload();
+          // window.location.reload();
+          getReview();
         }
       })
       .catch((err) => console.log(err));
@@ -41,7 +43,8 @@ const ReviewList = ({ el }) => {
       .then((res) => {
         console.log(res);
         if (res.status === 204) {
-          window.location.reload();
+          // window.location.reload();
+          getReview();
         }
       })
       .catch((err) => console.log(err));

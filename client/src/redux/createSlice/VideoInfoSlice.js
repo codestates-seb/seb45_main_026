@@ -7,6 +7,8 @@ const VideoInfoSlice = createSlice({
       videoId: "",
       videoName: "",
       videoUrl: "",
+      thumbnailUrl: "",
+      isInCart: false,
       isPurchased: false,
       views: "",
       description: "",
@@ -32,6 +34,9 @@ const VideoInfoSlice = createSlice({
     setPrev: (state, action) => {
       state.data.isPurchased = action.payload;
     },
+    setInCart: (state, action) => {
+      state.data.isInCart = action.payload;
+    },
     setContnentOpen: (state, action) => {
       state.mode.contentOpend = action.payload;
     },
@@ -39,5 +44,7 @@ const VideoInfoSlice = createSlice({
 });
 
 export default VideoInfoSlice;
-export const { setVideoInfo, setPrev, setContnentOpen } =
+export const { setVideoInfo, setPrev, setInCart, setContnentOpen } =
   VideoInfoSlice.actions;
+
+

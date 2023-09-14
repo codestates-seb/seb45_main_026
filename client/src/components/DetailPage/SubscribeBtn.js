@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { styled } from "styled-components";
-import { useEffect, useState } from "react";
 import tokens from "../../styles/tokens.json";
 import bell from "../../assets/images/icons/bell.svg";
 import { RoundButton } from "../../atoms/buttons/Buttons";
@@ -9,7 +8,6 @@ import { RoundButton } from "../../atoms/buttons/Buttons";
 const SubscribeBtn = ({ memberId, setSub, channelInfo }) => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const token = useSelector((state) => state.loginInfo.accessToken);
-
 
   const handleSubscribe = () => {
     return axios
@@ -30,8 +28,6 @@ const SubscribeBtn = ({ memberId, setSub, channelInfo }) => {
         console.log(err);
       });
   };
-
-
 
   return (
     <>

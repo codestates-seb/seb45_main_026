@@ -1,4 +1,8 @@
+import axios from "axios";
+import { useState } from "react";
+import { useSelector } from "react-redux";
 import { styled } from "styled-components";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setContnentOpen } from "../../../redux/createSlice/VideoInfoSlice";
 import tokens from '../../../styles/tokens.json';
@@ -7,25 +11,74 @@ import { PositiveTextButton, TextButton } from '../../../atoms/buttons/Buttons'
 
 const globalTokens = tokens.global;
 
-const DetailContent = () => {
+const DetailContent = ({ getVideoInfo }) => {
+  const { videoId } = useParams();
+  const myId = useSelector((state) => state.loginInfo.myid);
   const isDark = useSelector(state=>state.uiSetting.isDark);
   const dispatch = useDispatch();
   const videoDatas = useSelector((state) => state.videoInfo.data);
-  const contentOpend = useSelector(
-    (state) => state.videoInfo.mode.contentOpend
-  );
+  const token = useSelector((state) => state.loginInfo.accessToken);
+  const [isEdit, setEdit] = useState(false);
+  const [isIntro, setIntro] = useState({ description: "" });
+
+  const patchIntro = () => {
+    return axios
+      .patch(`https://api.itprometheus.net/videos/${videoId}`, isIntro, {
+        headers: { Authorization: token.authorization },
+      })
+      .then((res) => {
+        console.log(res);
+        getVideoInfo();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handlePatchIntro = (e) => {
+    setIntro({ ...isIntro, description: e.target.value });
+  };
 
   return (
     <ContentInfo isDark={isDark}>
-      <ContentTitle isDark={isDark}>강의 소개</ContentTitle>
-
+      <ContentTitle isDark={isDark}>
+        강의 소개
+        {myId === videoDatas.channel.memberId &&
+          (!isEdit ? (
+            <ContentPatch
+              onClick={() => {
+                setEdit(!isEdit);
+                setIntro({ ...isIntro, description: videoDatas.description });
+              }}
+            >
+              수정하기
+            </ContentPatch>
+          ) : (
+            <ContentPatch
+              onClick={() => {
+                setEdit(!isEdit);
+                patchIntro();
+              }}
+            >
+              저장하기
+            </ContentPatch>
+          ))}
+      </ContentTitle>
       <SubTitle isDark={isDark}>
         <Views isDark={isDark}>조회수 {videoDatas.views}회</Views>
         <Createdate isDark={isDark}>{videoDatas.createdDate.split("T")[0]}</Createdate>
       </SubTitle>
 
-      <Content isDark={isDark} isOpened={contentOpend}>
-        {videoDatas.description || "(강의 소개가 없습니다.)"}
+      <Content isDark={isDark}>
+        {!isEdit ? (
+          videoDatas.description || "(강의 소개가 없습니다.)"
+        ) : (
+          <ContentEdit
+            placeholder="강의 소개가 없습니다."
+            value={isIntro.description}
+            onChange={(e) => handlePatchIntro(e)}
+          />
+        )}
         <Category>
           {videoDatas.categories.map((el) => (
             <CategoryLists key={el.categoryId}>
@@ -34,10 +87,6 @@ const DetailContent = () => {
           ))}
         </Category>
       </Content>
-
-      <ContentBtn isDark={isDark} onClick={() => dispatch(setContnentOpen(!contentOpend))}>
-        {!contentOpend ? "...더보기" : "간략히"}
-      </ContentBtn>
     </ContentInfo>
   );
 };
@@ -56,10 +105,32 @@ export const ContentInfo = styled.div`
 `;
 
 export const ContentTitle = styled(Heading5Typo)`
+  position: relative;
   width: 100%;
   border-bottom: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
   font-weight: ${globalTokens.Bold.value};
   padding: ${globalTokens.Spacing8.value}px;
+`;
+
+export const ContentEdit = styled.textarea`
+  width: 100%;
+  flex-wrap: wrap;
+  margin: 5px 0px;
+  padding: 5px 5px;
+  border: none;
+  background-color: rgb(240, 240, 240);
+
+  &:focus {
+    outline: none;
+  }
+`;
+
+export const ContentPatch = styled.button`
+  position: absolute;
+  top: 20px;
+  right: 2%;
+  color: rgb(260, 100, 120);
+  text-decoration: underline;
 `;
 
 export const SubTitle = styled(SmallTextTypo)`
@@ -80,7 +151,6 @@ export const Createdate = styled(Views)``;
 
 export const Content = styled(BodyTextTypo)`
   width: 100%;
-  height: ${(props) => props.isOpened || "30px"};
   margin-bottom: ${globalTokens.Spacing12.value}px;
   padding: ${globalTokens.Spacing8.value}px 0px 0px ${globalTokens.Spacing8.value}px;
   flex-wrap: wrap;
