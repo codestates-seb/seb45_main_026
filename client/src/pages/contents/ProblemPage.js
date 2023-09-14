@@ -144,7 +144,7 @@ export const HeaderBox = styled.div`
 
 export const LectureBtn = styled.button`
   font-size: ${globalTokens.SmallText.value}px;
-  color: ${globalTokens.Negative.value};
+  color: ${props=>props.isDark?globalTokens.LightRed.value:globalTokens.Negative.value};
   margin: 0px 0px 20px -50px;
 `;
 

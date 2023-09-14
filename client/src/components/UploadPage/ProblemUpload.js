@@ -10,8 +10,13 @@ import {
 import UploadModal from "./Modal/UploadModal";
 import plus_circle from "../../assets/images/icons/plus_circle.svg";
 import { useToken } from "../../hooks/useToken";
+import tokens from '../../styles/tokens.json';
+import { PositiveTextButton, RoundButton, TextButton } from "../../atoms/buttons/Buttons";
+
+const globalTokens = tokens.global;
 
 const ProblemUpload = () => {
+  const isDark = useSelector(state=>state.uiSetting.isDark);
   const { videoId } = useParams();
   const navigate = useNavigate();
   const refreshToken = useToken();
@@ -95,14 +100,14 @@ const ProblemUpload = () => {
   };
 
   return (
-    <QuestionBox>
-      <UploadTitle>문제 등록하기</UploadTitle>
-      <UploadSubtitle>
+    <QuestionBox isDark={isDark}>
+      <UploadTitle isDark={isDark}>문제 등록하기</UploadTitle>
+      <UploadSubtitle isDark={isDark}>
         수강 후 성취도를 검사할 문제를 등록합니다.
       </UploadSubtitle>
-      <AddQuestionBox>
+      <AddQuestionBox isDark={isDark}>
         {isProblemList.map((el, idx) => (
-          <QuestionList key={idx}>
+          <QuestionList isDark={isDark} key={idx}>
             {/* <QuestionNumber>{idx + 1}번 문제</QuestionNumber> */}
             <QuestionTitle>{el.content}</QuestionTitle>
             <QuestionDelete onClick={() => handleDeleteList(idx + 1)}>
@@ -111,17 +116,18 @@ const ProblemUpload = () => {
           </QuestionList>
         ))}
       </AddQuestionBox>
-      <AddQuestionBox>
-        <AddQuestion onClick={() => setModal(!isModal)}>
+      <AddQuestionBox isDark={isDark}>
+        <AddQuestion isDark={isDark} onClick={() => setModal(!isModal)}>
           <AddImg src={plus_circle} alt="문제 등록하기" />
           문제를 등록해 주세요.
         </AddQuestion>
-        <SubmitProblem onClick={() => handleSubmitProblem()}>
+        <SubmitProblem isDark={isDark} onClick={() => handleSubmitProblem()}>
           강의 등록 완료
         </SubmitProblem>
       </AddQuestionBox>
       {isModal && (
         <UploadModal
+          isDark={isDark}
           setModal={setModal}
           isProblem={isProblem}
           setProblem={setProblem}
@@ -182,20 +188,21 @@ export const AddQuestionBox = styled.ul`
 `;
 
 export const AddQuestion = styled.div`
+  margin-top: ${globalTokens.Spacing8.value}px;
   width: 100%;
   max-width: 500px;
   height: 200px;
-  border: 2px solid rgb(236, 236, 236);
-  border-radius: 8px;
-  color: rgb(200, 200, 200);
+  border: 1px solid ${props=>props.isDark? globalTokens.Gray.value : globalTokens.LightGray.value};
+  border-radius: ${globalTokens.RegularRadius.value}px;
+  color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
+  cursor: pointer;
+  transition: 300ms;
   &:hover {
-    border: 2px solid rgb(220, 220, 220);
-    background-color: rgb(236, 236, 236);
+    background-color: ${props=>props.isDark?globalTokens.Black.value:globalTokens.Background.value};
   }
 `;
 
@@ -205,15 +212,9 @@ export const AddImg = styled.img`
   margin-bottom: 10px;
 `;
 
-export const SubmitProblem = styled.button`
-  width: 200px;
-  height: 40px;
+export const SubmitProblem = styled(RoundButton)`
+  width: 180px;
+  height: 45px;
   margin-top: 50px;
-  color: white;
-  font-weight: 600;
-  border-radius: 20px;
-  background-color: rgb(255, 100, 100);
-  &:hover {
-    background-color: rgb(255, 150, 150);
-  }
+  font-weight: ${globalTokens.Bold.value};
 `;
