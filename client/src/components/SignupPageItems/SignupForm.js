@@ -21,10 +21,6 @@ export const SignupForm = () => {
     const [ is이용약관동의요청팝업, setIs이용약관동의요청팝업 ] = useState(false);
     const [ is개인정보동의요청팝업, setIs개인정보동의요청팝업 ] = useState(false);
     const [ is회원가입성공팝업, setIs회원가입성공팝업 ] = useState(false);
-    const agreePrivacyRequiredConfirm = useConfirm('개인정보 처리방침에 동의해 주세요.');
-    const successConfirm = useConfirm('회원가입 성공하였습니다.',
-        ()=>{ navigate('/login'); }, ()=>{} );
-
     const [ isEmailValid, setIsEmailValid ] = useState(false);
     const [ isUseAgree, setIsUseAgree ] = useState(false);
     const [ isPrivacyAgree, setIsPrivacyAgree ] = useState(false);
