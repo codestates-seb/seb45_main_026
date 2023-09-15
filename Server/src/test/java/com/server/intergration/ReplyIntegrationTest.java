@@ -1,32 +1,23 @@
 package com.server.intergration;
 
-import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
-import com.server.domain.channel.service.dto.ChannelUpdate;
 import com.server.domain.member.entity.Member;
-import com.server.domain.order.entity.Order;
-import com.server.domain.question.entity.Question;
 import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.dto.ReplyUpdateControllerApi;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.reward.entity.Reward;
-import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
-import com.server.domain.watch.entity.Watch;
 import com.server.global.reponse.ApiSingleResponse;
-import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.*;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static com.server.auth.util.AuthConstant.AUTHORIZATION;
 import static com.server.auth.util.AuthConstant.BEARER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
@@ -48,7 +39,6 @@ public class ReplyIntegrationTest extends IntegrationTest {
 
     // 다른 사용자들의 정보
     Member otherMember1;
-
     Channel otherMemberChannel1;
 
     List<Video> otherMemberVideos1 = new ArrayList<>();
@@ -64,7 +54,7 @@ public class ReplyIntegrationTest extends IntegrationTest {
         }
 
         loginMember = createAndSaveMemberWithEmailPassword(loginMemberEmail, loginMemberPassword);
-        loginMemberChannel = createChannelWithRandomName(loginMember);
+        loginMemberChannel = createChannel(loginMember);
 
         for (int i = 0; i < 2; i++) {
             loginMemberVideos.add(createAndSaveFreeVideo(loginMemberChannel));
@@ -75,7 +65,7 @@ public class ReplyIntegrationTest extends IntegrationTest {
 
         otherMember1 = createAndSaveMemberWithEmailPassword(otherMemberEmail1, otherMemberPassword);
 
-        otherMemberChannel1 = createChannelWithRandomName(otherMember1);
+        otherMemberChannel1 = createChannel(otherMember1);
 
         for (int i = 0; i < 3; i++) {
             otherMemberVideos1.add(createAndSavePaidVideo(otherMemberChannel1, 10000));
@@ -172,7 +162,6 @@ public class ReplyIntegrationTest extends IntegrationTest {
     @TestFactory
     @DisplayName("댓글을 삭제한다.")
     Collection<DynamicTest> deleteReply() throws Exception {
-        List<DynamicTest> dynamicTests = new ArrayList<>();
 
         return List.of(
                 dynamicTest("로그인한 사용자가 자신의 댓글을 삭제한다.", () -> {
@@ -188,7 +177,8 @@ public class ReplyIntegrationTest extends IntegrationTest {
                             .andDo(print())
                             .andExpect(status().isNoContent());
 
-                    assertThat(replyRepository.findById(reply.getReplyId()).isPresent());
+                    boolean existReply = (replyRepository.findById(reply.getReplyId()).isPresent());
+                    assertThat(existReply).isFalse();
                 }),
 
                 dynamicTest("비로그인 사용자가 댓글 삭제를 시도하면 예외가 발생한다", () -> {
