@@ -134,9 +134,10 @@ public class RewardRepositoryImpl implements RewardRepositoryCustom {
 
         ReplyReward reward = queryFactory.selectFrom(replyReward)
                 .join(replyReward.video, QVideo.video)
+                .join(replyReward.member, QMember.member)
                 .where(QVideo.video.eq(video)
                         .and(QMember.member.eq(member))
-                        .and(questionReward.isCanceled.eq(false)))
+                        .and(replyReward.isCanceled.eq(false)))
                 .fetchOne();
 
         return Optional.ofNullable(reward);

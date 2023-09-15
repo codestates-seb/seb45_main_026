@@ -80,9 +80,8 @@ public class ReplyService {
         existReplies(loginMemberId, videoId);
         evaluateStar(createReply.getStar());
 
-        rewardService.createQuestionRewardsIfNotPresent(video.getQuestions(), findLoginMember);
-
         Reply reply = Reply.newReply(findLoginMember, video, createReply);
+        rewardService.createRewardIfNotPresent(reply, findLoginMember);
 
         replyRepository.save(reply);
 

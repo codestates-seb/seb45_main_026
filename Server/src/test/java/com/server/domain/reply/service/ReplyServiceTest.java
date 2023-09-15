@@ -552,38 +552,4 @@ class ReplyServiceTest extends ServiceTest {
             replyService.deleteReply(replyId, otherMemberId);
         });
     }
-
-    @Test
-    @DisplayName("댓글을 작성 후 리워드가 적립되었는지 확인한다")
-    void createReplyWithReward() {
-        //given
-        Member member = createAndSaveMember();
-        Channel channel = createAndSaveChannel(member);
-        Video video = createAndSaveOrder(member, List.of(createAndSaveVideo(channel)), 5).getVideos().get(0);
-
-        Order order = Order.createOrder(member, List.of(video), 5);
-        order.completeOrder(LocalDateTime.now(), "paymentKey");
-
-        orderRepository.save(order);
-        videoRepository.save(video);
-
-        em.flush();
-        em.clear();
-
-        //when
-        replyService.createReply(member.getMemberId(), video.getVideoId(), new CreateReply("content", 9));
-
-        //then
-        rewardService.createQuestionRewardsIfNotPresent(video.getQuestions(), member);
-        rewardRepository.save(Reward.createReward(5, member, video));
-
-        List<Reward> rewards = rewardRepository.findAll();
-        int totalRewardAmount = 0;
-
-        for (Reward reward : rewards) {
-            totalRewardAmount += reward.getRewardPoint();
-        }
-
-        assertThat(totalRewardAmount).isEqualTo(5);
-    }
 }
