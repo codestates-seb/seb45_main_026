@@ -189,7 +189,17 @@
 
 |강의 업로드 페이지|문제 업로드 페이지|
 |------|---|
-|아직css..|<img width="400px" alt="스크린샷 2023-09-14 오후 2 58 13" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/b4e2c9e5-c765-45f8-a8f2-556d51785e53">|
+|<img width="400px" alt="스크린샷 2023-09-15 오전 10 50 06" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/56c17a36-2b9f-462c-a782-ac39aca70a6c">|<img width="400px" alt="스크린샷 2023-09-14 오후 2 58 13" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/b4e2c9e5-c765-45f8-a8f2-556d51785e53">|
+
+|채널 정보 페이지|구독 목록 페이지|
+|------|---|
+| <img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/642f2c01-7f8a-4fb1-87c1-a20b21a941c7" width="320px"/> | <img alt="스크린샷 2023-09-15 오전 10 54 46" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/78c6d642-8135-4a09-a4f2-994a1ad83db9" width="400px"> |
+
+
+|리워드 조회 페이지|결제 내역 페이지|
+|------|---|
+| ㄴㅇㄹ | ㄴㅇㄹ |
+
 
 
 </details>
