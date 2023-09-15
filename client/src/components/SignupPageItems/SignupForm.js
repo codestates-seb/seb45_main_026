@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { emailValidationConfirmService, emailValidationService, signupService } from '../../services/authServices';
 import { useNavigate } from 'react-router-dom';
-import useConfirm from '../../hooks/useConfirm';
 import { Checkbox } from '../../atoms/buttons/Checkbox';
 import { Input, InputErrorTypo, InputPositiveTypo } from '../../atoms/inputs/Inputs';
 import tokens from '../../styles/tokens.json'
