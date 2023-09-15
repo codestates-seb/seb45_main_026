@@ -244,7 +244,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .orderBy(getSort(request.getSort())) // 정렬 조건
                 .where(
                         videoOwnerIs(request.getMemberId()), // 채널 주인의 비디오만 조회
-                        getCreateVideo(), // 비디오 상태가 CREATED 인 것만 조회
+                        getCreateVideo(request), // 비디오 상태가 CREATED 인 것만 조회, 채널 주인은 비디오가 CLOSED 상태인 것도 조회 가능
                         freeOrPaid(request.getFree()), // 무료 비디오인지 유료 비디오인지 선택
                         whetherIncludePurchased(request) // 구매한 비디오를 포함할지 여부
                 );
@@ -253,7 +253,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .from(video)
                 .where(
                         videoOwnerIs(request.getMemberId()),
-                        getCreateVideo(),
+                        getCreateVideo(request),
                         freeOrPaid(request.getFree()),
                         whetherIncludePurchased(request)
                 );
@@ -310,6 +310,16 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
 
     private BooleanExpression getCreateVideo() {
         return video.videoStatus.eq(VideoStatus.CREATED);
+    }
+
+    private BooleanExpression getCreateVideo(ChannelVideoGetDataRequest request) {
+        BooleanExpression eq = video.videoStatus.eq(VideoStatus.CREATED);
+
+        if(request.getMemberId().equals(request.getLoginMemberId())) {
+            return eq.or(video.videoStatus.eq(VideoStatus.CLOSED));
+        }
+
+        return eq;
     }
 
     private BooleanExpression hasChannel() {
