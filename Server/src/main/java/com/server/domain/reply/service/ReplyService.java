@@ -6,6 +6,7 @@ import com.server.domain.reply.controller.convert.ReplySort;
 import com.server.domain.reply.dto.*;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
+import com.server.domain.reward.service.RewardService;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
@@ -23,6 +24,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Transactional
 @Service
 public class ReplyService {
@@ -31,17 +34,20 @@ public class ReplyService {
     private final MemberRepository memberRepository;
     private final VideoRepository videoRepository;
     private final AwsService awsService;
+    private final RewardService rewardService;
 
 
     public ReplyService(ReplyRepository replyRepository,
                         MemberRepository memberRepository,
                         VideoRepository videoRepository,
-                        AwsService awsService) {
+                        AwsService awsService,
+                        RewardService rewardService) {
 
         this.replyRepository = replyRepository;
         this.memberRepository = memberRepository;
         this.videoRepository = videoRepository;
         this.awsService = awsService;
+        this.rewardService = rewardService;
     }
 
     @Transactional(readOnly = true)
@@ -58,7 +64,7 @@ public class ReplyService {
                 : replyRepository.findAllByVideoIdPaging(videoId, pageRequest);
 
         Page<ReplyInfo> replyInfoPage = replies.map(reply -> {
-            String imageUrl = awsService.getFileUrl(reply.getMember().getMemberId(), reply.getMember().getImageFile(), FileType.PROFILE_IMAGE);
+            String imageUrl = awsService.getFileUrl(reply.getMember().getImageFile(), FileType.PROFILE_IMAGE);
             return ReplyInfo.of(reply, imageUrl);
         });
 
@@ -75,6 +81,7 @@ public class ReplyService {
         evaluateStar(createReply.getStar());
 
         Reply reply = Reply.newReply(findLoginMember, video, createReply);
+        rewardService.createRewardIfNotPresent(reply, findLoginMember);
 
         replyRepository.save(reply);
 
@@ -106,23 +113,23 @@ public class ReplyService {
                 .content(reply.getContent())
                 .star(reply.getStar())
                 .member(MemberInfo.of(reply.getMember().getMemberId(),
-                                      awsService.getFileUrl(reply.getMember().getMemberId(), reply.getMember().getImageFile(), FileType.PROFILE_IMAGE),
+                                      awsService.getFileUrl(reply.getMember().getImageFile(), FileType.PROFILE_IMAGE),
                                       reply.getMember().getNickname()))
                 .createdDate(reply.getCreatedDate())
                 .build();
     }
 
     public void deleteReply(Long replyId, Long loginMemberId) {
-
-        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
+        Reply reply = replyRepository.findByIdWithVideo(replyId).orElseThrow(ReplyNotFoundException::new);
 
         if (!reply.getMember().getMemberId().equals(loginMemberId)) {
             throw new MemberAccessDeniedException();
         }
 
         Video video = reply.getVideo();
-        replyRepository.deleteById(replyId);
-        videoRepository.save(video);
+        video.getReplies().remove(reply);
+
+        replyRepository.delete(reply);
 
         video.calculateStar();
     }

@@ -1,8 +1,10 @@
 package com.server.domain.video.repository;
 
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.order.entity.OrderStatus;
@@ -31,9 +33,11 @@ import static com.server.domain.videoCategory.entity.QVideoCategory.*;
 public class VideoRepositoryImpl implements VideoRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
+    private final EntityManager em;
 
     public VideoRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
+        this.em = em;
     }
 
     @Override
@@ -78,13 +82,12 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
 
     @Override
     public Boolean isPurchased(Long memberId, Long videoId) {
-        Long result = queryFactory.select(video.videoId)
+        Long result = queryFactory.select(orderVideo.orderVideoId)
                 .from(member)
                 .join(member.orders, order)
                 .join(order.orderVideos, orderVideo)
-                .join(orderVideo.video, video)
                 .where(member.memberId.eq(memberId)
-                        .and(video.videoId.eq(videoId)
+                        .and(orderVideo.video.videoId.eq(videoId)
                                 .and(orderVideo.orderStatus.eq(OrderStatus.COMPLETED))
                         )
                 ).fetchOne();
@@ -138,7 +141,9 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .limit(request.getPageable().getPageSize())
                 .orderBy(getSort(request.getSort()))
                 .where(
+                        video.channel.channelId.ne(request.getLoginMemberId()),
                         getCreateVideo(),
+                        hasChannel(),
                         freeOrPaid(request.getFree()),
                         whetherIncludePurchased(request),
                         whetherIncludeOnlySubscribed(request)
@@ -149,7 +154,9 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .from(video)
                 .distinct()
                 .where(
+                        video.channel.channelId.ne(request.getLoginMemberId()),
                         getCreateVideo(),
+                        hasChannel(),
                         freeOrPaid(request.getFree()),
                         whetherIncludePurchased(request),
                         whetherIncludeOnlySubscribed(request)
@@ -171,6 +178,64 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
     }
 
     @Override
+    public Page<Video> findAllByCond(String keyword, VideoGetDataRequest request) {
+
+        JPAQuery<Video> query = queryFactory
+                .selectFrom(video)
+                .distinct()
+                .offset(request.getPageable().getOffset())
+                .limit(request.getPageable().getPageSize())
+                .where(
+                        searchKeyword(keyword),
+                        getCreateVideo(),
+                        hasChannel(),
+                        freeOrPaid(request.getFree()),
+                        whetherIncludePurchased(request),
+                        whetherIncludeOnlySubscribed(request)
+                );
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(video.count())
+                .from(video)
+                .distinct()
+                .where(
+                        searchKeyword(keyword),
+                        getCreateVideo(),
+                        hasChannel(),
+                        freeOrPaid(request.getFree()),
+                        whetherIncludePurchased(request),
+                        whetherIncludeOnlySubscribed(request)
+                );
+
+        if (hasCategory(request.getCategoryName())) {
+            query
+                    .join(video.videoCategories, videoCategory)
+                    .join(videoCategory.category, category)
+                    .where(category.categoryName.eq(request.getCategoryName()));
+
+            countQuery
+                    .join(video.videoCategories, videoCategory)
+                    .join(videoCategory.category, category)
+                    .where(category.categoryName.eq(request.getCategoryName()));
+        }
+
+        if(request.getSort() != null) {
+            query.orderBy(getSort(request.getSort()));
+        }
+
+        return new PageImpl<>(query.fetch(), request.getPageable(), countQuery.fetchOne());
+    }
+
+    private BooleanExpression searchKeyword(String keyword) {
+        if (StringUtils.isBlank(keyword)) {
+            return null;
+        }
+
+        return Expressions.numberTemplate(Double.class,
+                "function('matchVideo', {0}, {1})", video.videoName, keyword).gt(0);
+    }
+
+    @Override
     public Page<Video> findChannelVideoByCond(ChannelVideoGetDataRequest request) {
 
         JPAQuery<Video> query = queryFactory
@@ -181,7 +246,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .orderBy(getSort(request.getSort())) // 정렬 조건
                 .where(
                         videoOwnerIs(request.getMemberId()), // 채널 주인의 비디오만 조회
-                        getCreateVideo(), // 비디오 상태가 CREATED 인 것만 조회
+                        getCreateVideo(request), // 비디오 상태가 CREATED 인 것만 조회, 채널 주인은 비디오가 CLOSED 상태인 것도 조회 가능
                         freeOrPaid(request.getFree()), // 무료 비디오인지 유료 비디오인지 선택
                         whetherIncludePurchased(request) // 구매한 비디오를 포함할지 여부
                 );
@@ -190,7 +255,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .from(video)
                 .where(
                         videoOwnerIs(request.getMemberId()),
-                        getCreateVideo(),
+                        getCreateVideo(request),
                         freeOrPaid(request.getFree()),
                         whetherIncludePurchased(request)
                 );
@@ -209,6 +274,8 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
 
         return new PageImpl<>(query.fetch(), request.getPageable(), countQuery.fetchOne());
     }
+
+
 
     private OrderSpecifier[] getSort(String sort) {
 
@@ -245,6 +312,20 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
 
     private BooleanExpression getCreateVideo() {
         return video.videoStatus.eq(VideoStatus.CREATED);
+    }
+
+    private BooleanExpression getCreateVideo(ChannelVideoGetDataRequest request) {
+        BooleanExpression eq = video.videoStatus.eq(VideoStatus.CREATED);
+
+        if(request.getMemberId().equals(request.getLoginMemberId())) {
+            return eq.or(video.videoStatus.eq(VideoStatus.CLOSED));
+        }
+
+        return eq;
+    }
+
+    private BooleanExpression hasChannel() {
+        return video.channel.channelId.isNotNull();
     }
 
     private BooleanExpression freeOrPaid(Boolean free) {

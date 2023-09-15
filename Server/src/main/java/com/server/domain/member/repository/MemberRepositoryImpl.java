@@ -147,7 +147,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
             .join(subscribe1.channel, channel)
             .join(subscribe1.member, member)
             .where(member.memberId.eq(memberId))
-            .orderBy(subscribe1.createdDate.desc());
+            .orderBy(subscribe1.createdDate.desc(), subscribe1.subscribe.desc());
 
         long totalCount = query.fetchCount();
 
@@ -164,11 +164,11 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
         JPAQuery<Cart> query = queryFactory
             .selectFrom(cart)
-            .leftJoin(cart.video, video).fetchJoin()
-            .leftJoin(video.channel, channel).fetchJoin()
-            .leftJoin(channel.member, member).fetchJoin()
+            .join(cart.video, video).fetchJoin()
+            .join(video.channel, channel).fetchJoin()
+            .join(channel.member, member).fetchJoin()
             .where(cart.member.memberId.eq(memberId))
-            .orderBy(cart.createdDate.desc());
+            .orderBy(cart.createdDate.desc(), cart.cartId.desc());
 
         long totalCount = query.fetchCount();
 
@@ -188,15 +188,12 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
         JPAQuery<Order> query = queryFactory
             .selectFrom(order)
-            .leftJoin(order.orderVideos, orderVideo).fetchJoin()
-            .leftJoin(orderVideo.video, video).fetchJoin()
-            .leftJoin(video.channel, channel).fetchJoin()
-            .leftJoin(channel.member, member).fetchJoin()
+            .join(order.member, member)
             .where(
                 order.member.memberId.eq(memberId)
-                .and(order.createdDate.between(startDateTime, endDateTime))
+                    .and(order.createdDate.between(startDateTime, endDateTime))
             )
-            .orderBy(order.createdDate.desc())
+            .orderBy(order.createdDate.desc(), order.orderId.desc())
             .distinct();
 
         long totalCount = query.fetchCount();
@@ -237,7 +234,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 order.member.memberId.eq(memberId)
                 .and(order.orderStatus.eq(OrderStatus.COMPLETED))
             )
-            .orderBy(orderSpecifier);
+            .orderBy(orderSpecifier, video.videoId.desc());
 
         long totalCount = query.fetchCount();
 
@@ -261,7 +258,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 watch.member.memberId.eq(memberId)
                     .and(watch.modifiedDate.between(startDateTime, endDateTime))
             )
-            .orderBy(watch.modifiedDate.desc());
+            .orderBy(watch.modifiedDate.desc(), watch.watchId.desc());
 
         long totalCount = query.fetchCount();
 
@@ -301,7 +298,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .and(order.orderStatus.eq(OrderStatus.COMPLETED))
             )
             .groupBy(channel.member.memberId)
-            .orderBy(channel.channelName.asc());
+            .orderBy(channel.channelName.asc(), channel.channelId.desc());
 
         long totalCount = query.fetchCount();
 
@@ -313,7 +310,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
         return new PageImpl<>(tuples, pageable, totalCount);
     }
 
-    public Page<Video> findPlaylistChannelDetails(Long loginId, Long memberId) {
+    public Page<Video> findPlaylistChannelDetails(Long loginId, Long memberId, Pageable pageable) {
 
         JPAQuery<Video> query = queryFactory
             .select(video)
@@ -326,11 +323,15 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .and(order.orderStatus.eq(OrderStatus.COMPLETED))
                 .and(video.channel.member.memberId.eq(memberId))
             )
-            .orderBy(video.videoName.asc());
+            .orderBy(video.videoName.asc(), video.videoId.desc());
+
+        long totalCount = query.fetchCount();
 
         List<Video> videos = query
+            .limit(pageable.getPageSize())
+            .offset(pageable.getOffset())
             .fetch();
 
-        return new PageImpl<>(videos);
+        return new PageImpl<>(videos, pageable, totalCount);
     }
 }

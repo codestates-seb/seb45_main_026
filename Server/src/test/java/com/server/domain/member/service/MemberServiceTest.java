@@ -27,6 +27,7 @@ import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.service.dto.request.MemberServiceRequest;
 import com.server.domain.member.service.dto.response.CartsResponse;
+import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.OrdersResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
@@ -73,7 +74,7 @@ public class MemberServiceTest extends ServiceTest {
 
 		String fileUrl = "www.imageUrl.com";
 
-		given(awsService.getFileUrl(Mockito.anyLong(), Mockito.anyString(), Mockito.any(FileType.class))).willReturn(fileUrl);
+		given(awsService.getFileUrl(Mockito.anyString(), Mockito.any(FileType.class))).willReturn(fileUrl);
 
 		assertThat(memberService.getMember(id).getImageUrl()).isEqualTo(fileUrl);
 	}
@@ -268,6 +269,49 @@ public class MemberServiceTest extends ServiceTest {
 
 		assertThat(page.getContent().get(0).getVideoId()).isEqualTo(firstlast.get(1).getVideoId());
 		assertThat(page.getContent().get(9).getVideoId()).isEqualTo(firstlast.get(0).getVideoId());
+	}
+
+	@Test
+	@DisplayName("보관함 목록을 채널별로 그룹화해서 상세 조회한다")
+	void getGroupPlaylistsDetatils() {
+		Member user = createAndSaveMember();
+		Member member1 = createAndSaveMember();
+		Member member2 = createAndSaveMember();
+		Channel channel1 = createAndSaveChannelWithName(member1, "1aaaaaaaaa");
+		Channel channel2 = createAndSaveChannelWithName(member2, "0aaaaaaaa");
+		createAndSaveVideo(channel1);
+		createAndSaveVideo(channel1);
+		createAndSaveVideo(channel1);
+		createAndSaveVideo(channel1);
+		createAndSaveSubscribe(user, channel1);
+
+		for (int x = 1; x < 21; x++) {
+			List<Video> videos = new ArrayList<>();
+
+			Channel channel;
+			Video video;
+
+			Member member = createAndSaveMember();
+			if (x < 5) {
+				video = createAndSaveVideo(channel1);
+			} else if (x > 4 && x < 10) {
+				video = createAndSaveVideo(channel2);
+			} else {
+				channel = createAndSaveChannelWithName(member, generateRandomString());
+				video = createAndSaveVideo(channel);
+			}
+
+			videos.add(video);
+
+			createAndSaveOrderWithPurchaseComplete(user, videos, 0);
+		}
+
+		Page<PlaylistChannelDetailsResponse> responses =
+			memberService.getChannelDetailsForPlaylist(user.getMemberId(), member1.getMemberId(), 1, 2);
+
+		List<PlaylistChannelDetailsResponse> playlistChannelResponses = responses.getContent();
+
+		assertThat(playlistChannelResponses).isSortedAccordingTo(Comparator.comparing(PlaylistChannelDetailsResponse::getCreatedDate).reversed());
 	}
 
 	@Test
@@ -487,7 +531,7 @@ public class MemberServiceTest extends ServiceTest {
 
 		memberService.updateImage(loginId, imageName);
 
-		assertThat(member.getImageFile()).isNotNull().isEqualTo(imageName);
+		assertThat(member.getImageFile()).isNotNull().isEqualTo(member.getMemberId() + "/profile/" + imageName);
 	}
 
 	@Test

@@ -87,6 +87,24 @@ public abstract class RepositoryTest {
         return video;
     }
 
+    protected Video createAndSaveVideo(Channel channel, String videoUrl) {
+        Video video = Video.builder()
+                .videoName("title")
+                .description("description")
+                .thumbnailFile("thumbnailFile")
+                .videoFile(videoUrl)
+                .channel(channel)
+                .view(0)
+                .star(0.0F)
+                .price(1000)
+                .videoStatus(VideoStatus.CREATED)
+                .build();
+
+        em.persist(video);
+
+        return video;
+    }
+
     protected Video createAndSaveVideoWithName(Channel channel, String name) {
         Video video = Video.builder()
             .videoName(name)

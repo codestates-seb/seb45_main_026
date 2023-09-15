@@ -9,6 +9,7 @@ import com.server.domain.reply.dto.ReplyCreateControllerApi;
 import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.video.controller.dto.request.*;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
 import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
@@ -217,7 +218,7 @@ class VideoControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses, "비디오 목록 조회 성공"));
 
-        given(videoService.getVideos(anyLong(), any(VideoGetServiceRequest.class)))
+        given(videoService.getVideos(any(VideoGetServiceRequest.class)))
                 .willReturn(pageResponses);
 
         //when
@@ -325,6 +326,7 @@ class VideoControllerTest extends ControllerTest {
                                 fieldWithPath("data.isPurchased").description("구매 여부"),
                                 fieldWithPath("data.isReplied").description("댓글 여부"),
                                 fieldWithPath("data.isInCart").description("장바구니 추가 여부"),
+                                fieldWithPath("data.videoStatus").description(generateLinkCode(VideoStatus.class)),
                                 fieldWithPath("data.categories").description("카테고리 목록"),
                                 fieldWithPath("data.categories[].categoryId").description("카테고리 ID"),
                                 fieldWithPath("data.categories[].categoryName").description("카테고리 이름"),
@@ -335,6 +337,44 @@ class VideoControllerTest extends ControllerTest {
                                 fieldWithPath("data.channel.isSubscribed").description("채널 구독 여부"),
                                 fieldWithPath("data.channel.imageUrl").description("채널 프로필 이미지 URL"),
                                 fieldWithPath("data.createdDate").description("비디오 생성일")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("비디오 호버링용 url 조회 API")
+    void getVideoUrl() throws Exception {
+        //given
+        Long videoId = 1L;
+
+        VideoUrlResponse response = VideoUrlResponse.builder()
+                .videoUrl("https://s3.ap-northeast-2.amazonaws.com/test/test.mp4")
+                .build();
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(response, "비디오 url 조회 성공"));
+
+        given(videoService.getVideoUrl(anyLong())).willReturn(response);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                get(BASE_URL + "/{video-id}/url", videoId)
+                        .contentType(APPLICATION_JSON)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse));
+
+        //restDocs
+        actions
+                .andDo(documentHandler.document(
+                        pathParameters(
+                                parameterWithName("video-id").description("조회할 비디오 ID")
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("비디오 정보"),
+                                fieldWithPath("data.videoUrl").description("비디오 url")
                         )
                 ));
     }
@@ -597,20 +637,25 @@ class VideoControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("비디오 삭제 API")
-    void deleteVideo() throws Exception {
+    @DisplayName("비디오 폐쇄 API")
+    void changeVideoStatusClose() throws Exception {
         //given
         Long videoId = 1L;
 
+        given(videoService.changeVideoStatus(anyLong(), anyLong())).willReturn(false);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(false, "비디오 폐쇄"));
+
         //when
         ResultActions actions = mockMvc.perform(
-                delete(BASE_URL + "/{videoId}", videoId)
+                patch(BASE_URL + "/{videoId}/status", videoId)
                         .header(AUTHORIZATION, TOKEN)
         );
 
         //then
         actions.andDo(print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse))
         ;
 
         //restdocs
@@ -621,6 +666,47 @@ class VideoControllerTest extends ControllerTest {
                         ),
                         requestHeaders(
                                 headerWithName(AUTHORIZATION).description("Access Token")
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("비디오 폐쇄")
+                        )
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("비디오 오픈 API")
+    void changeVideoStatusCreated() throws Exception {
+        //given
+        Long videoId = 1L;
+
+        given(videoService.changeVideoStatus(anyLong(), anyLong())).willReturn(true);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(true, "비디오 열기"));
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                patch(BASE_URL + "/{videoId}/status", videoId)
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse))
+        ;
+
+        //restdocs
+        actions.andDo(
+                documentHandler.document(
+                        pathParameters(
+                                parameterWithName("videoId").description("삭제할 비디오 ID")
+                        ),
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("Access Token")
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("비디오 열기")
                         )
                 )
         );
@@ -1045,7 +1131,7 @@ class VideoControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses, "비디오 목록 조회 성공"));
 
-        given(videoService.getVideos(anyLong(), any(VideoGetServiceRequest.class)))
+        given(videoService.getVideos(any(VideoGetServiceRequest.class)))
                 .willReturn(pageResponses);
 
 
@@ -1125,6 +1211,34 @@ class VideoControllerTest extends ControllerTest {
                                     .contentType(APPLICATION_JSON)
                                     .accept(APPLICATION_JSON)
                                     .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoId"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongVideoId))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                })
+        );
+    }
+
+    @TestFactory
+    @DisplayName("비디오 호버링용 Url 조회 시 validation 테스트")
+    Collection<DynamicTest> getVideoUrlValidation() {
+        //given
+        Long videoId = 1L;
+
+        return List.of(
+                dynamicTest("videoId 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Long wrongVideoId = 0L;
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL + "/{videoId}/url", wrongVideoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
                     );
 
                     //then
@@ -1464,7 +1578,6 @@ class VideoControllerTest extends ControllerTest {
     Collection<DynamicTest> deleteCartsValidation() {
         //given
 
-
         return List.of(
                 dynamicTest("videoIds 가 Null 이면 검증에 실패한다.", ()-> {
                     //given
@@ -1529,22 +1642,18 @@ class VideoControllerTest extends ControllerTest {
                             .andExpect(jsonPath("$.data[0].value").value("[0, 1]"))
                             .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
                 })
-
-
-
-
         );
     }
 
     @Test
-    @DisplayName("비디오 삭제 시 validation 테스트 - videoId 가 양수가 아니면 검증에 실패한다.")
-    void deleteVideoValidation() throws Exception {
+    @DisplayName("비디오 상태 변경 시 validation 테스트 - videoId 가 양수가 아니면 검증에 실패한다.")
+    void changeVideoStatusValidation() throws Exception {
         //given
         Long wrongVideoId = 0L;
 
         //when
         ResultActions actions = mockMvc.perform(
-                delete(BASE_URL + "/{video-id}", wrongVideoId)
+                patch(BASE_URL + "/{video-id}/status", wrongVideoId)
                         .contentType(APPLICATION_JSON)
                         .header(AUTHORIZATION, TOKEN)
         );

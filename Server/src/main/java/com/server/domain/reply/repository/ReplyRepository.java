@@ -19,6 +19,9 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     @Query("select r from Reply r where r.video.videoId = :videoId")
     Page<Reply> findAllByVideoIdPaging(@Param("videoId") Long videoId, Pageable pageable);
 
+    @Query("select r from Reply r join fetch r.video where r.replyId = :replyId")
+    Optional<Reply> findByIdWithVideo(Long replyId);
+
     @Query("select r from Reply r where r.video.videoId = :videoId and (:star is null or r.star >= :star)")
     Page<Reply> findAllByVideoIdAndStarOrStarIsNull(@Param("videoId") Long videoId, @Param("star") Integer star, Pageable pageable);
 

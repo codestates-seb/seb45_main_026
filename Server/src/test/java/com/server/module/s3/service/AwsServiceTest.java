@@ -38,10 +38,10 @@
      @DisplayName("path 를 통해 image 의 url 을 가져온다.")
      void getImageUrl() throws Exception {
          //given
-         String fileName = "test";
+         String fileName = mockVideoId + "/profile/test";
 
          //when
-         String imageUrl = awsService.getFileUrl(mockMemberId, fileName, FileType.PROFILE_IMAGE);
+         String imageUrl = awsService.getFileUrl(fileName, FileType.PROFILE_IMAGE);
 
          //then
          System.out.println("imageUrl = " + imageUrl);
@@ -89,7 +89,7 @@
                  }),
                  dynamicTest("filename 으로 해당 이미지를 삭제한다.", ()-> {
                      //when & then
-                     awsService.deleteFile(mockMemberId, fileName, FileType.PROFILE_IMAGE);
+                     awsService.deleteFile(mockMemberId + "/profile/" + fileName, FileType.PROFILE_IMAGE);
 
                  })
          );
@@ -99,10 +99,10 @@
      @DisplayName("path 를 통해 thumbnail 의 Url 을 가져온다.")
      void getThumbnailUrl() throws Exception {
          //given
-         String fileName = mockVideoId + "/testthumbnail";
+         String fileName = mockMemberId + "/videos/" + mockVideoId + "/testthumbnail";
 
          //when
-         String thumbnailUrl = awsService.getFileUrl(mockMemberId, fileName, FileType.THUMBNAIL);
+         String thumbnailUrl = awsService.getFileUrl(fileName, FileType.THUMBNAIL);
 
          //then
          System.out.println("thumbnailUrl = " + thumbnailUrl);
@@ -146,7 +146,7 @@
                  }),
                  dynamicTest("filename 으로 해당 이미지를 삭제한다.", ()-> {
                      //when & then
-                     awsService.deleteFile(mockMemberId, fileName, FileType.THUMBNAIL);
+                     awsService.deleteFile(mockMemberId + "/videos/" + fileName, FileType.THUMBNAIL);
 
                  })
          );
@@ -156,10 +156,10 @@
      @DisplayName("path 를 통해 비디오 url 을 가져온다.")
      void getVideoUrl() throws Exception {
          //given
-         String fileName = mockVideoId + "/test";
+         String fileName = mockMemberId + "/videos/" + mockVideoId + "/test";
 
          //when
-         String videoUrl = awsService.getFileUrl(mockMemberId, fileName, FileType.VIDEO);
+         String videoUrl = awsService.getFileUrl(fileName, FileType.VIDEO);
 
          //then
          System.out.println("videoUrl = " + videoUrl);
@@ -201,7 +201,7 @@
                 }),
                  dynamicTest("memberId 와 filename 으로 해당 파일을 삭제한다.", ()-> {
                          //when & then
-                         awsService.deleteFile(mockMemberId, fileName, FileType.VIDEO);
+                         awsService.deleteFile(mockMemberId + "/videos/" + fileName, FileType.VIDEO);
 
                  })
          );
@@ -211,10 +211,10 @@
      @DisplayName("path 를 통해 해당 이미지 파일이 존재하는지 확인한다. 존재하면 true 를 반환한다.")
      void isExistFileImageTrue() {
          //given
-         String imageName = "test";
+         String imageName = mockMemberId + "/profile/test";
 
          //when
-         boolean isExist = awsService.isExistFile(mockMemberId, imageName, FileType.PROFILE_IMAGE);
+         boolean isExist = awsService.isExistFile(imageName, FileType.PROFILE_IMAGE);
 
          //then
          assertThat(isExist).isTrue();
@@ -224,10 +224,10 @@
      @DisplayName("path 를 통해 해당 이미지 파일이 존재하는지 확인한다. 존재하지 않으면 false 를 반환한다.")
      void isExistFileImageFalse() {
          //given
-         String imageName = "testNoExist";
+         String imageName = mockMemberId + "/profile/testNotExist";
 
          //when
-         boolean isExist = awsService.isExistFile(mockMemberId, imageName, FileType.PROFILE_IMAGE);
+         boolean isExist = awsService.isExistFile(imageName, FileType.PROFILE_IMAGE);
 
          //then
          assertThat(isExist).isFalse();
@@ -237,10 +237,10 @@
      @DisplayName("path 를 통해 해당 썸네일 파일이 존재하는지 확인한다. 존재하면 true 를 반환한다.")
      void isExistFileThumbnailTrue() {
          //given
-         String thumbnailName = mockVideoId + "/testthumbnail";
+         String thumbnailName = mockMemberId + "/videos/" + mockVideoId + "/testthumbnail";
 
          //when
-         boolean isExist = awsService.isExistFile(mockMemberId, thumbnailName, FileType.THUMBNAIL);
+         boolean isExist = awsService.isExistFile(thumbnailName, FileType.THUMBNAIL);
 
          //then
          assertThat(isExist).isTrue();
@@ -250,10 +250,10 @@
      @DisplayName("path 를 통해 해당 썸네일 파일이 존재하는지 확인한다. 존재하지 않으면 false 를 반환한다.")
      void isExistFileThumbnailFalse() {
          //given
-         String thumbnailName = mockVideoId + "/testthumbnailNotExist";
+         String thumbnailName = mockMemberId + "/videos/" + mockVideoId + "/testthumbnailNotExist";
 
          //when
-         boolean isExist = awsService.isExistFile(mockMemberId, thumbnailName, FileType.THUMBNAIL);
+         boolean isExist = awsService.isExistFile(thumbnailName, FileType.THUMBNAIL);
 
          //then
          assertThat(isExist).isFalse();
@@ -263,10 +263,10 @@
      @DisplayName("path 를 통해 해당 비디오 파일이 존재하는지 확인한다. 존재하면 true 를 반환한다.")
      void isExistFileVideoTrue() {
          //given
-         String videoName = mockVideoId + "/test";
+         String videoName = mockMemberId + "/videos/" + mockVideoId + "/test";
 
          //when
-         boolean isExist = awsService.isExistFile(mockMemberId, videoName, FileType.VIDEO);
+         boolean isExist = awsService.isExistFile(videoName, FileType.VIDEO);
 
          //then
          assertThat(isExist).isTrue();
@@ -276,10 +276,10 @@
      @DisplayName("path 를 통해 해당 비디오 파일이 존재하는지 확인한다. 존재하지 않으면 false 를 반환한다.")
      void isExistFileVideoFalse() {
          //given
-         String videoName = mockVideoId + "/testNotExist";
+         String videoName = mockMemberId + "/videos/" + mockVideoId + "/testNotExist";
 
          //when
-         boolean isExist = awsService.isExistFile(mockMemberId, videoName, FileType.VIDEO);
+         boolean isExist = awsService.isExistFile(videoName, FileType.VIDEO);
 
          //then
          assertThat(isExist).isFalse();

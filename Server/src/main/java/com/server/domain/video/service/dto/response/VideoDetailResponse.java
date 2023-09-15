@@ -1,6 +1,7 @@
 package com.server.domain.video.service.dto.response;
 
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.entity.VideoStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +27,7 @@ public class VideoDetailResponse {
     private Boolean isReplied;
     private Boolean isPurchased;
     private Boolean isInCart;
+    private VideoStatus videoStatus;
     private List<VideoCategoryResponse> categories;
     private VideoChannelResponse channel;
     private LocalDateTime createdDate;
@@ -49,6 +51,7 @@ public class VideoDetailResponse {
                 .isPurchased(isPurchased)
                 .isReplied(isReplied)
                 .isInCart(isInCart)
+                .videoStatus(video.getVideoStatus())
                 .categories(VideoCategoryResponse.of(video.getVideoCategories()))
                 .channel(VideoChannelResponse.of(video.getChannel(), subscribed, urlMap.get("imageUrl")))
                 .createdDate(video.getCreatedDate())

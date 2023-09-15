@@ -20,6 +20,7 @@ import com.server.domain.announcement.controller.AnnouncementController;
 import com.server.domain.announcement.service.AnnouncementService;
 import com.server.domain.category.controller.CategoryController;
 import com.server.domain.category.service.CategoryService;
+import com.server.global.initailizer.warmup.WarmupState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -119,6 +120,8 @@ public class ControllerTest {
 	@MockBean
 	@Qualifier("mysql")
 	protected SearchEngine searchEngine;
+	@MockBean
+	protected WarmupState warmupState;
 
 	// 컨트롤러 테스트에 필요한 것들
 	@Autowired

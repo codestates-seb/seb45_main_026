@@ -12,6 +12,7 @@ public class PlaylistsResponse {
 	private String videoName;
 	private String thumbnailUrl;
 	private Float star;
+	private LocalDateTime createdDate;
 	private LocalDateTime modifiedDate;
 	private Channel channel;
 

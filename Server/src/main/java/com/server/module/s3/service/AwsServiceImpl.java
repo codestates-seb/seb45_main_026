@@ -7,7 +7,6 @@ import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
 import software.amazon.awssdk.services.cloudfront.model.CustomSignerRequest;
 import software.amazon.awssdk.services.cloudfront.url.SignedUrl;
@@ -48,17 +47,17 @@ public class AwsServiceImpl implements AwsService {
     }
 
     @Override
-    public String getFileUrl(Long memberId, String fileName, FileType fileType) {
+    public String getFileUrl(String path, FileType fileType) {
 
-        if(fileName == null) return null;
+        if(path == null) return null;
 
         if(fileType.isRequiredAuth()) {
             Instant tenSecondsLater = getInstantDuration(300);
 
-            return getFilePresignedUrl(fileType.getLocation(memberId, fileName), tenSecondsLater);
+            return getFilePresignedUrl(fileType.getCloudFrontFullLocation(path), tenSecondsLater);
         }
 
-        return fileType.getLocation(memberId, fileName);
+        return fileType.getCloudFrontFullLocation(path);
     }
 
     @Override
@@ -97,16 +96,16 @@ public class AwsServiceImpl implements AwsService {
     }
 
     @Override
-    public void deleteFile(Long memberId, String fileName, FileType fileType) {
+    public void deleteFile(String fileName, FileType fileType) {
 
         checkValidFile(fileName);
 
-        deleteFile(fileType.s3Location(memberId, fileName));
+        deleteFile(fileType.s3FullLocation(fileName));
     }
 
     @Override
-    public boolean isExistFile(Long memberId, String fileName, FileType fileType) {
-        return isExistFile(fileType.s3Location(memberId, fileName));
+    public boolean isExistFile(String fileName, FileType fileType) {
+        return isExistFile(fileType.s3FullLocation(fileName));
     }
 
     private void checkValidFile(String fileName) {

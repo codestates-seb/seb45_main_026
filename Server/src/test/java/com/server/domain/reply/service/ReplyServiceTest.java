@@ -4,12 +4,16 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.order.entity.Order;
+import com.server.domain.question.entity.Question;
 import com.server.domain.reply.controller.convert.ReplySort;
 import com.server.domain.reply.dto.CreateReply;
 import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.dto.ReplyUpdateServiceApi;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
+import com.server.domain.reward.entity.Reward;
+import com.server.domain.reward.service.RewardService;
+import com.server.domain.reward.service.RewardServiceImpl;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
@@ -46,6 +50,8 @@ class ReplyServiceTest extends ServiceTest {
     private MemberRepository memberRepository;
     @Autowired
     private ReplyRepository replyRepository;
+    @Autowired
+    private RewardService rewardService;
 
     @Test
     @DisplayName("댓글 목록을 페이징으로 찾아서 조회한다.")
@@ -482,8 +488,10 @@ class ReplyServiceTest extends ServiceTest {
     @DisplayName("댓글을 삭제한다.")
     public void testDeleteReply() {
         //given
-        Member member = createAndSaveMember();
-        Channel channel = createAndSaveChannel(member);
+        Member loginMember = createAndSaveMember();
+        Member member1 = createAndSaveMember();
+        Member member2 = createAndSaveMember();
+        Channel channel = createAndSaveChannel(loginMember);
 
         Video video = Video.builder()
                 .videoName("title")
@@ -494,27 +502,28 @@ class ReplyServiceTest extends ServiceTest {
                 .star(7.0F)
                 .price(1000)
                 .videoStatus(VideoStatus.CREATED)
-                .channel(member.getChannel())
+                .channel(loginMember.getChannel())
                 .build();
 
-        Order order = Order.createOrder(member, List.of(video), 0);
+        Order order = Order.createOrder(loginMember, List.of(video), 0);
         order.completeOrder(LocalDateTime.now(), "paymentKey");
 
         videoRepository.save(video);
         orderRepository.save(order);
 
-        Reply reply = createAndSaveReply(member, video);
+       Reply reply = createAndSaveReply(loginMember, video);
+       Reply reply1 = createAndSaveReply(member1, video);
+       Reply reply2 = createAndSaveReply(member2, video);
 
-        em.flush();
-        em.clear();
+       em.flush();
+       em.clear();
 
         //when
-        replyService.deleteReply(reply.getReplyId(), member.getMemberId());
+        replyService.deleteReply(reply.getReplyId(), loginMember.getMemberId());
 
         //then
-        Reply deletedReply = replyRepository.findById(reply.getReplyId()).orElse(null);
+        assertThat(replyRepository.findById(reply.getReplyId())).isEmpty();
 
-        assertThat(deletedReply).isNull();
     }
 
     @Test
@@ -543,5 +552,4 @@ class ReplyServiceTest extends ServiceTest {
             replyService.deleteReply(replyId, otherMemberId);
         });
     }
-
 }

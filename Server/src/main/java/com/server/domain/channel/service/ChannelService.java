@@ -63,7 +63,7 @@ public class ChannelService {
                     .description(channel.getDescription())
                     .subscribers(channel.getSubscribers())
                     .isSubscribed(false)
-                    .imageUrl(awsService.getFileUrl(channel.getMember().getMemberId(),
+                    .imageUrl(awsService.getFileUrl(
                               channel.getMember().getImageFile(),
                               FileType.PROFILE_IMAGE))
                     .createdDate(channel.getCreatedDate())
@@ -72,7 +72,7 @@ public class ChannelService {
         else {
             boolean isSubscribed = isSubscribed(loginMemberId, memberId);
 
-            return ChannelInfo.of(channel, isSubscribed, awsService.getFileUrl(channel.getMember().getMemberId(), channel.getMember().getImageFile(), FileType.PROFILE_IMAGE));
+            return ChannelInfo.of(channel, isSubscribed, awsService.getFileUrl(channel.getMember().getImageFile(), FileType.PROFILE_IMAGE));
         }
     }
 
@@ -191,7 +191,7 @@ public class ChannelService {
     }
 
     private String getThumbnailUrl(Video video) {
-        return awsService.getFileUrl(video.getMemberId(), video.getThumbnailFile(), FileType.THUMBNAIL);
+        return awsService.getFileUrl(video.getThumbnailFile(), FileType.THUMBNAIL);
     }
 
     private List<Long> getVideoIdsInCart(Member loginMember, Page<Video> videos) {

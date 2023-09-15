@@ -8,6 +8,7 @@ import com.server.domain.channel.service.dto.ChannelUpdate;
 import com.server.domain.channel.service.dto.request.ChannelVideoGetServiceRequest;
 import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
 import com.server.domain.video.controller.dto.request.VideoSort;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.service.dto.response.VideoCategoryResponse;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -373,6 +374,7 @@ class ChannelControllerTest extends ControllerTest {
                                 fieldWithPath("data[].isPurchased").description("비디오 구매 여부"),
                                 fieldWithPath("data[].isInCart").description("장바구니 추가 여부"),
                                 fieldWithPath("data[].description").description("비디오 설명"),
+                                fieldWithPath("data[].videoStatus").description(generateLinkCode(VideoStatus.class)),
                                 fieldWithPath("data[].categories").description("비디오 카테고리"),
                                 fieldWithPath("data[].categories[].categoryId").description("카테고리 ID"),
                                 fieldWithPath("data[].categories[].categoryName").description("카테고리 이름"),
@@ -557,6 +559,8 @@ class ChannelControllerTest extends ControllerTest {
                     .isPurchased(true)
                     .isInCart(false)
                     .star(4.5f)
+                    .description("description" + i)
+                    .videoStatus(VideoStatus.CREATED)
                     .categories(createVideoCategoryResponse("category1", "category2"))
                     .createdDate(LocalDateTime.now())
                     .build();

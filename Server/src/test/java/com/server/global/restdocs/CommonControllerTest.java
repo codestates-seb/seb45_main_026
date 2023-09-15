@@ -4,6 +4,7 @@ import com.server.domain.answer.entity.AnswerStatus;
 import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.reply.controller.convert.ReplySort;
 import com.server.domain.video.controller.dto.request.VideoSort;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.module.s3.service.dto.ImageType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -157,7 +158,8 @@ public class CommonControllerTest extends ControllerTest {
 			OrderStatus.class,
 			AnswerStatus.class,
 			ImageType.class,
-			ReplySort.class
+			ReplySort.class,
+			VideoStatus.class
 		);
 
 		// Enum의 이름값들을 요청 데이터로 사용하기 위해 Json 형태로 변환

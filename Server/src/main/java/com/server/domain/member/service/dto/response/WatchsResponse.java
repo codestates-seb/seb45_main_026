@@ -10,8 +10,11 @@ import lombok.Getter;
 public class WatchsResponse {
 	private Long videoId;
 	private String videoName;
-	private String thumbnailFile;
+	private String thumbnailUrl;
 	private LocalDateTime modifiedDate;
+	private Float star;
+	private int price;
+	private Boolean isPurchased;
 	private Channel channel;
 
 	@Getter

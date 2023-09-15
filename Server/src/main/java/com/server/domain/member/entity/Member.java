@@ -7,6 +7,7 @@ import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.order.entity.Order;
 import com.server.domain.reply.entity.Reply;
+import com.server.domain.reward.entity.Reward;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.entity.BaseEntity;
@@ -81,6 +82,10 @@ public class Member extends BaseEntity {
 	@Builder.Default
 	private List<Subscribe> subscribes = new ArrayList<>();
 
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+	@Builder.Default
+	private List<Reward> rewards = new ArrayList<>();
+
 	public void updatePassword(String password) {
 		if (password == null || password.equals(this.password)) {
 			throw new MemberNotUpdatedException();
@@ -99,7 +104,7 @@ public class Member extends BaseEntity {
 
 
 	public void updateImageFile(String imageFile) {
-		this.imageFile = imageFile;
+		this.imageFile = this.memberId + "/profile/" + imageFile;
 	}
 
 	public void deleteImageFile() {

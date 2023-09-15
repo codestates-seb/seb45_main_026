@@ -74,14 +74,13 @@ public class Video extends BaseEntity implements Rewardable {
     @OneToMany(mappedBy = "video")
     private List<OrderVideo> orderVideos = new ArrayList<>();
 
-    public static Video createVideo(Channel channel, String videoName, Integer price, String description) {
-
+    public static Video createVideo(Channel channel, String videoName) {
 
         return Video.builder()
                 .channel(channel)
                 .videoName(videoName)
-                .price(price)
-                .description(description)
+                .price(0)
+                .description("uploading")
                 .videoStatus(VideoStatus.UPLOADING)
                 .view(0)
                 .star(0f)
@@ -124,16 +123,22 @@ public class Video extends BaseEntity implements Rewardable {
 
         checkIsUploading();
 
+        String filePath = getMemberId() + "/videos/" + this.videoId + "/" + this.videoName;
+
         this.price = price;
         this.description = description;
         this.videoStatus = VideoStatus.CREATED;
-        this.thumbnailFile = this.videoId + "/" + this.videoName;
-        this.videoFile = this.videoId + "/" + this.videoName;
+        this.thumbnailFile = filePath;
+        this.videoFile = filePath;
 
         this.videoCategories.clear();
         for (Category category : categories) {
             VideoCategory videoCategory = VideoCategory.createVideoCategory(this, category);
             this.addVideoCategory(videoCategory);
+        }
+
+        if(price == 0) {
+            this.getChannel().getMember().addReward(100);
         }
     }
 
@@ -141,8 +146,16 @@ public class Video extends BaseEntity implements Rewardable {
         return (int) (price * 0.01);
     }
 
+    public boolean isClosed() {
+        return this.videoStatus == VideoStatus.CLOSED;
+    }
+
     public void close() {
         this.videoStatus = VideoStatus.CLOSED;
+    }
+
+    public void open() {
+        this.videoStatus = VideoStatus.CREATED;
     }
 
     public boolean isOwnedBy(Long memberId) {

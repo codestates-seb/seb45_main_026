@@ -1,5 +1,6 @@
 package com.server.global.log.filter;
 
+import com.server.global.initailizer.warmup.WarmupState;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
@@ -12,9 +13,16 @@ import java.io.IOException;
 import java.util.UUID;
 
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @Slf4j
 public class MDCLoggingFilter implements Filter {
+
+    private final WarmupState warmupState;
+
+    public MDCLoggingFilter(WarmupState warmupState) {
+        this.warmupState = warmupState;
+    }
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
@@ -34,9 +42,11 @@ public class MDCLoggingFilter implements Filter {
 
         String requestFullUri = getRequestFullUri(request);
 
-        String firstHost = getFirstHost(requestFullUri);
+        String firstHost = getFirstHost(request);
 
-        log.info("API : {} {}{} duration: {} ms ([{}])", method, "/", firstHost, duration, requestFullUri);
+        if(warmupState.isWarmupCompleted()){
+            log.info("API : {} {}{} duration: {} ms ([{}])", method, "/", firstHost, duration, requestFullUri);
+        }
 
         MDC.clear();
     }
@@ -44,17 +54,19 @@ public class MDCLoggingFilter implements Filter {
     private String getRequestFullUri(ServletRequest request) {
         String requestUrl = ((HttpServletRequest) request).getRequestURI();
         String queryString = ((HttpServletRequest) request).getQueryString() == null ?
-                "" : ((HttpServletRequest) request).getQueryString();
+                "" : "?" + ((HttpServletRequest) request).getQueryString();
 
-        return requestUrl + "?" + queryString;
+        return requestUrl + queryString;
     }
 
-    private String getFirstHost(String requestFullUrl) {
+    private String getFirstHost(ServletRequest request) {
 
-        String[] urlArr = requestFullUrl.split("/");
+        String requestUrl = ((HttpServletRequest) request).getRequestURI();
+
+        String[] urlArr = requestUrl.split("/");
 
         String url = "";
-        if(urlArr.length > 2){
+        if(urlArr.length > 1){
             url = urlArr[1];
         }
         return url;

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
+import static java.lang.Thread.sleep;
 import static org.assertj.core.api.Assertions.*;
 
 class OrderRepositoryTest extends RepositoryTest {
@@ -117,7 +118,7 @@ class OrderRepositoryTest extends RepositoryTest {
 
     @Test
     @DisplayName("orderId 로 주문한 비디오 중 시청한 비디오를 찾는다.")
-    void findWatchVideosById() {
+    void findWatchVideosById() throws InterruptedException {
         //given
         Member owner = createAndSaveMember();
         Channel channel = createAndSaveChannel(owner);
@@ -133,6 +134,8 @@ class OrderRepositoryTest extends RepositoryTest {
 
         em.flush();
         em.clear();
+
+        sleep(100);
 
         Watch watch1 = Watch.createWatch(member, video1); //video1 시청
         Watch watch2 = Watch.createWatch(member, video2); //video2 시청

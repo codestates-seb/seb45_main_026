@@ -21,6 +21,14 @@ public interface ChannelRepository extends JpaRepository<Channel, Long>, Channel
 		"WHERE MATCH(c.channel_name) AGAINST(?1 IN BOOLEAN MODE) LIMIT ?2", nativeQuery = true)
 	List<Tuple> findChannelByKeyword(String keyword, int limit);
 
+	@Query(value = "SELECT c.channel_id, c.channel_name, c.description, c.subscribers, m.image_file " +
+		"FROM channel c JOIN member m ON c.channel_id = m.member_id " +
+		"WHERE MATCH(c.channel_name) AGAINST(?1 IN BOOLEAN MODE)",
+		countQuery = "SELECT COUNT(c.channel_id) FROM channel c JOIN member m ON c.channel_id = m.member_id " +
+			"WHERE MATCH(c.channel_name) AGAINST(?1 IN BOOLEAN MODE)",
+		nativeQuery = true)
+	Page<Tuple> findChannelResultByKeyword(String keyword, Pageable pageable);
+
 	@Modifying
 	@Query("UPDATE Channel c SET c.subscribers = c.subscribers - 1 WHERE c IN (SELECT s.channel FROM Subscribe s WHERE s.member = :member)")
 	void decreaseSubscribersByMember(@Param("member") Member member);

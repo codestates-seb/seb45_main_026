@@ -12,6 +12,7 @@ import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
 import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
 import com.server.domain.video.service.dto.response.VideoDetailResponse;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
+import com.server.domain.video.service.dto.response.VideoUrlResponse;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -106,7 +107,7 @@ public class VideoController {
                 .isPurchased(isPurchased)
                 .build();
 
-        Page<VideoPageResponse> videos = videoService.getVideos(loginMemberId, request);
+        Page<VideoPageResponse> videos = videoService.getVideos(request);
 
         return ResponseEntity.ok(ApiPageResponse.ok(videos, "비디오 목록 조회 성공"));
     }
@@ -121,6 +122,15 @@ public class VideoController {
         VideoDetailResponse video = videoService.getVideo(loginMemberId, videoId);
 
         return ResponseEntity.ok(ApiSingleResponse.ok(video, "비디오 조회 성공"));
+    }
+
+    @GetMapping("/{video-id}/url")
+    public ResponseEntity<ApiSingleResponse<VideoUrlResponse>> getVideoUrl(
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId) {
+
+        VideoUrlResponse videoUrl = videoService.getVideoUrl(videoId);
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(videoUrl, "비디오 url 조회 성공"));
     }
 
     @PostMapping("/presigned-url")
@@ -176,13 +186,15 @@ public class VideoController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{video-id}")
-    public ResponseEntity<Void> deleteVideo(@PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
-                                            @LoginId Long loginMemberId) {
+    @PatchMapping("/{video-id}/status")
+    public ResponseEntity<ApiSingleResponse<Boolean>> changeVideoStatus(@PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
+                                                                        @LoginId Long loginMemberId) {
 
-        videoService.deleteVideo(loginMemberId, videoId);
+        boolean result = videoService.changeVideoStatus(loginMemberId, videoId);
 
-        return ResponseEntity.noContent().build();
+        String message = result ? "비디오 열기" : "비디오 폐쇄";
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(result, message));
     }
 
     @GetMapping("/{video-id}/replies")
