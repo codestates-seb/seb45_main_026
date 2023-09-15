@@ -1,5 +1,6 @@
 package com.server.global.log.filter;
 
+import com.server.global.initailizer.warmup.WarmupState;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
@@ -12,9 +13,16 @@ import java.io.IOException;
 import java.util.UUID;
 
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @Slf4j
 public class MDCLoggingFilter implements Filter {
+
+    private final WarmupState warmupState;
+
+    public MDCLoggingFilter(WarmupState warmupState) {
+        this.warmupState = warmupState;
+    }
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
@@ -36,7 +44,9 @@ public class MDCLoggingFilter implements Filter {
 
         String firstHost = getFirstHost(request);
 
-        log.info("API : {} {}{} duration: {} ms ([{}])", method, "/", firstHost, duration, requestFullUri);
+        if(warmupState.isWarmupCompleted()){
+            log.info("API : {} {}{} duration: {} ms ([{}])", method, "/", firstHost, duration, requestFullUri);
+        }
 
         MDC.clear();
     }
