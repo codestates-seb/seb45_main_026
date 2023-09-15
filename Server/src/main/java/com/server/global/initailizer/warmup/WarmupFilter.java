@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
@@ -53,6 +54,7 @@ public class WarmupFilter implements Filter {
 
     private void setRejectResponse(ServletResponse response) throws IOException {
 
+
         ApiSingleResponse<String> apiSingleResponse = ApiSingleResponse.of(
                 "warmup",
                 HttpStatus.SERVICE_UNAVAILABLE,
@@ -61,6 +63,7 @@ public class WarmupFilter implements Filter {
         String apiResponse = objectMapper.writeValueAsString(apiSingleResponse);
 
         response.setContentType("application/json;charset=UTF-8");
+        ((HttpServletResponse) response).setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
         response.getWriter().write(apiResponse);
     }
 }
