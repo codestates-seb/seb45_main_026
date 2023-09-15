@@ -204,6 +204,7 @@ class VideoServiceTest extends ServiceTest {
                     assertThat(response.getPrice()).isEqualTo(video.getPrice());
                     assertThat(response.getReward()).isEqualTo(video.getPrice() / 100);
                     assertThat(response.getCreatedDate().toString().substring(0, 21)).isEqualTo(video.getCreatedDate().toString().substring(0, 21));
+                    assertThat(response.getVideoStatus()).isEqualTo(VideoStatus.CREATED);
 
                     //카테고리 정보
                     assertThat(response.getCategories()).hasSize(2)

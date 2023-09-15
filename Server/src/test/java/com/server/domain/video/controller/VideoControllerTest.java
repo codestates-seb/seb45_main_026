@@ -9,6 +9,7 @@ import com.server.domain.reply.dto.ReplyCreateControllerApi;
 import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.video.controller.dto.request.*;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
 import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
@@ -325,6 +326,7 @@ class VideoControllerTest extends ControllerTest {
                                 fieldWithPath("data.isPurchased").description("구매 여부"),
                                 fieldWithPath("data.isReplied").description("댓글 여부"),
                                 fieldWithPath("data.isInCart").description("장바구니 추가 여부"),
+                                fieldWithPath("data.videoStatus").description(generateLinkCode(VideoStatus.class)),
                                 fieldWithPath("data.categories").description("카테고리 목록"),
                                 fieldWithPath("data.categories[].categoryId").description("카테고리 ID"),
                                 fieldWithPath("data.categories[].categoryName").description("카테고리 이름"),
@@ -1576,7 +1578,6 @@ class VideoControllerTest extends ControllerTest {
     Collection<DynamicTest> deleteCartsValidation() {
         //given
 
-
         return List.of(
                 dynamicTest("videoIds 가 Null 이면 검증에 실패한다.", ()-> {
                     //given
@@ -1641,10 +1642,6 @@ class VideoControllerTest extends ControllerTest {
                             .andExpect(jsonPath("$.data[0].value").value("[0, 1]"))
                             .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
                 })
-
-
-
-
         );
     }
 
