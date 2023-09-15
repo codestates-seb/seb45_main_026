@@ -31,11 +31,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.global.testhelper.ControllerTest;
+import com.server.search.controller.dto.ChannelSort;
+import com.server.search.engine.dto.ChannelResultResponse;
 import com.server.search.engine.dto.ChannelSearchResponse;
 import com.server.search.engine.dto.VideoChannelSearchResponse;
 import com.server.search.engine.dto.VideoSearchResponse;
@@ -299,6 +302,239 @@ public class SearchControllerTest extends ControllerTest {
 							.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
 
 				})
+		);
+	}
+
+	@Test
+	@DisplayName("채널 검색 결과 API")
+	void channelSearch() throws Exception {
+		//given
+		int page = 1;
+		int size = 10;
+
+		List<ChannelResultResponse> responses = getChannelResultResponses();
+		Page<ChannelResultResponse> pageResponses = new PageImpl<>(responses);
+
+		String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses));
+
+		given(searchEngine.searchChannelResults(anyString(), anyInt(), anyInt(), anyString(), anyLong()))
+			.willReturn(pageResponses);
+
+		//when
+		ResultActions actions = mockMvc.perform(
+			get("/search/channels")
+				.param("keyword", "spring")
+				.param("page", String.valueOf(page))
+				.param("size", String.valueOf(size))
+				.param("sort", "name")
+				.accept(APPLICATION_JSON)
+				.header(AUTHORIZATION, TOKEN)
+		);
+
+		//then
+		actions.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(content().string(apiResponse));
+
+		// restdocs
+		actions.andDo(documentHandler.document(
+			requestHeaders(
+				headerWithName(AUTHORIZATION).description("Access Token").optional()
+			),
+			requestParameters(
+				parameterWithName("keyword").description("검색 키워드"),
+				parameterWithName("page").description("페이지 번호").optional(),
+				parameterWithName("size").description("페이지 사이즈").optional(),
+				parameterWithName("sort").description(generateLinkCode(ChannelSort.class)).optional()
+			),
+			pageResponseFields(
+				fieldWithPath("data").description("채널 목록"),
+				fieldWithPath("data[].channelId").description("채널 ID"),
+				fieldWithPath("data[].channelName").description("채널 명"),
+				fieldWithPath("data[].description").description("채널 설명"),
+				fieldWithPath("data[].subscribers").description("구독자 수"),
+				fieldWithPath("data[].isSubscribed").description("구독여부"),
+				fieldWithPath("data[].imageUrl").description("프로필 이미지 URL")
+			)
+		));
+	}
+
+	@TestFactory
+	@DisplayName("채널 검색 시 validation 테스트")
+	Collection<DynamicTest> channelSearchValidation() throws Exception {
+		//given
+		String keyword = "코";
+		int page = 1;
+		int size = 10;
+
+		List<ChannelResultResponse> responses = getChannelResultResponses();
+		Page<ChannelResultResponse> pageResponses = new PageImpl<>(responses);
+
+		String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses));
+
+		given(searchEngine.searchChannelResults(anyString(), anyInt(), anyInt(), anyString(), anyLong()))
+			.willReturn(pageResponses);
+
+		return List.of(
+			dynamicTest("키워드를 제외하고 쿼리 값을 보내지 않아도 조회할 수 있다.", ()-> {
+				//when
+				ResultActions actions = mockMvc.perform(
+					get("/search/channels")
+						.contentType(APPLICATION_JSON)
+						.accept(APPLICATION_JSON)
+						.header(AUTHORIZATION, TOKEN)
+						.param("keyword", keyword)
+				);
+
+				//then
+				actions.andDo(print())
+					.andExpect(status().isOk())
+					.andExpect(content().string(apiResponse));
+			}),
+			dynamicTest("키워드가 null 이면 검증에 실패한다.", ()-> {
+				//when
+				ResultActions actions = mockMvc.perform(
+					get("/search/channels")
+						.contentType(APPLICATION_JSON)
+						.accept(APPLICATION_JSON)
+						.header(AUTHORIZATION, TOKEN)
+				);
+
+				//then
+				actions.andDo(print())
+					.andExpect(status().isBadRequest())
+					.andExpect(jsonPath("$.data[0].field").value("keyword"))
+					.andExpect(jsonPath("$.data[0].value").value("null"))
+					.andExpect(jsonPath("$.data[0].reason").value("keyword 값은 필수입니다."));
+			}),
+			dynamicTest("page 가 양수가 아니면 검증에 실패한다.", ()-> {
+				//given
+				int wrongPage = 0;
+
+				//when
+				ResultActions actions = mockMvc.perform(
+					get("/search/channels")
+						.contentType(APPLICATION_JSON)
+						.accept(APPLICATION_JSON)
+						.header(AUTHORIZATION, TOKEN)
+						.param("keyword", keyword)
+						.param("page", String.valueOf(wrongPage))
+				);
+
+				//then
+				actions.andDo(print())
+					.andExpect(status().isBadRequest())
+					.andExpect(jsonPath("$.data[0].field").value("page"))
+					.andExpect(jsonPath("$.data[0].value").value(wrongPage))
+					.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+			}),
+			dynamicTest("size 가 양수가 아니면 검증에 실패한다.", ()-> {
+				//given
+				int wrongSize = 0;
+
+				//when
+				ResultActions actions = mockMvc.perform(
+					get("/search/channels")
+						.contentType(APPLICATION_JSON)
+						.accept(APPLICATION_JSON)
+						.header(AUTHORIZATION, TOKEN)
+						.param("keyword", keyword)
+						.param("size", String.valueOf(wrongSize))
+				);
+
+				//then
+				actions.andDo(print())
+					.andExpect(status().isBadRequest())
+					.andExpect(jsonPath("$.data[0].field").value("size"))
+					.andExpect(jsonPath("$.data[0].value").value(wrongSize))
+					.andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+
+			})
+		);
+	}
+
+	private List<ChannelResultResponse> getChannelResultResponses() {
+		return List.of(
+			ChannelResultResponse.builder()
+				.channelId(1L)
+				.channelName("코딩채널1")
+				.description("채널설명1")
+				.subscribers(100)
+				.imageUrl(PROFILE)
+				.isSubscribed(true)
+				.build(),
+			ChannelResultResponse.builder()
+				.channelId(2L)
+				.channelName("코딩채널2")
+				.description("채널설명2")
+				.subscribers(1000)
+				.imageUrl(PROFILE)
+				.isSubscribed(false)
+				.build(),
+			ChannelResultResponse.builder()
+				.channelId(3L)
+				.channelName("코딩채널3")
+				.description("채널설명3")
+				.subscribers(300)
+				.imageUrl(PROFILE)
+				.isSubscribed(true)
+				.build(),
+			ChannelResultResponse.builder()
+				.channelId(4L)
+				.channelName("코딩채널4")
+				.description("채널설명4")
+				.subscribers(400)
+				.imageUrl(PROFILE)
+				.isSubscribed(false)
+				.build(),
+			ChannelResultResponse.builder()
+				.channelId(5L)
+				.channelName("코딩채널5")
+				.description("채널설명5")
+				.subscribers(500)
+				.imageUrl(PROFILE)
+				.isSubscribed(true)
+				.build(),
+			ChannelResultResponse.builder()
+				.channelId(6L)
+				.channelName("코딩채널6")
+				.description("채널설명6")
+				.subscribers(600)
+				.imageUrl(PROFILE)
+				.isSubscribed(true)
+				.build(),
+			ChannelResultResponse.builder()
+				.channelId(7L)
+				.channelName("코딩채널7")
+				.description("채널설명7")
+				.subscribers(700)
+				.imageUrl(PROFILE)
+				.isSubscribed(true)
+				.build(),
+			ChannelResultResponse.builder()
+				.channelId(8L)
+				.channelName("코딩채널8")
+				.description("채널설명8")
+				.subscribers(800)
+				.imageUrl(PROFILE)
+				.isSubscribed(true)
+				.build(),
+			ChannelResultResponse.builder()
+				.channelId(9L)
+				.channelName("코딩채널9")
+				.description("채널설명9")
+				.subscribers(900)
+				.imageUrl(PROFILE)
+				.isSubscribed(false)
+				.build(),
+			ChannelResultResponse.builder()
+				.channelId(10L)
+				.channelName("코딩채널10")
+				.description("채널설명10")
+				.subscribers(1004)
+				.imageUrl(PROFILE)
+				.isSubscribed(false)
+				.build()
 		);
 	}
 

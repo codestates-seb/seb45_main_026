@@ -1,18 +1,26 @@
 package com.server.search.engine;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.Tuple;
 
+import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.server.domain.channel.respository.ChannelRepository;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
+import com.server.search.engine.dto.ChannelResultResponse;
 import com.server.search.engine.dto.ChannelSearchResponse;
 import com.server.search.engine.dto.VideoChannelSearchResponse;
 import com.server.search.engine.dto.VideoSearchResponse;
@@ -24,12 +32,14 @@ public class MySQLSearchEngine implements SearchEngine {
 
 	private final VideoRepository videoRepository;
 	private final ChannelRepository channelRepository;
+	private final MemberRepository memberRepository;
 	private final AwsService awsService;
 
 	public MySQLSearchEngine(VideoRepository videoRepository, ChannelRepository channelRepository,
-		AwsService awsService) {
+		MemberRepository memberRepository, AwsService awsService) {
 		this.videoRepository = videoRepository;
 		this.channelRepository = channelRepository;
+		this.memberRepository = memberRepository;
 		this.awsService = awsService;
 	}
 
@@ -88,6 +98,71 @@ public class MySQLSearchEngine implements SearchEngine {
 			.videos(videoSearchResponses)
 			.channels(channelSearchResponses)
 			.build();
+	}
+
+	public Page<ChannelResultResponse> searchChannelResults(String keyword, int page, int size, String sort, Long loginId) {
+
+		Pageable pageable = setPageable(page, size, sort);
+
+		Page<Tuple> pages = channelRepository.findChannelResultByKeyword(keyword, pageable);
+
+		Page<ChannelResultResponse> channelResultResponses = resultTupleToChannelSearchResult(pages);
+
+		setIsSubscribedForChannel(channelResultResponses, loginId);
+
+		return channelResultResponses;
+	}
+
+	private Pageable setPageable(int page, int size, String sort) {
+		String orderBy;
+		Pageable pageable;
+
+		switch (sort) {
+			case "name":
+				orderBy = "channel_name";
+				break;
+			case "subscribers":
+				orderBy = "subscribers";
+				break;
+			default:
+				orderBy = null;
+				break;
+		}
+
+		if (orderBy != null) {
+			pageable = PageRequest.of(page - 1, size, Sort.by(orderBy).descending());
+		} else {
+			pageable = PageRequest.of(page - 1, size);
+		}
+		return pageable;
+	}
+
+	private Page<ChannelResultResponse> resultTupleToChannelSearchResult(Page<Tuple> pages) {
+		return pages.map(
+			tuple -> ChannelResultResponse.builder()
+				.channelId(tuple.get(0, BigInteger.class).longValue())
+				.channelName(tuple.get(1, String.class))
+				.description(tuple.get(2, String.class))
+				.subscribers(tuple.get(3, Integer.class))
+				.imageUrl(getImageUrl(tuple.get(4, String.class), FileType.PROFILE_IMAGE))
+				.build()
+		);
+	}
+
+	private void setIsSubscribedForChannel(Page<ChannelResultResponse> channelResultResponses, Long loginId) {
+		List<Long> ownerMemberIds = channelResultResponses.stream()
+			.map(ChannelResultResponse::getChannelId).collect(Collectors.toList());
+
+		List<Boolean> isSubscribedList = memberRepository.checkMemberSubscribeChannel(loginId, ownerMemberIds);
+
+		channelResultResponses.forEach(
+			channelResultResponse -> {
+				int currentIndex = channelResultResponses.getContent().indexOf(channelResultResponse);
+				boolean subscribed = isSubscribedList.get(currentIndex);
+
+				channelResultResponse.setIsSubscribed(subscribed);
+			}
+		);
 	}
 
 	private String getImageUrl(String fileName, FileType fileType) {
