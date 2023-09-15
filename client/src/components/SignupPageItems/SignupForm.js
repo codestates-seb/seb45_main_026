@@ -3,25 +3,23 @@ import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { emailValidationConfirmService, emailValidationService, signupService } from '../../services/authServices';
 import { useNavigate } from 'react-router-dom';
-import useConfirm from '../../hooks/useConfirm';
 import { Checkbox } from '../../atoms/buttons/Checkbox';
-import { Input, InputErrorTypo } from '../../atoms/inputs/Inputs';
+import { Input, InputErrorTypo, InputPositiveTypo } from '../../atoms/inputs/Inputs';
 import tokens from '../../styles/tokens.json'
 import { SignupFormContainer, SignupAgreeContainer, SignupAgreeCheckContainer, SignupAgreeCheckLabel, SignupButton } from './SignupForm.style';
+import { AlertModal, ConfirmModal } from '../../atoms/modal/Modal';
 
 const globalTokens = tokens.global;
 
 export const SignupForm = () => {
     const navigate = useNavigate();
-    const emailCodeSendConfirm = useConfirm('이메일로 인증번호가 발송되었습니다. 확인 후 인증번호를 입력해 주세요.');
-    const emailCodeComplete = useConfirm('이메일이 인증되었습니다.');
-    const emailCodeFail = useConfirm('이메일 인증에 실패했습니다.');
-    const emailCodeRequiredConfirm = useConfirm('이메일을 인증해 주세요.');
-    const agreeUseRequiredConfirm = useConfirm('이용약관에 동의해 주세요.');
-    const agreePrivacyRequiredConfirm = useConfirm('개인정보 처리방침에 동의해 주세요.');
-    const successConfirm = useConfirm('회원가입 성공하였습니다.',
-        ()=>{ navigate('/login'); }, ()=>{} );
-
+    const [ is이메일인증번호발송팝업, setIs이메일인증번호발송팝업 ] = useState(false);
+    const [ is이메일인증완료팝업, setIs이메일인증완료팝업 ] = useState(false);
+    const [ is이메일인증실패팝업, setIs이메일인증실패팝업 ] = useState(false);
+    const [ is이메일인증요청팝업, setIs이메일인증요청팝업 ] = useState(false);
+    const [ is이용약관동의요청팝업, setIs이용약관동의요청팝업 ] = useState(false);
+    const [ is개인정보동의요청팝업, setIs개인정보동의요청팝업 ] = useState(false);
+    const [ is회원가입성공팝업, setIs회원가입성공팝업 ] = useState(false);
     const [ isEmailValid, setIsEmailValid ] = useState(false);
     const [ isUseAgree, setIsUseAgree ] = useState(false);
     const [ isPrivacyAgree, setIsPrivacyAgree ] = useState(false);
@@ -38,17 +36,16 @@ export const SignupForm = () => {
         if(isEmailValid&&isUseAgree&&isPrivacyAgree){
             const response = await signupService({data:data});
             if(response.status === 'success') {
-                successConfirm();
-                navigate('/login');
+                setIs회원가입성공팝업(true);
             }
         } else if(!isEmailValid) {
-            emailCodeRequiredConfirm();
+            setIs이메일인증요청팝업(true);
             return;
         } else if(!isUseAgree) {
-            agreeUseRequiredConfirm();
+            setIs이용약관동의요청팝업(true);
             return;
         } else {
-            agreePrivacyRequiredConfirm();
+            setIs개인정보동의요청팝업(true);
             return;
         }
     }
@@ -60,7 +57,7 @@ export const SignupForm = () => {
             //이메일 유효성 검사를 통과했으면 입력한 이메일로 인증코드를 전송함
             const response = await emailValidationService(email);
             if(response.status==='success') {
-                emailCodeSendConfirm();
+                setIs이메일인증번호발송팝업(true);
             } else {
                 window.confirm(`${response.data}`)
             }
@@ -75,10 +72,10 @@ export const SignupForm = () => {
             //이메일 코드 유효성 검사를 통과했으면
             const response = await emailValidationConfirmService(email,emailCode);
             if(response.status==='success') {
-                emailCodeComplete();
+                setIs이메일인증완료팝업(true);
                 setIsEmailValid(true);
             } else {
-                emailCodeFail();
+                setIs이메일인증실패팝업(true);
                 setIsEmailValid(false);
             }
         } 
@@ -101,8 +98,61 @@ export const SignupForm = () => {
     const handlePrivacyAgreeCkeckClick = () => {
         setIsPrivacyAgree(!isPrivacyAgree);
     }
-
+    
     return (
+        <>
+        {/* 이메일 인증번호 발송 팝업 */}
+        <AlertModal
+            isModalOpen={is이메일인증번호발송팝업}
+            setIsModalOpen={setIs이메일인증번호발송팝업}
+            isBackdropClickClose={true}
+            content='이메일로 인증번호가 발송되었습니다. 확인 후 인증번호를 입력해 주세요.'
+            buttonTitle='확인'
+            handleButtonClick={()=>{ setIs이메일인증번호발송팝업(false) }}/>
+        <AlertModal
+            isModalOpen={is이메일인증완료팝업}
+            setIsModalOpen={setIs이메일인증완료팝업}
+            isBackdropClickClose={true}
+            content='이메일이 인증되었습니다.'
+            buttonTitle='확인'
+            handleButtonClick={()=>{ setIs이메일인증완료팝업(false); }}/>
+        <AlertModal
+            isModalOpen={is이메일인증실패팝업}
+            setIsModalOpen={setIs이메일인증실패팝업}
+            isBackdropClickClose={true}
+            content='이메일 인증 실패했습니다.'
+            buttonTitle='확인'
+            handleButtonClick={()=>{ setIs이메일인증실패팝업(false) }}/>
+        <AlertModal
+            isModalOpen={is이메일인증요청팝업}
+            setIsModalOpen={setIs이메일인증요청팝업}
+            isBackdropClickClose={true}
+            content='이메일을 인증해 주세요.'
+            buttonTitle='확인'
+            handleButtonClick={()=>{ setIs이메일인증요청팝업(false) }}/>
+        <AlertModal
+            isModalOpen={is이용약관동의요청팝업}
+            setIsModalOpen={setIs이용약관동의요청팝업}
+            isBackdropClickClose={true}
+            content='이용약관에 동의해 주세요.'
+            buttonTitle='확인'
+            handleButtonClick={()=>{ setIs이용약관동의요청팝업(false) }}/>
+        <AlertModal
+            isModalOpen={is개인정보동의요청팝업}
+            setIsModalOpen={setIs개인정보동의요청팝업}
+            isBackdropClickClose={true}
+            content='개인정보 처리방침에 동의해 주세요.'
+            buttonTitle='확인'
+            handleButtonClick={()=>{ setIs개인정보동의요청팝업(false) }}/>
+        <ConfirmModal
+            isModalOpen={is회원가입성공팝업}
+            setIsModalOpen={setIs회원가입성공팝업}
+            isBackdropClickClose={false}
+            content='회원가입 성공했습니다.'
+            negativeButtonTitle='홈으로 가기'
+            positiveButtonTitle='로그인'
+            handleNegativeButtonClick={()=>{navigate('/')}}
+            handlePositiveButtonClick={()=>{navigate('/login')}}/>
         <SignupFormContainer onSubmit={handleSubmit(onSubmit)}>
             <Input 
                 marginTop={globalTokens.Spacing8.value}
@@ -143,7 +193,7 @@ export const SignupForm = () => {
             }
             {
                 isEmailValid 
-                    && <InputErrorTypo isDark={isDark}>이메일이 인증되었습니다.</InputErrorTypo>
+                    && <InputPositiveTypo isDark={isDark}>이메일이 인증되었습니다.</InputPositiveTypo>
             }
             <Input 
                 marginTop={globalTokens.Spacing8.value}
@@ -214,6 +264,7 @@ export const SignupForm = () => {
             </SignupAgreeContainer>
             <SignupButton isDark={isDark} type='submit'>가입하기</SignupButton>
         </SignupFormContainer>
+        </>
     );
 };
 

@@ -6,6 +6,8 @@ import { Heading5Typo,BodyTextTypo } from "../../atoms/typographys/Typographys";
 import profileGray from "../../assets/images/icons/profile/profileGray.svg";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { NegativeTextButton } from "../../atoms/buttons/Buttons";
 
 const globalTokens = tokens.global;
 
@@ -37,14 +39,14 @@ const ChannelName = styled(Heading5Typo)`
         cursor: pointer;
     }
 `
-const CancelButton = styled.button`
-    width: 60px;
-    height: 30px;
-    border: 1px black solid;
-    border-radius: ${globalTokens.RegularRadius.value}px;
+const CancelButton = styled(NegativeTextButton)`
+    font-size: ${globalTokens.SmallText.value}px;
+    padding: ${globalTokens.Spacing4.value}px;
+    width: 80px;
 `
 
 export default function ChannelItem({ getChannels, channel, accessToken, refreshToken }) {
+    const isDark = useSelector(state=>state.uiSetting.isDark);
     const navigate = useNavigate();
     const deleteHandler = (memberId) => {
     axios
@@ -63,13 +65,13 @@ export default function ChannelItem({ getChannels, channel, accessToken, refresh
       });
   };
   return (
-    <ItemBody>
-      <ChannelImgContainer onClick={()=>navigate(`/channels/${channel.memberId}`)}>
+    <ItemBody isDark={isDark}>
+      <ChannelImgContainer isDark={isDark} onClick={()=>navigate(`/channels/${channel.memberId}`)}>
         <ChannelImg src={channel.imageUrl} />
       </ChannelImgContainer>
-      <ChannelName onClick={()=>navigate(`/channels/${channel.memberId}`)}>{channel.channelName}</ChannelName>
-      <BodyTextTypo>구독자 {channel.subscribes}명</BodyTextTypo>
-      <CancelButton onClick={() => deleteHandler(channel.memberId)}>구독취소</CancelButton>
+      <ChannelName isDark={isDark} onClick={()=>navigate(`/channels/${channel.memberId}`)}>{channel.channelName}</ChannelName>
+      <BodyTextTypo isDark={isDark}>구독자 {channel.subscribes}명</BodyTextTypo>
+      <CancelButton isDark={isDark} onClick={() => deleteHandler(channel.memberId)}>구독취소</CancelButton>
     </ItemBody>
   );
 }

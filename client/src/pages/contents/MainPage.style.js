@@ -1,6 +1,7 @@
 import { styled } from 'styled-components';
 import { PageContainer } from '../../atoms/layouts/PageContainer';
 import teaching from '../../assets/images/unsplashs/teaching.png'
+import money from '../../assets/images/unsplashs/money.png'
 import tokens from '../../styles/tokens.json'
 
 const globalTokens = tokens.global;
@@ -41,4 +42,7 @@ export const FirstPageBackgroundContainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
+`
+export const FourthPageBackgroundContainer = styled(FirstPageBackgroundContainer)`
+    background-image: url(${money});
 `

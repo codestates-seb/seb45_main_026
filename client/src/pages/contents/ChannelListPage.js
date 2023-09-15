@@ -17,8 +17,9 @@ const ChannelListContainer = styled(MainContainer)`
     min-width: 600px;
     min-height: 600px;
     border: none;
-    background-color: ${globalTokens.White.value};
+    background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
     margin-top: ${globalTokens.Spacing40.value}px;
+    margin-bottom: ${globalTokens.Spacing40.value}px;
     border-radius: ${globalTokens.RegularRadius.value}px;
     padding: ${globalTokens.Spacing20.value}px;
     gap: ${globalTokens.Spacing28.value}px;
@@ -103,8 +104,8 @@ export default function ChannelListPage() {
     return (
       <PageContainer isDark={isDark}>
         <ChannelListContainer isDark={isDark}>
-          <ListTitle>구독한 채널 목록</ListTitle>
-          <ItemContainer>
+          <ListTitle isDark={isDark}>구독한 채널 목록</ListTitle>
+          <ItemContainer isDark={isDark}>
             {channels.map((el) => (
               <ChannelItem
                 key={el.memberId}
