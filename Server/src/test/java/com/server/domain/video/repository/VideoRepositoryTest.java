@@ -401,9 +401,30 @@ class VideoRepositoryTest extends RepositoryTest {
                         .isSortedAccordingTo(Comparator.comparing(Video::getCreatedDate).reversed());
                 videos.getContent().forEach(video ->
                         assertThat(List.of(video7.getVideoId())).doesNotContain(video.getVideoId()));
+            }),
+            dynamicTest("자기 자신의 비디오는 조회되지 않는다.", ()-> {
+                //given
+                VideoGetDataRequest request = new VideoGetDataRequest(
+                        owner1.getMemberId(),
+                        pageRequest,
+                        null,
+                        null,
+                        false,
+                        false,
+                        true);
+
+                //when
+                Page<Video> videos = videoRepository.findAllByCond(request);
+
+                //then
+                assertThat(videos.getContent()).hasSize(2)
+                        .extracting("videoId")
+                        .doesNotContain(video1.getVideoId(),
+                                video2.getVideoId(),
+                                video3.getVideoId(),
+                                video4.getVideoId())
+                        .contains(video5.getVideoId(), video6.getVideoId());
             })
-
-
         );
     }
 
