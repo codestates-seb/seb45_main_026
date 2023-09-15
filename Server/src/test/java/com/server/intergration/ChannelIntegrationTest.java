@@ -145,7 +145,7 @@ public class ChannelIntegrationTest extends IntegrationTest {
     }
 
     @TestFactory
-    @DisplayName("채널을 구독한다")
+    @DisplayName("채널을 구독여부를 업데이트 한다")
     Collection<DynamicTest> subscribeChannel() throws Exception {
         ResultActions actions = mockMvc.perform(
                 patch("/channels/{member-id}/subscribe", otherMemberChannel.getChannelId())
@@ -242,36 +242,7 @@ public class ChannelIntegrationTest extends IntegrationTest {
     Collection<DynamicTest> getChannels() throws Exception {
         return Arrays.asList(
                 dynamicTest(
-                        "영상 최신순 조회",
-                        () -> {
-                            ResultActions actions = mockMvc.perform(
-                                    get("/channels/{member-id}/videos", loginMember.getMemberId())
-                                            .header(AUTHORIZATION, loginMemberAccessToken)
-                                            .param("page", ("1"))
-                                            .param("size", ("16"))
-                                            .param("sort", "created-date")
-                                            .param("category", "ALL")
-                                            .param("free", "false")
-                                            .param("is-purchased", "true")
-
-                                            .accept(APPLICATION_JSON)
-                            );
-
-                            actions
-                                    .andDo(print())
-                                    .andExpect(status().isOk());
-
-                            ApiPageResponse<ChannelVideoResponse> response = getApiPageResponseFromResult(actions, ChannelVideoResponse.class);
-
-                            List<ChannelVideoResponse> responses = response.getData();
-
-                            List<Video> expectedVideos = loginMemberVideos;
-                            assertThat(responses).isEqualTo(expectedVideos);
-                        }
-                ),
-
-                dynamicTest(
-                        "최신순으로 정렬한다.",
+                        "영상을 최신순으로 정렬한다.",
                         () -> {
                             ResultActions actions = mockMvc.perform(
                                     get("/channels/{member-id}/videos", loginMember.getMemberId())
@@ -299,7 +270,7 @@ public class ChannelIntegrationTest extends IntegrationTest {
                 ),
 
                 dynamicTest(
-                        "별점순으로 정렬한다.",
+                        "영상을 별점순으로 정렬한다.",
                         () -> {
                             ResultActions actions = mockMvc.perform(
                                     get("/channels/{member-id}/videos", loginMember.getMemberId())
