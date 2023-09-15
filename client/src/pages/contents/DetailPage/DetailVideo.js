@@ -118,19 +118,12 @@ const DetailVideo = () => {
         </HeaderBtn>
       </VideoHeader>
 
-      <VideoPlayer
+      {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
+        <VideoPlayer
         videoId={videoId}
         thumbnailUrl={videoDatas.thumbnailUrl}
         handleVideo={() => {}}
       />
-      {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
-        <VideoWindow
-          src={videoDatas.videoUrl}
-          controls={true}
-          loop={false}
-          muted={false}
-          autoPlay={false}
-        />
       ) : (
         <VideoCover url={videoDatas.thumbnailUrl}>
           <PrevBtn

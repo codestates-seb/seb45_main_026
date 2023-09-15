@@ -1,9 +1,14 @@
 import axios from "axios";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
 import styled from "styled-components";
+import { ReactComponent as Play } from "../../assets/images/icons/Play.svg";
+import { ReactComponent as Pause } from "../../assets/images/icons/Pause.svg";
+import { ReactComponent as Volume } from "../../assets/images/icons/Volume.svg";
+import { ReactComponent as FullScreen } from "../../assets/images/icons/FullScreen.svg";
+import screenfull from "screenfull";
 
-const VideoPlayer = ({ videoId, thumbnailUrl, handleVideo }) => {
+const VideoPlayer = ({ videoId, thumbnailUrl }) => {
   const [isUrl, setUrl] = useState("");
 
   const getVideoUrl = () => {
@@ -62,6 +67,16 @@ const VideoPlayer = ({ videoId, thumbnailUrl, handleVideo }) => {
     }
   };
 
+  // 전체화면
+  const handleFullScreen = () => {
+    if (screenfull.isEnabled) {
+      screenfull.toggle(videoRef.current.wrapper);
+    }
+  };
+
+  const [isVolumeOpen, setVolumeOpen] = useState(false);
+  const [isVolume, setVolume] = useState(0.5);
+
   return (
     <VideoBox>
       <ReactPlayer
@@ -71,27 +86,63 @@ const VideoPlayer = ({ videoId, thumbnailUrl, handleVideo }) => {
         height={"100%"}
         playing={nowPlaying} // 자동 재생 on
         muted={false} // 자동 재생 on
+        volume={isVolume}
         controls={false}
         poster={thumbnailUrl} // 플레이어 초기 포스터 사진
-        onEnded={handleVideo} // 플레이어 끝났을 때 이벤트
+        // onEnded={handleVideo} // 플레이어 끝났을 때 이벤트
       />
       <VideoCover
         onMouseOver={() => setShowControl(true)}
         onMouseOut={() => setShowControl(false)}
-        onClick={(e) => {
+        onClick={() => {
           handlePause();
-          e.stopPropagation();
         }}
       >
         {showControl && (
-          <VideoBar
-            type="range"
-            min={0}
-            max={totalTime}
-            step={0.01}
-            value={currentTime}
-            onChange={(e) => handleAdjust(e)}
-          />
+          <ControlBox
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            {!nowPlaying ? (
+              <PlayBtn
+                onClick={() => {
+                  handlePause();
+                }}
+              />
+            ) : (
+              <PauseBtn
+                onClick={() => {
+                  handlePause();
+                }}
+              />
+            )}
+            <VideoBar
+              type="range"
+              min={0}
+              max={totalTime}
+              step={0.01}
+              value={currentTime}
+              onChange={(e) => handleAdjust(e)}
+            />
+            <VolumeBox>
+              <VolumeBtn onClick={() => setVolumeOpen(!isVolumeOpen)} />
+              {isVolumeOpen && (
+                <VolumeBar
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={isVolume}
+                  onChange={(e) => setVolume(e.target.value)}
+                />
+              )}
+            </VolumeBox>
+            {screenfull.isEnabled && (
+              // screenfull이 지원되는 경우에만 전체 화면 버튼 표시
+              <FullScreenBtn onClick={handleFullScreen} />
+            )}
+          </ControlBox>
         )}
       </VideoCover>
     </VideoBox>
@@ -118,15 +169,23 @@ export const VideoCover = styled.div`
   z-index: 10;
 `;
 
+export const ControlBox = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 45px;
+  bottom: 0%;
+`;
+
 export const VideoBar = styled.input`
   position: absolute;
-  bottom: 5%;
-  left: 5%;
+  bottom: 45%;
+  left: 7%;
   width: 80%;
   overflow: hidden;
   background: none;
   /* appearance: none; */
   transition: 100ms;
+  z-index: 9999;
 
   &::-webkit-slider-runnable-track {
     width: 100%;
@@ -138,5 +197,86 @@ export const VideoBar = styled.input`
     -webkit-appearance: none;
     width: 20px;
     height: 20px;
+  }
+`;
+
+export const PlayBtn = styled(Play)`
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  bottom: 45%;
+  left: 3%;
+  cursor: pointer;
+  path {
+    fill: white;
+  }
+`;
+
+export const PauseBtn = styled(Pause)`
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  bottom: 45%;
+  left: 3%;
+  cursor: pointer;
+  path {
+    fill: white;
+  }
+`;
+
+export const VolumeBox = styled.div`
+  position: absolute;
+  bottom: 150%;
+  right: -2.5%;
+  width: 130px;
+  height: 30px;
+  transform: rotate(270deg);
+  display: flex;
+  justify-content: start;
+  align-items: start;
+`;
+
+export const VolumeBtn = styled(Volume)`
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  transform: rotate(90deg);
+  cursor: pointer;
+  path {
+    fill: white;
+  }
+`;
+
+export const VolumeBar = styled.input`
+  width: 100px;
+  height: 20px;
+  overflow: hidden;
+  background: none;
+  /* appearance: none; */
+  transition: 100ms;
+  z-index: 9999;
+
+  &::-webkit-slider-runnable-track {
+    width: 100%;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+export const FullScreenBtn = styled(FullScreen)`
+  width: 18px;
+  height: 18px;
+  position: absolute;
+  bottom: 45%;
+  right: 8%;
+  cursor: pointer;
+  path {
+    fill: white;
   }
 `;
