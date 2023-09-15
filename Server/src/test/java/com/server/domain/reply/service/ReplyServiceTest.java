@@ -559,14 +559,13 @@ class ReplyServiceTest extends ServiceTest {
         //given
         Member member = createAndSaveMember();
         Channel channel = createAndSaveChannel(member);
-        Video video = createAndSaveOrder(member, List.of(createAndSaveVideo(channel)), 3).getVideos().get(0);
+        Video video = createAndSaveOrder(member, List.of(createAndSaveVideo(channel)), 5).getVideos().get(0);
 
         Order order = Order.createOrder(member, List.of(video), 5);
         order.completeOrder(LocalDateTime.now(), "paymentKey");
 
         orderRepository.save(order);
         videoRepository.save(video);
-        rewardRepository.save(Reward.createReward(5, member, video));
 
         em.flush();
         em.clear();
@@ -576,6 +575,7 @@ class ReplyServiceTest extends ServiceTest {
 
         //then
         rewardService.createQuestionRewardsIfNotPresent(video.getQuestions(), member);
+        rewardRepository.save(Reward.createReward(5, member, video));
 
         List<Reward> rewards = rewardRepository.findAll();
         int totalRewardAmount = 0;
