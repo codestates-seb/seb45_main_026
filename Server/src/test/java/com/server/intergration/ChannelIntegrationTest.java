@@ -3,16 +3,15 @@ package com.server.intergration;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.service.dto.ChannelInfo;
 import com.server.domain.channel.service.dto.ChannelUpdate;
-import com.server.domain.channel.service.dto.request.ChannelVideoGetServiceRequest;
 import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
 import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
 import com.server.global.reponse.ApiPageResponse;
-import com.server.global.reponse.PageInfo;
 import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.*;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,13 +41,10 @@ public class ChannelIntegrationTest extends IntegrationTest {
     String loginMemberAccessToken;
 
     // 다른 사용자들의 정보
-    Member otherMember1;
-
-    Channel otherMemberChannel1;
-
-    List<Video> otherMemberVideos1 = new ArrayList<>();
-
-    String otherMemberEmail1 = "other1@email.com";
+    Member otherMember;
+    Channel otherMemberChannel;
+    List<Video> otherMemberVideos = new ArrayList<>();
+    String otherMemberEmail = "other1@email.com";
     String otherMemberPassword = "other1234!";
 
 
@@ -59,17 +55,17 @@ public class ChannelIntegrationTest extends IntegrationTest {
         }
 
         loginMember = createAndSaveMemberWithEmailPassword(loginMemberEmail, loginMemberPassword);
-        loginMemberChannel = createChannel(loginMember);
 
+        loginMemberChannel = createChannel(loginMember);
 
         loginMemberAccessToken = BEARER + createAccessToken(loginMember, 360000);
 
-        otherMember1 = createAndSaveMemberWithEmailPassword(otherMemberEmail1, otherMemberPassword);
+        otherMember = createAndSaveMemberWithEmailPassword(otherMemberEmail, otherMemberPassword);
 
-        otherMemberChannel1 = createChannelWithRandomName(otherMember1);
+        otherMemberChannel = createChannelWithRandomName(otherMember);
 
         for (int i = 0; i < 3; i++) {
-            otherMemberVideos1.add(createAndSavePaidVideo(otherMemberChannel1, 10000));
+            otherMemberVideos.add(createAndSavePaidVideo(otherMemberChannel, 10000));
         }
 
         isSetting = true;
@@ -98,10 +94,10 @@ public class ChannelIntegrationTest extends IntegrationTest {
 
         assertThat(channelInfo.getChannelName()).isEqualTo(loginMemberChannel.getChannelName());
         assertThat(channelInfo.getDescription()).isEqualTo(loginMemberChannel.getDescription());
-        assertThat(channelInfo.getImageUrl()).isEqualTo(awsService.getFileUrl(loginMemberChannel.getMember().getMemberId(), loginMemberChannel.getMember().getImageFile(), FileType.PROFILE_IMAGE));
+        assertThat(channelInfo.getImageUrl()).isEqualTo(awsService.getFileUrl(loginMemberChannel.getMember().getImageFile(), FileType.PROFILE_IMAGE));
         assertThat(channelInfo.getMemberId()).isEqualTo(loginMemberChannel.getMember().getMemberId());
         assertThat(channelInfo.getSubscribers()).isEqualTo(loginMemberChannel.getSubscribers());
-        //assertThat(channelInfo.getCreatedDate()).isEqualTo(loginMemberChannel.getCreatedDate());
+        assertThat(channelInfo.getCreatedDate()).isAfter(loginMemberChannel.getCreatedDate().minusNanos(500));
         assertThat(channelInfo.getIsSubscribed()).isFalse();
     }
 
@@ -152,7 +148,7 @@ public class ChannelIntegrationTest extends IntegrationTest {
     @DisplayName("채널을 구독한다")
     Collection<DynamicTest> subscribeChannel() throws Exception {
         ResultActions actions = mockMvc.perform(
-                patch("/channels/{member-id}/subscribe", otherMemberChannel1.getChannelId())
+                patch("/channels/{member-id}/subscribe", otherMemberChannel.getChannelId())
                         .header(AUTHORIZATION, loginMemberAccessToken)
                         .accept(APPLICATION_JSON)
         );
@@ -167,7 +163,7 @@ public class ChannelIntegrationTest extends IntegrationTest {
 
                 dynamicTest("이미 구독한 채널을 다시 구독하면 구독이 취소된다.", () -> {
                     ResultActions resultActions = mockMvc.perform(
-                            patch("/channels/{member-id}/subscribe", otherMemberChannel1.getChannelId())
+                            patch("/channels/{member-id}/subscribe", otherMemberChannel.getChannelId())
                                     .header(AUTHORIZATION, loginMemberAccessToken)
                                     .accept(APPLICATION_JSON)
                     );
@@ -180,7 +176,7 @@ public class ChannelIntegrationTest extends IntegrationTest {
 
                 dynamicTest("비로그인 사용자가 채널을 구독하면 예외가 발생한다.", () -> {
                     ResultActions anonymousActions = mockMvc.perform(
-                            post("/channels/{member-id}/subscribe", otherMember1.getMemberId())
+                            post("/channels/{member-id}/subscribe", otherMember.getMemberId())
                                     .accept(APPLICATION_JSON)
                                     .header(AUTHORIZATION, ""));
 
@@ -191,7 +187,7 @@ public class ChannelIntegrationTest extends IntegrationTest {
 
                 dynamicTest("타유저의 채널을 구독하면 타유저의 구독자 수가 1 증가한다", () -> {
                     ResultActions resultActions = mockMvc.perform(
-                            patch("/channels/{member-id}/subscribe", otherMemberChannel1.getChannelId())
+                            patch("/channels/{member-id}/subscribe", otherMemberChannel.getChannelId())
                                     .header(AUTHORIZATION, loginMemberAccessToken)
                                     .accept(APPLICATION_JSON)
                     );
@@ -204,13 +200,13 @@ public class ChannelIntegrationTest extends IntegrationTest {
                     em.flush();
                     em.clear();
 
-                    Channel channel = channelRepository.findById(otherMemberChannel1.getMember().getMemberId()).get();
+                    Channel channel = channelRepository.findById(otherMemberChannel.getMember().getMemberId()).get();
                     assertThat(channel.getSubscribers()).isEqualTo(1);
                 }),
 
                 dynamicTest("타유저의 채널을 구독취소하면 타유저의 구독자 수가 1 감소한다", () -> {
                     ResultActions resultActions = mockMvc.perform(
-                            patch("/channels/{member-id}/subscribe", otherMemberChannel1.getChannelId())
+                            patch("/channels/{member-id}/subscribe", otherMemberChannel.getChannelId())
                                     .header(AUTHORIZATION, loginMemberAccessToken)
                                     .accept(APPLICATION_JSON)
                     );
@@ -222,7 +218,7 @@ public class ChannelIntegrationTest extends IntegrationTest {
                     em.flush();
                     em.clear();
 
-                    Channel channel = channelRepository.findById(otherMemberChannel1.getMember().getMemberId()).get();
+                    Channel channel = channelRepository.findById(otherMemberChannel.getMember().getMemberId()).get();
                     assertThat(channel.getSubscribers()).isEqualTo(0);
                 }),
 
@@ -299,9 +295,6 @@ public class ChannelIntegrationTest extends IntegrationTest {
 
                             List<Video> expectedVideos = loginMemberVideos;
                             assertThat(responses).isEqualTo(expectedVideos);
-
-
-
                         }
                 ),
 
