@@ -6,6 +6,7 @@ import com.server.domain.reply.controller.convert.ReplySort;
 import com.server.domain.reply.dto.*;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
+import com.server.domain.reward.service.RewardService;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
@@ -23,6 +24,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Transactional
 @Service
 public class ReplyService {
@@ -31,17 +34,20 @@ public class ReplyService {
     private final MemberRepository memberRepository;
     private final VideoRepository videoRepository;
     private final AwsService awsService;
+    private final RewardService rewardService;
 
 
     public ReplyService(ReplyRepository replyRepository,
                         MemberRepository memberRepository,
                         VideoRepository videoRepository,
-                        AwsService awsService) {
+                        AwsService awsService,
+                        RewardService rewardService) {
 
         this.replyRepository = replyRepository;
         this.memberRepository = memberRepository;
         this.videoRepository = videoRepository;
         this.awsService = awsService;
+        this.rewardService = rewardService;
     }
 
     @Transactional(readOnly = true)
@@ -73,6 +79,8 @@ public class ReplyService {
         validateReply(loginMemberId, video);
         existReplies(loginMemberId, videoId);
         evaluateStar(createReply.getStar());
+
+        rewardService.createQuestionRewardsIfNotPresent(video.getQuestions(), findLoginMember);
 
         Reply reply = Reply.newReply(findLoginMember, video, createReply);
 
