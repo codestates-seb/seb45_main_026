@@ -141,6 +141,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .limit(request.getPageable().getPageSize())
                 .orderBy(getSort(request.getSort()))
                 .where(
+                        video.channel.channelId.ne(request.getLoginMemberId()),
                         getCreateVideo(),
                         hasChannel(),
                         freeOrPaid(request.getFree()),
@@ -153,6 +154,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .from(video)
                 .distinct()
                 .where(
+                        video.channel.channelId.ne(request.getLoginMemberId()),
                         getCreateVideo(),
                         hasChannel(),
                         freeOrPaid(request.getFree()),
