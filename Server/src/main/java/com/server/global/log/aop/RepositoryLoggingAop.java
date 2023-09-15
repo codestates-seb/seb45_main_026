@@ -22,7 +22,9 @@ public class RepositoryLoggingAop {
     }
 
     @Pointcut("execution(* org.springframework.data.jpa.repository.JpaRepository.*(..)) " +
-            "|| execution(* com.server.domain.*.repository..*RepositoryImpl.*(..))")
+            "|| execution(* com.server.domain.*.repository..*RepositoryImpl.*(..))" +
+            "|| execution(* com.server.domain.*.repository..*Repository.*(..))" +
+            "&& !execution(* com.server.domain.*.repository..*RepositoryCustom.*(..))")
     public void repositoryLogging() {}
 
     @Around("repositoryLogging()")
