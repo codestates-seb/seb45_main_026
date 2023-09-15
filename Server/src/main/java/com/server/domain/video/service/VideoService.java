@@ -116,6 +116,8 @@ public class VideoService {
     @Transactional
     public void watch(Long loginMemberId, Long videoId) {
 
+        //getVideo 를 readOnly 로 하기 위해 따로 조회
+
         Video video = verifiedVideoIncludeWithdrawal(videoId);
 
         Long memberId = verifiedMemberOrNull(loginMemberId);
