@@ -18,6 +18,7 @@ import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.replyException.ReplyDuplicateException;
+import com.server.global.exception.businessexception.replyException.ReplyNotFoundException;
 import com.server.global.exception.businessexception.replyException.ReplyNotValidException;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import com.server.global.exception.businessexception.videoexception.VideoNotPurchasedException;
@@ -175,6 +176,20 @@ class ReplyServiceTest extends ServiceTest {
             LocalDateTime nextCreatedDate = replyInfoList.get(i + 1).getCreatedDate();
             assertThat(currentCreatedDate).isAfterOrEqualTo(nextCreatedDate);
         }
+    }
+
+    @Test
+    @DisplayName("댓글 단 건 조회시 댓글이 존재하지 않으면 ReplyNotFoundException이 발생한다.")
+    void notFoundReply() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSavePurchasedVideo(member);
+
+        //when & then
+        assertThrows(ReplyNotFoundException.class, () -> {
+            replyService.getReply(999999999999L);
+        });
     }
 
     @Test
@@ -457,6 +472,78 @@ class ReplyServiceTest extends ServiceTest {
         assertThat(reply.getStar()).isEqualTo(5);
     }
 
+
+    @Test
+    @DisplayName("댓글 수정시 존재하지 않는 댓글이면 replyNotFoundException이 발생한다.")
+    void replyNotFoundException(){
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSavePurchasedVideo(member);
+
+        em.flush();
+        em.clear();
+
+        //when & then
+        assertThrows(ReplyNotFoundException.class, () -> {
+            replyService.updateReply(member.getMemberId(), 999999999999L, new ReplyUpdateServiceApi("content", 9));
+        });;
+    }
+
+    @Test
+    @DisplayName("댓글 수정시 로그인한 사용자의 댓글이 아니면 MemberAccessDeniedException이 발생한다.")
+    void memberAccessDeniedException(){
+        //given
+        Member member = createAndSaveMember();
+        Member member1 = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSavePurchasedVideo(member);
+
+        Reply reply = Reply.builder()
+                .content("content")
+                .star(0)
+                .member(member)
+                .video(video)
+                .build();
+        replyRepository.save(reply);
+
+        em.flush();
+        em.clear();
+
+        //when & then
+        assertThrows(MemberAccessDeniedException.class, () -> {
+            replyService.updateReply(member1.getMemberId(), reply.getReplyId(), new ReplyUpdateServiceApi("content", 9));
+        });
+    }
+
+    @Test
+    @DisplayName("댓글 수정시 강의의 별점이 변경된다.")
+    void updateReplyAndCalculateStar(){
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSavePurchasedVideo(member);
+
+        Reply reply = Reply.builder()
+                .content("content")
+                .star(0)
+                .member(member)
+                .video(video)
+                .build();
+        replyRepository.save(reply);
+
+        em.flush();
+        em.clear();
+
+        //when
+        replyService.updateReply(member.getMemberId(), reply.getReplyId(), new ReplyUpdateServiceApi("content", 9));
+
+        //then
+        Video updatedVideo = videoRepository.findById(video.getVideoId()).orElseThrow(VideoNotFoundException::new);
+
+        assertThat(updatedVideo.getStar()).isEqualTo(9.0F);
+    }
+
     @Test
     @DisplayName("로그인하지 않은 사용자는 댓글을 남길 수 없다.")
     public void onlyLoginUserModifyReplies() {
@@ -551,5 +638,94 @@ class ReplyServiceTest extends ServiceTest {
         assertThrows(MemberAccessDeniedException.class, () -> {
             replyService.deleteReply(replyId, otherMemberId);
         });
+    }
+
+    @Test
+    @DisplayName("댓글을 작성 후 리워드가 적립되었는지 확인한다")
+    void createReplyWithReward() {
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveOrder(member, List.of(createAndSaveVideo(channel)), 10).getVideos().get(0);
+
+        Order order = Order.createOrder(member, List.of(video), 10);
+        order.completeOrder(LocalDateTime.now(), "paymentKey");
+
+        orderRepository.save(order);
+        videoRepository.save(video);
+
+        em.flush();
+        em.clear();
+
+        //when
+        replyService.createReply(member.getMemberId(), video.getVideoId(), new CreateReply("content", 9));
+
+        //then
+        List<Reward> rewards = rewardRepository.findAll();
+
+        assertThat(rewards.get(0).getRewardPoint()).isEqualTo(10);
+    }
+
+
+    @Test
+    @DisplayName("댓글 작성시 0 이하의 별점을 부여 할 수 없다.")
+    void notExceedStarException(){
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSavePurchasedVideo(member);
+
+        em.flush();
+        em.clear();
+
+        //when & then
+        assertThrows(ReplyNotValidException.class, () -> {
+            replyService.createReply(member.getMemberId(), video.getVideoId(), new CreateReply("content", 0));
+        });
+    }
+
+    @Test
+    @DisplayName("댓글 삭제시 존재하지 않는 댓글이면 ReplyNotFoundException이 발생한다.")
+    void deleteReplyNotFoundException(){
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSavePurchasedVideo(member);
+
+        em.flush();
+        em.clear();
+
+        //when & then
+        assertThrows(ReplyNotFoundException.class, () -> {
+            replyService.deleteReply(999999999999L, member.getMemberId());
+        });
+    }
+
+    @Test
+    @DisplayName("댓글 삭제시 강의의 별점이 변경된다.")
+    void deleteReplyAndCalculateStar(){
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSavePurchasedVideo(member);
+
+        Reply reply = Reply.builder()
+                .content("content")
+                .star(0)
+                .member(member)
+                .video(video)
+                .build();
+        replyRepository.save(reply);
+
+        em.flush();
+        em.clear();
+
+        //when
+        replyService.deleteReply(reply.getReplyId(), member.getMemberId());
+
+        //then
+        Video updatedVideo = videoRepository.findById(video.getVideoId()).orElseThrow(VideoNotFoundException::new);
+
+        assertThat(updatedVideo.getStar()).isEqualTo(0.0F);
     }
 }
