@@ -331,6 +331,8 @@ public class IntegrationTest {
 			.channel(channel)
 			.build();
 
+		channel.addSubscriber();
+
 		subscribeRepository.save(subscribe);
 
 		return subscribe;
