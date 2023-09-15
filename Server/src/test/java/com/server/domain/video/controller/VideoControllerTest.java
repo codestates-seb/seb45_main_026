@@ -646,7 +646,7 @@ class VideoControllerTest extends ControllerTest {
 
         //when
         ResultActions actions = mockMvc.perform(
-                delete(BASE_URL + "/{videoId}", videoId)
+                patch(BASE_URL + "/{videoId}/status", videoId)
                         .header(AUTHORIZATION, TOKEN)
         );
 
@@ -684,7 +684,7 @@ class VideoControllerTest extends ControllerTest {
 
         //when
         ResultActions actions = mockMvc.perform(
-                delete(BASE_URL + "/{videoId}", videoId)
+                patch(BASE_URL + "/{videoId}/status", videoId)
                         .header(AUTHORIZATION, TOKEN)
         );
 
@@ -1649,14 +1649,14 @@ class VideoControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("비디오 삭제 시 validation 테스트 - videoId 가 양수가 아니면 검증에 실패한다.")
-    void deleteVideoValidation() throws Exception {
+    @DisplayName("비디오 상태 변경 시 validation 테스트 - videoId 가 양수가 아니면 검증에 실패한다.")
+    void changeVideoStatusValidation() throws Exception {
         //given
         Long wrongVideoId = 0L;
 
         //when
         ResultActions actions = mockMvc.perform(
-                delete(BASE_URL + "/{video-id}", wrongVideoId)
+                patch(BASE_URL + "/{video-id}/status", wrongVideoId)
                         .contentType(APPLICATION_JSON)
                         .header(AUTHORIZATION, TOKEN)
         );

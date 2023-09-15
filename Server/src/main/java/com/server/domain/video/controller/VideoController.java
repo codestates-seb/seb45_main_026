@@ -186,7 +186,7 @@ public class VideoController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{video-id}")
+    @PatchMapping("/{video-id}/status")
     public ResponseEntity<ApiSingleResponse<Boolean>> changeVideoStatus(@PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
                                                                         @LoginId Long loginMemberId) {
 
