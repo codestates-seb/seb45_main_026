@@ -540,6 +540,8 @@ class VideoRepositoryTest extends RepositoryTest {
         Video video4 = createAndSaveFreeVideo(owner.getChannel());
         Video video5 = createAndSaveVideo(owner.getChannel());
         Video video6 = createAndSaveVideo(owner.getChannel());
+        Video video7 = createAndSaveVideo(owner.getChannel());
+        video7.close(); // 조회되지 않는 비디오
 
         for(int i = 1; i <= 100; i++) {
             Video otherVideo = createAndSaveVideo(otherOwner.getChannel());// otherMember 의 video
@@ -788,6 +790,24 @@ class VideoRepositoryTest extends RepositoryTest {
                     videos.getContent().forEach(video ->
                             assertThat(List.of(video4.getVideoId(), video5.getVideoId(), video6.getVideoId()))
                                     .doesNotContain(video.getVideoId()));
+                }),
+                dynamicTest("채널 관리자가 조회하면 close 된 비디오도 조회되어 총 7개가 조회된다.", ()-> {
+                    //given
+                    ChannelVideoGetDataRequest request = new ChannelVideoGetDataRequest(
+                            owner.getMemberId(),
+                            owner.getMemberId(),
+                            null,
+                            pageRequest,
+                            null,
+                            null,
+                            true);
+
+                    //when
+                    Page<Video> videos = videoRepository.findChannelVideoByCond(request);
+
+                    //then
+                    assertThat(videos.getContent()).hasSize(7)
+                            .isSortedAccordingTo(Comparator.comparing(Video::getCreatedDate).reversed());
                 })
         );
     }
