@@ -2,6 +2,7 @@ package com.server.intergration;
 
 import static com.server.auth.util.AuthConstant.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.DynamicTest.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
@@ -20,9 +21,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.server.domain.answer.entity.Answer;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.category.service.dto.response.CategoryResponse;
 import com.server.domain.channel.entity.Channel;
@@ -44,6 +47,9 @@ import com.server.domain.reward.entity.Reward;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
+import com.server.global.exception.businessexception.answerexception.AnswerNotFoundException;
+import com.server.global.exception.businessexception.orderexception.OrderNotFoundException;
+import com.server.global.exception.businessexception.replyException.ReplyNotFoundException;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.PageInfo;
 import com.server.module.s3.service.dto.ImageType;
@@ -235,7 +241,12 @@ public class MemberIntergrationTest extends IntegrationTest {
 	@Test
 	@DisplayName("자신의 리워드 목록을 조회한다.")
 	void getRewards() throws Exception {
+		// given
+		List<Reward> rewards = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getRewards();
 
+		int totalSize = rewards.size();
+
+		// when
 		ResultActions actions = mockMvc.perform(
 			get("/members/rewards")
 				.header(AUTHORIZATION, loginMemberAccessToken)
@@ -244,23 +255,19 @@ public class MemberIntergrationTest extends IntegrationTest {
 				.accept(APPLICATION_JSON)
 		);
 
+		em.flush();
+		em.clear();
+
+		// then
 		actions
 			.andDo(print())
 			.andExpect(status().isOk());
 
-		em.flush();
-		em.clear();
-
 		ApiPageResponse<RewardsResponse> rewardsResponse =
 			getApiPageResponseFromResult(actions, RewardsResponse.class);
 
-		// List
 		PageInfo pageInfo = rewardsResponse.getPageInfo();
 		List<RewardsResponse> responses = rewardsResponse.getData();
-
-		List<Reward> rewards = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getRewards();
-
-		int totalSize = rewards.size();
 
 		assertThat(pageInfo.getTotalPage()).isEqualTo((int) Math.ceil(totalSize / 16.0));
 		assertThat(pageInfo.getPage()).isEqualTo(1);
@@ -804,31 +811,189 @@ public class MemberIntergrationTest extends IntegrationTest {
 			.isEqualTo(getProfileUrl(firstWatch.getVideo().getChannel().getMember()));
 	}
 
-	@Test
+	@TestFactory
 	@DisplayName("자신의 닉네임을 변경한다.")
-	void updateNickname() throws Exception {
+	Collection<DynamicTest> updateNickname() throws Exception {
 
-		MemberApiRequest.Nickname nickname = new MemberApiRequest.Nickname("testnickname");
+		return List.of(
+			dynamicTest(
+				"로그인한 회원이 아닌 경우 권한 예외가 발생한다",
+				() -> {
+					MemberApiRequest.Nickname nickname = new MemberApiRequest.Nickname("testnickname");
 
-		String content = objectMapper.writeValueAsString(nickname);
+					String content = objectMapper.writeValueAsString(nickname);
 
-		ResultActions actions = mockMvc.perform(
-			patch("/members")
-				.header(AUTHORIZATION, loginMemberAccessToken)
-				.contentType(APPLICATION_JSON)
-				.content(content)
+					String before = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getNickname();
+
+					ResultActions actions = mockMvc.perform(
+						patch("/members")
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isForbidden());
+
+					em.flush();
+					em.clear();
+
+					String after = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getNickname();
+
+					assertThat(after).isEqualTo(before);
+				}
+			),
+			dynamicTest(
+				"입력값이 없는 경우 변경사항이 없다는 예외를 발생한다",
+				() -> {
+					MemberApiRequest.Nickname nickname = new MemberApiRequest.Nickname(null);
+
+					String content = objectMapper.writeValueAsString(nickname);
+
+					String before = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getNickname();
+
+					ResultActions actions = mockMvc.perform(
+						patch("/members")
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("nickname"))
+						.andExpect(jsonPath("$.data[0].value").value("null"))
+						.andExpect(jsonPath("$.data[0].reason").value("한글/숫자/영어를 선택하여 사용한 1 ~ 20자를 입력하세요."));
+
+					em.flush();
+					em.clear();
+
+					String after = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getNickname();
+
+					assertThat(after).isEqualTo(before);
+				}
+			),
+			dynamicTest(
+				"기존 닉네임과 같은 경우 변경사항이 없다는 예외를 발생한다",
+				() -> {
+					String before = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getNickname();
+
+					MemberApiRequest.Nickname nickname = new MemberApiRequest.Nickname(before);
+
+					String content = objectMapper.writeValueAsString(nickname);
+
+					ResultActions actions = mockMvc.perform(
+						patch("/members")
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest());
+
+					em.flush();
+					em.clear();
+
+					String after = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getNickname();
+
+					assertThat(after).isEqualTo(before);
+				}
+			),
+			dynamicTest(
+				"닉네임의 길이가 20자를 초과한 경우 예외를 발생한다",
+				() -> {
+					String before = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getNickname();
+
+					MemberApiRequest.Nickname nickname = new MemberApiRequest.Nickname(before);
+
+					String content = objectMapper.writeValueAsString("aaaaaaaaaaaaaaaaaaaaa");
+
+					ResultActions actions = mockMvc.perform(
+						patch("/members")
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("nickname"))
+						.andExpect(jsonPath("$.data[0].value").value("aaaaaaaaaaaaaaaaaaaaa"))
+						.andExpect(jsonPath("$.data[0].reason").value("한글/숫자/영어를 선택하여 사용한 1 ~ 20자를 입력하세요."));
+
+					em.flush();
+					em.clear();
+
+					String after = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getNickname();
+
+					assertThat(after).isEqualTo(before);
+				}
+			),
+			dynamicTest(
+				"닉네임에 한글, 숫자, 영어 이외의 문자가 입력된 경우 예외를 발생한다",
+				() -> {
+					String before = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getNickname();
+
+					MemberApiRequest.Nickname nickname = new MemberApiRequest.Nickname(before);
+
+					String content = objectMapper.writeValueAsString("$#%$#%#$");
+
+					ResultActions actions = mockMvc.perform(
+						patch("/members")
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest())
+						.andExpect(jsonPath("$.data[0].field").value("nickname"))
+						.andExpect(jsonPath("$.data[0].value").value("$#%$#%#$"))
+						.andExpect(jsonPath("$.data[0].reason").value("한글/숫자/영어를 선택하여 사용한 1 ~ 20자를 입력하세요."));
+
+					em.flush();
+					em.clear();
+
+					String after = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getNickname();
+
+					assertThat(after).isEqualTo(before);
+				}
+			),
+			dynamicTest(
+				"닉네임이 변경된다",
+				() -> {
+					String before = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getNickname();
+
+					MemberApiRequest.Nickname nickname = new MemberApiRequest.Nickname("changeNickname");
+
+					String content = objectMapper.writeValueAsString(nickname);
+
+					ResultActions actions = mockMvc.perform(
+						patch("/members")
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isNoContent());
+
+					em.flush();
+					em.clear();
+
+					String after = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getNickname();
+
+					assertThat(after).isNotEqualTo(before);
+					assertThat(after).isEqualTo(nickname.getNickname());
+				}
+			)
 		);
-
-		actions
-			.andDo(print())
-			.andExpect(status().isNoContent());
-
-		em.flush();
-		em.clear();
-
-		Member member = memberRepository.findById(loginMember.getMemberId()).orElseThrow();
-
-		assertThat(member.getNickname()).isEqualTo(nickname.getNickname());
 	}
 
 	@Test
@@ -868,64 +1033,194 @@ public class MemberIntergrationTest extends IntegrationTest {
 	@DisplayName("비밀번호 변경 테스트")
 	Collection<DynamicTest> updatePassword() throws Exception {
 
-		MemberApiRequest.Password request = new MemberApiRequest.Password(
-			"abcde12345!", "12345abcde!"
-		);
-
-		String content = objectMapper.writeValueAsString(request);
-
-		ResultActions actions = mockMvc.perform(
-			patch("/members/password")
-				.header(AUTHORIZATION, loginMemberAccessToken)
-				.contentType(APPLICATION_JSON)
-				.content(content)
-		);
-
 		return List.of(
+			dynamicTest(
+				"권한이 없는 경우",
+				() -> {
+					String wrongPrevPassword = "wrong" + loginMemberPassword;
+
+					MemberApiRequest.Password request = new MemberApiRequest.Password(
+						wrongPrevPassword, "12345abcde!"
+					);
+
+					String content = objectMapper.writeValueAsString(request);
+
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isForbidden());
+				}
+			),
 			dynamicTest(
 				"기존 비밀번호가 잘못된 경우",
 				() -> {
+					String wrongPrevPassword = "wrong" + loginMemberPassword;
 
+					MemberApiRequest.Password request = new MemberApiRequest.Password(
+						wrongPrevPassword, "12345abcde!"
+					);
+
+					String content = objectMapper.writeValueAsString(request);
+
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest());
+				}
+			),
+			dynamicTest(
+				"비밀번호가 성공적으로 변경된다",
+				() -> {
+					String prevPassword = loginMemberPassword;
+
+					MemberApiRequest.Password request = new MemberApiRequest.Password(
+						prevPassword, "12345abcde!"
+					);
+
+					String before = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getPassword();
+
+					String content = objectMapper.writeValueAsString(request);
+
+					ResultActions actions = mockMvc.perform(
+						patch("/members/password")
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.contentType(APPLICATION_JSON)
+							.content(content)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isNoContent());
+
+					String after = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getPassword();
+
+					assertThat(before).isNotEqualTo(after);
+					assertThat(passwordEncoder.matches(request.getNewPassword(), after)).isTrue();
 				}
 			)
 		);
 	}
 
-	@TestFactory
+	@Test
 	@DisplayName("자신의 프로필 이미지를 삭제한다.")
-	Collection<DynamicTest> deleteImage() throws Exception {
+	void deleteImage() throws Exception {
+
+		String before = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getImageFile();
 
 		ResultActions actions = mockMvc.perform(
 			delete("/members/image")
 				.header(AUTHORIZATION, loginMemberAccessToken)
 		);
 
-		return List.of(
-			dynamicTest(
-				"기존 비밀번호가 잘못된 경우",
-				() -> {
+		actions
+			.andDo(print())
+			.andExpect(status().isNoContent());
 
-				}
-			)
-		);
+		String after = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getImageFile();
+
+		assertThat(before).isNotEqualTo(after);
+		assertThat(after).isNull();
 	}
 
-	@TestFactory
+	@Test
 	@DisplayName("회원을 탈퇴시키고 관련된 모든 정보를 삭제 및 갱신한다.")
-	Collection<DynamicTest> deleteMember() throws Exception {
+	void deleteMember() throws Exception {
+		// given
+		Member member = memberRepository.findById(loginMember.getMemberId()).orElseThrow();
 
+		List<Long> videos = member.getChannel().getVideos().stream().map(Video::getVideoId).collect(Collectors.toList());
+		List<Long> watches = member.getWatches().stream().map(Watch::getWatchId).collect(Collectors.toList());
+		List<Long> subscribes = member.getSubscribes().stream().map(Subscribe::getSubscribe).collect(Collectors.toList());
+		List<String> orders = member.getOrders().stream().map(Order::getOrderId).collect(Collectors.toList());
+		List<Long> replies = member.getReplies().stream().map(Reply::getReplyId).collect(Collectors.toList());
+		List<Long> answers = member.getAnswers().stream().map(Answer::getAnswerId).collect(Collectors.toList());
+		List<Long> carts = member.getCarts().stream().map(Cart::getCartId).collect(Collectors.toList());
+		List<Long> rewards = member.getRewards().stream().map(Reward::getRewardId).collect(Collectors.toList());
+
+		List<Long> subscribedChannelId = member.getSubscribes().stream().map(subscribe -> subscribe.getChannel().getChannelId()).collect(Collectors.toList());
+		List<Integer> beforeSubscribers = member.getSubscribes().stream().map(subscribe -> subscribe.getChannel().getSubscribers()).collect(Collectors.toList());
+
+		List<Long> replyVideoId = member.getReplies().stream().map(reply -> reply.getVideo().getVideoId()).collect(Collectors.toList());
+		List<Float> beforeStars = member.getReplies().stream().map(reply -> reply.getVideo().getStar()).collect(Collectors.toList());
+
+		em.flush();
+		em.clear();
+
+		// when
 		ResultActions actions = mockMvc.perform(
 			delete("/members")
 				.header(AUTHORIZATION, loginMemberAccessToken)
 		);
 
-		return List.of(
-			dynamicTest(
-				"기존 비밀번호가 잘못된 경우",
-				() -> {
+		// then
+		actions
+			.andDo(print())
+			.andExpect(status().isNoContent());
 
-				}
-			)
-		);
+		// 비디오의 채널이 null로 변경되었는가
+		for (Long id : videos) {
+			assertThat(videoRepository.findById(id).orElseThrow().getChannel())
+				.isNull();
+		}
+
+		// 시청기록이 삭제되었는가
+		for (Long id : watches) {
+			assertThrows(ChangeSetPersister.NotFoundException.class, () -> watchRepository.findById(id).orElseThrow(
+				ChangeSetPersister.NotFoundException::new));
+		}
+
+		// 구독 목록이 삭제되었는가
+		for (Long id : subscribes) {
+			assertThrows(ChangeSetPersister.NotFoundException.class, () -> subscribeRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new));
+		}
+
+		// 회원이 구독하던 채널의 구독자 수가 변경되었는가
+		for (int i = 0; i < subscribedChannelId.size(); i++) {
+			assertThat(channelRepository.findById(subscribedChannelId.get(i)).orElseThrow().getSubscribers())
+				.isNotEqualTo(beforeSubscribers.get(i));
+		}
+
+		// 주문 기록은 남아있는가
+		for (String id : orders) {
+			assertDoesNotThrow(() -> orderRepository.findById(id).orElseThrow(OrderNotFoundException::new));
+		}
+
+		// 작성한 강의평이 모두 삭제되었는가
+		for (Long id : replies) {
+			assertThrows(ReplyNotFoundException.class, () -> replyRepository.findById(id).orElseThrow(ReplyNotFoundException::new));
+		}
+
+		// 강의평을 작성했던 강의들의 평점이 업데이트 되었는가
+		// 회원이 구독하던 채널의 구독자 수가 변경되었는가
+		for (int i = 0; i < replyVideoId.size(); i++) {
+			assertThat(videoRepository.findById(replyVideoId.get(i)).orElseThrow().getStar())
+				.isNotEqualTo(beforeStars.get(i));
+		}
+
+		// 문제 풀이 기록이 모두 삭제되었는가
+		for (Long id : answers) {
+			assertThrows(AnswerNotFoundException.class, () -> answerRepository.findById(id).orElseThrow(AnswerNotFoundException::new));
+		}
+
+		// 장바구니가 모두 삭제되었는가
+		for (Long id : carts) {
+			assertThrows(ChangeSetPersister.NotFoundException.class, () -> cartRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new));
+		}
+
+		// 리워드가 모두 삭제되었는가
+		for (Long id : rewards) {
+			assertThrows(ChangeSetPersister.NotFoundException.class, () -> rewardRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new));
+		}
 	}
 }
