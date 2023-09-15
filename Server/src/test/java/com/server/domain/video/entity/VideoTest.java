@@ -174,6 +174,37 @@ class VideoTest {
 
     }
 
+    @TestFactory
+    @DisplayName("video 의 videoStatus 를 변경한다.")
+    Collection<DynamicTest> openAndClose() {
+        //given
+        Video video = createVideoCreated();
+
+        return List.of(
+                dynamicTest("비디오 상태를 체크한다. closed 가 아니다", ()-> {
+                    //when
+                    boolean closed = video.isClosed();
+
+                    //then
+                    assertThat(closed).isFalse();
+                }),
+                dynamicTest("비디오를 closed 로 변경한다.", ()-> {
+                    //when
+                    video.close();
+
+                    //then
+                    assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.CLOSED);
+                }),
+                dynamicTest("비디오를 created 로 변경한다.", ()-> {
+                    //when
+                    video.open();
+
+                    //ehn
+                    assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.CREATED);
+                })
+        );
+    }
+
     private Member createMember() {
 
         Channel channel = Channel.builder()

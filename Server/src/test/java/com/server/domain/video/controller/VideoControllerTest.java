@@ -635,20 +635,25 @@ class VideoControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("비디오 삭제 API")
-    void deleteVideo() throws Exception {
+    @DisplayName("비디오 폐쇄 API")
+    void changeVideoStatusClose() throws Exception {
         //given
         Long videoId = 1L;
 
+        given(videoService.changeVideoStatus(anyLong(), anyLong())).willReturn(false);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(false, "비디오 폐쇄"));
+
         //when
         ResultActions actions = mockMvc.perform(
-                delete(BASE_URL + "/{videoId}", videoId)
+                patch(BASE_URL + "/{videoId}/status", videoId)
                         .header(AUTHORIZATION, TOKEN)
         );
 
         //then
         actions.andDo(print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse))
         ;
 
         //restdocs
@@ -659,6 +664,47 @@ class VideoControllerTest extends ControllerTest {
                         ),
                         requestHeaders(
                                 headerWithName(AUTHORIZATION).description("Access Token")
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("비디오 폐쇄")
+                        )
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("비디오 오픈 API")
+    void changeVideoStatusCreated() throws Exception {
+        //given
+        Long videoId = 1L;
+
+        given(videoService.changeVideoStatus(anyLong(), anyLong())).willReturn(true);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(true, "비디오 열기"));
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                patch(BASE_URL + "/{videoId}/status", videoId)
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse))
+        ;
+
+        //restdocs
+        actions.andDo(
+                documentHandler.document(
+                        pathParameters(
+                                parameterWithName("videoId").description("삭제할 비디오 ID")
+                        ),
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("Access Token")
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("비디오 열기")
                         )
                 )
         );
@@ -1603,14 +1649,14 @@ class VideoControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("비디오 삭제 시 validation 테스트 - videoId 가 양수가 아니면 검증에 실패한다.")
-    void deleteVideoValidation() throws Exception {
+    @DisplayName("비디오 상태 변경 시 validation 테스트 - videoId 가 양수가 아니면 검증에 실패한다.")
+    void changeVideoStatusValidation() throws Exception {
         //given
         Long wrongVideoId = 0L;
 
         //when
         ResultActions actions = mockMvc.perform(
-                delete(BASE_URL + "/{video-id}", wrongVideoId)
+                patch(BASE_URL + "/{video-id}/status", wrongVideoId)
                         .contentType(APPLICATION_JSON)
                         .header(AUTHORIZATION, TOKEN)
         );
