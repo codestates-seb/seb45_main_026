@@ -146,8 +146,16 @@ public class Video extends BaseEntity implements Rewardable {
         return (int) (price * 0.01);
     }
 
+    public boolean isClosed() {
+        return this.videoStatus == VideoStatus.CLOSED;
+    }
+
     public void close() {
         this.videoStatus = VideoStatus.CLOSED;
+    }
+
+    public void open() {
+        this.videoStatus = VideoStatus.CREATED;
     }
 
     public boolean isOwnedBy(Long memberId) {

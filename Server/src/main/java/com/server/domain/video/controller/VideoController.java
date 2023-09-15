@@ -187,12 +187,14 @@ public class VideoController {
     }
 
     @DeleteMapping("/{video-id}")
-    public ResponseEntity<Void> deleteVideo(@PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
-                                            @LoginId Long loginMemberId) {
+    public ResponseEntity<ApiSingleResponse<Boolean>> changeVideoStatus(@PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
+                                                                        @LoginId Long loginMemberId) {
 
-        videoService.deleteVideo(loginMemberId, videoId);
+        boolean result = videoService.changeVideoStatus(loginMemberId, videoId);
 
-        return ResponseEntity.noContent().build();
+        String message = result ? "비디오 열기" : "비디오 폐쇄";
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(result, message));
     }
 
     @GetMapping("/{video-id}/replies")

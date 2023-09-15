@@ -195,11 +195,17 @@ public class VideoService {
     }
 
     @Transactional
-    public void deleteVideo(Long loginMemberId, Long videoId) {
+    public boolean changeVideoStatus(Long loginMemberId, Long videoId) {
 
         Video video = verifiedVideo(loginMemberId, videoId);
 
+        if(video.isClosed()) {
+            video.open();
+            return true;
+        }
+
         video.close();
+        return false;
     }
 
     private void checkValidVideoName(String fileName) {

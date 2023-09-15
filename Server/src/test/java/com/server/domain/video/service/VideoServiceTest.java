@@ -903,23 +903,36 @@ class VideoServiceTest extends ServiceTest {
                 .extracting("cartId").containsExactly(cart3.getCartId());
     }
 
-    @Test
-    @DisplayName("video 소유자는 video 를 삭제할 수 있다. 삭제하면 video status 가 close 가 된다.")
-    void deleteVideo() {
+    @TestFactory
+    @DisplayName("video 소유자는 video 를 상태변경할 수 있다. 상태변경하면 video status 가 변경된다.")
+    Collection<DynamicTest> changeVideoStatus() {
         //given
         Member owner = createMemberWithChannel();
         Video video = createAndSaveVideo(owner.getChannel());
 
-        //when
-        videoService.deleteVideo(owner.getMemberId(), video.getVideoId());
+        return List.of(
+            dynamicTest("비디오를 폐쇄한다.", ()-> {
+                //when
+                boolean result = videoService.changeVideoStatus(owner.getMemberId(), video.getVideoId());
 
-        //then
-        assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.CLOSED);
+                //then
+                assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.CLOSED);
+                assertThat(result).isFalse();
+            }),
+            dynamicTest("비디오를 다시 연다.", ()-> {
+                //when
+                boolean result = videoService.changeVideoStatus(owner.getMemberId(), video.getVideoId());
+
+                //then
+                assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.CREATED);
+                assertThat(result).isTrue();
+            })
+        );
     }
 
     @Test
-    @DisplayName("video 소유자가 아니면 video 삭제 시 VideoAccessDeniedException 이 발생한다.")
-    void deleteVideoVideoAccessDeniedException() {
+    @DisplayName("video 소유자가 아니면 video 상태변경 시 VideoAccessDeniedException 이 발생한다.")
+    void changeVideoStatusVideoAccessDeniedException() {
         //given
         Member owner = createMemberWithChannel();
         Video video = createAndSaveVideo(owner.getChannel());
@@ -927,7 +940,7 @@ class VideoServiceTest extends ServiceTest {
         Member loginMember = createAndSaveMember(); // video 소유자가 아닌 다른 멤버
 
         //when & then
-        assertThatThrownBy(() -> videoService.deleteVideo(loginMember.getMemberId(), video.getVideoId()))
+        assertThatThrownBy(() -> videoService.changeVideoStatus(loginMember.getMemberId(), video.getVideoId()))
                 .isInstanceOf(VideoAccessDeniedException.class);
 
         //then (삭제가 되지 않았는지 확인)
@@ -935,14 +948,14 @@ class VideoServiceTest extends ServiceTest {
     }
 
     @Test
-    @DisplayName("video 삭제 시 존재하지 않는 videoId 면 VideoNotFoundException 이 발생한다.")
-    void deleteVideoVideoNotFoundException() {
+    @DisplayName("video 상태변경 시 존재하지 않는 videoId 면 VideoNotFoundException 이 발생한다.")
+    void changeVideoStatusVideoNotFoundException() {
         //given
         Member owner = createMemberWithChannel();
         Video video = createAndSaveVideo(owner.getChannel());
 
         //when & then
-        assertThatThrownBy(() -> videoService.deleteVideo(owner.getMemberId(), video.getVideoId() + 999L))
+        assertThatThrownBy(() -> videoService.changeVideoStatus(owner.getMemberId(), video.getVideoId() + 999L))
                 .isInstanceOf(VideoNotFoundException.class);
 
         //then (삭제가 되지 않았는지 확인)
