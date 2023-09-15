@@ -25,6 +25,8 @@ const AddCart = ({ videoId, isInCart, content = "", border = false }) => {
       .catch((err) => {
         if (err.response.data.message === "만료된 토큰입니다.") {
           refreshToken();
+        } else if (err.response.data.code === 403) {
+          alert("로그인 시 이용 가능합니다.");
         } else {
           console.log(err);
         }

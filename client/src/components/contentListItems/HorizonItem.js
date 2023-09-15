@@ -22,7 +22,9 @@ const ComponentBody = styled.li`
   align-items: center;
   border-top: 1px solid
     ${(props) =>
-      props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
+      props.isDark
+        ? globalTokens.LightGray.value
+        : globalTokens.LightGray.value};
   /* border-radius: ${globalTokens.RegularRadius.value}px; */
   margin: ${globalTokens.Spacing4.value}px 0;
   padding-top: ${globalTokens.Spacing24.value}px;
@@ -248,7 +250,11 @@ export default function HorizonItem({ lecture, channel }) {
               <PriceText isDark={isDark}>구매됨</PriceText>
             ) : isPurchased === false ? (
               <PriceText isDark={isDark}>
-                {price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원
+                {price > 0
+                  ? `${price
+                      .toString()
+                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원`
+                  : "무료"}
               </PriceText>
             ) : (
               <></>

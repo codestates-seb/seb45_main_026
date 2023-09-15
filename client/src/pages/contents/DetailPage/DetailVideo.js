@@ -20,7 +20,7 @@ import {
 } from "../../../atoms/typographys/Typographys";
 import profileGray from "../../../assets/images/icons/profile/profileGray.svg";
 import AddCart from "../../../components/DetailPage/AddCart";
-import ReactPlayer from "react-player";
+import VideoPlayer from "../../../components/DetailPage/VideoPlayer";
 
 const globalTokens = tokens.global;
 
@@ -118,6 +118,11 @@ const DetailVideo = () => {
         </HeaderBtn>
       </VideoHeader>
 
+      <VideoPlayer
+        videoId={videoId}
+        thumbnailUrl={videoDatas.thumbnailUrl}
+        handleVideo={() => {}}
+      />
       {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
         <VideoWindow
           src={videoDatas.videoUrl}
@@ -303,7 +308,6 @@ export const HeaderBtn = styled(NegativeTextButton)`
 `;
 
 export const VideoWindow = styled.video`
-  position: relative;
   width: 100%;
   aspect-ratio: 1.8/1;
   margin-top: 5px;
