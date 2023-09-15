@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.server.global.reponse.ApiSingleResponse;
+import com.server.search.controller.dto.ChannelSort;
 import com.server.search.engine.SearchEngine;
+import com.server.search.engine.dto.ChannelResultResponse;
 import com.server.search.engine.dto.VideoChannelSearchResponse;
 
 import javax.validation.constraints.Positive;
@@ -40,11 +42,11 @@ public class SearchController {
 	@GetMapping
 	public ResponseEntity<ApiSingleResponse<VideoChannelSearchResponse>> search(
 		@RequestParam("keyword") String keyword,
-		@RequestParam(value = "limit", defaultValue = "3") int limit)
+		@RequestParam(value = "limit", defaultValue = "3") @Positive(message = "{validation.positive}") int limit)
 	{
 
 		VideoChannelSearchResponse responses =
-			searchEngine.searchVideosAndChannels("\"" + keyword + "\"", limit);
+			searchEngine.searchVideosAndChannels(keyword, limit);
 
 		return ResponseEntity.ok(ApiSingleResponse.ok(responses));
 	}
@@ -77,5 +79,20 @@ public class SearchController {
 		Page<VideoPageResponse> videos = videoService.searchVideos(keyword, request);
 
 		return ResponseEntity.ok(ApiPageResponse.ok(videos, "비디오 목록 검색 성공"));
+	}
+
+	@GetMapping("/channels")
+	public ResponseEntity<ApiPageResponse<ChannelResultResponse>> channelSearch(
+		@RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+		@RequestParam(value = "size", defaultValue = "10") @Positive(message = "{validation.positive}") int size,
+		@RequestParam(value = "sort", defaultValue = "default") ChannelSort channelSort,
+		@RequestParam("keyword") String keyword,
+		@LoginId Long loginId
+	)
+	{
+
+		Page<ChannelResultResponse> pages = searchEngine.searchChannelResults(keyword, page, size, channelSort.getSort(), loginId);
+
+		return ResponseEntity.ok(ApiPageResponse.ok(pages));
 	}
 }

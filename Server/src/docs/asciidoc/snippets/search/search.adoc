@@ -32,3 +32,15 @@ include::{snippets}/search/videosearch/request-parameters.adoc[]
 include::{snippets}/search/videosearch/http-response.adoc[]
 ==== Response Fields
 include::{snippets}/search/videosearch/response-fields.adoc[]
+
+== 채널 검색
+=== HTTP Request
+include::{snippets}/search/channelsearch/http-request.adoc[]
+==== Request Headers
+include::{snippets}/search/channelsearch/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/search/channelsearch/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/search/channelsearch/http-response.adoc[]
+==== Response Fields
+include::{snippets}/search/channelsearch/response-fields.adoc[]
