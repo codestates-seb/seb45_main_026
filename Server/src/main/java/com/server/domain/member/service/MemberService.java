@@ -103,7 +103,10 @@ public class MemberService {
 	public Page<RewardsResponse> getRewards(Long loginId, int page, int size) {
 		Member member = validateMember(loginId);
 
-		Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.desc("createdDate")));
+		Sort.Order orderByCreatedDate = Sort.Order.desc("createdDate");
+		Sort.Order orderById = Sort.Order.desc("rewardId");
+
+		Pageable pageable = PageRequest.of(page - 1, size, Sort.by(orderByCreatedDate, orderById));
 
 		Page<Reward> rewards = rewardRepository.findRewardsByMember(member, pageable);
 

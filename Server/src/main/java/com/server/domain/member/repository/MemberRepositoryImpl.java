@@ -164,9 +164,9 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
         JPAQuery<Cart> query = queryFactory
             .selectFrom(cart)
-            .leftJoin(cart.video, video).fetchJoin()
-            .leftJoin(video.channel, channel).fetchJoin()
-            .leftJoin(channel.member, member).fetchJoin()
+            .join(cart.video, video).fetchJoin()
+            .join(video.channel, channel).fetchJoin()
+            .join(channel.member, member).fetchJoin()
             .where(cart.member.memberId.eq(memberId))
             .orderBy(cart.createdDate.desc(), cart.cartId.desc());
 
