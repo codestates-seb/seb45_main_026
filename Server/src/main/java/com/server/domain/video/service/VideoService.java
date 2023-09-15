@@ -16,6 +16,7 @@ import com.server.domain.video.service.dto.request.VideoUpdateServiceRequest;
 import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
 import com.server.domain.video.service.dto.response.VideoDetailResponse;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
+import com.server.domain.video.service.dto.response.VideoUrlResponse;
 import com.server.domain.watch.entity.Watch;
 import com.server.domain.watch.repository.WatchRepository;
 import com.server.global.exception.businessexception.categoryexception.CategoryNotFoundException;
@@ -70,7 +71,6 @@ public class VideoService {
         );
     }
 
-
     public Page<VideoPageResponse> searchVideos(String keyword, VideoGetServiceRequest request) {
 
         Long memberId = verifiedMemberOrNull(request.getLoginMemberId());
@@ -104,8 +104,19 @@ public class VideoService {
                 isInCart(memberId, video));
     }
 
+    public VideoUrlResponse getVideoUrl(Long videoId) {
+
+        String videoFile = videoRepository.findVideoUrlByVideoId(videoId);
+
+        String videoUrl = awsService.getFileUrl(videoFile, FileType.VIDEO);
+
+        return VideoUrlResponse.of(videoUrl);
+    }
+
     @Transactional
     public void watch(Long loginMemberId, Long videoId) {
+
+        //getVideo 를 readOnly 로 하기 위해 따로 조회
 
         Video video = verifiedVideoIncludeWithdrawal(videoId);
 

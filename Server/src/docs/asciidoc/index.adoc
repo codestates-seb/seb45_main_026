@@ -36,6 +36,7 @@ include::overview.adoc[]
 
 === Video API
 * link:snippets/video/getvideo.html[비디오 조회 API, onclick="window.location.href='snippets/video/getvideo.html'"]
+* link:snippets/video/getvideourl.html[비디오 호버링용 url 조회 API, onclick="window.location.href='snippets/video/getvideourl.html'"]
 * link:snippets/video/createvideo.html[비디오 생성 API, onclick="window.location.href='snippets/video/createvideo.html'"]
 * link:snippets/video/updatedeletevideo.html[비디오 수정/삭제 API, onclick="window.location.href='snippets/video/updatedeletevideo.html'"]
 * link:snippets/video/cartvideo.html[비디오 장바구니 담기/취소 API, onclick="window.location.href='snippets/video/cartvideo.html'"]

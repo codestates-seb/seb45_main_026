@@ -58,6 +58,8 @@ public class WarmupApi implements ApplicationListener<ContextRefreshedEvent> {
 
         if (event.getApplicationContext().getParent() == null && !warmupState.isWarmupCompleted()) {
 
+            log.info("Warmup start...");
+
             long startTime = System.currentTimeMillis();
             request("http://localhost:8080/warmup");
             methodWarmup();
@@ -78,6 +80,8 @@ public class WarmupApi implements ApplicationListener<ContextRefreshedEvent> {
 
     private void videoMethodWarmup() {
 
+        long startTime = System.currentTimeMillis();
+
         for (int i = 0; i < WARMUP_COUNT; i++) {
 
             videoController.getVideos(1, 10, VideoSort.CREATED_DATE, "aws", true, null, true, 1L);
@@ -85,9 +89,15 @@ public class WarmupApi implements ApplicationListener<ContextRefreshedEvent> {
             videoController.getReplies(1L, 1, 10, ReplySort.CREATED_DATE, 3);
 
         }
+
+        long endTime = System.currentTimeMillis();
+
+        log.info("video Warmup time : {} ms", endTime - startTime);
     }
 
     private void channelMethodWarmup() {
+
+        long startTime = System.currentTimeMillis();
 
         for (int i = 0; i < WARMUP_COUNT; i++) {
 
@@ -95,9 +105,15 @@ public class WarmupApi implements ApplicationListener<ContextRefreshedEvent> {
             channelController.getChannelVideos(4L, 1, 10, VideoSort.CREATED_DATE, "aws", true, false, 1L);
 
         }
+
+        long endTime = System.currentTimeMillis();
+
+        log.info("channel Warmup time : {} ms", endTime - startTime);
     }
 
     private void memberMethodWarmup() {
+
+        long startTime = System.currentTimeMillis();
 
         for (int i = 0; i < WARMUP_COUNT; i++) {
 
@@ -109,6 +125,10 @@ public class WarmupApi implements ApplicationListener<ContextRefreshedEvent> {
             memberController.getPlaylistChannelDetails(1L, 1, 10, 4L);
 
         }
+
+        long endTime = System.currentTimeMillis();
+
+        log.info("member page Warmup time : {} ms", endTime - startTime);
     }
 
     private void request(String url) {
