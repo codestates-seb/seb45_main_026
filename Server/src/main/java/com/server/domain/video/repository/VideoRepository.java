@@ -31,5 +31,10 @@ public interface VideoRepository extends JpaRepository<Video, Long>, VideoReposi
         "where match(v.video_name) against(?1 in boolean mode) limit ?2", nativeQuery = true)
     List<Tuple> searchVideoByKeyword(String keyword, int limit);
 
+    @Query(value = "select v.videoFile " +
+            "from Video v " +
+            "where v.videoId = ?1")
+    String findVideoUrlByVideoId(Long videoId);
+
 
 }

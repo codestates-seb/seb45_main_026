@@ -14,6 +14,7 @@ import com.server.domain.video.service.dto.request.VideoUpdateServiceRequest;
 import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
 import com.server.domain.video.service.dto.response.VideoDetailResponse;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
+import com.server.domain.video.service.dto.response.VideoUrlResponse;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import com.server.global.exception.businessexception.videoexception.*;
 import com.server.global.testhelper.ServiceTest;
@@ -275,6 +276,24 @@ class VideoServiceTest extends ServiceTest {
                     assertThat(response.getIsReplied()).isTrue();
                 })
         );
+    }
+
+    @Test
+    @DisplayName("videoId 로 videoUrl 을 조회한다.")
+    void getVideoUrl() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+
+        String videoUrl = "https://s3.ap-northeast-2.amazonaws.com/test/test.mp4";
+
+        given(awsService.getFileUrl(anyString(), any(FileType.class))).willReturn(videoUrl);
+
+        //when
+        VideoUrlResponse response = videoService.getVideoUrl(video.getVideoId());
+
+        //then
+        assertThat(response.getVideoUrl()).isEqualTo(videoUrl);
     }
 
     @Test

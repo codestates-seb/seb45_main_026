@@ -1,0 +1,22 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[VideoUrl]]
+= 비디오 호버링용 Url 조회 API
+
+== 비디오 Url 조회
+=== HTTP Request
+include::{snippets}/video/getvideourl/http-request.adoc[]
+==== Request Path Parameters
+include::{snippets}/video/getvideourl/path-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/video/getvideourl/http-response.adoc[]
+==== Response Fields
+include::{snippets}/video/getvideourl/response-fields.adoc[]
+
+

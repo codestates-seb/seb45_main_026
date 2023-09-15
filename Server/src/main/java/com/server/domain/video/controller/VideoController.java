@@ -12,6 +12,7 @@ import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
 import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
 import com.server.domain.video.service.dto.response.VideoDetailResponse;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
+import com.server.domain.video.service.dto.response.VideoUrlResponse;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -121,6 +122,15 @@ public class VideoController {
         VideoDetailResponse video = videoService.getVideo(loginMemberId, videoId);
 
         return ResponseEntity.ok(ApiSingleResponse.ok(video, "비디오 조회 성공"));
+    }
+
+    @GetMapping("/{video-id}/url")
+    public ResponseEntity<ApiSingleResponse<VideoUrlResponse>> getVideoUrl(
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId) {
+
+        VideoUrlResponse videoUrl = videoService.getVideoUrl(videoId);
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(videoUrl, "비디오 url 조회 성공"));
     }
 
     @PostMapping("/presigned-url")

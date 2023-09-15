@@ -887,6 +887,23 @@ class VideoRepositoryTest extends RepositoryTest {
         assertThat(findVideo.getVideoId()).isEqualTo(video.getVideoId());
     }
 
+    @Test
+    @DisplayName("videoId 로 videoUrl 을 조회한다.")
+    void findVideoUrlByVideoId() {
+        //given
+        String url = "url";
+
+        Member member = createMemberWithChannel();
+        Video video = createAndSaveVideo(member.getChannel(), url);
+
+        //when
+        String findUrl = videoRepository.findVideoUrlByVideoId(video.getVideoId());
+
+
+        //then
+        assertThat(findUrl).isEqualTo(url);
+    }
+
     private Cart createAndSaveCart(Member member, Video video) {
         Cart cart = Cart.createCart(member, video, video.getPrice());
         em.persist(cart);
