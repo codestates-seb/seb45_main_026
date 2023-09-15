@@ -340,6 +340,44 @@ class VideoControllerTest extends ControllerTest {
     }
 
     @Test
+    @DisplayName("비디오 호버링용 url 조회 API")
+    void getVideoUrl() throws Exception {
+        //given
+        Long videoId = 1L;
+
+        VideoUrlResponse response = VideoUrlResponse.builder()
+                .videoUrl("https://s3.ap-northeast-2.amazonaws.com/test/test.mp4")
+                .build();
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(response, "비디오 url 조회 성공"));
+
+        given(videoService.getVideoUrl(anyLong())).willReturn(response);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                get(BASE_URL + "/{video-id}/url", videoId)
+                        .contentType(APPLICATION_JSON)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse));
+
+        //restDocs
+        actions
+                .andDo(documentHandler.document(
+                        pathParameters(
+                                parameterWithName("video-id").description("조회할 비디오 ID")
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("비디오 정보"),
+                                fieldWithPath("data.videoUrl").description("비디오 url")
+                        )
+                ));
+    }
+
+    @Test
     @DisplayName("비디오 생성 URL 조회 API")
     void getVideoCreateUrl() throws Exception {
         //given
@@ -1125,6 +1163,34 @@ class VideoControllerTest extends ControllerTest {
                                     .contentType(APPLICATION_JSON)
                                     .accept(APPLICATION_JSON)
                                     .header(AUTHORIZATION, TOKEN)
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("videoId"))
+                            .andExpect(jsonPath("$.data[0].value").value(wrongVideoId))
+                            .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
+                })
+        );
+    }
+
+    @TestFactory
+    @DisplayName("비디오 호버링용 Url 조회 시 validation 테스트")
+    Collection<DynamicTest> getVideoUrlValidation() {
+        //given
+        Long videoId = 1L;
+
+        return List.of(
+                dynamicTest("videoId 가 양수가 아니면 검증에 실패한다.", ()-> {
+                    //given
+                    Long wrongVideoId = 0L;
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            get(BASE_URL + "/{videoId}/url", wrongVideoId)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
                     );
 
                     //then

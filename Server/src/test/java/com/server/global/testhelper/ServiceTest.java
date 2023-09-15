@@ -176,25 +176,6 @@ public abstract class ServiceTest {
         return video;
     }
 
-    protected Video createAndSaveVideoUploading(Channel channel) {
-        Video video = Video.builder()
-                .videoName("title")
-                .description("description")
-                .thumbnailFile("thumbnailFile")
-                .videoFile("videoFile")
-                .view(0)
-                .star(0.0F)
-                .price(1000)
-                .videoCategories(new ArrayList<>())
-                .videoStatus(VideoStatus.UPLOADING)
-                .channel(channel)
-                .build();
-
-        videoRepository.save(video);
-
-        return video;
-    }
-
     protected Video createAndSavePurchasedVideo(Member member) {
         Video video = Video.builder()
                 .videoName("title")
