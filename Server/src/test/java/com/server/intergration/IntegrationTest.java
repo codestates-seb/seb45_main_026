@@ -68,7 +68,6 @@ import com.server.module.s3.service.dto.FileType;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-
 public class IntegrationTest {
 	// 레포지토리
 	@Autowired protected AnnouncementRepository announcementRepository;
@@ -263,7 +262,7 @@ public class IntegrationTest {
 			.thumbnailFile("thumbnailFile")
 			.videoFile("videoFile")
 			.view(0)
-			.star(generateRandomStar())
+			.star(generateRandomStarFloat())
 			.price(price)
 			.videoCategories(new ArrayList<>())
 			.videoStatus(VideoStatus.CREATED)
@@ -281,7 +280,7 @@ public class IntegrationTest {
 			.thumbnailFile("thumbnailFile")
 			.videoFile("videoFile")
 			.view(0)
-			.star(generateRandomStar())
+			.star(generateRandomStarFloat())
 			.price(0)
 			.videoCategories(new ArrayList<>())
 			.videoStatus(VideoStatus.CREATED)
@@ -299,7 +298,7 @@ public class IntegrationTest {
 			.thumbnailFile("thumbnailFile")
 			.videoFile("videoFile")
 			.view(0)
-			.star(generateRandomStar())
+			.star(generateRandomStarFloat())
 			.price(5000)
 			.videoCategories(new ArrayList<>())
 			.videoStatus(VideoStatus.CLOSED)
@@ -364,7 +363,7 @@ public class IntegrationTest {
 	protected Reply createAndSaveReply(Member member, Video video) {
 		Reply reply = Reply.builder()
 			.content("content")
-			.star(0)
+			.star(generateRandomStarInteger())
 			.member(member)
 			.video(video)
 			.build();
@@ -508,7 +507,11 @@ public class IntegrationTest {
 		return randomString.toString();
 	}
 
-	private Float generateRandomStar() {
+	private Float generateRandomStarFloat() {
 		return Math.round((0.0f + (10.0f - 0.0f) * new Random().nextFloat()) * 10.0f) / 10.0f;
+	}
+
+	private Integer generateRandomStarInteger() {
+		return new Random().nextInt(10) + 1;
 	}
 }
