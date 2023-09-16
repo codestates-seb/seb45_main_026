@@ -85,6 +85,7 @@ tasks.register('testA', Test) {
     exclude '**/*IntegrationTest.class'
     exclude '**/*RepositoryTest.class'
     exclude '**/*ServiceTest.class'
+    exclude '**/*FilterTest.class'
     useJUnitPlatform()
 }
 
@@ -96,6 +97,7 @@ tasks.register('testB', Test) {
 
 tasks.register('testC', Test) {
     include '**/*ServiceTest.class'
+    include '**/*FilterTest.class'
     useJUnitPlatform()
 }
 
