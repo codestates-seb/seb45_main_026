@@ -1,6 +1,7 @@
 package com.server.global.testhelper;
 
 import com.server.auth.jwt.service.CustomUserDetails;
+import com.server.auth.jwt.service.JwtProvider;
 import com.server.domain.announcement.repository.AnnouncementRepository;
 import com.server.domain.answer.entity.Answer;
 import com.server.domain.answer.repository.AnswerRepository;
@@ -34,10 +35,12 @@ import com.server.domain.watch.repository.WatchRepository;
 import com.server.module.email.service.MailService;
 import com.server.module.redis.service.RedisService;
 import com.server.module.s3.service.AwsService;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -79,6 +82,8 @@ public abstract class ServiceTest {
     @MockBean protected RestTemplate restTemplate;
     @MockBean protected MailService mailService;
     @MockBean protected AwsService awsService;
+    @Mock protected JwtProvider jwtProvider;
+    @Mock protected AuthenticationManager authenticationManager;
 
     protected Member createAndSaveMember() {
         Member member = Member.builder()

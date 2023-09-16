@@ -13,6 +13,7 @@ import javax.persistence.Access;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
+import com.server.module.ModuleServiceTest;
 import org.hibernate.jpa.spi.NativeQueryTupleTransformer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,7 @@ import com.server.search.engine.dto.VideoChannelSearchResponse;
 import com.server.search.engine.dto.VideoSearchResponse;
 import com.server.search.repository.dto.VideoSearchResult;
 
-public class MySQLSearchEngineTest extends ServiceTest {
+public class MySQLSearchEngineTest extends ModuleServiceTest {
 	private static final String KEYWORD = "공";
 	private static final int LIMIT = 3;
 
@@ -42,10 +43,7 @@ public class MySQLSearchEngineTest extends ServiceTest {
 	@Autowired
 	@Qualifier("mysql")
 	private SearchEngine searchEngine;
-	@MockBean
-	private VideoRepository mockVideoRepository;
-	@MockBean
-	private ChannelRepository mockChannelRepository;
+
 
 	@Test
 	@DisplayName("비디오 및 채널 검색 테스트")

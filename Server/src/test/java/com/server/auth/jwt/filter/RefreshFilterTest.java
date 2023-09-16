@@ -30,8 +30,6 @@ import com.server.global.testhelper.ServiceTest;
 import io.jsonwebtoken.security.SecurityException;
 
 public class RefreshFilterTest extends ServiceTest {
-	@Mock
-	private JwtProvider jwtProvider;
 
 	@Test
 	@DisplayName("리프래쉬 필터 요청시 유효한 토큰이면 액세스 토큰을 재발급 하는지 테스트")
