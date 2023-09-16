@@ -77,6 +77,7 @@ public class MemberResponseConverter {
 						.thumbnailFile(getThumbnailUrl(orderVideo.getVideo().getThumbnailFile()))
 						.channelName(channelName)
 						.price(orderVideo.getVideo().getPrice())
+						.orderStatus(orderVideo.getOrderStatus())
 						.build();
 				})
 				.collect(Collectors.toList()))
