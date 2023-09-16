@@ -15,7 +15,7 @@ import { RegularInput } from "../../atoms/inputs/Inputs";
 import { RegularTextArea } from "../../atoms/inputs/TextAreas";
 import { useToken } from "../../hooks/useToken";
 import Loading from "../../atoms/loading/Loading";
-import tokens from '../../styles/tokens.json';
+import tokens from "../../styles/tokens.json";
 import { BigButton } from "../../atoms/buttons/Buttons";
 
 const globalToken = tokens.global;
@@ -288,7 +288,10 @@ const CourseUpload = ({ isTags }) => {
               {tagList.map((el, idx) => (
                 <CategoryList isDark={isDark} key={idx}>
                   {el}
-                  <CategoryListBtn isDark={isDark} onClick={() => removeTagList(el)}>
+                  <CategoryListBtn
+                    isDark={isDark}
+                    onClick={() => removeTagList(el)}
+                  >
                     &times;
                   </CategoryListBtn>
                 </CategoryList>
@@ -371,7 +374,9 @@ const CourseUpload = ({ isTags }) => {
             <SubDescribe isDark={isDark}>최대 영상 크기 : 1GB</SubDescribe>
           </ColBox>
         </RowBox>
-        <SubmitCourse isDark={isDark} onClick={handleVideoPost}>강의 등록 완료</SubmitCourse>
+        <SubmitCourse isDark={isDark} onClick={handleVideoPost}>
+          강의 등록 완료
+        </SubmitCourse>
       </ColBox>
       <Loading isLoading={isLoading} />
     </CourseBox>
@@ -407,7 +412,9 @@ export const CourseVideo = styled(RegularLabel)``;
 export const GrayInput = styled(RegularInput)`
   margin-left: 15px;
   padding-left: 10px;
-  border: 1px solid ${props=>props.isDark?globalToken.Gray.value:globalToken.LightGray.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
 `;
 
 export const ChooseName = styled(GrayInput)`
@@ -423,7 +430,9 @@ export const ChooseIntro = styled(RegularTextArea)`
   margin-left: 15px;
   padding: 10px 0px 0px 10px;
   resize: none;
-  border: 1px solid ${props=>props.isDark?globalToken.Gray.value:globalToken.LightGray.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
 `;
 
 export const CategoryBox = styled(RegularLabel)`
@@ -435,7 +444,8 @@ export const CategoryBox = styled(RegularLabel)`
   display: flex;
   justify-content: start;
   border-radius: 8px;
-  /* border: 1px solid ${props=>props.isDark?globalToken.Gray.value:globalToken.LightGray.value}; */
+  /* border: 1px solid ${(props) =>
+    props.isDark ? globalToken.Gray.value : globalToken.LightGray.value}; */
 `;
 
 export const TagDropDown = styled.ul`
@@ -445,9 +455,12 @@ export const TagDropDown = styled.ul`
   width: 100%;
   max-width: 500px;
   padding: 0px 10px;
-  border: 1px solid ${props=>props.isDark?globalToken.Gray.value:globalToken.LightGray.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
   border-radius: 8px;
-  background-color: ${props=>props.isDark?globalToken.Black.value:globalToken.Background.value};
+  background-color: ${(props) =>
+    props.isDark ? globalToken.Black.value : globalToken.Background.value};
   flex-wrap: wrap;
   display: flex;
 `;
@@ -455,8 +468,11 @@ export const TagDropDownList = styled.li`
   height: 38px;
   margin: 10px 6px;
   padding: 5px 10px;
-  background-color: ${props=>props.isDark?globalToken.MainNavy.value:globalToken.LightRed.value};
-  border: 1px solid ${props=>props.isDark?globalToken.Gray.value:globalToken.LightGray.value};
+  background-color: ${(props) =>
+    props.isDark ? globalToken.MainNavy.value : globalToken.LightRed.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
   border-radius: 8px;
   cursor: pointer;
 `;
@@ -475,7 +491,8 @@ export const CategoryList = styled.li`
   display: flex;
   justify-content: start;
   border-radius: 8px;
-  background-color: ${props=>props.isDark?globalToken.MainNavy.value:globalToken.LightRed.value};
+  background-color: ${(props) =>
+    props.isDark ? globalToken.MainNavy.value : globalToken.LightRed.value};
 `;
 
 export const CategoryListBtn = styled.button`
@@ -489,7 +506,9 @@ export const ChooseCategory = styled(RegularInput)`
   padding-left: 10px;
   border-radius: 8px;
   font-size: 16px;
-  border: 1px solid ${props=>props.isDark?globalToken.Gray.value:globalToken.LightGray.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
   &:focus {
     outline: none;
   }
@@ -499,7 +518,9 @@ export const ChoosePrice = styled(GrayInput)`
   width: 100%;
   max-width: 500px;
   height: 50px;
-  border: 1px solid ${props=>props.isDark?globalToken.Gray.value:globalToken.LightGray.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
   &:focus {
     outline: none;
   }
@@ -507,7 +528,9 @@ export const ChoosePrice = styled(GrayInput)`
 
 export const ChooseImageInupt = styled.input`
   display: none;
-  border: 1px solid ${props=>props.isDark?globalToken.Gray.value:globalToken.LightGray.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
 `;
 
 export const ChooseImage = styled.img`
@@ -524,8 +547,11 @@ export const ChooseImageBtn = styled.label`
   height: 200px;
   max-width: 250px;
   border-radius: 8px;
-  border: 1px solid ${props=>props.isDark?globalToken.Gray.value:globalToken.LightGray.value};
-  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.15)'};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
+  background-color: ${(props) =>
+    props.isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)"};
   margin: 0px 0px 10px 15px;
   cursor: pointer;
 
@@ -536,12 +562,14 @@ export const ChooseImageBtn = styled.label`
   transition: 300ms;
 
   &:hover {
-    background-color: ${props=>props.isDark?'rgba(255,255,255,0.25)':'rgba(0,0,0,0.25)'};
+    background-color: ${(props) =>
+      props.isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.25)"};
   }
 `;
 
 export const ChooseSpan = styled.span`
-  color: ${props=>props.isDark?globalToken.LightGray.value:globalToken.Gray.value};
+  color: ${(props) =>
+    props.isDark ? globalToken.LightGray.value : globalToken.Gray.value};
   text-align: center;
   font-size: 14px;
 `;
@@ -552,7 +580,9 @@ export const ChooseVideo = styled(GrayInput)`
   margin-bottom: 10px;
   padding-top: 10px;
   height: 50px;
-  border: 1px solid ${props=>props.isDark?globalToken.Gray.value:globalToken.LightGray.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
 `;
 
 export const SubmitCourse = styled(BigButton)`

@@ -1,4 +1,5 @@
 import { styled } from "styled-components";
+import SelectToggle from "./SelectToggle";
 
 const UploadModal = ({
   setModal,
@@ -6,19 +7,30 @@ const UploadModal = ({
   handleChangeContent,
   handleCreateProblem,
   initProblem,
+  selectMode,
+  setSelectMode,
 }) => {
   return (
-    <ModalBackground
-      onClick={() => {
-        setModal(false);
-        initProblem();
-      }}
-    >
+    <ModalBackground>
       <ProblemModal
         onClick={(e) => {
           e.stopPropagation();
         }}
       >
+        <SelectToggle
+          selectMode={selectMode}
+          setSelectMode={setSelectMode}
+          initProblem={initProblem}
+        />
+        <Close
+          onClick={() => {
+            setModal(false);
+            initProblem();
+            document.body.style.overflow = "unset";
+          }}
+        >
+          &times;
+        </Close>
         <ProblemTitle>
           문제 등록하기
           <TitleInput
@@ -31,29 +43,44 @@ const UploadModal = ({
         </ProblemTitle>
         <ProblemContent>
           <ProblemLists>
-            {[1, 2, 3, 4].map((el) => (
+            {selectMode ? (
+              [1, 2, 3, 4].map((el) => (
+                <ProblemList>
+                  <CheckNumber
+                    id="questionAnswer"
+                    type="checkbox"
+                    onChange={(e) => {
+                      handleChangeContent(e, el);
+                    }}
+                    checked={isProblem.questionAnswer === el}
+                  />
+                  <ListLabel>{el}번 문항</ListLabel>
+                  <ListInput
+                    id="selections"
+                    type="text"
+                    placeholder={`${el}번 문항을 입력해주세요.`}
+                    onChange={(e) => handleChangeContent(e, el)}
+                    value={isProblem.selections[el - 1]}
+                  />
+                </ProblemList>
+              ))
+            ) : (
               <ProblemList>
-                <CheckNumber
+                <CommentLabel>정답</CommentLabel>
+                <CommentInput
                   id="questionAnswer"
-                  type="checkbox"
+                  placeholder={`정답을 입력해주세요.`}
+                  value={isProblem.questionAnswer}
                   onChange={(e) => {
-                    handleChangeContent(e, el);
+                    handleChangeContent(e, e.target.value);
                   }}
-                  checked={isProblem.questionAnswer === el}
-                />
-                <ListLabel>{el}번 문항</ListLabel>
-                <ListInput
-                  id="selections"
-                  type="text"
-                  placeholder={`${el}번 문항을 입력해주세요.`}
-                  onChange={(e) => handleChangeContent(e, el)}
-                  value={isProblem.selections[el - 1]}
+                  ch
                 />
               </ProblemList>
-            ))}
+            )}
             <ProblemList>
               <CommentLabel>해설</CommentLabel>
-              <CommentInput
+              <DiscribeInput
                 id="ProblemDiscribe"
                 type="text"
                 placeholder="해설을 입력해 주세요."
@@ -71,7 +98,7 @@ const UploadModal = ({
             if (!isProblem.questionAnswer) {
               return alert("정답을 체크해 주세요.");
             }
-            if (!isProblem.selections.length) {
+            if (!isProblem.selections.length && selectMode) {
               return alert("선택지들을 입력해 주세요.");
             }
             handleCreateProblem();
@@ -99,6 +126,19 @@ export const ModalBackground = styled.div`
   background-color: rgb(200, 200, 200, 40%);
   width: 100vw;
   height: 100vh;
+`;
+
+export const SelectMode = styled.button`
+  position: absolute;
+  bottom: 4%;
+  left: 5%;
+`;
+export const Close = styled.button`
+  position: absolute;
+  top: 3%;
+  right: 3%;
+  font-size: 18px;
+  font-weight: bold;
 `;
 
 export const ProblemModal = styled.div`
@@ -170,8 +210,7 @@ export const CheckNumber = styled.input`
 
 export const TitleInput = styled.textarea`
   width: 100%;
-  height: 100px;
-  /* max-width: 500px; */
+  height: 80px;
   border: 2px solid rgb(236, 236, 236);
   border-radius: 8px;
   margin-top: 20px;
@@ -181,14 +220,23 @@ export const TitleInput = styled.textarea`
 
 export const ListInput = styled(GrayInput)`
   width: 100%;
-  height: 50px;
+  height: 48px;
   max-width: 500px;
 `;
 
 export const CommentInput = styled.textarea`
   width: 100%;
-  height: 120px;
-  /* max-width: 620px; */
+  height: 65px;
+  border: 2px solid rgb(236, 236, 236);
+  border-radius: 8px;
+  margin-left: 15px;
+  padding: 10px 0px 0px 10px;
+  resize: none;
+`;
+
+export const DiscribeInput = styled.textarea`
+  width: 100%;
+  height: 100px;
   border: 2px solid rgb(236, 236, 236);
   border-radius: 8px;
   margin-left: 15px;

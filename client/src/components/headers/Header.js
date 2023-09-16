@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSelector } from 'react-redux';
 import HeaderLogo from './HeaderLogo';
 import { HeaderContainer, HeaderLoginButton, MainPageHeaderContainer } from './Header.style';

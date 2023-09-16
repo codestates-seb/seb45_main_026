@@ -8,7 +8,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setChecked } from "../../redux/createSlice/CartsSlice";
 import { priceToString } from "./CartPayInfo";
-import tokens from '../../styles/tokens.json';
+import tokens from "../../styles/tokens.json";
 import { BodyTextTypo } from "../../atoms/typographys/Typographys";
 import { NegativeTextButton } from "../../atoms/buttons/Buttons";
 
@@ -18,7 +18,7 @@ const CartItem = ({ el }) => {
   const dispatch = useDispatch();
   const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
   const token = useSelector((state) => state.loginInfo.accessToken);
-  const isDark = useSelector(state=>state.uiSetting.isDark);
+  const isDark = useSelector((state) => state.uiSetting.isDark);
 
   const handlePatchItemList = (videoId) => {
     return axios
@@ -52,15 +52,16 @@ const CartItem = ({ el }) => {
         <ItemTitle isDark={isDark}>{el.videoName}</ItemTitle>
         <ItemName isDark={isDark}>{el.channel.channelName}</ItemName>
         <Category isDark={isDark}>
-          {[{ categoryId: 1234, categoryName: "데이터 불러와야함." }].map(
-            (el) => (
-              <CategoryLists key={el.categoryId}>
-                #{el.categoryName}
-              </CategoryLists>
-            )
-          )}
+          {el.videoCategories.map((el) => (
+            <CategoryLists key={el.categoryId}>
+              #{el.categoryName}
+            </CategoryLists>
+          ))}
         </Category>
-        <CancelBtn isDark={isDark} onClick={() => handlePatchItemList(el.videoId)}>
+        <CancelBtn
+          isDark={isDark}
+          onClick={() => handlePatchItemList(el.videoId)}
+        >
           &times;
         </CancelBtn>
       </Content>
@@ -76,7 +77,9 @@ export const CartList = styled.li`
   flex-direction: row;
   justify-content: start;
   align-items: start;
-  border-bottom: 1px solid ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+  border-bottom: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
   width: 100%;
   margin: ${globalTokens.Spacing4.value}px 0px;
   padding: ${globalTokens.Spacing20.value}px ${globalTokens.Spacing16.value}px;
@@ -97,7 +100,9 @@ export const Content = styled.div`
   justify-content: space-between;
   align-items: start;
 
-  border-right: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+  border-right: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
   width: 100%;
   height: 100px;
   max-width: 400px;
@@ -114,7 +119,8 @@ export const ItemTitle = styled(BodyTextTypo)`
 export const ItemName = styled(BodyTextTypo)`
   width: 100%;
   margin: ${globalTokens.Spacing4.value}px 0px;
-  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;
 
 export const CancelBtn = styled(NegativeTextButton)`

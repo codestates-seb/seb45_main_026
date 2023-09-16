@@ -29,6 +29,7 @@ const CartPage = () => {
       })
       .then((res) => {
         dispatch(setCarts(res.data.data));
+        console.log(res.data.data);
       })
       .catch((err) => {
         if (err.response.data?.code === 401) {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import tokens from "../../styles/tokens.json";
 import { styled } from "styled-components";
 import profileGray from "../../assets/images/icons/profile/profileGray.svg";
@@ -11,6 +11,129 @@ import {
 } from "../../atoms/typographys/Typographys";
 import Stars from "./Stars";
 import AddCart from "../DetailPage/AddCart";
+import VideoPlayer from "../DetailPage/VideoPlayer";
+import ListToggle from "../../atoms/buttons/ListToggle";
+
+export default function HorizonItem({ lecture, channel }) {
+  const isDark = useSelector((state) => state.uiSetting.isDark);
+  const myId = useSelector((state) => state.loginInfo.myid);
+  const {
+    videoName,
+    thumbnailUrl,
+    createdDate,
+    isPurchased,
+    isInCart,
+    price,
+    star,
+    description,
+    videoId,
+    videoStatus,
+  } = lecture;
+  const navigate = useNavigate();
+  const date = new Date(createdDate);
+  date.setHours(date.getHours() + 9);
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const ChannelNavigateHandler = (memberId) => {
+    if (memberId !== null) {
+      navigate(`/channels/${memberId}`);
+    }
+  };
+  const [isPrevMode, setPrevMode] = useState(false);
+
+  return (
+    <ComponentBody isDark={isDark}>
+      <ThumbnailContainer
+        onClick={() => navigate(`/videos/${lecture.videoId}`)}
+      >
+        {isPrevMode ? (
+          <VideoPlayer
+            videoId={videoId}
+            thumbnailUrl={thumbnailUrl}
+            Playing={true}
+            muted={true}
+            isPrevMode={true}
+            controlBar={false}
+            onMouseOut={() => {
+              setPrevMode(false);
+            }}
+          />
+        ) : (
+          <Thumbnail
+            src={thumbnailUrl}
+            alt="thumbnail"
+            onMouseOver={() => {
+              setPrevMode(true);
+            }}
+          />
+        )}
+      </ThumbnailContainer>
+      <ItemInfors>
+        <Title isDark={isDark}>
+          <VideoName
+            isDark={isDark}
+            onClick={() => {
+              navigate(`/videos/${lecture.videoId}`);
+            }}
+          >
+            {videoName}
+          </VideoName>
+          {myId === channel.memberId && (
+            <ListToggle OnOff={videoStatus !== "CREATED"} videoId={lecture.videoId}/>
+          )}
+          {!isPurchased && price > 0 && myId !== channel.memberId && (
+            <AddCart videoId={videoId} isInCart={isInCart} />
+          )}
+        </Title>
+        <Description isDark={isDark}>{description}</Description>
+        <InforContainer>
+          <InforContainerLeft>
+            <AuthorContainer>
+              <ImgContainer
+                onClick={() => ChannelNavigateHandler(channel.memberId)}
+              >
+                <ProfileImg
+                  src={channel.imageUrl ? channel.imageUrl : profileGray}
+                  alt="profile"
+                />
+              </ImgContainer>
+              <AuthorName
+                isDark={isDark}
+                onClick={() => ChannelNavigateHandler(channel.memberId)}
+              >
+                {channel.channelName}
+              </AuthorName>
+              <CreatedAt isDark={isDark}>
+                {month}월{day}일 업로드됨
+              </CreatedAt>
+            </AuthorContainer>
+          </InforContainerLeft>
+          <InforContainerRight>
+            {isPurchased ? (
+              <PriceText isDark={isDark}>구매됨</PriceText>
+            ) : isPurchased === false ? (
+              <PriceText isDark={isDark}>
+                {price > 0
+                  ? `${price
+                      .toString()
+                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원`
+                  : "무료"}
+              </PriceText>
+            ) : (
+              <></>
+            )}
+            <ScoreContainer>
+              <ScoreText isDark={isDark}>{star}/10</ScoreText>
+              <StarContainer>
+                <Stars score={star} />
+              </StarContainer>
+            </ScoreContainer>
+          </InforContainerRight>
+        </InforContainer>
+      </ItemInfors>
+    </ComponentBody>
+  );
+}
 
 const globalTokens = tokens.global;
 
@@ -176,98 +299,3 @@ const PriceText = styled(Heading5Typo)`
   gap: 4px;
   padding: 0px 5px 5px 0px;
 `;
-
-export default function HorizonItem({ lecture, channel }) {
-  const isDark = useSelector((state) => state.uiSetting.isDark);
-  const myId = useSelector((state) => state.loginInfo.myid);
-  const {
-    videoName,
-    thumbnailUrl,
-    createdDate,
-    isPurchased,
-    isInCart,
-    price,
-    star,
-    description,
-    videoId,
-  } = lecture;
-  const navigate = useNavigate();
-  const date = new Date(createdDate);
-  date.setHours(date.getHours() + 9);
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  const ChannelNavigateHandler = (memberId) => {
-    if (memberId !== null) {
-      navigate(`/channels/${memberId}`);
-    }
-  };
-  return (
-    <ComponentBody isDark={isDark}>
-      <ThumbnailContainer
-        onClick={() => navigate(`/videos/${lecture.videoId}`)}
-      >
-        <Thumbnail src={thumbnailUrl} alt="thumbnail" />
-      </ThumbnailContainer>
-      <ItemInfors>
-        <Title isDark={isDark}>
-          <VideoName
-            isDark={isDark}
-            onClick={() => {
-              navigate(`/videos/${lecture.videoId}`);
-            }}
-          >
-            {videoName}
-          </VideoName>
-          {!isPurchased && price > 0 && myId !== channel.memberId && (
-            <AddCart videoId={videoId} isInCart={isInCart} />
-          )}
-        </Title>
-        <Description isDark={isDark}>{description}</Description>
-        <InforContainer>
-          <InforContainerLeft>
-            <AuthorContainer>
-              <ImgContainer
-                onClick={() => ChannelNavigateHandler(channel.memberId)}
-              >
-                <ProfileImg
-                  src={channel.imageUrl ? channel.imageUrl : profileGray}
-                  alt="profile"
-                />
-              </ImgContainer>
-              <AuthorName
-                isDark={isDark}
-                onClick={() => ChannelNavigateHandler(channel.memberId)}
-              >
-                {channel.channelName}
-              </AuthorName>
-              <CreatedAt isDark={isDark}>
-                {month}월{day}일 업로드됨
-              </CreatedAt>
-            </AuthorContainer>
-          </InforContainerLeft>
-          <InforContainerRight>
-            {isPurchased ? (
-              <PriceText isDark={isDark}>구매됨</PriceText>
-            ) : isPurchased === false ? (
-              <PriceText isDark={isDark}>
-                {price > 0
-                  ? `${price
-                      .toString()
-                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원`
-                  : "무료"}
-              </PriceText>
-            ) : (
-              <></>
-            )}
-            <ScoreContainer>
-              <ScoreText isDark={isDark}>{star}/10</ScoreText>
-              <StarContainer>
-                <Stars score={star} />
-              </StarContainer>
-            </ScoreContainer>
-          </InforContainerRight>
-        </InforContainer>
-      </ItemInfors>
-    </ComponentBody>
-  );
-}

@@ -35,6 +35,7 @@ const DetailVideo = () => {
   const token = useSelector((state) => state.loginInfo.accessToken);
   const [isSub, setSub] = useState("");
   const [channelInfo, setChannelInfo] = useState({});
+  const [isPrevMode, setPrevMode] = useState(false);
 
   useEffect(() => {
     getChannelInfo();
@@ -120,18 +121,20 @@ const DetailVideo = () => {
 
       {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
         <VideoPlayer
-        videoId={videoId}
-        thumbnailUrl={videoDatas.thumbnailUrl}
-        handleVideo={() => {}}
-      />
+          videoId={videoId}
+          thumbnailUrl={videoDatas.thumbnailUrl}
+          isPrevMode={isPrevMode}
+          controlBar={true}
+        />
       ) : (
         <VideoCover url={videoDatas.thumbnailUrl}>
           <PrevBtn
             onClick={() => {
+              setPrevMode(true);
               dispatch(setPrev(true));
               setTimeout(() => {
                 dispatch(setPrev(false));
-              }, 60000);
+              }, 61000);
             }}
           >
             1분 미리보기
