@@ -1,5 +1,5 @@
 # (1) base-image
-FROM openjdk:11
+FROM openjdk:11-jre-slim AS runtime-stage
 
 # (2) COPY에서 사용될 경로 변수
 ARG JAR_FILE=build/libs/*-SNAPSHOT.jar
