@@ -46,6 +46,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
@@ -76,12 +77,12 @@ public abstract class ServiceTest {
     @Autowired protected CartRepository cartRepository;
     @Autowired protected RewardRepository rewardRepository;
     @Autowired protected EntityManager em;
-    @Autowired private RewardService rewardService;
 
     @MockBean protected RedisService redisService;
     @MockBean protected RestTemplate restTemplate;
     @MockBean protected MailService mailService;
     @MockBean protected AwsService awsService;
+    @MockBean protected DefaultOAuth2UserService defaultOAuth2UserService;
     @Mock protected JwtProvider jwtProvider;
     @Mock protected AuthenticationManager authenticationManager;
 

@@ -156,7 +156,7 @@ public class MemberServiceTest extends ServiceTest {
 
 			videos.add(video);
 			carts.add(createAndSaveCart(user, video));
-			Thread.sleep(50);
+			Thread.sleep(2);
 		}
 
 		Page<CartsResponse> page = memberService.getCarts(user.getMemberId(), 1, 10);
