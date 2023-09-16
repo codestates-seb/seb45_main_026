@@ -50,8 +50,7 @@ const Toggle = () => {
             <ToggleContainer 
                 isDark={isDark} >
                 <ToggleCircle 
-                    isDark={isDark}
-                    className={isDark?'dark':'light'}/>
+                    isDark={isDark}/>
             </ToggleContainer>
         </ToggleWrapper>
     );

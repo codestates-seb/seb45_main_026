@@ -14,6 +14,9 @@ export const RegularTextArea = styled.textarea`
     border: ${globalTokens.ThinHeight.value}px solid ${props=>props.isDark? globalTokens.Gray.value : globalTokens.LightGray.value};
     font-size: ${globalTokens.BodyText.value}px;
     color: ${(props)=>props.isDark ? globalTokens.White.value : globalTokens.Black.value};
+    &::placeholder {
+        color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+    }
 `
 
 export const Textarea = ({
