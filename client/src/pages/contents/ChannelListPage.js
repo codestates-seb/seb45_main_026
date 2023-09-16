@@ -51,10 +51,12 @@ export default function ChannelListPage() {
     const [bottomRef, bottomInView] = useInView();
     const [channels, setChannels] = useState([])
     const [loading,setLoading] = useState(true)
-    
+  const channelGetHandler = () => {
+      return null
+    }
     const getChannels = () => {
         dispatch(setPage(1))
-        axios.get("https://api.itprometheus.net/members/subscribes?page=1&size=10", {
+        axios.get("https://api.itprometheus.net/members/subscribes?page=1&size=12", {
           headers: { Authorization: accessToken.authorization },
         }).then(res => {
             dispatch(setMaxPage(res.data.pageInfo.totalPage));
@@ -72,7 +74,7 @@ export default function ChannelListPage() {
         if (page !== 1) {
             axios
               .get(
-                `https://api.itprometheus.net/members/subscribes?page=${page}&size=10`,
+                `https://api.itprometheus.net/members/subscribes?page=${page}&size=12`,
                 {
                   headers: { Authorization: accessToken.authorization },
                 }
@@ -112,6 +114,7 @@ export default function ChannelListPage() {
                 refreshToken={refreshToken}
                 channel={el}
                 getChannels={getChannels}
+                channelGetHandler={channelGetHandler}
               />
             ))}
           </ItemContainer>

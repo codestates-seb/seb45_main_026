@@ -77,6 +77,7 @@ const ChannelDescription = styled.div`
 
 export default function ChannelPage() {
   const refreshToken = useToken();
+  const myId = useSelector((state) => state.loginInfo.myid);
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const accessToken = useSelector(state=>state.loginInfo.accessToken);
   const [navigate, setNavigate] = useState(0)
@@ -115,11 +116,11 @@ export default function ChannelPage() {
             <InforContainer>
               <ChannelTitle isDark={isDark}>
                 {channelInfor.channelName}
-                <SubscribeBtn
+                {Number(userId)!==myId?<SubscribeBtn
                   memberId={channelInfor.memberId}
                   channelInfo={channelInfor}
                   setSub={setSub}
-                />
+                />:<></>}
               </ChannelTitle>
               <ChannelSubscribers isDark={isDark}>
                 구독자 {channelInfor.subscribers}명

@@ -14,6 +14,7 @@ import grid from '../../assets/images/icons/listItem/grid.svg'
 import { HomeTitle } from '../../components/contentListItems/ChannelHome';
 import { useToken } from '../../hooks/useToken';
 import { useInView } from "react-intersection-observer";
+import SearchSubmit from "../../components/contentListItems/Searchsubmit";
 
 const globalTokens = tokens.global;
 
@@ -179,6 +180,7 @@ const LectureListPage = () => {
     <PageContainer isDark={isDark}>
       <LectureMainContainer isDark={isDark}>
         <ListTitle isDark={isDark} onClick={()=>dispatch(setPage(page+1))}>강의 목록</ListTitle>
+        <SearchSubmit/>
         <FilterContainer>
           <CategoryFilter filterNum="filters1"/>
           <StructureButton
