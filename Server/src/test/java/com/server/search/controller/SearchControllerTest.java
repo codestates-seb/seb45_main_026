@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.server.domain.video.controller.dto.request.AnswersCreateApiRequest;
 import com.server.domain.video.controller.dto.request.VideoSort;
 import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
 import com.server.domain.video.service.dto.response.VideoCategoryResponse;
@@ -349,10 +348,10 @@ public class SearchControllerTest extends ControllerTest {
 			),
 			pageResponseFields(
 				fieldWithPath("data").description("채널 목록"),
-				fieldWithPath("data[].channelId").description("채널 ID"),
+				fieldWithPath("data[].memberId").description("채널 ID"),
 				fieldWithPath("data[].channelName").description("채널 명"),
 				fieldWithPath("data[].description").description("채널 설명"),
-				fieldWithPath("data[].subscribers").description("구독자 수"),
+				fieldWithPath("data[].subscribes").description("구독자 수"),
 				fieldWithPath("data[].isSubscribed").description("구독여부"),
 				fieldWithPath("data[].imageUrl").description("프로필 이미지 URL")
 			)
@@ -456,82 +455,82 @@ public class SearchControllerTest extends ControllerTest {
 	private List<ChannelResultResponse> getChannelResultResponses() {
 		return List.of(
 			ChannelResultResponse.builder()
-				.channelId(1L)
+				.memberId(1L)
 				.channelName("코딩채널1")
 				.description("채널설명1")
-				.subscribers(100)
+				.subscribes(100)
 				.imageUrl(PROFILE)
 				.isSubscribed(true)
 				.build(),
 			ChannelResultResponse.builder()
-				.channelId(2L)
+				.memberId(2L)
 				.channelName("코딩채널2")
 				.description("채널설명2")
-				.subscribers(1000)
+				.subscribes(1000)
 				.imageUrl(PROFILE)
 				.isSubscribed(false)
 				.build(),
 			ChannelResultResponse.builder()
-				.channelId(3L)
+				.memberId(3L)
 				.channelName("코딩채널3")
 				.description("채널설명3")
-				.subscribers(300)
+				.subscribes(300)
 				.imageUrl(PROFILE)
 				.isSubscribed(true)
 				.build(),
 			ChannelResultResponse.builder()
-				.channelId(4L)
+				.memberId(4L)
 				.channelName("코딩채널4")
 				.description("채널설명4")
-				.subscribers(400)
+				.subscribes(400)
 				.imageUrl(PROFILE)
 				.isSubscribed(false)
 				.build(),
 			ChannelResultResponse.builder()
-				.channelId(5L)
+				.memberId(5L)
 				.channelName("코딩채널5")
 				.description("채널설명5")
-				.subscribers(500)
+				.subscribes(500)
 				.imageUrl(PROFILE)
 				.isSubscribed(true)
 				.build(),
 			ChannelResultResponse.builder()
-				.channelId(6L)
+				.memberId(6L)
 				.channelName("코딩채널6")
 				.description("채널설명6")
-				.subscribers(600)
+				.subscribes(600)
 				.imageUrl(PROFILE)
 				.isSubscribed(true)
 				.build(),
 			ChannelResultResponse.builder()
-				.channelId(7L)
+				.memberId(7L)
 				.channelName("코딩채널7")
 				.description("채널설명7")
-				.subscribers(700)
+				.subscribes(700)
 				.imageUrl(PROFILE)
 				.isSubscribed(true)
 				.build(),
 			ChannelResultResponse.builder()
-				.channelId(8L)
+				.memberId(8L)
 				.channelName("코딩채널8")
 				.description("채널설명8")
-				.subscribers(800)
+				.subscribes(800)
 				.imageUrl(PROFILE)
 				.isSubscribed(true)
 				.build(),
 			ChannelResultResponse.builder()
-				.channelId(9L)
+				.memberId(9L)
 				.channelName("코딩채널9")
 				.description("채널설명9")
-				.subscribers(900)
+				.subscribes(900)
 				.imageUrl(PROFILE)
 				.isSubscribed(false)
 				.build(),
 			ChannelResultResponse.builder()
-				.channelId(10L)
+				.memberId(10L)
 				.channelName("코딩채널10")
 				.description("채널설명10")
-				.subscribers(1004)
+				.subscribes(1004)
 				.imageUrl(PROFILE)
 				.isSubscribed(false)
 				.build()
