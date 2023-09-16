@@ -53,6 +53,7 @@ import com.server.module.s3.service.dto.ImageType;
 import javax.persistence.EntityManager;
 
 @Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class MemberIntegrationTest extends IntegrationTest {
 
 	// 로그인한 사용자 정보
