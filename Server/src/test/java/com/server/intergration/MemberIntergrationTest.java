@@ -390,7 +390,8 @@ public class MemberIntergrationTest extends IntegrationTest {
 	@DisplayName("자신의 결제 내역을 조회한다.")
 	void getOrders() throws Exception {
 		// given
-		List<Order> orders = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getOrders();
+		Member member = memberRepository.findById(loginMember.getMemberId()).orElseThrow();
+		List<Order> orders = member.getOrders();
 
 		int totalSize = orders.size();
 
@@ -424,7 +425,7 @@ public class MemberIntergrationTest extends IntegrationTest {
 		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
 
 		OrdersResponse firstContent = responses.get(0);
-		Order firstOrder = orders.get(totalSize - 1);
+		Order firstOrder = orderRepository.findById(firstContent.getOrderId()).orElseThrow();
 
 		assertThat(firstContent.getOrderId()).isEqualTo(firstOrder.getOrderId());
 		assertThat(firstContent.getAmount())
