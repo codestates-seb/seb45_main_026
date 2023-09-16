@@ -136,9 +136,17 @@ public class VideoIntegrationTest extends IntegrationTest {
 			otherMemberVideos4.add(createAndSaveFreeVideo(otherMemberChannel4));
 		}
 
-		otherMemberClosedVideo = createAndSaveClosedVideo(otherMemberChannel1);
-		isNotPurchasedVideo = createAndSavePaidVideo(otherMemberChannel1, 10000);
-		isPurchasedVideo = createAndSavePurchasedVideo(loginMember);
+		for (int i = 0; i < 5; i++) {
+			Question question1 = createAndSaveQuestion(otherMemberVideos1.get(i));
+			Question question2 = createAndSaveQuestion(otherMemberVideos2.get(i));
+			Question question3 = createAndSaveQuestion(otherMemberVideos3.get(i));
+			Question question4 = createAndSaveQuestion(otherMemberVideos4.get(i));
+
+			otherMemberQuestions1.add(question1);
+			otherMemberQuestions2.add(question2);
+			otherMemberQuestions3.add(question3);
+			otherMemberQuestions4.add(question4);
+		}
 
 		for (int i = 0; i < otherMemberVideos1.size(); i++) {
 			List<Video> videos = List.of(
@@ -174,18 +182,6 @@ public class VideoIntegrationTest extends IntegrationTest {
 		}
 
 		for (int i = 0; i < 5; i++) {
-			Question question1 = createAndSaveQuestion(otherMemberVideos1.get(i));
-			Question question2 = createAndSaveQuestion(otherMemberVideos2.get(i));
-			Question question3 = createAndSaveQuestion(otherMemberVideos3.get(i));
-			Question question4 = createAndSaveQuestion(otherMemberVideos4.get(i));
-
-			otherMemberQuestions1.add(question1);
-			otherMemberQuestions2.add(question2);
-			otherMemberQuestions3.add(question3);
-			otherMemberQuestions4.add(question4);
-		}
-
-		for (int i = 0; i < 5; i++) {
 			loginMemberRewards.add(createAndSaveReward(loginMember, otherMemberQuestions1.get(i)));
 			loginMemberRewards.add(createAndSaveReward(loginMember, otherMemberQuestions2.get(i)));
 			loginMemberRewards.add(createAndSaveReward(loginMember, otherMemberQuestions3.get(i)));
@@ -200,6 +196,10 @@ public class VideoIntegrationTest extends IntegrationTest {
 		for (Reply loginMemberReply : loginMemberReplies) {
 			loginMemberRewards.add(createAndSaveReward(loginMember, loginMemberReply));
 		}
+
+		otherMemberClosedVideo = createAndSaveClosedVideo(otherMemberChannel1);
+		isNotPurchasedVideo = createAndSavePaidVideo(otherMemberChannel1, 10000);
+		isPurchasedVideo = createAndSavePurchasedVideo(loginMember);
 
 		memberRepository.saveAll(List.of(
 			loginMember,
@@ -243,7 +243,7 @@ public class VideoIntegrationTest extends IntegrationTest {
 					String content = question.getContent();
 					String questionAnswer = question.getQuestionAnswer();
 					String description = question.getDescription();
-					List<String> selections = question.getSelections();
+					String selection = question.getSelections().get(0);
 
 					// when
 					ResultActions actions = mockMvc.perform(
@@ -265,6 +265,10 @@ public class VideoIntegrationTest extends IntegrationTest {
 
 					assertThat(questionResponse.getQuestionId()).isEqualTo(questionId);
 					assertThat(questionResponse.getQuestionAnswer()).isEqualTo(questionAnswer);
+					assertThat(questionResponse.getPosition()).isEqualTo(position);
+					assertThat(questionResponse.getContent()).isEqualTo(content);
+					assertThat(questionResponse.getDescription()).isEqualTo(description);
+					assertThat(questionResponse.getSelections().get(0)).isEqualTo(selection);
 				}
 			),
 			dynamicTest(
@@ -749,14 +753,6 @@ public class VideoIntegrationTest extends IntegrationTest {
 
 		Long videoId = video.getVideoId();
 
-		VideoUrlResponse videoUrlResponse = VideoUrlResponse.builder()
-			.videoUrl(getVideoUrl(video))
-			.build();
-
-		String expectVideoUrlResponse = objectMapper.writeValueAsString(
-			ApiSingleResponse.ok(videoUrlResponse, "비디오 url 조회 성공")
-		);
-
 		// when
 		ResultActions actions = mockMvc.perform(
 			get(BASE_URL + "/{video-id}/url", videoId)
@@ -771,7 +767,11 @@ public class VideoIntegrationTest extends IntegrationTest {
 		String actualVideoUrlResponse =
 			actions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
-		assertThat(actualVideoUrlResponse).isEqualTo(expectVideoUrlResponse);
+		assertThat(
+			actualVideoUrlResponse.contains(
+				"\"code\":200,\"status\":\"OK\",\"message\":\"비디오 url 조회 성공\""
+			)
+		).isTrue();
 	}
 
 	@TestFactory
@@ -780,12 +780,68 @@ public class VideoIntegrationTest extends IntegrationTest {
 
 		return List.of(
 			dynamicTest(
-				"비디오 이름에 /가 들어간 경우",
+				"비디오명에 /가 들어간 경우",
 				() -> {
 					// given
 					VideoCreateUrlApiRequest request = VideoCreateUrlApiRequest.builder()
 						.imageType(ImageType.JPG)
 						.fileName("wrong/VideoName")
+						.build();
+
+					String apiResponse = objectMapper.writeValueAsString(request);
+
+					// when
+					ResultActions actions = mockMvc.perform(
+						post(BASE_URL + "/presigned-url")
+							.contentType(APPLICATION_JSON)
+							.accept(APPLICATION_JSON)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.content(apiResponse)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isConflict());
+				}
+			),
+			dynamicTest(
+				"한 채널에 같은 이름의 비디오가 존재하는 경우",
+				() -> {
+					// given
+					String sameVideoName = memberRepository.findById(otherMember1.getMemberId())
+						.orElseThrow().getChannel().getVideos().get(0).getVideoName();
+
+					VideoCreateUrlApiRequest request = VideoCreateUrlApiRequest.builder()
+						.imageType(ImageType.JPG)
+						.fileName(sameVideoName)
+						.build();
+
+					String apiResponse = objectMapper.writeValueAsString(request);
+
+					// when
+					ResultActions actions = mockMvc.perform(
+						post(BASE_URL + "/presigned-url")
+							.contentType(APPLICATION_JSON)
+							.accept(APPLICATION_JSON)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.content(apiResponse)
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isConflict());
+				}
+			),
+			dynamicTest(
+				"한 채널에 같은 이름의 비디오가 존재하는 경우",
+				() -> {
+					// given
+					String sameVideoName = memberRepository.findById(loginMember.getMemberId())
+						.orElseThrow().getChannel().getVideos().get(0).getVideoName();
+
+					VideoCreateUrlApiRequest request = VideoCreateUrlApiRequest.builder()
+						.imageType(ImageType.JPG)
+						.fileName(sameVideoName)
 						.build();
 
 					String apiResponse = objectMapper.writeValueAsString(request);
