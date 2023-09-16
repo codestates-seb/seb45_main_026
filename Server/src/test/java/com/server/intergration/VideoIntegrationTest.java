@@ -109,6 +109,7 @@ public class VideoIntegrationTest extends IntegrationTest {
 	Video isNotPurchasedVideo;
 	Video isNotPurchasedVideo2;
 	Video isPurchasedVideo;
+	Video isPurchasedVideo2;
 	Video isNotSubscribedVideo1;
 	Video isNotSubscribedVideo2;
 	Video replyTestVideo;
@@ -230,6 +231,7 @@ public class VideoIntegrationTest extends IntegrationTest {
 		isNotPurchasedVideo = createAndSavePaidVideo(otherMemberChannel1, 10000);
 		isNotPurchasedVideo2 = createAndSavePaidVideo(otherMemberChannel1, 10000);
 		isPurchasedVideo = createAndSavePurchasedVideo(loginMember);
+		isPurchasedVideo2 = createAndSavePurchasedVideo(loginMember);
 		isNotSubscribedVideo1 = createAndSavePaidVideo(otherMemberChannel2, 20000);
 		isNotSubscribedVideo2 = createAndSavePaidVideo(otherMemberChannel2, 20000);
 
@@ -1034,6 +1036,42 @@ public class VideoIntegrationTest extends IntegrationTest {
 
 		return List.of(
 			dynamicTest(
+				"회원이 존재하지 않는 경우",
+				() -> {
+					// given
+					Long videoId = 99999L;
+
+					// when
+					ResultActions actions = mockMvc.perform(
+						patch(BASE_URL + "/{videoId}/carts", videoId)
+							.contentType(APPLICATION_JSON)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+					);
+
+					// then
+					actions.andDo(print())
+						.andExpect(status().isNotFound());
+				}
+			),
+			dynamicTest(
+				"담으려는 비디오가 존재하지 않는 경우",
+				() -> {
+					// given
+					Long videoId = 99999L;
+
+					// when
+					ResultActions actions = mockMvc.perform(
+						patch(BASE_URL + "/{videoId}/carts", videoId)
+							.contentType(APPLICATION_JSON)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+					);
+
+					// then
+					actions.andDo(print())
+						.andExpect(status().isNotFound());
+				}
+			),
+			dynamicTest(
 				"장바구니 담기",
 				() -> {
 					// given
@@ -1145,6 +1183,41 @@ public class VideoIntegrationTest extends IntegrationTest {
 	Collection<DynamicTest> changeVideoStatus() {
 
 		return List.of(
+			dynamicTest(
+				"비디오가 존재하지 않는 경우",
+				() -> {
+					// given
+					Long videoId = 999999L;
+
+					// when
+					ResultActions actions = mockMvc.perform(
+						patch(BASE_URL + "/{videoId}/status", videoId)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+					);
+
+					// then
+					actions.andDo(print())
+						.andExpect(status().isNotFound());
+				}
+			),
+			dynamicTest(
+				"비디오를 업로드 한 회원이 아닌 경우",
+				() -> {
+					// given
+					Long videoId = memberRepository.findById(otherMember1.getMemberId())
+						.orElseThrow().getChannel().getVideos().get(0).getVideoId();
+
+					// when
+					ResultActions actions = mockMvc.perform(
+						patch(BASE_URL + "/{videoId}/status", videoId)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+					);
+
+					// then
+					actions.andDo(print())
+						.andExpect(status().isForbidden());
+				}
+			),
 			dynamicTest(
 				"비디오 열기",
 				() -> {
@@ -1300,6 +1373,36 @@ public class VideoIntegrationTest extends IntegrationTest {
 						assertThat(replyInfo.getStar()).isGreaterThanOrEqualTo(5);
 					}
 				}
+			),
+			dynamicTest(
+				"지정한 별점 이상만 최신순으로 표시",
+				() -> {
+					// given
+					Long videoId = replyTestVideo.getVideoId();
+
+					// when
+					ResultActions actions = mockMvc.perform(
+						get(BASE_URL + "/{videoId}/replies", videoId)
+							.param("sort", "created-date")
+							.param("star", "5")
+							.header(AUTHORIZATION, loginMemberAccessToken)
+					);
+
+					// then
+					actions.andDo(print())
+						.andExpect(status().isOk());
+
+					ApiPageResponse<ReplyInfo> pages =
+						getApiPageResponseFromResult(actions, ReplyInfo.class);
+
+					List<ReplyInfo> replyInfos = pages.getData();
+
+					assertThat(replyInfos).isSortedAccordingTo(Comparator.comparing(ReplyInfo::getCreatedDate).reversed());
+
+					for (ReplyInfo replyInfo : replyInfos) {
+						assertThat(replyInfo.getStar()).isGreaterThanOrEqualTo(5);
+					}
+				}
 			)
 		);
 	}
@@ -1334,10 +1437,11 @@ public class VideoIntegrationTest extends IntegrationTest {
 				}
 			),
 			dynamicTest(
-				"구매한 비디오인 경우",
+				"작성한 댓글이 있는 경우",
 				() -> {
 					// given
-					Long videoId = isPurchasedVideo.getVideoId();
+					Long videoId = memberRepository.findById(loginMember.getMemberId())
+						.orElseThrow().getReplies().get(0).getVideo().getVideoId();
 
 					CreateReply request = CreateReply.builder()
 						.content("댓글 내용")
@@ -1352,9 +1456,61 @@ public class VideoIntegrationTest extends IntegrationTest {
 							.content(objectMapper.writeValueAsString(request))
 					);
 
+					actions
+						.andDo(print())
+						.andExpect(status().isNotFound());
+				}
+			),
+			dynamicTest(
+				"별점이 범위를 벗어난 경우",
+				() -> {
+					// given
+					Long videoId = isPurchasedVideo2.getVideoId();
+
+					CreateReply request = CreateReply.builder()
+						.content("댓글 내용")
+						.star(11)
+						.build();
+
+					// when
+					ResultActions actions = mockMvc.perform(
+						post(BASE_URL + "/{videoId}/replies", videoId)
+							.contentType(APPLICATION_JSON)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.content(objectMapper.writeValueAsString(request))
+					);
+
+					actions
+						.andDo(print())
+						.andExpect(status().isBadRequest());
+				}
+			),
+			dynamicTest(
+				"구매한 비디오인 경우",
+				() -> {
+					// given
+					Long videoId = isPurchasedVideo.getVideoId();
+
+					CreateReply request = CreateReply.builder()
+						.content("댓글 내용")
+						.star(5)
+						.build();
+
+					int beforeReward = memberRepository.findById(loginMember.getMemberId())
+						.orElseThrow().getReward();
+
+					// when
+					ResultActions actions = mockMvc.perform(
+						post(BASE_URL + "/{videoId}/replies", videoId)
+							.contentType(APPLICATION_JSON)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.content(objectMapper.writeValueAsString(request))
+					);
+
 					em.flush();
 					em.clear();
 
+					// then
 					actions
 						.andDo(print())
 						.andExpect(status().isCreated());
@@ -1363,9 +1519,18 @@ public class VideoIntegrationTest extends IntegrationTest {
 					Long replyId = Long.valueOf(location.replace("/replies/", ""));
 
 					Reply reply = replyRepository.findById(replyId).orElseThrow();
+					Video video = reply.getVideo();
+
+					int afterReward = memberRepository.findById(loginMember.getMemberId())
+						.orElseThrow().getReward();
+
+					Float avg = (float)video.getReplies().stream().mapToDouble(Reply::getStar).average().orElse(0.0);
 
 					assertThat(reply.getContent()).isEqualTo(request.getContent());
 					assertThat(reply.getStar()).isEqualTo(request.getStar());
+
+					assertThat(afterReward).isEqualTo(beforeReward + 10);
+					assertThat(video.getStar()).isEqualTo(avg);
 				}
 			)
 		);
