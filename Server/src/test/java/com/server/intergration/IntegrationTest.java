@@ -67,7 +67,7 @@ import com.server.module.s3.service.dto.FileType;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+
 public class IntegrationTest {
 	// 레포지토리
 	@Autowired protected AnnouncementRepository announcementRepository;
