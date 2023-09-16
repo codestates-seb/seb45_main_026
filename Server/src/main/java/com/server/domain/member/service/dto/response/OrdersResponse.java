@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.server.domain.order.entity.OrderStatus;
+import com.server.domain.order.entity.OrderVideo;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -27,5 +28,6 @@ public class OrdersResponse {
 		private String thumbnailFile; //video + channel.member.memberid
 		private String channelName; //channel
 		private int price; //video
+		private OrderStatus orderStatus;
 	}
 }

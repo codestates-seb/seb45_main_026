@@ -92,7 +92,7 @@ public class MemberControllerTest extends ControllerTest {
 				fieldWithPath("data.email").description("회원 이메일"),
 				fieldWithPath("data.nickname").description("회원 닉네임"),
 				fieldWithPath("data.imageUrl").description("회원 프로필 이미지"),
-				fieldWithPath("data.grade").description("회원 등급"),
+				fieldWithPath("data.grade").description(generateLinkCode(Grade.class)),
 				fieldWithPath("data.reward").description("보유 중인 리워드"),
 				fieldWithPath("data.createdDate").description("가입일"),
 				fieldWithPath("code").description("응답 코드"),
@@ -219,7 +219,7 @@ public class MemberControllerTest extends ControllerTest {
 					pageResponseFields(
 						fieldWithPath("data[]").description("리워드 목록"),
 						fieldWithPath("data[].rewardId").description("리워드 ID"),
-						fieldWithPath("data[].rewardType").description("리워드 획득 타입"),
+						fieldWithPath("data[].rewardType").description(generateLinkCode(RewardType.class)),
 						fieldWithPath("data[].rewardPoint").description("지급된 리워드 포인트"),
 						fieldWithPath("data[].canceled").description("리워드 취소 여부"),
 						fieldWithPath("data[].createdDate").description("리워드 지급일"),
@@ -407,32 +407,6 @@ public class MemberControllerTest extends ControllerTest {
 				.orderId("aBzd031dpf414")
 				.amount(30000)
 				.orderCount(4)
-				.orderStatus(OrderStatus.ORDERED)
-				.createdDate(LocalDateTime.now())
-				.completedDate(LocalDateTime.now())
-				.orderVideos(
-					List.of(
-						OrdersResponse.OrderVideo.builder()
-							.videoId(1L)
-							.videoName("구매한 영상명1")
-							.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
-							.channelName("영상 업로드 채널")
-							.price(10000)
-							.build(),
-						OrdersResponse.OrderVideo.builder()
-							.videoId(1L)
-							.videoName("구매한 영상명2")
-							.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
-							.channelName("영상 업로드 채널")
-							.price(20000)
-							.build()
-					)
-				)
-				.build(),
-			OrdersResponse.builder()
-				.orderId("dfghkdf908sd023")
-				.amount(40000)
-				.orderCount(6)
 				.orderStatus(OrderStatus.CANCELED)
 				.createdDate(LocalDateTime.now())
 				.completedDate(LocalDateTime.now())
@@ -444,6 +418,7 @@ public class MemberControllerTest extends ControllerTest {
 							.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 							.channelName("영상 업로드 채널")
 							.price(10000)
+							.orderStatus(OrderStatus.COMPLETED)
 							.build(),
 						OrdersResponse.OrderVideo.builder()
 							.videoId(1L)
@@ -451,6 +426,35 @@ public class MemberControllerTest extends ControllerTest {
 							.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 							.channelName("영상 업로드 채널")
 							.price(20000)
+							.orderStatus(OrderStatus.CANCELED)
+							.build()
+					)
+				)
+				.build(),
+			OrdersResponse.builder()
+				.orderId("dfghkdf908sd023")
+				.amount(40000)
+				.orderCount(6)
+				.orderStatus(OrderStatus.COMPLETED)
+				.createdDate(LocalDateTime.now())
+				.completedDate(LocalDateTime.now())
+				.orderVideos(
+					List.of(
+						OrdersResponse.OrderVideo.builder()
+							.videoId(1L)
+							.videoName("구매한 영상명1")
+							.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
+							.channelName("영상 업로드 채널")
+							.price(10000)
+							.orderStatus(OrderStatus.COMPLETED)
+							.build(),
+						OrdersResponse.OrderVideo.builder()
+							.videoId(1L)
+							.videoName("구매한 영상명2")
+							.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
+							.channelName("영상 업로드 채널")
+							.price(20000)
+							.orderStatus(OrderStatus.COMPLETED)
 							.build()
 					)
 				)
@@ -470,6 +474,7 @@ public class MemberControllerTest extends ControllerTest {
 							.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 							.channelName("영상 업로드 채널")
 							.price(10000)
+							.orderStatus(OrderStatus.COMPLETED)
 							.build(),
 						OrdersResponse.OrderVideo.builder()
 							.videoId(1L)
@@ -477,6 +482,7 @@ public class MemberControllerTest extends ControllerTest {
 							.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 							.channelName("영상 업로드 채널")
 							.price(20000)
+							.orderStatus(OrderStatus.COMPLETED)
 							.build()
 					)
 				)
@@ -485,7 +491,7 @@ public class MemberControllerTest extends ControllerTest {
 				.orderId("nvbio328sdfhs13")
 				.amount(10000)
 				.orderCount(7)
-				.orderStatus(OrderStatus.ORDERED)
+				.orderStatus(OrderStatus.CANCELED)
 				.createdDate(LocalDateTime.now())
 				.completedDate(LocalDateTime.now())
 				.orderVideos(
@@ -496,6 +502,7 @@ public class MemberControllerTest extends ControllerTest {
 							.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 							.channelName("영상 업로드 채널")
 							.price(10000)
+							.orderStatus(OrderStatus.CANCELED)
 							.build(),
 						OrdersResponse.OrderVideo.builder()
 							.videoId(1L)
@@ -503,6 +510,7 @@ public class MemberControllerTest extends ControllerTest {
 							.thumbnailFile("https://d2ouhv9pc4idoe.cloudfront.net/9999/test")
 							.channelName("영상 업로드 채널")
 							.price(20000)
+							.orderStatus(OrderStatus.CANCELED)
 							.build()
 					)
 				)
@@ -539,7 +547,8 @@ public class MemberControllerTest extends ControllerTest {
 			fieldWithPath("data[].orderVideos[].videoName").description("강의명"),
 			fieldWithPath("data[].orderVideos[].thumbnailFile").description("강의 썸네일 이미지 주소"),
 			fieldWithPath("data[].orderVideos[].channelName").description("강의 업로더 채널명"),
-			fieldWithPath("data[].orderVideos[].price").description("강의 가격")
+			fieldWithPath("data[].orderVideos[].price").description("강의 가격"),
+			fieldWithPath("data[].orderVideos[].orderStatus").description(generateLinkCode(OrderStatus.class))
 		};
 
 		actions
