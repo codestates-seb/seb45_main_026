@@ -25,7 +25,7 @@
  import static org.assertj.core.api.Assertions.assertThat;
  import static org.junit.jupiter.api.DynamicTest.*;
 
- class AwsServiceTest extends ModuleServiceTest {
+ class AwsModuleTest extends ModuleServiceTest {
 
      @Autowired AwsService awsService;
      RestTemplate restTemplate = new RestTemplate();

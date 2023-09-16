@@ -105,7 +105,13 @@ tasks.register('buildTest', Test) {
     useJUnitPlatform()
 }
 
-test.enabled = false  // test 작업을 비활성화합니다.
+test {
+    useJUnitPlatform()
+}
+
+test.onlyIf {
+    !project.hasProperty('doNotRunTests')
+}
 
 build.dependsOn buildTest
 
