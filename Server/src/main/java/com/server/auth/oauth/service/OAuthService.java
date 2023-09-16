@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -178,7 +179,7 @@ public class OAuthService {
 		Member member = Member.createMember(
 			memberProfile.getEmail(),
 			memberProfile.getEmail().split("@")[0],
-			"oauthUser");
+			generateRandomNickname());
 
 		Member signMember = memberRepository.save(member);
 		channelService.createChannel(signMember);
@@ -198,6 +199,20 @@ public class OAuthService {
 		String refreshToken = jwtProvider.createRefreshToken(authentication, AuthConstant.ACCESS_TOKEN_EXPIRE_TIME);
 
 		return new AuthApiRequest.Token(accessToken, refreshToken, member.getMemberId());
+	}
+
+	private String generateRandomNickname() {
+		final String[] FIRST_WORDS =
+			{"귀여운", "무서운", "책읽는", "코딩하는", "노래하는", "춤추는", "강력한", "잠자는", "빛나는", "대머리", "매력적인", "행복한", "슬픈", "신비로운"};
+
+		final String[] SECOND_WORDS =
+			{"호랑이", "고양이", "강아지", "팬더", "코끼리", "사자", "기린", "원숭이", "팽귄", "오리", "앵무새", "비둘기", "다람쥐", "참새"};
+
+		Random random = new Random();
+		String firstWord = FIRST_WORDS[random.nextInt(FIRST_WORDS.length)];
+		String secondWord = SECOND_WORDS[random.nextInt(SECOND_WORDS.length)];
+
+		return firstWord + " " + secondWord;
 	}
 
 	@Getter
