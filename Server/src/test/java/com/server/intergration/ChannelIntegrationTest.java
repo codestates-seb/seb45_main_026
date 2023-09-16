@@ -27,7 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DisplayName("Channel 통합 테스트")
 public class ChannelIntegrationTest extends IntegrationTest {
 
     private boolean isSetting = false;
