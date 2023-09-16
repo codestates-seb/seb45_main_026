@@ -1,6 +1,8 @@
 package com.server.intergration;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -288,6 +290,24 @@ public class IntegrationTest {
 		return videoRepository.save(video);
 	}
 
+	protected Video createAndSaveClosedVideo(Channel channel) {
+		Video video = Video.builder()
+			.videoName(generateRandomString())
+			.description("description")
+			.thumbnailFile("thumbnailFile")
+			.videoFile("videoFile")
+			.view(0)
+			.star(generateRandomStar())
+			.price(5000)
+			.videoCategories(new ArrayList<>())
+			.videoStatus(VideoStatus.CLOSED)
+			.channel(channel)
+			.questions(new ArrayList<>())
+			.build();
+
+		return videoRepository.save(video);
+	}
+
 	protected Video createAndSavePurchasedVideo(Member member) {
 		Video video = Video.builder()
 			.videoName("title")
@@ -433,18 +453,39 @@ public class IntegrationTest {
 		);
 	}
 
+	protected String getVideoUrl(Video video) {
+		return awsService.getFileUrl(
+			video.getVideoFile(),
+			FileType.VIDEO
+		);
+	}
+
 	protected <T> ApiSingleResponse<T> getApiSingleResponseFromResult(ResultActions actions, Class<T> clazz) throws
 		UnsupportedEncodingException,
 		JsonProcessingException {
-		String contentAsString = actions.andReturn().getResponse().getContentAsString();
+		String contentAsString = actions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
 		JavaType javaType = objectMapper.getTypeFactory().constructParametricType(ApiSingleResponse.class, clazz);
 
 		return objectMapper.readValue(contentAsString, javaType);
 	}
 
+	protected <T> ApiSingleResponse<List<T>> getApiSingleListResponseFromResult(ResultActions actions, Class<T> clazz) throws UnsupportedEncodingException {
+		String jsonData = actions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+		try {
+			JavaType responseType = objectMapper.getTypeFactory().constructParametricType(ApiSingleResponse.class,
+				objectMapper.getTypeFactory().constructCollectionType(List.class, clazz));
+
+			return objectMapper.readValue(jsonData, responseType);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	protected <T> ApiPageResponse<T> getApiPageResponseFromResult(ResultActions actions, Class<T> clazz) throws UnsupportedEncodingException, JsonProcessingException {
-		String contentAsString = actions.andReturn().getResponse().getContentAsString();
+		String contentAsString = actions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
 		JavaType javaType = objectMapper.getTypeFactory().constructParametricType(ApiPageResponse.class, clazz);
 
