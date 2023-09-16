@@ -3,8 +3,10 @@ package com.server.intergration;
 import static com.server.auth.util.AuthConstant.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.DynamicTest.*;
+import static org.mockito.BDDMockito.*;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
@@ -23,6 +25,7 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestInstance;
+import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -37,7 +40,9 @@ import com.server.domain.reward.entity.Reward;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.controller.dto.request.AnswersCreateApiRequest;
 import com.server.domain.video.controller.dto.request.QuestionCreateApiRequest;
+import com.server.domain.video.controller.dto.request.VideoCreateApiRequest;
 import com.server.domain.video.controller.dto.request.VideoCreateUrlApiRequest;
+import com.server.domain.video.controller.dto.request.VideoUpdateApiRequest;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.service.dto.response.VideoDetailResponse;
 import com.server.domain.video.service.dto.response.VideoPageResponse;
@@ -46,6 +51,7 @@ import com.server.domain.watch.entity.Watch;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.global.reponse.PageInfo;
+import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -97,6 +103,7 @@ public class VideoIntegrationTest extends IntegrationTest {
 
 	Video otherMemberClosedVideo;
 	Video isNotPurchasedVideo;
+	Video isNotPurchasedVideo2;
 	Video isPurchasedVideo;
 
 	@BeforeAll
@@ -199,7 +206,12 @@ public class VideoIntegrationTest extends IntegrationTest {
 
 		otherMemberClosedVideo = createAndSaveClosedVideo(otherMemberChannel1);
 		isNotPurchasedVideo = createAndSavePaidVideo(otherMemberChannel1, 10000);
+		isNotPurchasedVideo2 = createAndSavePaidVideo(otherMemberChannel1, 10000);
 		isPurchasedVideo = createAndSavePurchasedVideo(loginMember);
+
+		createAndSaveCart(loginMember, isNotPurchasedVideo2);
+
+		createAndSaveCategory("Java");
 
 		memberRepository.saveAll(List.of(
 			loginMember,
@@ -799,34 +811,7 @@ public class VideoIntegrationTest extends IntegrationTest {
 							.content(apiResponse)
 					);
 
-					actions
-						.andDo(print())
-						.andExpect(status().isConflict());
-				}
-			),
-			dynamicTest(
-				"한 채널에 같은 이름의 비디오가 존재하는 경우",
-				() -> {
-					// given
-					String sameVideoName = memberRepository.findById(otherMember1.getMemberId())
-						.orElseThrow().getChannel().getVideos().get(0).getVideoName();
-
-					VideoCreateUrlApiRequest request = VideoCreateUrlApiRequest.builder()
-						.imageType(ImageType.JPG)
-						.fileName(sameVideoName)
-						.build();
-
-					String apiResponse = objectMapper.writeValueAsString(request);
-
-					// when
-					ResultActions actions = mockMvc.perform(
-						post(BASE_URL + "/presigned-url")
-							.contentType(APPLICATION_JSON)
-							.accept(APPLICATION_JSON)
-							.header(AUTHORIZATION, loginMemberAccessToken)
-							.content(apiResponse)
-					);
-
+					// then
 					actions
 						.andDo(print())
 						.andExpect(status().isConflict());
@@ -855,9 +840,223 @@ public class VideoIntegrationTest extends IntegrationTest {
 							.content(apiResponse)
 					);
 
+					// then
 					actions
 						.andDo(print())
 						.andExpect(status().isConflict());
+				}
+			),
+			dynamicTest(
+				"put url 생성 성공",
+				() -> {
+					// given
+					VideoCreateUrlApiRequest request = VideoCreateUrlApiRequest.builder()
+						.imageType(ImageType.JPG)
+						.fileName("createUrlTest")
+						.build();
+
+					String apiResponse = objectMapper.writeValueAsString(request);
+
+					// when
+					ResultActions actions = mockMvc.perform(
+						post(BASE_URL + "/presigned-url")
+							.contentType(APPLICATION_JSON)
+							.accept(APPLICATION_JSON)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.content(apiResponse)
+					);
+
+					// then
+					actions
+						.andDo(print())
+						.andExpect(status().isOk());
+
+					String response =
+						actions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+					assertThat(response.contains("\"thumbnailUrl\":\"https:")).isTrue();
+					assertThat(response.contains("\"videoUrl\":\"https:")).isTrue();
+					assertThat(response.contains("\"code\":200,\"status\":\"OK\",\"message\":\"put url 생성 성공\""))
+						.isTrue();
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("비디오 생성 API")
+	Collection<DynamicTest> createVideo() {
+
+		return List.of(
+			dynamicTest(
+				"비디오 생성 성공",
+				() -> {
+					// given
+					String videoName = "createVideoTest";
+
+					VideoCreateUrlApiRequest createUrlRequest = VideoCreateUrlApiRequest.builder()
+						.imageType(ImageType.JPG)
+						.fileName(videoName)
+						.build();
+
+					String createUrlApiResponse =
+						objectMapper.writeValueAsString(createUrlRequest);
+
+					ResultActions createUrlActions = mockMvc.perform(
+						post(BASE_URL + "/presigned-url")
+							.contentType(APPLICATION_JSON)
+							.accept(APPLICATION_JSON)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.content(createUrlApiResponse)
+					);
+
+					Video beforeVideo = videoRepository.findVideoByNameWithMember(
+						loginMember.getMemberId(), videoName
+					).orElseThrow();
+
+					Long videoId = beforeVideo.getVideoId();
+
+					em.flush();
+					em.clear();
+
+					given(mockAwsService.isExistFile(Mockito.anyString(), Mockito.any(FileType.class)))
+						.willReturn(true);
+
+					VideoCreateApiRequest request = VideoCreateApiRequest.builder()
+						.videoName(videoName)
+						.price(10000)
+						.description("description")
+						.categories(List.of("Java"))
+						.build();
+
+					String apiResponse =
+						objectMapper.writeValueAsString(request);
+
+					// when
+					ResultActions actions = mockMvc.perform(
+						post(BASE_URL)
+							.contentType(APPLICATION_JSON)
+							.accept(APPLICATION_JSON)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.content(apiResponse)
+					);
+
+					em.flush();
+					em.clear();
+
+					// then
+					actions.andDo(print())
+						.andExpect(status().isCreated())
+						.andExpect(header().string("Location", "/videos/" + videoId));
+
+					Video video = videoRepository.findVideoByNameWithMember(
+						loginMember.getMemberId(), videoName
+					).orElseThrow();
+
+					assertThat(video.getVideoCategories().get(0).getCategory().getCategoryName())
+						.isEqualTo(request.getCategories().get(0));
+					assertThat(video.getPrice()).isEqualTo(request.getPrice());
+					assertThat(video.getDescription()).isEqualTo(request.getDescription());
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("비디오 수정 API")
+	Collection<DynamicTest> updateVideo() {
+
+		return List.of(
+			dynamicTest(
+				"비디오 수정 성공",
+				() -> {
+					// given
+					Video video = memberRepository.findById(loginMember.getMemberId())
+						.orElseThrow().getChannel().getVideos().get(0);
+
+					Long videoId = video.getVideoId();
+
+					String before = video.getDescription();
+
+					VideoUpdateApiRequest request = VideoUpdateApiRequest.builder()
+						.description("change")
+						.build();
+
+					// when
+					ResultActions actions = mockMvc.perform(
+						patch(BASE_URL + "/{videoId}", videoId)
+							.contentType(APPLICATION_JSON)
+							.accept(APPLICATION_JSON)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+							.content(objectMapper.writeValueAsString(request))
+					);
+
+					// then
+					actions.andDo(print())
+						.andExpect(status().isNoContent());
+
+					String after = videoRepository.findById(videoId).orElseThrow().getDescription();
+
+					assertThat(after).isNotEqualTo(before);
+					assertThat(after).isEqualTo(request.getDescription());
+				}
+			)
+		);
+	}
+
+	@TestFactory
+	@DisplayName("장바구니 담기 API")
+	Collection<DynamicTest> changeCartAdd() {
+
+		return List.of(
+			dynamicTest(
+				"장바구니 담기",
+				() -> {
+					// given
+					Long videoId = isNotPurchasedVideo.getVideoId();
+
+					int beforeCartSize = memberRepository.findById(loginMember.getMemberId())
+						.orElseThrow().getCarts().size();
+
+					String apiResponse =
+						objectMapper.writeValueAsString(
+							ApiSingleResponse.ok(true, "장바구니 담기 성공")
+						);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch(BASE_URL + "/{videoId}/carts", videoId)
+							.contentType(APPLICATION_JSON)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+					);
+
+					//then
+					actions.andDo(print())
+						.andExpect(status().isOk())
+						.andExpect(content().string(apiResponse));
+				}
+			),
+			dynamicTest(
+				"장바구니 취소",
+				() -> {
+					Long videoId = isNotPurchasedVideo2.getVideoId();
+
+					String apiResponse =
+						objectMapper.writeValueAsString(
+							ApiSingleResponse.ok(false, "장바구니 취소 성공")
+						);
+
+					//when
+					ResultActions actions = mockMvc.perform(
+						patch(BASE_URL + "/{videoId}/carts", videoId)
+							.contentType(APPLICATION_JSON)
+							.header(AUTHORIZATION, loginMemberAccessToken)
+					);
+
+					//then
+					actions.andDo(print())
+						.andExpect(status().isOk())
+						.andExpect(content().string(apiResponse));
 				}
 			)
 		);

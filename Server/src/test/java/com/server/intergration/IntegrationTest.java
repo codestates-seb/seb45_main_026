@@ -1,7 +1,6 @@
 package com.server.intergration;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -12,10 +11,10 @@ import java.util.Random;
 
 import javax.persistence.EntityManager;
 
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -99,6 +98,9 @@ public class IntegrationTest {
 
 	// AWS
 	@Autowired protected AwsService awsService;
+
+	// Mock
+	@MockBean protected AwsService mockAwsService;
 
 	protected void flushAll() {
 		memberRepository.flush();
