@@ -443,6 +443,7 @@ public class MemberIntergrationTest extends IntegrationTest {
 						.thumbnailFile(getThumbnailUrl(orderVideo.getVideo()))
 						.channelName(orderVideo.getVideo().getChannel().getChannelName())
 						.price(orderVideo.getVideo().getPrice())
+						.orderStatus(orderVideo.getOrderStatus())
 						.build()
 				).collect(Collectors.toList()))
 			);

@@ -35,6 +35,7 @@ import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.video.entity.QVideo;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.watch.entity.Watch;
 
 public class MemberRepositoryImpl implements MemberRepositoryCustom {
@@ -167,7 +168,10 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
             .join(cart.video, video).fetchJoin()
             .join(video.channel, channel).fetchJoin()
             .join(channel.member, member).fetchJoin()
-            .where(cart.member.memberId.eq(memberId))
+            .where(
+                cart.member.memberId.eq(memberId)
+                .and(video.videoStatus.ne(VideoStatus.CLOSED))
+            )
             .orderBy(cart.createdDate.desc(), cart.cartId.desc());
 
         long totalCount = query.fetchCount();
@@ -191,7 +195,8 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
             .join(order.member, member)
             .where(
                 order.member.memberId.eq(memberId)
-                    .and(order.createdDate.between(startDateTime, endDateTime))
+                .and(order.createdDate.between(startDateTime, endDateTime))
+                .and(order.orderStatus.ne(OrderStatus.ORDERED))
             )
             .orderBy(order.createdDate.desc(), order.orderId.desc())
             .distinct();
