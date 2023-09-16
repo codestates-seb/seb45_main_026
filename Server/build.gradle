@@ -80,42 +80,27 @@ ext {
 }
 
 //테스트
-task testA(type: Test) {
+tasks.register('testA', Test) {
     exclude '**/*ControllerTest.class'
     useJUnitPlatform()
 }
 
-task testB(type: Test) {
+tasks.register('buildTest', Test) {
     outputs.dir snippetsDir
     include '**/*ControllerTest.class'
     useJUnitPlatform()
 }
 
-task parallelTest {
-    doLast {
-        testA.execute()
-        testB.execute()
-    }
-}
-
-testA.shouldRunAfter clean
-testB.shouldRunAfter clean
-
 test.enabled = false  // test 작업을 비활성화합니다.
 
-build.dependsOn parallelTest
-
-// 병렬 실행을 활성화
-gradle.projectsEvaluated {
-    parallelTest.dependsOn testA, testB
-}
+build.dependsOn buildTest
 
 //AsciiDoc
 asciidoctor {
     configurations 'asciidoctorExt'
     baseDirFollowsSourceFile()
     inputs.dir snippetsDir
-    dependsOn testB
+    dependsOn buildTest
 }
 
 asciidoctor.doFirst {
