@@ -82,6 +82,20 @@ ext {
 //테스트
 tasks.register('testA', Test) {
     exclude '**/*ControllerTest.class'
+    exclude '**/*IntegrationTest.class'
+    exclude '**/*RepositoryTest.class'
+    exclude '**/*ServiceTest.class'
+    useJUnitPlatform()
+}
+
+tasks.register('testB', Test) {
+    include '**/*IntegrationTest.class'
+    include '**/*RepositoryTest.class'
+    useJUnitPlatform()
+}
+
+tasks.register('testC', Test) {
+    include '**/*ServiceTest.class'
     useJUnitPlatform()
 }
 
