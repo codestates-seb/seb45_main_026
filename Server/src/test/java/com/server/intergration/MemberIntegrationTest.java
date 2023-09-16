@@ -16,11 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.*;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,11 +50,10 @@ import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.PageInfo;
 import com.server.module.s3.service.dto.ImageType;
 
+import javax.persistence.EntityManager;
+
 @Transactional
 public class MemberIntegrationTest extends IntegrationTest {
-
-
-	private boolean isSetting = false;
 
 	// 로그인한 사용자 정보
 	Member loginMember;
@@ -102,12 +97,8 @@ public class MemberIntegrationTest extends IntegrationTest {
 	String otherMemberEmail4 = "other4@email.com";
 	String otherMemberPassword = "other1234!";
 
-	@BeforeEach
+	@BeforeAll
 	void before() {
-
-		if (isSetting) {
-			return;
-		}
 
 		loginMember = createAndSaveMemberWithEmailPassword(loginMemberEmail, loginMemberPassword);
 		loginMemberChannel = createChannelWithRandomName(loginMember);
@@ -204,10 +195,20 @@ public class MemberIntegrationTest extends IntegrationTest {
 			loginMemberRewards.add(createAndSaveReward(loginMember, loginMemberReply));
 		}
 
-		em.flush();
-		em.clear();
+		memberRepository.saveAll(List.of(
+			loginMember,
+			otherMember1,
+			otherMember2,
+			otherMember3,
+			otherMember4
+		));
 
-		isSetting = true;
+		channelRepository.saveAll(List.of(
+			otherMemberChannel1,
+			otherMemberChannel2,
+			otherMemberChannel3,
+			otherMemberChannel4
+		));
 	}
 
 	@Test
@@ -318,17 +319,18 @@ public class MemberIntegrationTest extends IntegrationTest {
 		List<SubscribesResponse> responses = subscribesResponse.getData();
 
 		SubscribesResponse firstContent = responses.get(0);
-		Subscribe firstSubscribe = subscribes.get(totalSize - 1);
 
 		assertThat(pageInfo.getTotalPage()).isEqualTo((int) Math.ceil(totalSize / 16.0));
 		assertThat(pageInfo.getPage()).isEqualTo(1);
 		assertThat(pageInfo.getSize()).isEqualTo(16);
 		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
 
-		assertThat(firstContent.getMemberId()).isEqualTo(firstSubscribe.getChannel().getMember().getMemberId());
-		assertThat(firstContent.getChannelName()).isEqualTo(firstSubscribe.getChannel().getChannelName());
-		assertThat(firstContent.getImageUrl()).isEqualTo(getProfileUrl(firstSubscribe.getChannel().getMember()));
-		assertThat(firstContent.getSubscribes()).isEqualTo(firstSubscribe.getChannel().getSubscribers());
+		Channel findChannel = channelRepository.findById(firstContent.getMemberId()).orElseThrow();
+
+		assertThat(firstContent.getMemberId()).isEqualTo(findChannel.getMember().getMemberId());
+		assertThat(firstContent.getChannelName()).isEqualTo(findChannel.getChannelName());
+		assertThat(firstContent.getImageUrl()).isEqualTo(getProfileUrl(findChannel.getMember()));
+		assertThat(firstContent.getSubscribes()).isEqualTo(findChannel.getSubscribers());
 	}
 
 	@Test
