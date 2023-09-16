@@ -85,7 +85,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                 .join(video.watches, watch)
                 .join(watch.member, member)
                 .where(video.videoId.eq(videoId),
-                        watch.modifiedDate.after(checkOrder.getCompletedDate())
+                        watch.modifiedDate.goe(checkOrder.getCompletedDate())
                 ).fetchOne();
 
         return watchVideo != null;

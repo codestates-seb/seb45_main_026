@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +55,8 @@ import com.server.global.reponse.PageInfo;
 import com.server.module.s3.service.dto.ImageType;
 
 @Transactional
-public class MemberIntergrationTest extends IntegrationTest {
+public class MemberIntegrationTest extends IntegrationTest {
+
 
 	private boolean isSetting = false;
 

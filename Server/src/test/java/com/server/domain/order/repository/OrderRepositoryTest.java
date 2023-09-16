@@ -179,7 +179,7 @@ class OrderRepositoryTest extends RepositoryTest {
         em.clear();
 
         //when
-        Boolean isWatch = orderRepository.checkIfWatchAfterPurchase(order, video1.getVideoId());
+        Boolean isWatch = orderRepository.checkIfWatchAfterPurchase(order, video2.getVideoId());
 
         //then
         assertThat(isWatch).isTrue();

@@ -32,7 +32,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     //시큐리티
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    testImplementation 'org.springframework.security:spring-security-test'
     //oAuth2
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     //H2
@@ -76,25 +75,47 @@ jar {
     enabled = false
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
-
-//AsciiDoc
 ext {
     snippetsDir = file('build/generated-snippets')
 }
 
-test {
-    outputs.dir snippetsDir
+//테스트
+task testA(type: Test) {
+    exclude '**/*ControllerTest.class'
     useJUnitPlatform()
 }
 
+task testB(type: Test) {
+    outputs.dir snippetsDir
+    include '**/*ControllerTest.class'
+    useJUnitPlatform()
+}
+
+task parallelTest {
+    doLast {
+        testA.execute()
+        testB.execute()
+    }
+}
+
+testA.shouldRunAfter clean
+testB.shouldRunAfter clean
+
+test.enabled = false  // test 작업을 비활성화합니다.
+
+build.dependsOn parallelTest
+
+// 병렬 실행을 활성화
+gradle.projectsEvaluated {
+    parallelTest.dependsOn testA, testB
+}
+
+//AsciiDoc
 asciidoctor {
     configurations 'asciidoctorExt'
     baseDirFollowsSourceFile()
     inputs.dir snippetsDir
-    dependsOn test
+    dependsOn testB
 }
 
 asciidoctor.doFirst {
