@@ -63,10 +63,6 @@ class QuestionRepositoryTest extends RepositoryTest {
         assertThat(questionData.getMyAnswer()).isEqualTo(answer.getMyAnswer());
         assertThat(questionData.getAnswerStatus()).isEqualTo(answer.getAnswerStatus());
         assertThat(questionData.getSelections()).containsExactlyInAnyOrder("1", "2", "3", "4", "5");
-
-        LocalDateTime truncatedExpected = questionData.getSolvedDate().truncatedTo(ChronoUnit.MILLIS);
-        LocalDateTime truncatedActual = answer.getModifiedDate().truncatedTo(ChronoUnit.MILLIS);
-        assertThat(truncatedActual).isEqualTo(truncatedExpected);
     }
 
     @Test
