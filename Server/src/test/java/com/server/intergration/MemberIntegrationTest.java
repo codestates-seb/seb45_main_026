@@ -1233,6 +1233,8 @@ public class MemberIntegrationTest extends IntegrationTest {
 		List<Integer> beforeSubscribers = member.getSubscribes().stream().map(subscribe -> subscribe.getChannel().getSubscribers()).collect(Collectors.toList());
 
 		List<Long> replyVideoId = member.getReplies().stream().map(reply -> reply.getVideo().getVideoId()).collect(Collectors.toList());
+
+		member.getReplies().stream().forEach(reply -> reply.getVideo().calculateStar());
 		List<Float> beforeStars = member.getReplies().stream().map(reply -> reply.getVideo().getStar()).collect(Collectors.toList());
 
 		em.flush();
@@ -1243,6 +1245,9 @@ public class MemberIntegrationTest extends IntegrationTest {
 			delete("/members")
 				.header(AUTHORIZATION, loginMemberAccessToken)
 		);
+
+		em.flush();
+		em.clear();
 
 		// then
 		actions
@@ -1283,7 +1288,6 @@ public class MemberIntegrationTest extends IntegrationTest {
 		}
 
 		// 강의평을 작성했던 강의들의 평점이 업데이트 되었는가
-		// 회원이 구독하던 채널의 구독자 수가 변경되었는가
 		for (int i = 0; i < replyVideoId.size(); i++) {
 			assertThat(videoRepository.findById(replyVideoId.get(i)).orElseThrow().getStar())
 				.isNotEqualTo(beforeStars.get(i));
