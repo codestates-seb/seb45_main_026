@@ -66,8 +66,11 @@
 <br />
   
 + **김호빈(팀장)**
-  - 담당파트 1
-  - 담당파트 2
+  - AWS 아키텍처 설계 및 환경 구축
+  - Git Actions CI/CD 구축
+  - Logging 및 Cloudwatch 모니터링
+  - API Rest docs 문서화
+  - 비디오 관련 기능, 주문/결제 기능, 채널 공지사항 기능
 <Br>
 
  + **김진아**
@@ -126,7 +129,7 @@
 - 사용자 요구사항 정의서 바로가기 ☞ [요구사항 정의서 파일](https://1drv.ms/x/s!AjqmbzT14UKwi0P6wFF3pjN1tkgw?e=mchNti)
 - API 명세서 바로가기 ☞ [API 명세서 (restDocs)](https://api.itprometheus.net)
 - Figma 바로가기 ☞ [Figma](https://www.figma.com/file/PXVOZwRkw6LmWof1HUL2q1/%ED%94%84%EB%A1%9C%EB%A9%94%ED%85%8C%EC%9A%B0%EC%8A%A4-%EC%9B%B9%EC%82%AC%EC%9D%B4%ED%8A%B8-%ED%99%94%EB%A9%B4-%EC%84%A4%EA%B3%84%EC%84%9C?type=design&node-id=0-1&mode=design&t=FxvRqxuBDV44mvy0-0)
-- 개발자 테스트 문서 바로가기 ☞ [개발자 테스트 파일](https://1drv.ms/x/s!AjqmbzT14UKwi04--BTs91bfZiSb?e=K1y1eI)
+- 개발자 테스트 문서 바로가기 ☞ [개발자 테스트 파일](https://1drv.ms/x/s!AjqmbzT14UKwi0404Ht2GZMTb-oD?e=Djm5VW)
 - <details>
    <summary> ERD 보기 (👈 Click)</summary>
     <br />
@@ -328,10 +331,16 @@ warm up 상세 내용 확인 ☞ [warm up](https://hobeen-kim.github.io/java/JAV
 <br />
 
 ## 개발자 테스트
-기술 사진, 설명 등등
+
+개발자 테스트는 요구사항 기반으로 테스트를 진행했습니다. 요구사항에는 없지만 필요한 내용이나 아이디어는 스크럼을 통해 테스트 문서에 추가했습니다. 개발부터 배포까지 정기적으로 테스트를 진행했으며 테스트 통과를 중심으로 기능 개발을 하였습니다.
+
+- 개발자 테스트 문서 바로가기 ☞ [개발자 테스트 파일](https://1drv.ms/x/s!AjqmbzT14UKwi0404Ht2GZMTb-oD?e=Djm5VW)
 
 ## BE 단위 및 통합테스트
-기술 사진, 설명 등등
+
+ <img alt="test" src ="/images/be/test.png"/>
+
+ BE JAVA 애플리케이션에서 총 754 개의 단위 및 통합테스트를 진행했습니다. 단위 테스트의 대상은 Controller, Service, Repository, Entity 의 모든 public 메서드입니다. 중점은 기능 동작 여부와 엣지 케이스에서 정상적인 예외를 던지는지 였습니다. 통합테스트는 주어진 조건에서 mockMvc 를 활용해 API 를 호출했을 때 기대되는 응답값과 DB CRUD 가 되는지 확인했습니다.
 
 </details>
 
