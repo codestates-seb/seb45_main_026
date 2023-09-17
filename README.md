@@ -11,8 +11,9 @@
  프로젝트 기간: 2023.08.24 ~ 2023.09.22
 </div>
 
-## 🔗 배포주소 : [PROMETHEUS](https://www.itprometheus.net)
+## 🔗 배포주소 : [PROMETHEUS](https://www.itprometheus.net) 
 - 게스트용 ID/PW : guest@gmail.com / 1q2w3e4r!
+- 마음에 드신다면 `Star` 부탁드립니다! ㅎㅎ
 
 ## 🛫 소개
 > 🧐 부담없이 IT 교육 동영상을 보고 올릴 수 있는 공간이 없을까?
