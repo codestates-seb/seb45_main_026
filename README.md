@@ -214,13 +214,76 @@
 기술 사진, 설명 등등
 
 ## Querydsl
-기술 사진, 설명 등등
+기본적인 CRUD 는 Spring Data JPA 가 기본적으로 제공해주는 CRUD 메서드 및 쿼리 메서드 기능을 사용했습니다. 하지만 GET 요청에서 원하는 조건의 데이터를 수집하기 위해서는 여러 조건이 필요합니다. 이때 쿼리문이 복잡해지기 때문에 JPQL 이나 Native Query 를 사용해야 하게 되는데, 쿼리문이 길어질 경우 오타나 문법적인 오류 등 휴먼 에러가 발생할 수 있습니다. 정적 쿼리가 아닌 이상 런타임 시점에 오류를 알 수 있게 됩니다. 따라서 위와 같은 문제를 해결하기 위해 Querydsl 을 부분적으로 사용했고 아래와 같은 이점이 있었습니다.
+
+- Querydsl 은 컴파일 시점에 타입을 검사하기 때문에, 잘못된 필드명이나 데이터 유형 사용과 같은 오류를 빠르게 감지할 수 있습니다.
+- 복잡한 조건을 기반으로 쿼리를 동적으로 생성할 수 있습니다. 이를 통해 동일한 메서드 내에서 다양한 조건 및 필터를 적용한 쿼리를 구성할 수 있습니다.
+- Querydsl을 사용하면 쿼리가 실제 쿼리문처럼 작성되기 때문에 가독성이 좋습니다.
+
+## git actions / Docker
+ <img alt="gitactions" src ="/images/be/gitactions.png"/>
+ 
+### Job 분리
+ 초기 git actions 는 하나의 Job 에서 모든 과정을 다 처리했습니다. 하지만 테스트가 무거워지고 그에 따라 빌드 시간이 오래 걸리면서 테스트와 빌드를 분리해야겠다는 판단이 들었습니다. git actions 의 Job 은 병렬로 실행되기 때문에 test 를 크게 4개(testA, testB, testC, buildTest) 로 나누고 각각 실행시켰습니다. 빌드 시에 API 문서화가 필요하기 때문에 ControllerTest 는 빌드 Job 에서 하도록 했습니다. 이후 모든 테스트와 빌드가 완료되면 cd Job 이 실행됩니다. 해당 Job 에서 도커를 push 하고 EC2 에서 도커 이미지를 다운로드 받아 배포하는 과정이 이루어집니다. 
+ 
+### Caching
+ `build.gradle` 파일은 자주 변경되지 않기 때문에 `actions/cache@v2` 을 통해 의존성을 캐싱해주어서 테스트 및 빌드 시간을 단축시켜주었습니다. 도커 이미지 캐싱이나 레이어 캐싱은 오히려 캐싱을 하기 위해 이미지를 불러오고 저장하는 과정이 시간이 더 걸려서 생략했습니다.
+ 
+### Docker Image 최적화
+멀티 스테이지를 생각했으나 이미 git actions 의 Job 에서 빌드와 배포가 분리되기 때문에 멀티 스테이지 빌드는 하지 않았습니다. 대신 도커 이미지 크기를 줄이기 위해 base-image 를 `openjdk:11-jre-slim` 로 변경했고, 애플리케이션의 `build.gradle` 에서 불필요한 dependency 를 제거했습니다.
+
+### 결과
+결과적으로 CICD 과정은 평균 3분 20초에서 2분으로 줄였고, 이미지 크기는 731MB 에서 296MB 로 60% 줄였습니다.
 
 ## 로그 및 모니터링
-기술 사진, 설명 등등
+ec2 배포 이후 최초 몇 번의 GET 요청은 1000ms 이상의 시간이 걸린다는 걸 확인했습니다. 그리고 배포 환경과 로컬 환경도 분명히 차이가 있기 때문에 어떤 에러가 발생하는지도 모니터링이 가능해야 했습니다. 따라서 아래와 같은 로그 전략을 세웠습니다. 
+### 로그 전략
+ - API 호출 시 소요되는 시간
+ - Repository 클래스 호출 시 소요되는 시간
+ - 비즈니스 예외를 제외한 모든 Exception
+### 로그 확인
+로그는 logBack 을 사용했습니다. `@Slf4j` 어노테이션으로 적용할 수 있고, 로그를 파일로 남기는 게 간단하기 때문입니다. 또한 스프링 부트는 기본적으로 SLF4J를 사용하고 Logback을 그 구현체로 선택하고 있기 때문에 스프링 내부에서 예상치 못한 에러가 발생했을 때도 함께 로그가 남는다는 장점도 있습니다.
 
-## Docker / git actions
-기술 사진, 설명 등등
+API 로그는 `MDCLoggingFilter` 에서, Data 접근 로그는 `RepositoryLoggingAop` 에서, 에러 로그는 `GlobalExceptionHandler` 에서 남겼습니다. `log.info` 혹은 `log.error` 가 발생하면 logs 폴더에 `.log` 파일로 기록됩니다. 해당 로그는 ec2 에서 cloudwatch agent 에 의해 수집되어 log group 에 기록됩니다. 그리고 metric 을 통해 파싱한 후 필요한 값은 대시보드에 표시했습니다.
+
+[대시보드 바로가기](https://cloudwatch.amazonaws.com/dashboard.html?dashboard=prometheus-dashboard&context=eyJSIjoidXMtZWFzdC0xIiwiRCI6ImN3LWRiLTU4OTc5NDU0NjI0NCIsIlUiOiJ1cy1lYXN0LTFfUXd0TzZvdWxRIiwiQyI6IjEyZ2E2M2NrNDZzMHBudTZqZTI4c25tamZ2IiwiSSI6InVzLWVhc3QtMTo4YTAyZDc0YS0zOTVjLTQxOGYtYjQzMS0wODQwODdlMGZhYzciLCJNIjoiUHVibGljIn0%3D&start=PT1H&end=null)
+
+특히 대시보드를 통해 GET 요청의 응답 시간 지연은 배포 시마다 발생한다는 걸 알 수 있었고 아래의 warm up 을 하게 되는 이유가 되었습니다.
+
+## JVM warm up
+ <img alt="warmup" src ="/images/be/warmup.png"/>
+ 
+ warmup 을 하게 된 이유는 위 그래프와 같이 특정 요청에서 1000ms 이상의 레이턴시를 발견했기 때문입니다. 처음에는 GET 요청에서 쿼리문의 조건이 많이 걸려있어서 그런가 생각했지만 실제로 DB 에서 쿼리문 실행 자체는 10ms 이 채 되지 않았습니다. 로그를 통해 확인해본 결과 오히려 애플리케이션 로직을 실행하는 데 대부분의 시간이 소요되었습니다. 따라서 JVM 의 JIT(Just-in-Time) 으로 인해 컴파일이 실시간으로 되기 때문에 발생한 문제라고 생각했습니다. 그 이유는 최초 몇 개의 요청 이후에는 정상적인 응답 시간을 반환했기 때문입니다.
+
+처음에는 애플리케이션이 실행되면서 localhost:8080 으로 GET 위주의 메인 API 를 호출하면서 warm up 과정을 실행했습니다. 하지만 warm up 과정이 3분 이상 소요되면서 메인 로직 메서드를 호출하는 방향으로 바꾸었습니다. 그리고 스프링의 필터 부분도 warm up 하기 위해 `WarmupController` 를 만들어 해당 API 를 함께 호출해주었습니다. 아래는 warmup 을 하는 클래스입니다.
+```java
+public class WarmupApi implements ApplicationListener<ContextRefreshedEvent> {
+
+    ... 
+
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+
+        if (warmup 이 되지 않았다면) {
+;
+            request("http://localhost:8080/warmup"); //WarmupController 호출
+            methodWarmup(); //메서드 단위 warmup 수행
+
+            warmupState.setWarmupCompleted(true); //warmup 을 완료 상태로 변경
+        }
+    }
+
+    private void methodWarmup() {
+
+        videoMethodWarmup();
+        channelMethodWarmup();
+        memberMethodWarmup();
+    }
+
+    ...
+}
+```
+해당 과정을 완료하면 최초 요청 시에도 평균적인 응답 시간 (200ms ~ 400ms) 으로 요청이 되는 것을 확인할 수 있었습니다.
 
 </details>
 
