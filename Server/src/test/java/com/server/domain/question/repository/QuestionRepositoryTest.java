@@ -62,7 +62,7 @@ class QuestionRepositoryTest extends RepositoryTest {
         assertThat(questionData.getAnswerId()).isEqualTo(answer.getAnswerId());
         assertThat(questionData.getMyAnswer()).isEqualTo(answer.getMyAnswer());
         assertThat(questionData.getAnswerStatus()).isEqualTo(answer.getAnswerStatus());
-        assertThat(questionData.getSelections()).containsExactlyInAnyOrder("1", "2", "3", "4", "5");
+        assertThat(questionData.getSelections()).containsExactlyInAnyOrder("1", "2");
     }
 
     @Test
@@ -95,7 +95,7 @@ class QuestionRepositoryTest extends RepositoryTest {
         assertThat(questionData.getMyAnswer()).isNull();
         assertThat(questionData.getAnswerStatus()).isNull();
         assertThat(questionData.getSolvedDate()).isNull();
-        assertThat(questionData.getSelections()).containsExactlyInAnyOrder("1", "2", "3", "4", "5");
+        assertThat(questionData.getSelections()).containsExactlyInAnyOrder("1", "2");
     }
 
     @Test
@@ -203,13 +203,13 @@ class QuestionRepositoryTest extends RepositoryTest {
 
         List<Question> questions = new ArrayList<>();
 
-        for (int i = 1; i <= 5; i++) {
+        for (int i = 1; i <= 2; i++) {
 
             Question question = Question.builder()
                     .position(i)
                     .content("content" + i)
                     .questionAnswer(String.valueOf(i))
-                    .selections(List.of("1", "2", "3", "4", "5"))
+                    .selections(List.of("1", "2"))
                     .video(video)
                     .build();
 
