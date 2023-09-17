@@ -1,6 +1,8 @@
 <div align="center">
 <h2>Team. OppenHeimer</h2>
- <img alt="대표 이미지" src ="/images/itprometheus-logo.png"/>
+ <a href="https://www.itprometheus.net">
+ <img alt="대표 이미지" src ="/images/itprometheus-logo.png" />
+ </a>   
  <br>
 <b>IT 교육 오픈 플랫폼</b><br>
 
