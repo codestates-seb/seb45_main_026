@@ -44,8 +44,9 @@ const ChannelName = styled(Heading5Typo)`
 const CancelButton = styled.button`
     width: 60px;
     height: 30px;
-    border: 1px black solid;
+    border: ${globalTokens.ThinHeight.value}px solid ${(props)=>props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
     border-radius: ${globalTokens.RegularRadius.value}px;
+    color: ${(props)=>props.isDark? globalTokens.White.value : globalTokens.Black.value};
 `
 
 export default function ChannelItem({ getChannels, channel, accessToken, refreshToken, isSubscribed,channelGetHandler }) {
@@ -72,13 +73,13 @@ export default function ChannelItem({ getChannels, channel, accessToken, refresh
       });
   };
   return (
-    <ItemBody>
+    <ItemBody isDark={isDark}>
       <ChannelImgContainer onClick={()=>navigate(`/channels/${channel.memberId}`)}>
         <ChannelImg src={channel.imageUrl?channel.imageUrl:profileGray} />
       </ChannelImgContainer>
       <ChannelName isDark={isDark} onClick={()=>navigate(`/channels/${channel.memberId}`)}>{channel.channelName}</ChannelName>
       <BodyTextTypo isDark={isDark}>구독자 {channel.subscribes}명</BodyTextTypo>
-      {isSubscribed!==undefined ? <SubscribeBtn memberId={channel.memberId} channelInfo={channel} setSub={setSub} />:<CancelButton onClick={() => deleteHandler(channel.memberId)}>구독취소</CancelButton>}
+      {isSubscribed!==undefined ? <SubscribeBtn memberId={channel.memberId} channelInfo={channel} setSub={setSub} />:<CancelButton isDark={isDark} onClick={() => deleteHandler(channel.memberId)}>구독취소</CancelButton>}
     </ItemBody>
   );
 }

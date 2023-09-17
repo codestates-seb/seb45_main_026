@@ -10,6 +10,7 @@ import { setPage,setMaxPage  } from "../../redux/createSlice/FilterSlice";
 import { HomeTitle } from "../../components/contentListItems/ChannelHome";
 import { useToken } from "../../hooks/useToken";
 import { BottomDiv } from "./LectureListPage";
+import { Heading5Typo } from "../../atoms/typographys/Typographys";
 
 const globalTokens = tokens.global;
 
@@ -17,7 +18,7 @@ const ChannelListContainer = styled(MainContainer)`
     min-width: 600px;
     min-height: 600px;
     border: none;
-    background-color: ${globalTokens.White.value};
+    background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
     margin-top: ${globalTokens.Spacing40.value}px;
     border-radius: ${globalTokens.RegularRadius.value}px;
     padding: ${globalTokens.Spacing20.value}px;
@@ -39,7 +40,11 @@ const ItemContainer = styled.ul`
     flex-wrap: wrap;
     gap: ${globalTokens.Spacing16.value}px;
 `
-
+const ChannelBlank = styled(Heading5Typo)`
+  width: 100%;
+  margin-top: 160px;
+  text-align: center;
+`
 
 export default function ChannelListPage() {
     const dispatch=useDispatch()
@@ -105,7 +110,7 @@ export default function ChannelListPage() {
     return (
       <PageContainer isDark={isDark}>
         <ChannelListContainer isDark={isDark}>
-          <ListTitle>구독한 채널 목록</ListTitle>
+          <ListTitle isDark={isDark}>구독한 채널 목록</ListTitle>
           <ItemContainer>
             {channels.map((el) => (
               <ChannelItem
@@ -117,6 +122,7 @@ export default function ChannelListPage() {
                 channelGetHandler={channelGetHandler}
               />
             ))}
+            {channels.length===0?<ChannelBlank isDark={isDark}>구독한 채널이 없습니다.</ChannelBlank>:<></>}
           </ItemContainer>
           {page < maxPage && !loading ? <BottomDiv ref={bottomRef} /> : <></>}
         </ChannelListContainer>

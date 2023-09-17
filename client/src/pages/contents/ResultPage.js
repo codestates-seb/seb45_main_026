@@ -265,7 +265,7 @@ export default function ResultPage() {
               ))}
               {channelList.length === 0 ? (
                 <ChannelBlank isDark={isDark}>
-                  일치하는 채널이 없습니다
+                  조건에 맞는 채널이 없습니다
                 </ChannelBlank>
               ) : (
                 <></>
@@ -287,7 +287,7 @@ export default function ResultPage() {
               />
             ))}
             {videoList.length === 0 ? (
-              <VideoBlank isDark={isDark}>일치하는 강의가 없습니다</VideoBlank>
+              <VideoBlank isDark={isDark}>조건에 맞는 강의가 없습니다</VideoBlank>
             ) : (
               <></>
             )}

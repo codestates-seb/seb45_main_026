@@ -7,15 +7,19 @@ import searchGray from "../../assets/images/icons/search/searchGray.svg"
 import searchLightGray from "../../assets/images/icons/search/searchLightGray.svg"
 import { useNavigate } from "react-router";
 import { useParams } from "react-router";
+import SearchDropdown from "../searchDropdown/SearchDropdown";
+
 
 const globalTokens = tokens.global;
 
 const InputContainer = styled.div`
     width: 100%;
+    min-width: 600px;
     display: flex;
     flex-direction: row;
     justify-content: start;
     padding: 0 ${globalTokens.Spacing28.value}px;
+    position: relative;
 `
 const SearchBox = styled.div`
     width: 90%;
@@ -50,7 +54,7 @@ export default function SearchSubmit() {
     const isDark = useSelector((state) => state.uiSetting.isDark);
     const navigate = useNavigate()
     const { keyword } = useParams();
-    
+    const [isFocus,setIsFocus]=useState(false)
     const [searchKeyword, setSearchKeyword] = useState("")
     const onChangeHandler = (e) => {
         setSearchKeyword(e.target.value)
@@ -63,11 +67,18 @@ export default function SearchSubmit() {
             navigateHandler()
         }
     }
+    const focusHandler = () => {
+        setIsFocus(true);
+    };
+
+    const blurHandler = () => {
+         setIsFocus(false);
+    };
     useEffect(() => {
         setSearchKeyword("")
     },[keyword])
     return (
-      <InputContainer>
+      <InputContainer onFocus={focusHandler} onBlur={blurHandler}>
         <SearchBox>
           <SearchIcon src={isDark ? searchLightGray : searchGray} />
           <SearchInput
@@ -79,7 +90,14 @@ export default function SearchSubmit() {
             onKeyDown={enterHandler}
           />
         </SearchBox>
-        <SubmitButton isDark={isDark} onClick={navigateHandler}>검색</SubmitButton>
+        <SubmitButton isDark={isDark} onClick={navigateHandler}>
+          검색
+        </SubmitButton>
+        {searchKeyword !== "" && isFocus ? (
+          <SearchDropdown searchKeyword={searchKeyword} />
+        ) : (
+          <></>
+        )}
       </InputContainer>
     );
 }
