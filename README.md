@@ -12,6 +12,7 @@
 </div>
 
 ## 🔗 배포주소 : [PROMETHEUS](https://www.itprometheus.net)
+- 게스트용 ID/PW : guest@gmail.com / 1q2w3e4r!
 
 ## 🛫 소개
 > 🧐 부담없이 IT 교육 동영상을 보고 올릴 수 있는 공간이 없을까?
