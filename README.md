@@ -210,7 +210,8 @@
 
 |리워드 조회 페이지|결제 내역 페이지|
 |------|---|
-| <img width="400px" alt="스크린샷 2023-09-15 오전 11 00 53" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/d4d5a5e1-33cc-47dc-adcb-5e4b639d0b71"> | <img width="400px" alt="스크린샷 2023-09-15 오전 11 00 14" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/5242bf00-fe2d-4261-9df1-e5e84a11a795"> |
+| <img width="400px" alt="스크린샷 2023-09-15 오전 11 00 53" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/d4d5a5e1-33cc-47dc-adcb-5e4b639d0b71"> | <img width="400px" alt="스크린샷 2023-09-18 오전 1 53 10" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/559c481f-fe13-45e9-9be0-48d5a4130e30"> |
+
 
 |시청기록 페이지|
 |------|
