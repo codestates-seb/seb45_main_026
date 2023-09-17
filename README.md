@@ -186,7 +186,7 @@
 
 |시작 페이지|로그인 페이지|
 |------|---|
-|<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/b11a0e69-7f69-48e7-b3c7-8c3e462da768" width="400px"/>|<img width="400px" alt="스크린샷 2023-09-14 오후 2 49 40" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/15fabf7d-a5eb-4c09-a043-13b89e0e8e13">|
+|<img width="400px" alt="스크린샷 2023-09-18 오전 1 39 50" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/f9fc6c00-0646-446e-8bcf-f1eb241eb335">|<img width="400px" alt="스크린샷 2023-09-14 오후 2 49 40" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/15fabf7d-a5eb-4c09-a043-13b89e0e8e13">|
 
 |회원가입 페이지|비밀번호 찾기 페이지|
 |------|---|
@@ -194,7 +194,7 @@
 
 |강의 목록 페이지|강의 상세 페이지|
 |------|---|
-|<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/32fb4636-6503-4a09-8ab1-094b4a6f2e7c" width="400px"/>|<img width="400px" alt="스크린샷 2023-09-14 오후 2 53 21" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/ea065f95-f823-45a9-a270-ea4a0b3f6d01">|
+|<img width="400px" alt="스크린샷 2023-09-18 오전 1 40 25" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/f1af15bb-49c0-4fea-ba87-ed572515a645">|<img width="400px" alt="스크린샷 2023-09-14 오후 2 53 21" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/ea065f95-f823-45a9-a270-ea4a0b3f6d01">|
 
 |문제풀기 페이지|장바구니 페이지|
 |------|---|
@@ -206,16 +206,15 @@
 
 |채널 정보 페이지|구독 목록 페이지|
 |------|---|
-| <img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/642f2c01-7f8a-4fb1-87c1-a20b21a941c7" width="400px"/> | <img alt="스크린샷 2023-09-15 오전 10 54 46" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/78c6d642-8135-4a09-a4f2-994a1ad83db9" width="400px"> |
-
-
-
+| <img width="400px" alt="스크린샷 2023-09-18 오전 1 41 22" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/b3eca375-fd56-47aa-af5b-016e86eb9f2d"> | <img alt="스크린샷 2023-09-15 오전 10 54 46" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/78c6d642-8135-4a09-a4f2-994a1ad83db9" width="400px"> |
 
 |리워드 조회 페이지|결제 내역 페이지|
 |------|---|
 | <img width="400px" alt="스크린샷 2023-09-15 오전 11 00 53" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/d4d5a5e1-33cc-47dc-adcb-5e4b639d0b71"> | <img width="400px" alt="스크린샷 2023-09-15 오전 11 00 14" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/5242bf00-fe2d-4261-9df1-e5e84a11a795"> |
 
-
+|시청기록 페이지|
+|------|
+| <img width="400px" alt="스크린샷 2023-09-18 오전 1 46 48" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/363cadf0-65c9-4957-99c7-0e612fdab52c"> |
 
 </details>
 
