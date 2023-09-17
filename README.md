@@ -142,11 +142,13 @@
 
 # 📈 아키텍처 <a name = "architecture"></a>
 
- <img alt="architecture" src ="/images/architecture.png"/>
+
 
 <details>
    <summary> <b>아키텍처 상세 확인</b> (👈 Click)</summary>
     <br />
+ 
+ <img alt="architecture" src ="/images/architecture.png"/>
 
 ### 웹 클라이언트
 - S3 버킷에 웹 서버 배포
