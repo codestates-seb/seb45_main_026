@@ -10,7 +10,7 @@ export const ReceiptItemContainer = styled.section`
     display: flex;
     flex-direction: row;
     align-items: center;
-    border-bottom: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+    border-bottom: ${props=>props.isAcordianOpen?0:1}px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
 `
 export const ReceiptGrayTypo = styled(BodyTextTypo)`
     width: 150px;

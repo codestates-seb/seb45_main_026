@@ -14,14 +14,14 @@ const ReceiptItem = ({item}) => {
     const titleName = `${item.orderVideos[0].videoName} 외 ${item.orderCount-1}개`;
     const amount = item.amount;
     const [ isAcordianOpen, setIsAcordianOpen ] = useState(false);
-
+    console.log(item)
     const handleArcodianButtonClick = () => {
         setIsAcordianOpen(!isAcordianOpen);
     }
 
     return (
         <>
-        <ReceiptItemContainer>
+        <ReceiptItemContainer isDark={isDark} isAcordianOpen={isAcordianOpen}>
             <ReceiptGrayTypo isDark={isDark}>
                 {`${createDay} ${createTime}`}
             </ReceiptGrayTypo>
@@ -42,7 +42,7 @@ const ReceiptItem = ({item}) => {
             }   
         </ReceiptItemContainer>
         { isAcordianOpen && 
-            <ReceiptArcodian videos={item.orderVideos}/>  }
+            <ReceiptArcodian orderId={item.orderId} videos={item.orderVideos}/>  }
         </>
     );
 };
