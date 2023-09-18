@@ -8,6 +8,7 @@ import searchLightGray from "../../assets/images/icons/search/searchLightGray.sv
 import { useNavigate } from "react-router";
 import { useParams } from "react-router";
 import SearchDropdown from "../searchDropdown/SearchDropdown";
+import { RegularButton } from "../../atoms/buttons/Buttons";
 
 
 const globalTokens = tokens.global;
@@ -19,6 +20,7 @@ const InputContainer = styled.div`
     flex-direction: row;
     justify-content: start;
     padding: 0 ${globalTokens.Spacing28.value}px;
+    margin-bottom: ${globalTokens.Spacing8.value}px;
     position: relative;
 `
 const SearchBox = styled.div`
@@ -34,20 +36,19 @@ const SearchBox = styled.div`
     gap: ${globalTokens.Spacing8.value}px;
 `
 const SearchIcon = styled.img`
-    width: 40px;
-    height: 40px;
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
+    margin-left: ${globalTokens.Spacing8.value}px;
 `
 const SearchInput = styled(RegularInput)`
     border: none;
+    background-color: rgba(0,0,0,0);
 `
-const SubmitButton = styled.button`
+const SubmitButton = styled(RegularButton)`
     width: 80px;
     height: 50px;
-    border: ${globalTokens.ThinHeight.value}px solid ${globalTokens.LightGray.value};
-    border-radius: ${globalTokens.RegularRadius.value}px;
     margin-left: ${globalTokens.Spacing20.value}px;
-    font-size: ${globalTokens.BodyText.value}px;
-    color: ${(props)=>props.isDark ? globalTokens.White.value : globalTokens.Black.value};
 `
 
 export default function SearchSubmit() {
@@ -61,7 +62,7 @@ export default function SearchSubmit() {
     }
     const navigateHandler = () => {
       if (searchKeyword !== "") {
-        navigate(/result/`${searchKeyword}`);
+        navigate(`/result/${searchKeyword}`);
       }
     }
     const enterHandler = (e) => {

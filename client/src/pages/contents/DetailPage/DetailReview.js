@@ -100,30 +100,30 @@ const DetailReview = () => {
   return (
     <ReviewContainer isDark={isDark}>
       <ReviewTitle isDark={isDark}>수강평 {isReviews.length}</ReviewTitle>
-
-      <ReviewForm isDark={isDark}>
-        <ReviewLabel isDark={isDark}>리뷰</ReviewLabel>
-        <WriteTitle isDark={isDark}>별점을 선택해주세요.</WriteTitle>
-        <ReviewStar isDark={isDark} isStar={isReply} setStar={setReply} />
-        <ReviewSubmit isDark={isDark}>
-          <ReviewInput
-            isDark={isDark}
-            placeholder="한 줄 감상평을 등록해주세요."
-            value={isReply.content}
-            onChange={(e) => handleChangeReply(e)}
-          />
-          <ReviewBtn
-            isDark={isDark}
-            onClick={(e) => {
-              e.preventDefault();
-              postReview();
-            }}
-          >
-            등록
-          </ReviewBtn>
-        </ReviewSubmit>
-      </ReviewForm>
-
+      { videoDatas.isPurchased && 
+        <ReviewForm isDark={isDark}>
+          <ReviewLabel isDark={isDark}>리뷰</ReviewLabel>
+          <WriteTitle isDark={isDark}>별점을 선택해주세요.</WriteTitle>
+          <ReviewStar isDark={isDark} isStar={isReply} setStar={setReply} />
+          <ReviewSubmit isDark={isDark}>
+            <ReviewInput
+              isDark={isDark}
+              placeholder="한 줄 감상평을 등록해주세요."
+              value={isReply.content}
+              onChange={(e) => handleChangeReply(e)}
+            />
+            <ReviewBtn
+              isDark={isDark}
+              onClick={(e) => {
+                e.preventDefault();
+                postReview();
+              }}
+            >
+              등록
+            </ReviewBtn>
+          </ReviewSubmit>
+        </ReviewForm>
+      }
       <Reviews isDark={isDark}>
         <FilterBtns isDark={isDark}>
           <FilterBtn
