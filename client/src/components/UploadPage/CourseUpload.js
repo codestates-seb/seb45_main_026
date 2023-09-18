@@ -444,8 +444,10 @@ export const CategoryBox = styled(RegularLabel)`
   display: flex;
   justify-content: start;
   border-radius: 8px;
-  /* border: 1px solid ${(props) =>
-    props.isDark ? globalToken.Gray.value : globalToken.LightGray.value}; */
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
+  background-color: rgba(255,255,255,0.25);
 `;
 
 export const TagDropDown = styled.ul`
@@ -497,6 +499,7 @@ export const CategoryList = styled.li`
 
 export const CategoryListBtn = styled.button`
   margin-left: 5px;
+  color: ${props=>props.isDark?globalToken.White.value:globalToken.Black.value};
 `;
 
 export const ChooseCategory = styled(RegularInput)`
@@ -506,9 +509,7 @@ export const ChooseCategory = styled(RegularInput)`
   padding-left: 10px;
   border-radius: 8px;
   font-size: 16px;
-  border: 1px solid
-    ${(props) =>
-      props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
+  background-color: rgba(0,0,0,0);
   &:focus {
     outline: none;
   }
@@ -551,7 +552,7 @@ export const ChooseImageBtn = styled.label`
     ${(props) =>
       props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
   background-color: ${(props) =>
-    props.isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)"};
+    props.isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.25)"};
   margin: 0px 0px 10px 15px;
   cursor: pointer;
 
@@ -580,9 +581,18 @@ export const ChooseVideo = styled(GrayInput)`
   margin-bottom: 10px;
   padding-top: 10px;
   height: 50px;
-  border: 1px solid
+  display: flex;
+  align-items: center;
     ${(props) =>
       props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
+    &::file-selector-button {
+      border-style: none;
+      padding-top: ${globalToken.Spacing4.value}px;
+      border-radius: ${globalToken.RegularRadius.value}px;
+      color: ${props=>props.isDark?globalToken.White.value:globalToken.Black.value};
+      background-color: ${props=>props.isDark?globalToken.Black.value:globalToken.LightRed.value};
+      
+    }
 `;
 
 export const SubmitCourse = styled(BigButton)`

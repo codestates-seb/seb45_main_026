@@ -47,7 +47,7 @@ const ListTitle = styled(HomeTitle)`
   margin: ${globalTokens.Spacing8.value}px;
 `;
 const FilterContainer = styled.div`
-  width: 100%;
+  width: 95%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;

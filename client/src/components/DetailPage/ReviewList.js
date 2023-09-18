@@ -6,6 +6,7 @@ import Stars from "../contentListItems/Stars";
 import tokens from '../../styles/tokens.json';
 import { NegativeTextButton, PositiveTextButton } from "../../atoms/buttons/Buttons";
 import { BodyTextTypo, SmallTextTypo } from "../../atoms/typographys/Typographys";
+import { RegularInput } from "../../atoms/inputs/Inputs";
 
 const globalTokens = tokens.global;
 
@@ -152,13 +153,12 @@ export const ReviewDelete = styled(NegativeTextButton)`
   font-size: ${globalTokens.SmallText.value}px;
 `;
 
-export const ReviewEdit = styled.input`
+export const ReviewEdit = styled(RegularInput)`
   width: 100%;
   flex-wrap: wrap;
   margin: 5px 0px;
-  padding: 5px 5px;
+  padding: 5px 10px;
   border: none;
-  border-radius: ${globalTokens.RegularRadius.value}px;
   background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
   &:focus {
     outline: none;

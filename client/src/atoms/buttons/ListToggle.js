@@ -47,6 +47,9 @@ const globalTokens = tokens.global;
 
 export const ToggleWrapper = styled.div`
   cursor: pointer;
+  @media (max-width: 700px) {
+    display: none;
+  }
 `;
 export const ToggleContainer = styled.div`
   position: relative;

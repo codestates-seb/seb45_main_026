@@ -139,7 +139,6 @@ const globalTokens = tokens.global;
 
 const ComponentBody = styled.li`
   width: 95%;
-  min-width: 600px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -148,7 +147,6 @@ const ComponentBody = styled.li`
       props.isDark
         ? globalTokens.LightGray.value
         : globalTokens.LightGray.value};
-  /* border-radius: ${globalTokens.RegularRadius.value}px; */
   margin: ${globalTokens.Spacing4.value}px 0;
   padding-top: ${globalTokens.Spacing24.value}px;
 `;
@@ -206,7 +204,7 @@ const Description = styled(BodyTextTypo)`
 `;
 const InforContainer = styled.div`
   width: 100%;
-  min-width: 450px;
+  /* min-width: 450px; */
   height: 70px;
   display: flex;
   flex-direction: row;
@@ -227,6 +225,9 @@ const InforContainerRight = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: end;
+  @media (max-width: 800px) {
+    display: none;
+  }
 `;
 const AuthorContainer = styled.div`
   height: 50px;
@@ -271,7 +272,6 @@ const CreatedAt = styled(SmallTextTypo)`
   font-size: ${globalTokens.SmallText.value}px;
 `;
 const ScoreContainer = styled.div`
-  height: 30px;
   flex-grow: 1;
   display: flex;
   flex-direction: row;

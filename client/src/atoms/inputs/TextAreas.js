@@ -8,7 +8,7 @@ const globalTokens = tokens.global;
 
 export const RegularTextArea = styled.textarea`
     width: ${ (props)=>props.width };
-    background-color: rgba(255,255,255,0.15);
+    background-color: rgba(255,255,255,0.25);
     padding: ${globalTokens.Spacing8.value}px;
     border-radius: ${globalTokens.RegularRadius.value}px;
     border: ${globalTokens.ThinHeight.value}px solid ${props=>props.isDark? globalTokens.Gray.value : globalTokens.LightGray.value};

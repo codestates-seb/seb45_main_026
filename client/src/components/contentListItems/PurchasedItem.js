@@ -89,8 +89,10 @@ const AccordionArrow = styled.img`
 `
 const HorizonItemContainer = styled.ul`
     width: 100%;
+    /* min-width: 600px; */
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: ${globalTokens.Spacing16.value}px;
     margin-bottom: ${globalTokens.Spacing28.value}px;
     max-height: 1000px;
@@ -103,7 +105,6 @@ const BottomDiv = styled.div`
 
 
 export default function PurchasedItem({ channel, setChannelList }) {
-  
   const isDark = useSelector(state=>state.uiSetting.isDark);
   const accessToken = useSelector((state) => state.loginInfo.accessToken);
   const refreshToken = useToken();
