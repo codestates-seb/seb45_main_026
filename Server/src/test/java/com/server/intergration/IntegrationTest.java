@@ -45,6 +45,7 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.repository.OrderRepository;
+import com.server.domain.order.service.OrderService;
 import com.server.domain.question.entity.Question;
 import com.server.domain.question.repository.QuestionRepository;
 import com.server.domain.reply.entity.Reply;
@@ -188,6 +189,20 @@ public class IntegrationTest {
 			.nickname(generateRandomString())
 			.password(passwordEncoder.encode(password))
 			.imageFile("imageFile")
+			.authority(Authority.ROLE_USER)
+			.build();
+
+		return memberRepository.save(member);
+	}
+
+	protected Member createAndSaveMemberWithEmailPasswordReward(String email, String password, int reward){
+
+		Member member = Member.builder()
+			.email(email)
+			.nickname(generateRandomString())
+			.password(passwordEncoder.encode(password))
+			.imageFile("imageFile")
+			.reward(reward)
 			.authority(Authority.ROLE_USER)
 			.build();
 
