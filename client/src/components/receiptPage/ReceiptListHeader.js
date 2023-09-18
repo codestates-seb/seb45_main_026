@@ -1,8 +1,8 @@
 import React from 'react';
-import { ReceiptAmountTypo, ReceiptGrayTypo, ReceiptItemContainer, ReceiptStatusTypo, ReceiptTitleTypo } from './ReceiptItem';
 import { styled } from 'styled-components';
 import { useSelector } from 'react-redux';
 import tokens from '../../styles/tokens.json';
+import { ReceiptGrayTypo, ReceiptItemContainer, ReceiptTitleTypo, ReceiptAmountTypo, ReceiptStatusTypo } from './ReceiptItem.style';
 
 const globalTokens = tokens.global;
 
@@ -34,6 +34,7 @@ const ReceiptListHeader = () => {
             <ReceiptTitleHeadTypo isDark={isDark}>상품명</ReceiptTitleHeadTypo>
             <ReceiptAmountHeadTypo isDark={isDark}>결제금액</ReceiptAmountHeadTypo>
             <ReceiptStatusHeadTypo isDark={isDark}>결제상태</ReceiptStatusHeadTypo>
+            <div style={{width:'49px'}}/>
         </ReceiptItemHeadContainer>
     );
 };
