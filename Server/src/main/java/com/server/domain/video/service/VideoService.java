@@ -222,11 +222,7 @@ public class VideoService {
         return reportService.reportVideo(reporter, video, reportContent);
     }
 
-    public Page<VideoReportResponse> getVideoReports(Long loginMemberId, int page, int size, String sort) {
-
-        Member member = verifiedMember(loginMemberId);
-
-        member.checkAdmin();
+    public Page<VideoReportResponse> getVideoReports(int page, int size, String sort) {
 
         Pageable pageable = PageRequest.of(page, size);
 
@@ -235,11 +231,7 @@ public class VideoService {
         return videoReportData.map(VideoReportResponse::of);
     }
 
-    public Page<ReportResponse> getReports(Long loginMemberId, Long videoId, int page, int size) {
-
-        Member member = verifiedMember(loginMemberId);
-
-        member.checkAdmin();
+    public Page<ReportResponse> getReports(Long videoId, int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size);
 

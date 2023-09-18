@@ -922,7 +922,7 @@ class VideoControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses, "비디오 신고 목록 조회 성공"));
 
-        given(videoService.getVideoReports(anyLong(), anyInt(), anyInt(), anyString())).willReturn(pageResponses);
+        given(videoService.getVideoReports(anyInt(), anyInt(), anyString())).willReturn(pageResponses);
 
         //when
         ResultActions actions = mockMvc.perform(
@@ -974,7 +974,7 @@ class VideoControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses, "비디오 신고 세부 내용 조회 성공"));
 
-        given(videoService.getReports(anyLong(), anyLong(), anyInt(), anyInt())).willReturn(pageResponses);
+        given(videoService.getReports(anyLong(), anyInt(), anyInt())).willReturn(pageResponses);
 
         //when
         ResultActions actions = mockMvc.perform(
