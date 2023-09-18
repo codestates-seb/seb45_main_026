@@ -41,6 +41,10 @@ include::overview.adoc[]
 * link:snippets/video/updatedeletevideo.html[비디오 수정/폐쇄/재오픈 API, onclick="window.location.href='snippets/video/updatedeletevideo.html'"]
 * link:snippets/video/cartvideo.html[비디오 장바구니 담기/취소 API, onclick="window.location.href='snippets/video/cartvideo.html'"]
 
+=== Video Report API
+* link:snippets/video/videoreport.html[비디오 신고 API, onclick="window.location.href='snippets/video/videoreport.html'"]
+* link:snippets/video/getreport.html[신고된 비디오 조회 API, onclick="window.location.href='snippets/video/getreport.html'"]
+
 === Reply API
 * link:snippets/reply/getreply.html[댓글 목록/단건 조회 API, onclick="window.location.href='snippets/reply/getreply.html'"]
 * link:snippets/reply/replycud.html[댓글 생성/수정/삭제 API, onclick="window.location.href='snippets/reply/replycud.html'"]

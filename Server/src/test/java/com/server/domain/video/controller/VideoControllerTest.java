@@ -819,6 +819,221 @@ class VideoControllerTest extends ControllerTest {
     }
 
     @Test
+    @DisplayName("비디오 최초 신고 API")
+    void reportVideoTrue() throws Exception {
+        //given
+        Long videoId = 1L;
+
+        VideoReportCreateApiRequest request = VideoReportCreateApiRequest.builder()
+                .reportContent("신고 내용")
+                .build();
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(true, "비디오 신고 성공"));
+
+        given(videoService.reportVideo(anyLong(), anyLong(), anyString())).willReturn(true);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                post(BASE_URL + "/{videoId}/reports", videoId)
+                        .header(AUTHORIZATION, TOKEN)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse));
+
+        //restdocs
+        actions
+                .andDo(documentHandler.document(
+                        pathParameters(
+                                parameterWithName("videoId").description("신고할 비디오 ID")
+                        ),
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("Access Token")
+                        ),
+                        requestFields(
+                                fieldWithPath("reportContent").description("신고 내용")
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("비디오 신고 성공 여부")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("비디오 중복 신고 API")
+    void reportVideoFalse() throws Exception {
+        //given
+        Long videoId = 1L;
+
+        VideoReportCreateApiRequest request = VideoReportCreateApiRequest.builder()
+                .reportContent("신고 내용")
+                .build();
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(false, "이미 신고한 비디오입니다."));
+
+        given(videoService.reportVideo(anyLong(), anyLong(), anyString())).willReturn(false);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                post(BASE_URL + "/{videoId}/reports", videoId)
+                        .header(AUTHORIZATION, TOKEN)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse));
+
+        //restdocs
+        setConstraintClass(VideoReportCreateApiRequest.class);
+
+        actions
+                .andDo(documentHandler.document(
+                        pathParameters(
+                                parameterWithName("videoId").description("신고할 비디오 ID")
+                        ),
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("Access Token")
+                        ),
+                        requestFields(
+                                fieldWithPath("reportContent").description("신고 내용").attributes(getConstraint("reportContent"))
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("비디오 신고 성공 여부 (중복)")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("신고된 비디오 조회 API")
+    void getVideoReports() throws Exception {
+        //given
+        int page = 1;
+        int size = 10;
+        String sort = "last-reported-date";
+
+        Page<VideoReportResponse> pageResponses = createPage(createVideoReportResponses(size), page, size, 100);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses, "비디오 신고 목록 조회 성공"));
+
+        given(videoService.getVideoReports(anyLong(), anyInt(), anyInt(), anyString())).willReturn(pageResponses);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                get(BASE_URL + "/reports")
+                        .header(AUTHORIZATION, TOKEN)
+                        .accept(APPLICATION_JSON)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .param("sort", sort)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse));
+
+        //restdocs
+        actions.andDo(
+                documentHandler.document(
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("Access Token / 관리자만 가능")
+                        ),
+                        requestParameters(
+                                parameterWithName("page").description("페이지 번호").optional(),
+                                parameterWithName("size").description("페이지 크기").optional(),
+                                parameterWithName("sort").description(generateLinkCode(VideoReportSort.class)).optional()
+                        ),
+                        pageResponseFields(
+                                fieldWithPath("data").description("비디오 신고 목록"),
+                                fieldWithPath("data[].videoId").description("비디오 ID"),
+                                fieldWithPath("data[].videoName").description("비디오 제목"),
+                                fieldWithPath("data[].reportCount").description("비디오 신고 횟수"),
+                                fieldWithPath("data[].createdDate").description("비디오 생성일"),
+                                fieldWithPath("data[].lastReportedDate").description("비디오 최근 신고일")
+                        )
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("비디오 신고 상세 목록 조회 API")
+    void getReports() throws Exception {
+        //given
+        Long videoId = 1L;
+        int page = 1;
+        int size = 10;
+
+        Page<ReportResponse> pageResponses = createPage(createReportResponses(size), page, size, 100);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses, "비디오 신고 세부 내용 조회 성공"));
+
+        given(videoService.getReports(anyLong(), anyLong(), anyInt(), anyInt())).willReturn(pageResponses);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                get(BASE_URL + "/{videoId}/reports", videoId)
+                        .header(AUTHORIZATION, TOKEN)
+                        .accept(APPLICATION_JSON)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse));
+
+        //restdocs
+        actions.andDo(
+                documentHandler.document(
+                        pathParameters(
+                                parameterWithName("videoId").description("비디오 ID")
+                        ),
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("Access Token / 관리자만 가능")
+                        ),
+                        requestParameters(
+                                parameterWithName("page").description("페이지 번호").optional(),
+                                parameterWithName("size").description("페이지 크기").optional()
+                        ),
+                        pageResponseFields(
+                                fieldWithPath("data").description("비디오 신고 세부 내용"),
+                                fieldWithPath("data[].reportId").description("신고 ID"),
+                                fieldWithPath("data[].reportContent").description("신고 내용"),
+                                fieldWithPath("data[].createdDate").description("신고 날짜"),
+                                fieldWithPath("data[].memberId").description("신고자 ID"),
+                                fieldWithPath("data[].email").description("신고자 이메일"),
+                                fieldWithPath("data[].nickname").description("신고자 닉네임")
+                        )
+                )
+        );
+    }
+
+    private List<ReportResponse> createReportResponses(int size) {
+        List<ReportResponse> reportResponses = new ArrayList<>();
+
+        for (int i = 1; i <= size; i++) {
+            reportResponses.add(ReportResponse.builder()
+                    .reportId((long) i)
+                    .reportContent("신고 내용")
+                    .createdDate(LocalDateTime.now())
+                    .memberId((long) i)
+                    .email("reporter" + i + "@gmail.com")
+                    .nickname("reporter" + i)
+                    .build());
+        }
+
+        return reportResponses;
+    }
+
+    @Test
     @DisplayName("비디오의 전체 문제 조회 시 validation 테스트 - videoId 가 양수가 아니면 검증에 실패한다.")
     void getQuestionsValidation() throws Exception {
         //given
@@ -1924,6 +2139,25 @@ class VideoControllerTest extends ControllerTest {
                             .andExpect(jsonPath("$.data[0].reason").value("해당 값은 양수만 가능합니다."));
                 })
         );
+    }
+
+    private List<VideoReportResponse> createVideoReportResponses(int size) {
+
+        List<VideoReportResponse> responses = new ArrayList<>();
+
+        for (int i = 1; i <= size; i++) {
+            VideoReportResponse response = VideoReportResponse.builder()
+                    .videoId((long) i)
+                    .videoName("비디오 제목")
+                    .reportCount(2L)
+                    .createdDate(LocalDateTime.now())
+                    .lastReportedDate(LocalDateTime.now())
+                    .build();
+
+            responses.add(response);
+        }
+
+        return responses;
     }
 
     private List<QuestionResponse> createQuestionResponses(int size) {

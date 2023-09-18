@@ -1,0 +1,6 @@
+:doctype: book
+:icons: font
+
+[[Grade]]
+
+include::{snippets}/common/enums/custom-response-fields-Grade.adoc[]

@@ -8,10 +8,14 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.order.entity.OrderStatus;
+import com.server.domain.report.entity.QReport;
+import com.server.domain.report.entity.Report;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
-import com.server.domain.video.repository.dto.ChannelVideoGetDataRequest;
-import com.server.domain.video.repository.dto.VideoGetDataRequest;
+import com.server.domain.video.repository.dto.request.ChannelVideoGetDataRequest;
+import com.server.domain.video.repository.dto.request.VideoGetDataRequest;
+import com.server.domain.video.repository.dto.response.QVideoReportData;
+import com.server.domain.video.repository.dto.response.VideoReportData;
 import org.springframework.data.domain.*;
 
 import javax.persistence.EntityManager;
@@ -26,6 +30,7 @@ import static com.server.domain.member.entity.QMember.member;
 import static com.server.domain.order.entity.QOrder.order;
 import static com.server.domain.order.entity.QOrderVideo.orderVideo;
 import static com.server.domain.reply.entity.QReply.*;
+import static com.server.domain.report.entity.QReport.*;
 import static com.server.domain.subscribe.entity.QSubscribe.subscribe1;
 import static com.server.domain.video.entity.QVideo.video;
 import static com.server.domain.videoCategory.entity.QVideoCategory.*;
@@ -275,7 +280,72 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
         return new PageImpl<>(query.fetch(), request.getPageable(), countQuery.fetchOne());
     }
 
+    @Override
+    public Page<VideoReportData> findVideoReportDataByCond(Pageable pageable, String sort) {
 
+        List<VideoReportData> videoReportDatas = queryFactory.select(
+                        new QVideoReportData(
+                                video.videoId,
+                                video.videoName,
+                                report.count(),
+                                video.createdDate,
+                                report.createdDate.max()
+                        )
+                ).from(video)
+                .join(video.reports, report)
+                .groupBy(video.videoId)
+                .orderBy(getReportSort(sort))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(video.videoId.countDistinct())  // 중복 제거를 위해 countDistinct 사용
+                .from(video)
+                .join(video.reports, report);
+
+        return new PageImpl<>(videoReportDatas, pageable, countQuery.fetchOne());
+    }
+
+    @Override
+    public Page<Report> findReportsByVideoId(Long videoId, Pageable pageable) {
+
+        JPAQuery<Report> query = queryFactory.selectFrom(report)
+                .orderBy(report.createdDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .where(report.video.videoId.eq(videoId));
+
+        JPAQuery<Long> countQuery = queryFactory.select(report.count())
+                .from(report)
+                .where(report.video.videoId.eq(videoId));
+
+        return new PageImpl<>(query.fetch(), pageable, countQuery.fetchOne());
+    }
+
+    private OrderSpecifier[] getReportSort(String sort) {
+        List<OrderSpecifier<?>> orders = new ArrayList<>();
+        orders.add(getReportOrderSpecifier(sort));
+        orders.add(report.createdDate.max().desc());
+
+        return orders.toArray(new OrderSpecifier[0]);
+    }
+
+    private OrderSpecifier<?> getReportOrderSpecifier(String sort) {
+
+        if(sort == null || sort.equals("")) {
+            return report.createdDate.max().desc();
+        }
+
+        switch (sort) {
+            case "createdDate":
+                return video.createdDate.desc();
+            case "reportCount":
+                return report.count().desc();
+            default:
+                return report.createdDate.max().desc();
+        }
+    }
 
     private OrderSpecifier[] getSort(String sort) {
 

@@ -1,4 +1,4 @@
-package com.server.domain.video.repository.dto;
+package com.server.domain.video.repository.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

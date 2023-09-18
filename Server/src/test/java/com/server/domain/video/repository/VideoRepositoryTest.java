@@ -5,9 +5,11 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.reply.entity.Reply;
+import com.server.domain.report.entity.Report;
 import com.server.domain.video.entity.Video;
-import com.server.domain.video.repository.dto.ChannelVideoGetDataRequest;
-import com.server.domain.video.repository.dto.VideoGetDataRequest;
+import com.server.domain.video.repository.dto.request.ChannelVideoGetDataRequest;
+import com.server.domain.video.repository.dto.request.VideoGetDataRequest;
+import com.server.domain.video.repository.dto.response.VideoReportData;
 import com.server.global.testhelper.RepositoryTest;
 import org.assertj.core.api.ListAssert;
 import org.hibernate.Hibernate;
@@ -945,6 +947,96 @@ class VideoRepositoryTest extends RepositoryTest {
         assertThat(findUrl).isEqualTo(url);
     }
 
+    @TestFactory
+    @DisplayName("report 를 가진 video 목록을 조회한다.")
+    Collection<DynamicTest> findVideoReportDataByCond() throws InterruptedException {
+        //given
+        Member reporter1 = createMemberWithChannel();
+        Member reporter2 = createMemberWithChannel();
+        Member reporter3 = createMemberWithChannel();
+
+        Member owner1 = createMemberWithChannel();
+        Video video1 = createAndSaveVideo(owner1.getChannel());
+
+        for (int i = 0; i < 10; i++) {
+            Member owner = createMemberWithChannel();
+            Video video = createAndSaveVideo(owner.getChannel());
+            createAndSaveReport(reporter1, video);
+            createAndSaveReport(reporter2, video);
+            createAndSaveReport(reporter3, video);
+        }
+        Thread.sleep(2);
+        createAndSaveReport(reporter1, video1);
+
+        Video video2 = createAndSaveVideo(owner1.getChannel());
+        createAndSaveReport(reporter1, video2);
+
+        PageRequest pageRequest = PageRequest.of(0, 5);
+
+        return List.of(
+                dynamicTest("sort 를 주지 않으면 lastReportedDate 로 정렬한다.", () -> {
+                    //when
+                    Page<VideoReportData> videoReportData = videoRepository.findVideoReportDataByCond(pageRequest, "");
+
+                    //then
+                    assertThat(videoReportData.getContent()).hasSize(5);
+                    assertThat(videoReportData.getTotalElements()).isEqualTo(12);
+                    assertThat(videoReportData.getContent())
+                            .isSortedAccordingTo(Comparator.comparing(VideoReportData::getLastReportedDate).reversed());
+
+                    assertThat(videoReportData.getContent().get(0).getReportCount()).isEqualTo(1L);
+                }),
+                dynamicTest("video 의 createdDate 로 정렬한다.", ()-> {
+                    //when
+                    Page<VideoReportData> videoReportData = videoRepository.findVideoReportDataByCond(pageRequest, "createdDate");
+
+                    //then
+                    assertThat(videoReportData.getContent())
+                            .isSortedAccordingTo(Comparator.comparing(VideoReportData::getCreatedDate).reversed());
+
+                    assertThat(videoReportData.getContent().get(0).getReportCount()).isEqualTo(1L);
+                }),
+                dynamicTest("video 의 신고 개수로 정렬한다.", ()-> {
+                    //when
+                    Page<VideoReportData> videoReportData = videoRepository.findVideoReportDataByCond(pageRequest, "reportCount");
+
+                    //then
+                    assertThat(videoReportData.getContent())
+                            .isSortedAccordingTo(Comparator.comparing(VideoReportData::getReportCount).reversed());
+                    assertThat(videoReportData.getContent())
+                            .extracting("reportCount")
+                            .containsExactly(3L, 3L, 3L, 3L, 3L);
+                })
+        );
+    }
+
+    @Test
+    @DisplayName("videoId 로 신고 내용을 페이징하여 최신순으로 조회한다.")
+    void findReportsByVideoId() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+
+        for (int i = 0; i < 10; i++) {
+            Member reporter = createMemberWithChannel();
+            createAndSaveReport(reporter, video);
+        }
+
+        PageRequest pageRequest = PageRequest.of(0, 5);
+
+        //when
+        Page<Report> reports = videoRepository.findReportsByVideoId(video.getVideoId(), pageRequest);
+
+        //then
+        assertThat(reports.getContent()).hasSize(5);
+        assertThat(reports.getTotalElements()).isEqualTo(10);
+
+        assertThat(reports.getContent())
+                .isSortedAccordingTo(Comparator.comparing(Report::getCreatedDate).reversed());
+
+
+    }
+
     private Cart createAndSaveCart(Member member, Video video) {
         Cart cart = Cart.createCart(member, video, video.getPrice());
         em.persist(cart);
@@ -960,6 +1052,12 @@ class VideoRepositoryTest extends RepositoryTest {
                 .build();
 
         em.persist(reply);
+    }
+
+    private Report createAndSaveReport(Member member, Video video) {
+        Report report = Report.createReport(member, video, "content");
+        em.persist(report);
+        return report;
     }
 
     private void assertHasCategoryName(ListAssert<Video> videos, String categoryNames) {

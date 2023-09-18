@@ -20,6 +20,7 @@ import com.server.domain.question.entity.Question;
 import com.server.domain.question.repository.QuestionRepository;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
+import com.server.domain.report.repository.ReportRepository;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.reward.repository.RewardRepository;
@@ -76,6 +77,7 @@ public abstract class ServiceTest {
     @Autowired protected AnnouncementRepository announcementRepository;
     @Autowired protected CartRepository cartRepository;
     @Autowired protected RewardRepository rewardRepository;
+    @Autowired protected ReportRepository reportRepository;
     @Autowired protected EntityManager em;
 
     @MockBean protected RedisService redisService;

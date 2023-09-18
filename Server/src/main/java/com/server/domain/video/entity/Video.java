@@ -6,6 +6,7 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
+import com.server.domain.report.entity.Report;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.watch.entity.Watch;
@@ -74,6 +75,10 @@ public class Video extends BaseEntity implements Rewardable {
     @OneToMany(mappedBy = "video")
     private List<OrderVideo> orderVideos = new ArrayList<>();
 
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
+    private List<Report> reports = new ArrayList<>();
+
+
     public static Video createVideo(Channel channel, String videoName) {
 
         return Video.builder()
@@ -139,6 +144,7 @@ public class Video extends BaseEntity implements Rewardable {
 
         if(price == 0) {
             this.getChannel().getMember().addReward(100);
+            this.getChannel().getMember().addGradePoint(100);
         }
     }
 
