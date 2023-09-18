@@ -40,7 +40,7 @@ const ItemContainer = styled.div`
 `
 const Nothing = styled(Heading5Typo)`
     width: 100%;
-    margin-top: 200px;
+    margin-top: 150px;
     text-align: center;
 `
 const BottomDiv = styled.div`

@@ -8,6 +8,7 @@ import NoticeSubmit from "./NoticeSubmit";
 import { PositiveTextButton } from "../../atoms/buttons/Buttons";
 import axios from "axios";
 import { useToken } from "../../hooks/useToken";
+import {ConfirmModal} from "../../atoms/modal/Modal"
 
 const globalTokens = tokens.global;
 
@@ -72,6 +73,7 @@ const NoticeButton = styled(PositiveTextButton)`
 export default function NoticeItem({ channelInfor, notice, accessToken, getHandler, userId }) {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const [openEdit, setOpenEdit] = useState(false);
+  const [isModalOpen,setIsModalOpen]=useState(false)
   const refreshToken = useToken();
   const date = new Date(notice.createdDate);
   date.setHours(date.getHours() + 9);
@@ -95,6 +97,7 @@ export default function NoticeItem({ channelInfor, notice, accessToken, getHandl
         }
       });
   };
+
   return (
     <ItemBody isDark={isDark}>
       <ProfileContainer>
@@ -124,9 +127,10 @@ export default function NoticeItem({ channelInfor, notice, accessToken, getHandl
         <NoticeContent isDark={isDark}>{notice.content}</NoticeContent>
       )}
       <ButtonContainer>
-        <NoticeButton isDark={isDark} onClick={() => deleteHandler()}>삭제</NoticeButton>
+        <NoticeButton isDark={isDark} onClick={() => setIsModalOpen(true)}>삭제</NoticeButton>
         <NoticeButton isDark={isDark} onClick={() => setOpenEdit(!openEdit)}>수정</NoticeButton>
       </ButtonContainer>
+      <ConfirmModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} isBackdropClickClose={false} content={"해당 공지사항을 삭제하시겠습니까?"} negativeButtonTitle="취소" positiveButtonTitle="삭제" handleNegativeButtonClick={()=>setIsModalOpen(false)} handlePositiveButtonClick={()=>deleteHandler()} />
     </ItemBody>
   );
 }

@@ -69,9 +69,9 @@ export default function SearchDropdown({searchKeyword}) {
             <ChannelContainer>
                 {dropdownItems.channels.length===0?<ChannelBlank isDark={isDark}>일치하는 채널이 없습니다.</ChannelBlank>:dropdownItems.channels.map(el => <SearchChannel channel={el} />)}
             </ChannelContainer>
-            <BodyTextTypo isDark={isDark}>영상</BodyTextTypo>
+            <BodyTextTypo isDark={isDark}>강의</BodyTextTypo>
             <LectureContainer>
-                {dropdownItems.videos.length===0?<LectureBlank isDark={isDark}>일치하는 영상이 없습니다.</LectureBlank>:dropdownItems.videos.map(el=><SearchLecture lecture={el}/>)}
+                {dropdownItems.videos.length===0?<LectureBlank isDark={isDark}>일치하는 강의가 없습니다.</LectureBlank>:dropdownItems.videos.map(el=><SearchLecture lecture={el}/>)}
             </LectureContainer>
         </DropdownBody>
     )
