@@ -1,0 +1,40 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[VideoReport]]
+= 비디오 신고 API
+
+== 비디오 신고 (성공)
+=== HTTP Request
+include::{snippets}/video/reportvideotrue/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/reportvideotrue/request-headers.adoc[]
+==== Request Body
+include::{snippets}/video/reportvideotrue/request-body.adoc[]
+==== Request Fields
+include::{snippets}/video/reportvideotrue/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/video/reportvideotrue/http-response.adoc[]
+==== Response Fields
+include::{snippets}/video/reportvideotrue/response-fields.adoc[]
+
+== 비디오 신고 (중복되어 실패)
+=== HTTP Request
+include::{snippets}/video/reportvideofalse/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/reportvideofalse/request-headers.adoc[]
+==== Request Body
+include::{snippets}/video/reportvideofalse/request-body.adoc[]
+==== Request Fields
+include::{snippets}/video/reportvideofalse/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/video/reportvideofalse/http-response.adoc[]
+==== Response Fields
+include::{snippets}/video/reportvideofalse/response-fields.adoc[]
+
+

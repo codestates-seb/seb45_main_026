@@ -1,9 +1,12 @@
 package com.server.domain.video.repository;
 
+import com.server.domain.report.entity.Report;
 import com.server.domain.video.entity.Video;
-import com.server.domain.video.repository.dto.ChannelVideoGetDataRequest;
-import com.server.domain.video.repository.dto.VideoGetDataRequest;
+import com.server.domain.video.repository.dto.request.ChannelVideoGetDataRequest;
+import com.server.domain.video.repository.dto.request.VideoGetDataRequest;
+import com.server.domain.video.repository.dto.response.VideoReportData;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,4 +32,8 @@ public interface VideoRepositoryCustom {
     Page<Video> findAllByCond(String keyword, VideoGetDataRequest request);
 
     Page<Video> findChannelVideoByCond(ChannelVideoGetDataRequest request);
+
+    Page<VideoReportData> findVideoReportDataByCond(Pageable pageable, String sort);
+
+    Page<Report> findReportsByVideoId(Long videoId, Pageable pageable);
 }
