@@ -1,4 +1,3 @@
-import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { HeaderProfileContainer, HeaderProfileImg, HeaderProfileImgContainer, HeaderProfileInfo, HeaderProfileWrapper } from './HeaderProfile.style';
 import { BodyTextTypo } from '../../atoms/typographys/Typographys';
