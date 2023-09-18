@@ -194,6 +194,20 @@ public class IntegrationTest {
 		return memberRepository.save(member);
 	}
 
+	protected Member createAndSaveMemberWithEmailPasswordReward(String email, String password, int reward){
+
+		Member member = Member.builder()
+			.email(email)
+			.nickname(generateRandomString())
+			.password(passwordEncoder.encode(password))
+			.imageFile("imageFile")
+			.reward(reward)
+			.authority(Authority.ROLE_USER)
+			.build();
+
+		return memberRepository.save(member);
+	}
+
 	protected Member createMemberWithEmail(String email) {
 		Member member = Member.builder()
 			.email(email)
