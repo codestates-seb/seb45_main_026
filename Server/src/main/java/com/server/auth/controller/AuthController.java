@@ -34,14 +34,11 @@ public class AuthController {
 
 	private final AuthService authService;
 	private final OAuthService oAuthService;
-	private final MailService mailService;
 	private final MemberService memberService;
 
-	public AuthController(AuthService authService, OAuthService oAuthService, MailService mailService,
-		MemberService memberService) {
+	public AuthController(AuthService authService, OAuthService oAuthService, MemberService memberService) {
 		this.authService = authService;
 		this.oAuthService = oAuthService;
-		this.mailService = mailService;
 		this.memberService = memberService;
 	}
 
