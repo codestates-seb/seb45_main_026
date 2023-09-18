@@ -45,8 +45,7 @@ const CourseUpload = ({ isTags }) => {
   });
   const [isLoading, setLoading] = useState(false);
   const [isComplete, setComplete] = useState(false);
-  const [tagList, setTagList] = useState([]); // 현재 추가한 카테고리
-  const tagListLower = tagList.map((el) => el.toLowerCase()); // tagList 대소문자 판별
+  const tagListLower = uploadDetail.categories.map((el) => el.toLowerCase()); // tagList 대소문자 판별
   const tagsData = isTags.map((el) => el.categoryName); // 실제 tag data 리스트
   const tagsDataLower = tagsData.map((el) => el.toLowerCase()); // tagsData 대소문자 판별
   const [tagOpen, setTagOpen] = useState(false); // tag 드롭다운 열고 닫기
@@ -201,7 +200,7 @@ const CourseUpload = ({ isTags }) => {
   const addTagList = (e) => {
     if (e.key === "Enter") {
       if (
-        tagList.includes(e.target.value) ||
+        uploadDetail.categories.includes(e.target.value) ||
         tagListLower.includes(e.target.value.toLowerCase())
       ) {
         alert("이미 존재하는 카테고리입니다.");
@@ -214,31 +213,47 @@ const CourseUpload = ({ isTags }) => {
         alert("존재하지 않는 카테고리 입니다.");
         return;
       }
-      if (e.target.value && !tagList.includes(e.target.value)) {
-        setTagList([...tagList, e.target.value]);
+      if (e.target.value && !uploadDetail.categories.includes(e.target.value)) {
+        setUploadDetail({
+          ...uploadDetail,
+          categories: [...uploadDetail.categories, e.target.value],
+        });
         e.target.value = "";
         return;
       }
     } else if (e.key === "Backspace" && !e.target.value) {
-      if (tagList.length) {
-        setTagList(tagList.filter((el, idx) => idx !== tagList.length - 1));
+      if (uploadDetail.categories.length) {
+        setUploadDetail(
+          uploadDetail.categories.filter(
+            (el, idx) => idx !== uploadDetail.categories.length - 1
+          )
+        );
         return;
       }
     }
   };
 
   const handleAddTags = (el) => {
-    if (tagList.includes(el) || tagListLower.includes(el.toLowerCase())) {
+    if (
+      uploadDetail.categories.includes(el) ||
+      tagListLower.includes(el.toLowerCase())
+    ) {
       alert("이미 존재하는 카테고리입니다.");
       return;
     }
-    if (!tagList.includes(el)) {
-      setTagList([...tagList, el]);
+    if (!uploadDetail.categories.includes(el)) {
+      setUploadDetail({
+        ...uploadDetail,
+        categories: [...uploadDetail.categories, el],
+      });
     }
   };
 
   const removeTagList = (el) => {
-    setTagList(tagList.filter((tag) => tag !== el));
+    setUploadDetail({
+      ...uploadDetail,
+      categories: uploadDetail.categories.filter((tag) => tag !== el),
+    });
   };
 
   return (
@@ -285,7 +300,7 @@ const CourseUpload = ({ isTags }) => {
           <CourseCategory isDark={isDark}>카테고리</CourseCategory>
           <CategoryBox isDark={isDark}>
             <CategoryLists isDark={isDark}>
-              {tagList.map((el, idx) => (
+              {uploadDetail.categories.map((el, idx) => (
                 <CategoryList isDark={isDark} key={idx}>
                   {el}
                   <CategoryListBtn
@@ -300,12 +315,15 @@ const CourseUpload = ({ isTags }) => {
             <ChooseCategory
               isDark={isDark}
               type="text"
-              placeholder={!tagList.length ? "카테고리를 설정해 주세요." : ""}
+              placeholder={
+                !uploadDetail.categories.length
+                  ? "카테고리를 설정해 주세요."
+                  : ""
+              }
               onKeyDown={(e) => addTagList(e)}
               onFocus={() => setTagOpen(true)}
               onBlur={() => {
                 setTimeout(() => {
-                  setUploadDetail({ ...uploadDetail, categories: tagList });
                   setTagOpen(false);
                 }, 100);
               }}
@@ -447,7 +465,7 @@ export const CategoryBox = styled(RegularLabel)`
   border: 1px solid
     ${(props) =>
       props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
-  background-color: rgba(255,255,255,0.25);
+  background-color: rgba(255, 255, 255, 0.25);
 `;
 
 export const TagDropDown = styled.ul`
@@ -499,7 +517,8 @@ export const CategoryList = styled.li`
 
 export const CategoryListBtn = styled.button`
   margin-left: 5px;
-  color: ${props=>props.isDark?globalToken.White.value:globalToken.Black.value};
+  color: ${(props) =>
+    props.isDark ? globalToken.White.value : globalToken.Black.value};
 `;
 
 export const ChooseCategory = styled(RegularInput)`
@@ -509,7 +528,7 @@ export const ChooseCategory = styled(RegularInput)`
   padding-left: 10px;
   border-radius: 8px;
   font-size: 16px;
-  background-color: rgba(0,0,0,0);
+  background-color: rgba(0, 0, 0, 0);
   &:focus {
     outline: none;
   }
@@ -583,16 +602,17 @@ export const ChooseVideo = styled(GrayInput)`
   height: 50px;
   display: flex;
   align-items: center;
-    ${(props) =>
-      props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
-    &::file-selector-button {
-      border-style: none;
-      padding-top: ${globalToken.Spacing4.value}px;
-      border-radius: ${globalToken.RegularRadius.value}px;
-      color: ${props=>props.isDark?globalToken.White.value:globalToken.Black.value};
-      background-color: ${props=>props.isDark?globalToken.Black.value:globalToken.LightRed.value};
-      
-    }
+  ${(props) =>
+    props.isDark ? globalToken.Gray.value : globalToken.LightGray.value};
+  &::file-selector-button {
+    border-style: none;
+    padding-top: ${globalToken.Spacing4.value}px;
+    border-radius: ${globalToken.RegularRadius.value}px;
+    color: ${(props) =>
+      props.isDark ? globalToken.White.value : globalToken.Black.value};
+    background-color: ${(props) =>
+      props.isDark ? globalToken.Black.value : globalToken.LightRed.value};
+  }
 `;
 
 export const SubmitCourse = styled(BigButton)`
