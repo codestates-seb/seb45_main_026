@@ -239,10 +239,16 @@
    <summary> FE 기술 상세 설명 확인 (👈 Click)</summary>
 <br />
 
-## 기술1
+## React Hook Form
 기술 사진, 설명 등등
 
-## 기술2
+## Custom Hook
+기술 사진, 설명 등등
+
+## react-intersection-observer
+기술 사진, 설명 등등
+
+## Redux Toolkit with Persistent
 기술 사진, 설명 등등
 
 </details>
