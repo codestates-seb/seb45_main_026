@@ -239,10 +239,9 @@ public class VideoController {
     public ResponseEntity<ApiPageResponse<VideoReportResponse>> getVideoReports(
             @RequestParam(defaultValue = "1") @Positive(message = "{validation.positive}") int page,
             @RequestParam(defaultValue = "10") @Positive(message = "{validation.positive}") int size,
-            @RequestParam(defaultValue = "last-reported-date") VideoReportSort sort,
-            @LoginId Long loginMemberId) {
+            @RequestParam(defaultValue = "last-reported-date") VideoReportSort sort) {
 
-        Page<VideoReportResponse> reports = videoService.getVideoReports(loginMemberId, page - 1, size, sort.getSort());
+        Page<VideoReportResponse> reports = videoService.getVideoReports(page - 1, size, sort.getSort());
 
         return ResponseEntity.ok(ApiPageResponse.ok(reports, "비디오 신고 목록 조회 성공"));
     }
@@ -251,10 +250,9 @@ public class VideoController {
     public ResponseEntity<ApiPageResponse<ReportResponse>> getReports(
             @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
             @RequestParam(defaultValue = "1") @Positive(message = "{validation.positive}") int page,
-            @RequestParam(defaultValue = "10") @Positive(message = "{validation.positive}") int size,
-            @LoginId Long loginMemberId) {
+            @RequestParam(defaultValue = "10") @Positive(message = "{validation.positive}") int size) {
 
-        Page<ReportResponse> reports = videoService.getReports(loginMemberId, videoId, page - 1, size);
+        Page<ReportResponse> reports = videoService.getReports(videoId, page - 1, size);
 
         return ResponseEntity.ok(ApiPageResponse.ok(reports, "비디오 신고 세부 내용 조회 성공"));
     }
