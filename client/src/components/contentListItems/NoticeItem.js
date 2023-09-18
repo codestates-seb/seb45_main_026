@@ -72,6 +72,7 @@ const NoticeButton = styled(PositiveTextButton)`
 
 export default function NoticeItem({ channelInfor, notice, accessToken, getHandler, userId }) {
   const isDark = useSelector((state) => state.uiSetting.isDark);
+  const myId = useSelector((state) => state.loginInfo.myid);
   const [openEdit, setOpenEdit] = useState(false);
   const [isModalOpen,setIsModalOpen]=useState(false)
   const refreshToken = useToken();
@@ -126,10 +127,10 @@ export default function NoticeItem({ channelInfor, notice, accessToken, getHandl
       ) : (
         <NoticeContent isDark={isDark}>{notice.content}</NoticeContent>
       )}
-      <ButtonContainer>
+      {myId === Number(userId)?<ButtonContainer>
         <NoticeButton isDark={isDark} onClick={() => setIsModalOpen(true)}>삭제</NoticeButton>
         <NoticeButton isDark={isDark} onClick={() => setOpenEdit(!openEdit)}>수정</NoticeButton>
-      </ButtonContainer>
+      </ButtonContainer>:<></>}
       <ConfirmModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} isBackdropClickClose={false} content={"해당 공지사항을 삭제하시겠습니까?"} negativeButtonTitle="취소" positiveButtonTitle="삭제" handleNegativeButtonClick={()=>setIsModalOpen(false)} handlePositiveButtonClick={()=>deleteHandler()} />
     </ItemBody>
   );
