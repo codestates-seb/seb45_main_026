@@ -53,6 +53,8 @@ public class Member extends BaseEntity {
 	@Builder.Default
 	private Grade grade = Grade.BRONZE;
 
+	private int gradePoint;
+
 	private int reward;
 
 	@OneToMany(mappedBy = "member")
@@ -134,6 +136,16 @@ public class Member extends BaseEntity {
 	public void minusReward(int reward) {
 		checkEnoughReward(reward);
 		this.reward -= reward;
+	}
+
+	public void addGradePoint(int gradePoint) {
+		this.gradePoint += gradePoint;
+		this.grade = Grade.getGrade(this.gradePoint);
+	}
+
+	public void minusGradePoint(int gradePoint) {
+		this.gradePoint -= gradePoint;
+		this.grade = Grade.getGrade(this.gradePoint);
 	}
   
 	public void checkReward(int reward) {
