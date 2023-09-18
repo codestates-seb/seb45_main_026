@@ -33,6 +33,7 @@ const UploadModal = ({
           initProblem={initProblem}
         />
         <Close
+          isDark={isDark}
           onClick={() => {
             setModal(false);
             initProblem();
@@ -44,6 +45,7 @@ const UploadModal = ({
         <ProblemTitle isDark={isDark}>
           문제 등록하기
           <TitleInput
+            selectMode={selectMode}
             isDark={isDark}
             id="ProblemTitle"
             type="text"
@@ -92,6 +94,8 @@ const UploadModal = ({
             <ProblemList isDark={isDark}>
               <CommentLabel isDark={isDark}>해설</CommentLabel>
               <DiscribeInput
+                isDark={isDark}
+                selectMode={selectMode}
                 id="ProblemDiscribe"
                 type="text"
                 placeholder="해설을 입력해 주세요."
@@ -135,7 +139,7 @@ export const ModalBackground = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(255,255,255,0.15);
+  background-color: ${props=>props.isDark? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)'};
   width: 100vw;
   height: 100vh;
 `;
@@ -151,6 +155,7 @@ export const Close = styled.button`
   right: 3%;
   font-size: 18px;
   font-weight: bold;
+  color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value}
 `;
 
 export const ProblemModal = styled.div`
@@ -160,6 +165,7 @@ export const ProblemModal = styled.div`
   border-radius: 8px;
   width: 100%;
   max-width: 600px;
+  height: 650px;
   padding: 10px 30px 30px 30px;
 `;
 
@@ -220,7 +226,7 @@ export const CheckNumber = styled.input`
 
 export const TitleInput = styled(RegularTextArea)`
   width: 100%;
-  height: 80px;
+  height: ${props=>props.selectMode?'80px':'120px'};
   margin-top: 20px;
   padding: 10px 0px 0px 10px;
   resize: none;
@@ -234,15 +240,16 @@ export const ListInput = styled(GrayInput)`
 
 export const CommentInput = styled(RegularTextArea)`
   width: 100%;
-  height: 65px;
+  height: 100px;
   margin-left: 15px;
+  margin-bottom: ${globalTokens.Spacing12.value}px;
   padding: 10px 0px 0px 10px;
   resize: none;
 `;
 
 export const DiscribeInput = styled(RegularTextArea)`
   width: 100%;
-  height: 100px;
+  height: ${props=>props.selectMode? '100px' : '150px'};
   margin-left: 15px;
   padding: 10px 0px 0px 10px;
   resize: none;
