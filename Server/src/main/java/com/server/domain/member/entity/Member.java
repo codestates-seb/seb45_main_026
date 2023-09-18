@@ -12,6 +12,7 @@ import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.entity.BaseEntity;
 
+import com.server.global.exception.businessexception.memberexception.MemberAccessDeniedException;
 import com.server.global.exception.businessexception.memberexception.MemberNotUpdatedException;
 import com.server.global.exception.businessexception.orderexception.RewardNotEnoughException;
 import lombok.AllArgsConstructor;
@@ -53,6 +54,8 @@ public class Member extends BaseEntity {
 	@Builder.Default
 	private Grade grade = Grade.BRONZE;
 
+	private int gradePoint;
+
 	private int reward;
 
 	@OneToMany(mappedBy = "member")
@@ -85,6 +88,13 @@ public class Member extends BaseEntity {
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
 	@Builder.Default
 	private List<Reward> rewards = new ArrayList<>();
+
+	public void checkAdmin() {
+
+		if (this.authority != Authority.ROLE_ADMIN) {
+			throw new MemberAccessDeniedException();
+		}
+	}
 
 	public void updatePassword(String password) {
 		if (password == null || password.equals(this.password)) {
@@ -134,6 +144,16 @@ public class Member extends BaseEntity {
 	public void minusReward(int reward) {
 		checkEnoughReward(reward);
 		this.reward -= reward;
+	}
+
+	public void addGradePoint(int gradePoint) {
+		this.gradePoint += gradePoint;
+		this.grade = Grade.getGrade(this.gradePoint);
+	}
+
+	public void minusGradePoint(int gradePoint) {
+		this.gradePoint -= gradePoint;
+		this.grade = Grade.getGrade(this.gradePoint);
 	}
   
 	public void checkReward(int reward) {

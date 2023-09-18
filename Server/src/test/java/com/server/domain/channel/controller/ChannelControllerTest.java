@@ -7,6 +7,7 @@ import com.server.domain.channel.service.dto.ChannelInfo;
 import com.server.domain.channel.service.dto.ChannelUpdate;
 import com.server.domain.channel.service.dto.request.ChannelVideoGetServiceRequest;
 import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
+import com.server.domain.member.entity.Grade;
 import com.server.domain.video.controller.dto.request.VideoSort;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.service.dto.response.VideoCategoryResponse;
@@ -57,6 +58,7 @@ class ChannelControllerTest extends ControllerTest {
                 .isSubscribed(true)
                 .description("channel description")
                 .imageUrl("https://fsafasf.cloudfront.net/1/profile/sksjsksh")
+                .grade(Grade.BRONZE)
                 .createdDate(LocalDateTime.now())
                 .build();
 
@@ -93,6 +95,7 @@ class ChannelControllerTest extends ControllerTest {
                         fieldWithPath("data.isSubscribed").description("로그인 사용자의 채널의 구독 여부"),
                         fieldWithPath("data.description").description("채널의 설명"),
                         fieldWithPath("data.imageUrl").description("채널의 이미지 URL"),
+                        fieldWithPath("data.grade").description("채널의 멤버 등급"),
                         fieldWithPath("data.createdDate").description("채널의 생성일")
                 )
         ));

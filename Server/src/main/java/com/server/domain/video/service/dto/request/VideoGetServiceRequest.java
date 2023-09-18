@@ -1,6 +1,6 @@
 package com.server.domain.video.service.dto.request;
 
-import com.server.domain.video.repository.dto.VideoGetDataRequest;
+import com.server.domain.video.repository.dto.request.VideoGetDataRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

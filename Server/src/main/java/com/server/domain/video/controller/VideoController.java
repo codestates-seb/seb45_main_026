@@ -9,10 +9,7 @@ import com.server.domain.reply.service.ReplyService;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.service.VideoService;
 import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
-import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
-import com.server.domain.video.service.dto.response.VideoDetailResponse;
-import com.server.domain.video.service.dto.response.VideoPageResponse;
-import com.server.domain.video.service.dto.response.VideoUrlResponse;
+import com.server.domain.video.service.dto.response.*;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -223,5 +220,40 @@ public class VideoController {
         URI uri = URI.create("/replies/" + replyId);
 
         return ResponseEntity.created(uri).build();
+    }
+
+    @PostMapping("/{video-id}/reports")
+    public ResponseEntity<ApiSingleResponse<Boolean>> reportVideo(
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
+            @RequestBody @Valid VideoReportCreateApiRequest request,
+            @LoginId Long loginMemberId) {
+
+        boolean result = videoService.reportVideo(loginMemberId, videoId, request.getReportContent());
+
+        String message = result ? "비디오 신고 성공" : "이미 신고한 비디오입니다.";
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(result, message));
+    }
+
+    @GetMapping("/reports")
+    public ResponseEntity<ApiPageResponse<VideoReportResponse>> getVideoReports(
+            @RequestParam(defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+            @RequestParam(defaultValue = "10") @Positive(message = "{validation.positive}") int size,
+            @RequestParam(defaultValue = "last-reported-date") VideoReportSort sort) {
+
+        Page<VideoReportResponse> reports = videoService.getVideoReports(page - 1, size, sort.getSort());
+
+        return ResponseEntity.ok(ApiPageResponse.ok(reports, "비디오 신고 목록 조회 성공"));
+    }
+
+    @GetMapping("/{video-id}/reports")
+    public ResponseEntity<ApiPageResponse<ReportResponse>> getReports(
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
+            @RequestParam(defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+            @RequestParam(defaultValue = "10") @Positive(message = "{validation.positive}") int size) {
+
+        Page<ReportResponse> reports = videoService.getReports(videoId, page - 1, size);
+
+        return ResponseEntity.ok(ApiPageResponse.ok(reports, "비디오 신고 세부 내용 조회 성공"));
     }
 }
