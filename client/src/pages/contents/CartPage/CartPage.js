@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { styled } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import CartLeft from "./CartLeft";
@@ -9,8 +9,8 @@ import { useToken } from "../../../hooks/useToken";
 import { setCarts } from "../../../redux/createSlice/CartsSlice";
 import { PageContainer } from "../../../atoms/layouts/PageContainer";
 import { HomeTitle } from "../../../components/contentListItems/ChannelHome";
-import { setIsLoading } from "../../../redux/createSlice/UISettingSlice";
 import { useNavigate } from "react-router-dom";
+import { AlertModal, ConfirmModal } from "../../../atoms/modal/Modal";
 
 const globalTokens = tokens.global;
 
@@ -21,6 +21,8 @@ const CartPage = () => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const token = useSelector((state) => state.loginInfo.accessToken);
   const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const getCartsData = () => {
     return axios
@@ -29,7 +31,6 @@ const CartPage = () => {
       })
       .then((res) => {
         dispatch(setCarts(res.data.data));
-        console.log(res.data.data);
       })
       .catch((err) => {
         if (err.response.data?.code === 401) {
@@ -49,13 +50,7 @@ const CartPage = () => {
         }
       )
       .then((res) => {
-        console.log(res.data);
-        alert("성공적으로 결제가 완료되었습니다.");
-        if (window.confirm("구매한 목록 페이지로 가시겠습니까?")) {
-          navigate(`/purchased`);
-        } else {
-          navigate(`/lecture`);
-        }
+        setIsModalOpen(true);
       })
       .catch((err) => {
         console.log(err);
@@ -75,21 +70,46 @@ const CartPage = () => {
   }, [checkedItems]);
 
   return (
-    <PageContainer isDark={isDark}>
-      <CartContainer>
-        <CartTitle isDark={isDark}>수강 바구니</CartTitle>
-        <CartContent>
-          <CartLeft />
-          <CartRight />
-        </CartContent>
-      </CartContainer>
-    </PageContainer>
+    <>
+      <PageContainer isDark={isDark}>
+        <CartContainer>
+          <CartTitle isDark={isDark}>수강 바구니</CartTitle>
+          <CartContent>
+            <CartLeft />
+            <CartRight />
+          </CartContent>
+        </CartContainer>
+      </PageContainer>
+      <AlertModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        isBackdropClickClose={true}
+        content="성공적으로 결제가 완료되었습니다."
+        buttonTitle="확인"
+        handleButtonClick={() => {
+          setIsModalOpen(false);
+          setIsConfirmOpen(true);
+        }}
+      />
+      <ConfirmModal
+        isModalOpen={isConfirmOpen}
+        setIsModalOpen={setIsConfirmOpen}
+        isBackdropClickClose={false}
+        content="구매한 목록 페이지로 가시겠습니까?"
+        negativeButtonTitle="아니요"
+        positiveButtonTitle="네"
+        handleNegativeButtonClick={() => {
+          navigate(`/lecture`);
+        }}
+        handlePositiveButtonClick={() => {
+          navigate(`/purchased`);
+        }}
+      />
+    </>
   );
 };
 
 export default CartPage;
-
-// const globalTokens = tokens.global;
 
 export const CartContainer = styled.div`
   width: 100%;

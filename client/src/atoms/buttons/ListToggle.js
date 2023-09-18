@@ -3,11 +3,16 @@ import { useSelector } from "react-redux";
 import { styled } from "styled-components";
 import tokens from "../../styles/tokens.json";
 import axios from "axios";
+import { AlertModal } from "../modal/Modal";
 
 const ListToggle = ({ OnOff, videoId }) => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const token = useSelector((state) => state.loginInfo.accessToken);
   const [isOnOff, setOnOff] = useState(OnOff);
+  const [isModalOpen, setIsModalOpen] = useState({
+    isModalOpen: false,
+    content: "",
+  });
 
   const patchVideoStatus = () => {
     return axios
@@ -17,27 +22,53 @@ const ListToggle = ({ OnOff, videoId }) => {
       .then((res) => {
         setOnOff(!res.data.data);
         if (res.data.data) {
-          alert("강의를 활성화 했습니다.");
+          setIsModalOpen({
+            ...isModalOpen,
+            isModalOpen: true,
+            content: "강의를 활성화 했습니다.",
+          });
         } else {
-          alert("강의를 비활성화 했습니다.");
+          setIsModalOpen({
+            ...isModalOpen,
+            isModalOpen: true,
+            content: "강의를 비활성화 했습니다.",
+          });
         }
       })
       .catch((err) => {
-        console.log(err);
-        alert("강의 비활성화를 실패했습니다.");
+        setIsModalOpen({
+          ...isModalOpen,
+          isModalOpen: true,
+          content: "강의 비활성화를 실패했습니다.",
+        });
       });
   };
 
   return (
-    <ToggleWrapper
-      onClick={() => {
-        patchVideoStatus();
-      }}
-    >
-      <ToggleContainer isDark={isDark} isOnOff={isOnOff}>
-        <ToggleCircle isOnOff={isOnOff} />
-      </ToggleContainer>
-    </ToggleWrapper>
+    <>
+      <ToggleWrapper
+        onClick={() => {
+          patchVideoStatus();
+        }}
+      >
+        <ToggleContainer isDark={isDark} isOnOff={isOnOff}>
+          <ToggleCircle isOnOff={isOnOff} />
+        </ToggleContainer>
+      </ToggleWrapper>
+      <AlertModal
+        isModalOpen={isModalOpen.isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        isBackdropClickClose={false}
+        content={isModalOpen.content}
+        buttonTitle="확인"
+        handleButtonClick={() =>
+          setIsModalOpen({
+            ...isModalOpen,
+            isModalOpen: false,
+          })
+        }
+      />
+    </>
   );
 };
 
@@ -56,10 +87,13 @@ export const ToggleContainer = styled.div`
   top: 0;
   left: 0; // "rgba(24,35,51,0.7)"
   background-color: ${(props) =>
-    props.isDark && !props.isOnOff ? globalTokens.LightNavy.value
-  : !props.isDark && !props.isOnOff ? globalTokens.Negative.value
-  : props.isDark && props.isOnOff ? 'rgba(255,255,255,0.1)'
-  : 'rgba(0,0,0,0.15)'};
+    props.isDark && !props.isOnOff
+      ? globalTokens.LightNavy.value
+      : !props.isDark && !props.isOnOff
+      ? globalTokens.Negative.value
+      : props.isDark && props.isOnOff
+      ? "rgba(255,255,255,0.1)"
+      : "rgba(0,0,0,0.15)"};
   border-radius: ${globalTokens.BigRadius.value}px;
   width: 48px;
   height: 24px;

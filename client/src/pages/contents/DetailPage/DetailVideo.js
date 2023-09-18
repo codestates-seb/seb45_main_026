@@ -21,6 +21,7 @@ import {
 import profileGray from "../../../assets/images/icons/profile/profileGray.svg";
 import AddCart from "../../../components/DetailPage/AddCart";
 import VideoPlayer from "../../../components/DetailPage/VideoPlayer";
+import { AlertModal } from "../../../atoms/modal/Modal";
 
 const globalTokens = tokens.global;
 
@@ -36,6 +37,8 @@ const DetailVideo = () => {
   const [isSub, setSub] = useState("");
   const [channelInfo, setChannelInfo] = useState({});
   const [isPrevMode, setPrevMode] = useState(false);
+  const [purchaseModal, setPurchaseModal] = useState(false);
+  const [alertModal, setAlertModal] = useState(false);
 
   useEffect(() => {
     getChannelInfo();
@@ -69,8 +72,7 @@ const DetailVideo = () => {
         }
       )
       .then((res) => {
-        alert("성공적으로 강의가 구매 되었습니다.");
-        window.location.reload();
+        setPurchaseModal(true);
       })
       .catch((err) => {
         if (err.response.data.message === "만료된 토큰입니다.") {
@@ -104,99 +106,43 @@ const DetailVideo = () => {
 
   const handleNavProblem = () => {
     if (!videoDatas.isPurchased && myId !== videoDatas.channel.memberId) {
-      alert("강의를 먼저 구매해주세요.");
+      setAlertModal(true);
     } else {
       navigate(`/videos/${videoId}/problems`);
     }
   };
 
   return (
-    <VideoContainer isDark={isDark}>
-      <VideoHeader isDark={isDark}>
-        강의를 다 들었다면?
-        <HeaderBtn isDark={isDark} onClick={handleNavProblem}>
-          문제 풀러가기 →
-        </HeaderBtn>
-      </VideoHeader>
+    <>
+      <VideoContainer isDark={isDark}>
+        <VideoHeader isDark={isDark}>
+          강의를 다 들었다면?
+          <HeaderBtn isDark={isDark} onClick={handleNavProblem}>
+            문제 풀러가기 →
+          </HeaderBtn>
+        </VideoHeader>
 
-      {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
-        <VideoPlayer
-          videoId={videoId}
-          thumbnailUrl={videoDatas.thumbnailUrl}
-          isPrevMode={isPrevMode}
-          controlBar={true}
-        />
-      ) : (
-        <VideoCover url={videoDatas.thumbnailUrl}>
-          <PrevBtn
-            onClick={() => {
-              setPrevMode(true);
-              dispatch(setPrev(true));
-              setTimeout(() => {
-                dispatch(setPrev(false));
-              }, 61000);
-            }}
-          >
-            1분 미리보기
-          </PrevBtn>
-          <PurchaseBtn
-            onClick={() => {
-              if (videoDatas.price > 0) {
-                handleCartNav();
-              } else {
-                handlePurchase();
-              }
-            }}
-          >
-            강의 구매하기
-          </PurchaseBtn>
-        </VideoCover>
-      )}
-
-      <VideoTitle isDark={isDark}>
-        <span>{videoDatas.videoName}</span>
-        {!videoDatas.isPurchased && myId !== videoDatas.channel.memberId && (
-          <span>{videoDatas.price ? `${videoDatas.price}원` : "무료"}</span>
-        )}
-      </VideoTitle>
-      <VideoInfo>
-        <Profile>
-          <ProfileImg
-            src={videoDatas.channel.imageUrl || profileGray}
-            alt="프로필 이미지"
+        {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
+          <VideoPlayer
+            videoId={videoId}
+            thumbnailUrl={videoDatas.thumbnailUrl}
+            isPrevMode={isPrevMode}
+            controlBar={true}
           />
-
-          <ProfileRight>
-            <ProfileName isDark={isDark}>
-              {videoDatas.channel.channelName}
-            </ProfileName>
-            <Subscribed isDark={isDark}>
-              구독자 {channelInfo.subscribers}명
-            </Subscribed>
-          </ProfileRight>
-        </Profile>
-
-        {myId === videoDatas.channel.memberId || (
-          <SubscribeBtn
-            memberId={videoDatas.channel.memberId}
-            channelInfo={channelInfo}
-            setSub={setSub}
-          />
-        )}
-
-        {!videoDatas.isPurchased && myId !== videoDatas.channel.memberId && (
-          <CreditBox>
-            {videoDatas.price > 0 && (
-              <AddCart
-                videoId={videoId}
-                isInCart={videoDatas.isInCart}
-                content="장바구니"
-                border={true}
-              />
-            )}
-            <PurchaseNav
-              isDark={isDark}
-              isFree={!videoDatas.price}
+        ) : (
+          <VideoCover url={videoDatas.thumbnailUrl}>
+            <PrevBtn
+              onClick={() => {
+                setPrevMode(true);
+                dispatch(setPrev(true));
+                setTimeout(() => {
+                  dispatch(setPrev(false));
+                }, 61000);
+              }}
+            >
+              1분 미리보기
+            </PrevBtn>
+            <PurchaseBtn
               onClick={() => {
                 if (videoDatas.price > 0) {
                   handleCartNav();
@@ -206,11 +152,88 @@ const DetailVideo = () => {
               }}
             >
               강의 구매하기
-            </PurchaseNav>
-          </CreditBox>
+            </PurchaseBtn>
+          </VideoCover>
         )}
-      </VideoInfo>
-    </VideoContainer>
+
+        <VideoTitle isDark={isDark}>
+          <span>{videoDatas.videoName}</span>
+          {!videoDatas.isPurchased && myId !== videoDatas.channel.memberId && (
+            <span>{videoDatas.price ? `${videoDatas.price}원` : "무료"}</span>
+          )}
+        </VideoTitle>
+        <VideoInfo>
+          <Profile>
+            <ProfileImg
+              src={videoDatas.channel.imageUrl || profileGray}
+              alt="프로필 이미지"
+            />
+
+            <ProfileRight>
+              <ProfileName isDark={isDark}>
+                {videoDatas.channel.channelName}
+              </ProfileName>
+              <Subscribed isDark={isDark}>
+                구독자 {channelInfo.subscribers}명
+              </Subscribed>
+            </ProfileRight>
+          </Profile>
+
+          {myId === videoDatas.channel.memberId || (
+            <SubscribeBtn
+              memberId={videoDatas.channel.memberId}
+              channelInfo={channelInfo}
+              setSub={setSub}
+            />
+          )}
+
+          {!videoDatas.isPurchased && myId !== videoDatas.channel.memberId && (
+            <CreditBox>
+              {videoDatas.price > 0 && (
+                <AddCart
+                  videoId={videoId}
+                  isInCart={videoDatas.isInCart}
+                  content="장바구니"
+                  border={true}
+                />
+              )}
+              <PurchaseNav
+                isDark={isDark}
+                isFree={!videoDatas.price}
+                onClick={() => {
+                  if (videoDatas.price > 0) {
+                    handleCartNav();
+                  } else {
+                    handlePurchase();
+                  }
+                }}
+              >
+                강의 구매하기
+              </PurchaseNav>
+            </CreditBox>
+          )}
+        </VideoInfo>
+      </VideoContainer>
+      <AlertModal
+        isModalOpen={purchaseModal}
+        setIsModalOpen={setPurchaseModal}
+        isBackdropClickClose={true}
+        content="성공적으로 강의가 구매 되었습니다."
+        buttonTitle="확인"
+        handleButtonClick={() => {
+          setPurchaseModal(false);
+          window.location.reload();
+        }}
+      />
+      <AlertModal
+        isModalOpen={alertModal}
+        setIsModalOpen={setAlertModal}
+        isBackdropClickClose={true}
+        content="강의를 먼저 구매해주세요."
+        buttonTitle="확인"
+        handleButtonClick={() => setAlertModal(false)}
+      />
+    </>
   );
 };
 

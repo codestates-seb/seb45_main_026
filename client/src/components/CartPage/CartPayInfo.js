@@ -9,6 +9,7 @@ import {
 import { RegularInput } from "../../atoms/inputs/Inputs";
 import { RegularButton } from "../../atoms/buttons/Buttons";
 import PaymentBtn from "../../pages/contents/CartPage/TossPayment";
+import { AlertModal } from "../../atoms/modal/Modal";
 
 const globalTokens = tokens.global;
 
@@ -23,6 +24,9 @@ const CartPayInfo = () => {
   const myCartInfo = useSelector((state) => state.cartSlice.myCartInfo);
   const checkedItems = useSelector((state) => state.cartSlice.checkedItem);
   const [isDiscount, setDiscount] = useState(0);
+  const [countModal, setCountModal] = useState(false);
+  const [overPointModal, setOverPointModal] = useState(false);
+  const [spendPointModal, setSpendPointModal] = useState(false);
 
   const getTotal = () => {
     const cartsArr = cartsData.map((el) => el.videoId);
@@ -52,17 +56,17 @@ const CartPayInfo = () => {
     const regExp = /[a-z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g;
     if (regExp.test(reward)) {
       setDiscount(0);
-      return alert("숫자만 입력할 수 있습니다.");
+      return setCountModal(true)
     }
 
     if (totalPrice < parseInt(reward)) {
       setDiscount(totalPrice);
-      return alert("선택하신 상품 금액을 넘어서 포인트를 사용할 수 없습니다.");
+      return setOverPointModal(true)
     }
 
     if (reward > myCartInfo.reward) {
-      alert(`현재 사용할 수 있는 포인트는 ${myCartInfo.reward}포인트 입니다.`);
       setDiscount(myCartInfo.reward);
+      return setSpendPointModal(true)
     }
   };
 
@@ -73,48 +77,76 @@ const CartPayInfo = () => {
   }, [totalPrice]);
 
   return (
-    <PayForm isDark={isDark}>
-      <PointBox>
-        <PointLabel isDark={isDark}>포인트</PointLabel>
-        <Point isDark={isDark}>보유 : {priceToString(myCartInfo.reward)}</Point>
-      </PointBox>
-      <PointBox>
-        <PointInput
-          isDark={isDark}
-          type="text"
-          placeholder="사용하실 포인트를 입력해주세요."
-          value={isDiscount}
-          onChange={(e) => handleChangeDiscount(e.target.value)}
-          onBlur={(e) => handleBlurDiscount(e.target.value)}
-        />
-        <SubmitBtn
-          isDark={isDark}
-          onClick={(e) => {
-            e.preventDefault();
-            handleAllDiscount(myCartInfo.reward);
-          }}
-        >
-          전액 사용
-        </SubmitBtn>
-      </PointBox>
-      <Payment>
-        <PriceInfo>
-          <Selected isDark={isDark}>선택 상품 금액</Selected>
-          <Selected isDark={isDark}>{priceToString(totalPrice)}원</Selected>
-        </PriceInfo>
-        <PriceInfo>
-          <Discount isDark={isDark}>할인 금액</Discount>
-          <Discount isDark={isDark}>{priceToString(isDiscount)}원</Discount>
-        </PriceInfo>
-        <PriceInfo>
-          <Amount isDark={isDark}>총 결제금액</Amount>
-          <Amount isDark={isDark}>
-            {priceToString(totalPrice - isDiscount)}원
-          </Amount>
-        </PriceInfo>
-      </Payment>
-      <PaymentBtn isDiscount={isDiscount} />
-    </PayForm>
+    <>
+      <PayForm isDark={isDark}>
+        <PointBox>
+          <PointLabel isDark={isDark}>포인트</PointLabel>
+          <Point isDark={isDark}>
+            보유 : {priceToString(myCartInfo.reward)}
+          </Point>
+        </PointBox>
+        <PointBox>
+          <PointInput
+            isDark={isDark}
+            type="text"
+            placeholder="사용하실 포인트를 입력해주세요."
+            value={isDiscount}
+            onChange={(e) => handleChangeDiscount(e.target.value)}
+            onBlur={(e) => handleBlurDiscount(e.target.value)}
+          />
+          <SubmitBtn
+            isDark={isDark}
+            onClick={(e) => {
+              e.preventDefault();
+              handleAllDiscount(myCartInfo.reward);
+            }}
+          >
+            전액 사용
+          </SubmitBtn>
+        </PointBox>
+        <Payment>
+          <PriceInfo>
+            <Selected isDark={isDark}>선택 상품 금액</Selected>
+            <Selected isDark={isDark}>{priceToString(totalPrice)}원</Selected>
+          </PriceInfo>
+          <PriceInfo>
+            <Discount isDark={isDark}>할인 금액</Discount>
+            <Discount isDark={isDark}>{priceToString(isDiscount)}원</Discount>
+          </PriceInfo>
+          <PriceInfo>
+            <Amount isDark={isDark}>총 결제금액</Amount>
+            <Amount isDark={isDark}>
+              {priceToString(totalPrice - isDiscount)}원
+            </Amount>
+          </PriceInfo>
+        </Payment>
+        <PaymentBtn isDiscount={isDiscount} />
+      </PayForm>
+      <AlertModal
+        isModalOpen={countModal}
+        setIsModalOpen={setCountModal}
+        isBackdropClickClose={true}
+        content="숫자만 입력할 수 있습니다."
+        buttonTitle="확인"
+        handleButtonClick={() => setCountModal(false)}
+      />
+      <AlertModal
+        isModalOpen={overPointModal}
+        setIsModalOpen={setOverPointModal}
+        isBackdropClickClose={true}
+        content="선택하신 상품 금액을 넘어서 포인트를 사용할 수 없습니다."
+        buttonTitle="확인"
+        handleButtonClick={() => setOverPointModal(false)}
+      />
+      <AlertModal
+        isModalOpen={spendPointModal}
+        setIsModalOpen={setSpendPointModal}
+        isBackdropClickClose={true}
+        content={`현재 사용할 수 있는 포인트는 ${myCartInfo.reward}포인트 입니다.`}
+        buttonTitle="확인"
+        handleButtonClick={() => setSpendPointModal(false)}
+      />
+    </>
   );
 };
 
