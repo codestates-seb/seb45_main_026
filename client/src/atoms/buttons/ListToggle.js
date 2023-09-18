@@ -34,7 +34,7 @@ const ListToggle = ({ OnOff, videoId }) => {
         patchVideoStatus();
       }}
     >
-      <ToggleContainer isDark={isDark}>
+      <ToggleContainer isDark={isDark} isOnOff={isOnOff}>
         <ToggleCircle isOnOff={isOnOff} />
       </ToggleContainer>
     </ToggleWrapper>
@@ -53,7 +53,10 @@ export const ToggleContainer = styled.div`
   top: 0;
   left: 0; // "rgba(24,35,51,0.7)"
   background-color: ${(props) =>
-    props.isDark ? "rgba(255,255,255,0.15)" : "rgba(205,5,5,0.25)"};
+    props.isDark && !props.isOnOff ? globalTokens.LightNavy.value
+  : !props.isDark && !props.isOnOff ? globalTokens.Negative.value
+  : props.isDark && props.isOnOff ? 'rgba(255,255,255,0.1)'
+  : 'rgba(0,0,0,0.15)'};
   border-radius: ${globalTokens.BigRadius.value}px;
   width: 48px;
   height: 24px;

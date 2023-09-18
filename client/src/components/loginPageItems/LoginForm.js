@@ -24,9 +24,8 @@ export const LoginForm = () => {
     const method = useForm({
         mode: 'all'
     });
-    const { 
+    const {
         register, 
-        control, 
         handleSubmit, 
         formState: { errors } } = method;
 

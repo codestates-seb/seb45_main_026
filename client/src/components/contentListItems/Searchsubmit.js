@@ -60,7 +60,9 @@ export default function SearchSubmit() {
         setSearchKeyword(e.target.value)
     }
     const navigateHandler = () => {
-        navigate(`/result/${searchKeyword}`)
+      if (searchKeyword !== "") {
+        navigate(/result/`${searchKeyword}`);
+      }
     }
     const enterHandler = (e) => {
         if (e.key === 'Enter') {

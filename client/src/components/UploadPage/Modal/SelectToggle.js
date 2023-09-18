@@ -1,5 +1,7 @@
 import { styled } from "styled-components";
 import tokens from "../../../styles/tokens.json";
+import { useSelector } from "react-redux";
+import { BodyTextTypo } from '../../../atoms/typographys/Typographys';
 
 const globalTokens = tokens.global;
 
@@ -14,7 +16,8 @@ export const ToggleContainer = styled.div`
   top: 0;
   left: 0;
   background-color: ${(props) =>
-    props.isMode ? "rgba(24,35,51,0.7)" : "rgba(205,5,5,0.25)"};
+    !props.isDark? globalTokens.LightRed.value
+  : globalTokens.LightNavy.value};
   border-radius: ${globalTokens.RegularRadius.value}px;
   width: 110px;
   height: 28px;
@@ -25,7 +28,7 @@ export const ToggleContainer = styled.div`
     ${globalTokens.RegularShadow.value.spread}px
     ${(props) => (props.isMode ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)")};
 `;
-export const ToggleCircle = styled.div`
+export const ToggleCircle = styled(BodyTextTypo)`
   position: absolute;
   top: 3px;
   left: 3px;
@@ -33,7 +36,7 @@ export const ToggleCircle = styled.div`
   font-weight: 600;
   text-align: center;
   border-radius: ${globalTokens.RegularRadius.value}px;
-  background-color: ${globalTokens.White.value};
+  background-color: ${props=>props.isDark?globalTokens.MainNavy.value : globalTokens.White.value};
   width: 55px;
   height: 22px;
   transform: ${(props) => props.isMode && "translateX(48px)"};
@@ -41,6 +44,8 @@ export const ToggleCircle = styled.div`
 `;
 
 const SelectToggle = ({ selectMode, setSelectMode, initProblem }) => {
+  const isDark = useSelector(state=>state.uiSetting.isDark);
+
   return (
     <ToggleWrapper
       onClick={() => {
@@ -48,8 +53,8 @@ const SelectToggle = ({ selectMode, setSelectMode, initProblem }) => {
         initProblem();
       }}
     >
-      <ToggleContainer isMode={!selectMode}>
-        <ToggleCircle isMode={!selectMode}>
+      <ToggleContainer isDark={isDark} isMode={!selectMode}>
+        <ToggleCircle isDark={isDark} isMode={!selectMode}>
           {selectMode ? "객관식" : "주관식"}
         </ToggleCircle>
       </ToggleContainer>
