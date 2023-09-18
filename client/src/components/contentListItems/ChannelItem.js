@@ -8,6 +8,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import SubscribeBtn from "../DetailPage/SubscribeBtn";
 import { useSelector } from "react-redux";
+import { NegativeTextButton } from "../../atoms/buttons/Buttons";
 
 const globalTokens = tokens.global;
 

@@ -25,7 +25,7 @@ export const ModalBackdrop = styled.div`
 export const ModalContainer = styled.div`
     width: 320px;
     height: 150px;
-    padding: ${globalTokens.Spacing20.value}px 0;
+    padding: ${globalTokens.Spacing20.value}px ${globalTokens.Spacing8.value}px;
     background-color: ${(props)=>props.isDark?globalTokens.Black.value:globalTokens.White.value};
     border-radius: ${globalTokens.BigRadius.value}px;
     display: flex;

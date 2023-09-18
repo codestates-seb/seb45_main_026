@@ -25,3 +25,26 @@ export const getReceiptService = async (
         }
     }
 }
+
+//결제 단건 취소
+export const cancelOnePurchaseService = async (authorization, orderId, videoId) => {
+    try {
+        const response = await axios.delete(
+            `${ROOT_URL}/orders/${orderId}/videos/${videoId}`,
+            {
+                headers: {
+                    Authorization: authorization
+                }
+            }
+        );
+        return {
+            status: 'success',
+            data: response.data
+        }
+    } catch (err) {
+        return {
+            status: 'error',
+            data: err.response.data.message
+        }
+    }
+}

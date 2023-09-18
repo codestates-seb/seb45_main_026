@@ -19,7 +19,6 @@ const SubscribeBtn = ({ memberId, setSub, channelInfo }) => {
         }
       )
       .then((res) => {
-        console.log(res.data.data);
         if (res.data.code === 200) {
           setSub(res.data.data);
         }

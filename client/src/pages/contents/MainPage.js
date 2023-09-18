@@ -5,6 +5,7 @@ import {
   LightContainer,
   DarkContainer,
   FirstPageBackgroundContainer,
+  FourthPageBackgroundContainer,
 } from "./MainPage.style";
 import { setLocation } from "../../redux/createSlice/UISettingSlice";
 import MainPageFirstItem from "../../components/mainPageItems/MainPageItems";
@@ -119,7 +120,9 @@ const MainPage = () => {
         <MainThirdPageItems/>
       </LightContainer>
       <DarkContainer isDark={isDark}>
-        <MainFourthPageItems/>
+        <FourthPageBackgroundContainer>
+          <MainFourthPageItems/>
+        </FourthPageBackgroundContainer>
       </DarkContainer>
     </MainPageContainer>
   );

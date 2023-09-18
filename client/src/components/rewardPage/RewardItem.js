@@ -1,7 +1,7 @@
 import React from 'react';
 import { styled } from 'styled-components';
-import { ReceiptItemContainer, ReceiptGrayTypo, ReceiptTitleTypo, ReceiptAmountTypo } from '../receiptPage/ReceiptItem';
 import { useSelector } from 'react-redux';
+import { ReceiptGrayTypo, ReceiptItemContainer, ReceiptTitleTypo, ReceiptAmountTypo } from '../receiptPage/ReceiptItem.style';
 
 export const RewardItemContainer = styled(ReceiptItemContainer)`
 `
@@ -19,8 +19,6 @@ const RewardItem = ({item}) => {
     let createDay = createDate.split('T')[0];
     let createTime = createDate.split('T')[1];
 
-    console.log(item);
-
     return (
         <RewardItemContainer isDark={isDark}>
             <RewardGrayTypo isDark={isDark}>
@@ -30,6 +28,7 @@ const RewardItem = ({item}) => {
             {
                 item.rewardType==='VIDEO'? '강의 구매'
                 : item.rewardType==='QUIZ'? '문제 풀기'
+                : item.rewardType==='REPLY'? '리뷰 등록'
                 : '기타'
             }
             </RewardTitleTypo>

@@ -17,18 +17,20 @@ const globalTokens = tokens.global;
 const WatchedContainer = styled(MainContainer)`
     min-width: 600px;
     min-height: 600px;
+    padding: ${globalTokens.Spacing20.value}px;
     border: none;
-    background-color: ${globalTokens.White.value};
+    background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
     margin-top: ${globalTokens.Spacing40.value}px;
+    margin-bottom: ${globalTokens.Spacing40.value}px;
     border-radius: ${globalTokens.RegularRadius.value}px;
     padding: ${globalTokens.Spacing20.value}px;
-    gap: ${globalTokens.Spacing28.value}px;
+    gap: ${globalTokens.Spacing12.value}px;
 `
 const WatchedTitle = styled(HomeTitle)`
     width: 100%;
     font-size: ${globalTokens.Heading5.value}px;
     font-weight: ${globalTokens.Bold.value};
-    padding-left: ${globalTokens.Spacing28.value}px;
+    padding-left: ${globalTokens.Spacing4.value}px;
     margin-top: ${globalTokens.Spacing20.value}px;
     margin: ${globalTokens.Spacing8.value}px;
 `
@@ -109,8 +111,8 @@ export default function WatchedListPage() {
 
     return (
         <PageContainer isDark={isDark} >
-            <WatchedContainer>
-                <WatchedTitle>시청한 강의 목록</WatchedTitle>
+            <WatchedContainer isDark={isDark}>
+                <WatchedTitle isDark={isDark}>시청한 강의 목록</WatchedTitle>
                 <FilterContainer>
                     <CategoryFilter filterNum="filters4"/>
                 </FilterContainer>

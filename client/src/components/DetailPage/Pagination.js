@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { TextButton } from "../../atoms/buttons/Buttons";
-import tokens from '../../styles/tokens.json';
+import tokens from "../../styles/tokens.json";
 
 const globalTokens = tokens.global;
 
@@ -45,7 +45,7 @@ export const PageBtn = styled(TextButton)`
   height: 25px;
 `;
 
-export const NoneBtn = styled(TextButton)`
+export const NoneBtn = styled.div`
   width: 25px;
   height: 25px;
 `;
