@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { styled } from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  PageContainer,
-  MainContainer,
-} from "../../atoms/layouts/PageContainer";
+import {PageContainer,MainContainer,} from "../../atoms/layouts/PageContainer";
 import tokens from "../../styles/tokens.json";
 import CategoryFilter from "../../components/filters/CategoryFilter";
 import PurchasedItem from "../../components/contentListItems/PurchasedItem";
@@ -34,8 +31,9 @@ const ListTitle = styled(Heading5Typo)`
     width: 100%;
     font-size: ${globalTokens.Heading5.value}px;
     font-weight: ${globalTokens.Bold.value};
-    padding-left: ${globalTokens.Spacing8.value}px;
+    padding-left: ${globalTokens.Spacing28.value}px;
     margin-top: ${globalTokens.Spacing20.value}px;
+    margin: ${globalTokens.Spacing8.value}px;
 `
 const CategoryContainer = styled.div`
   width: 95%;

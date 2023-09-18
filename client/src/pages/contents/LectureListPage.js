@@ -21,6 +21,8 @@ import grid from "../../assets/images/icons/listItem/grid.svg";
 import { HomeTitle } from "../../components/contentListItems/ChannelHome";
 import { useToken } from "../../hooks/useToken";
 import { useInView } from "react-intersection-observer";
+import SearchSubmit from "../../components/contentListItems/Searchsubmit";
+import { Heading5Typo } from "../../atoms/typographys/Typographys";
 
 const globalTokens = tokens.global;
 
@@ -71,19 +73,23 @@ const HorizonItemContainer = styled.ul`
   margin-bottom: ${globalTokens.Spacing28.value}px;
 `;
 const VerticalItemContainer = styled.ul`
-  width: 100%;
-  min-height: 400px;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: ${globalTokens.Spacing12.value}px;
-  margin-bottom: ${globalTokens.Spacing28.value}px;
-`;
+    width: 100%;
+    min-height: 400px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: ${globalTokens.Spacing12.value}px;
+    margin-bottom: ${globalTokens.Spacing28.value}px;
+`
 export const BottomDiv = styled.div`
   height: 10px;
   width: 10px;
-`;
+`
+const LectureBlank = styled(Heading5Typo)`
+  width: 100%;
+  margin-top: 200px;
+  text-align: center;
+`
 
 const LectureListPage = () => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
@@ -187,9 +193,8 @@ const LectureListPage = () => {
   return (
     <PageContainer isDark={isDark}>
       <LectureMainContainer isDark={isDark}>
-        <ListTitle isDark={isDark} onClick={() => dispatch(setPage(page + 1))}>
-          강의 목록
-        </ListTitle>
+        <ListTitle isDark={isDark} onClick={()=>dispatch(setPage(page+1))}>강의 목록</ListTitle>
+        <SearchSubmit/>
         <FilterContainer>
           <CategoryFilter filterNum="filters1" />
           <StructureButton
@@ -207,6 +212,7 @@ const LectureListPage = () => {
                 isDark={isDark}
               />
             ))}
+            {lectures.length===0?<LectureBlank isDark={isDark}>조건에 맞는 강의가 없습니다</LectureBlank>:<></>}
           </HorizonItemContainer>
         ) : (
           <VerticalItemContainer>
@@ -218,6 +224,7 @@ const LectureListPage = () => {
                 isDark={isDark}
               />
             ))}
+            {lectures.length===0?<LectureBlank isDark={isDark}>조건에 맞는 강의가 없습니다</LectureBlank>:<></>}
           </VerticalItemContainer>
         )}
         {page < maxPage && !loading ? <BottomDiv ref={bottomRef} /> : <></>}

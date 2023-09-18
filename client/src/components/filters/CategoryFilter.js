@@ -59,7 +59,6 @@ export default function CategoryFilter({ filterNum }) {
         options: [
           { text: "전체", value: "" },
           { text: "구독됨", value: "true" },
-          { text: "미구독", value: "false" },
         ],
       },
       {
@@ -141,8 +140,60 @@ export default function CategoryFilter({ filterNum }) {
           {text:"30일간", value:"30"},
         ]
       }
-    ]
-    const filters = {filters1,filters2,filters3,filters4}
+  ]
+  const filters5 = [
+    {
+      name: "category",
+      initialText: "카테고리",
+      initialValue: "",
+      actionName: "setCategory",
+      options: categories,
+    },
+    {
+      name: "isPurchased",
+      initialText: "구매여부",
+      initialValue: "true",
+      actionName: "setIsPurchased",
+      options: [
+        { text: "전체", value: "true" },
+        { text: "구매전", value: "false" },
+      ],
+    },
+    {
+      name: "isFree",
+      initialText: "유료/무료",
+      initialValue: "",
+      actionName: "setIsFree",
+      options: [
+        { text: "전체", value: "" },
+        { text: "유료", value: "false" },
+        { text: "무료", value: "true" },
+      ],
+    },
+    {
+      name: "isSubscribed",
+      initialText: "구독여부",
+      initialValue: "",
+      actionName: "setIsSubscribed",
+      options: [
+        { text: "전체", value: "" },
+        { text: "구독됨", value: "true" },
+      ],
+    },
+    {
+      name: "sortBy",
+      initialText: "정확도순",
+      initialValue: "",
+      actionName: "setSort",
+      options: [
+        { text: "정확도순", value: ""},
+        { text: "최신순", value: "created-date" },
+        { text: "조회순", value: "view" },
+        { text: "별점순", value: "star" },
+      ],
+    },
+  ];
+    const filters = {filters1,filters2,filters3,filters4,filters5}
     return (
         <FilterContainer>
             {filters[filterNum].map((el,idx)=><CategoryButton key={idx} filter={el} />)}
