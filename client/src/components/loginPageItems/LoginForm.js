@@ -24,25 +24,17 @@ export const LoginForm = () => {
     const method = useForm({
         mode: 'all'
     });
-    const { register, control, handleSubmit, formState: { errors } } = method;
-    // const {
-    //     register, 
-    //     handleSubmit,
-    //     control,
-    //     formState: { errors },
-    // } = useForm({
-    //     mode: "all"
+    const { 
+        register, 
+        control, 
+        handleSubmit, 
+        formState: { errors } } = method;
+
+    // const [email,password] = useWatch({
+    //     control, name: [ "email", "password" ]
     // });
 
-    const [password, email] = useWatch({
-        control, name: ["password", "email"]
-    });
-
-    console.log('pspsp=====>',email);
-    console.log('pspsp=====>',password);
-
     const onSubmit = async (data) => {
-        console.log('onSubmit 시작')
         const response = await loginService(data);
         if(response.status==='success') {
             //로그인에 성공하면 token을 state에 저장하고, 강의 목록 페이지로 이동한다.

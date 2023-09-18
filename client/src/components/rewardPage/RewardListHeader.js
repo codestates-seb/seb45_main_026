@@ -22,7 +22,7 @@ const RewardListHeader = () => {
         <RewardItemHeadContainer isDark={isDark}>
             <RewardDateHeadTypo isDark={isDark}>적립일시</RewardDateHeadTypo>
             <RewardTitleHeadTypo isDark={isDark}>활동명</RewardTitleHeadTypo>
-            <RewardPointHeadTypo isDark={isDark}>적립 포인트</RewardPointHeadTypo>
+            <RewardPointHeadTypo isDark={isDark}>적립 포인트 </RewardPointHeadTypo>
         </RewardItemHeadContainer>
     );
 };

@@ -63,7 +63,7 @@ export const Input = ({
     marginTop, marginBottom, marginLeft, marginRight,
     label, labelDirection, name, type, placeholder, width,
     register, required, maxLength, minLength, pattern, validateFunc,
-    isButton, buttonTitle, handleButtonClick, onChange, disabled
+    isButton, buttonTitle, handleButtonClick, disabled
 }) => {
     const isDark = useSelector(state=>state.uiSetting.isDark);
 
@@ -94,7 +94,6 @@ export const Input = ({
                         minLength: minLength,
                         pattern: pattern,
                         validate: validateFunc })}
-                    onChange={onChange}
                     disabled={disabled?disabled:false}/>
                     { isButton&&
                         <InputButton

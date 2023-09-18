@@ -12,6 +12,7 @@ import {
 } from "../../redux/createSlice/FilterSlice";
 import { useToken } from "../../hooks/useToken";
 import { useInView } from "react-intersection-observer";
+import { Heading5Typo } from "../../atoms/typographys/Typographys";
 
 const globalTokens = tokens.global;
 
@@ -38,7 +39,12 @@ const ListContainer = styled.ul`
 const BottomDiv = styled.div`
   height: 10px;
   width: 10px;
-`;
+`
+const LectureBlank = styled(Heading5Typo)`
+  width: 100%;
+  margin-top: 200px;
+  text-align: center;
+`
 
 export default function ChannelList({ channelInfor, accessToken, userId }) {
   const isDark = useSelector((state) => state.uiSetting.isDark);
@@ -134,6 +140,7 @@ export default function ChannelList({ channelInfor, accessToken, userId }) {
         {lectures.map((el) => (
           <HorizonItem lecture={el} channel={channelInfor} />
         ))}
+        {lectures.length===0?<LectureBlank isDark={isDark}>등록된 영상이 없습니다.</LectureBlank>:<></>}
         {page < maxPage && !loading ? <BottomDiv ref={bottomRef} /> : <></>}
       </ListContainer>
     </ListBody>

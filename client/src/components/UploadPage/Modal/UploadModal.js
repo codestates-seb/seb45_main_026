@@ -1,5 +1,13 @@
 import { styled } from "styled-components";
 import SelectToggle from "./SelectToggle";
+import { useSelector } from 'react-redux';
+import tokens from '../../../styles/tokens.json';
+import { BodyTextTypo, Heading5Typo } from '../../../atoms/typographys/Typographys';
+import { RegularInput } from '../../../atoms/inputs/Inputs';
+import { RegularTextArea } from '../../../atoms/inputs/TextAreas';
+import { RegularButton } from "../../../atoms/buttons/Buttons";
+
+const globalTokens = tokens.global;
 
 const UploadModal = ({
   setModal,
@@ -10,13 +18,15 @@ const UploadModal = ({
   selectMode,
   setSelectMode,
 }) => {
+  const isDark = useSelector(state=>state.uiSetting.isDark);
+
   return (
-    <ModalBackground>
+    <ModalBackground isDark={isDark}>
       <ProblemModal
+        isDark={isDark}
         onClick={(e) => {
           e.stopPropagation();
-        }}
-      >
+        }}>
         <SelectToggle
           selectMode={selectMode}
           setSelectMode={setSelectMode}
@@ -31,9 +41,10 @@ const UploadModal = ({
         >
           &times;
         </Close>
-        <ProblemTitle>
+        <ProblemTitle isDark={isDark}>
           문제 등록하기
           <TitleInput
+            isDark={isDark}
             id="ProblemTitle"
             type="text"
             placeholder="문제의 지문을 입력해주세요."
@@ -41,11 +52,11 @@ const UploadModal = ({
             value={isProblem.content}
           />
         </ProblemTitle>
-        <ProblemContent>
-          <ProblemLists>
+        <ProblemContent isDark={isDark}>
+          <ProblemLists isDark={isDark}>
             {selectMode ? (
               [1, 2, 3, 4].map((el) => (
-                <ProblemList>
+                <ProblemList isDark={isDark}>
                   <CheckNumber
                     id="questionAnswer"
                     type="checkbox"
@@ -54,8 +65,9 @@ const UploadModal = ({
                     }}
                     checked={isProblem.questionAnswer === el}
                   />
-                  <ListLabel>{el}번 문항</ListLabel>
+                  <ListLabel isDark={isDark}>{el}번 문항</ListLabel>
                   <ListInput
+                    isDark={isDark}
                     id="selections"
                     type="text"
                     placeholder={`${el}번 문항을 입력해주세요.`}
@@ -65,21 +77,20 @@ const UploadModal = ({
                 </ProblemList>
               ))
             ) : (
-              <ProblemList>
-                <CommentLabel>정답</CommentLabel>
+              <ProblemList isDark={isDark}>
+                <CommentLabel isDark={isDark}>정답</CommentLabel>
                 <CommentInput
+                  isDark={isDark}
                   id="questionAnswer"
                   placeholder={`정답을 입력해주세요.`}
                   value={isProblem.questionAnswer}
                   onChange={(e) => {
                     handleChangeContent(e, e.target.value);
-                  }}
-                  ch
-                />
+                  }}/>
               </ProblemList>
             )}
-            <ProblemList>
-              <CommentLabel>해설</CommentLabel>
+            <ProblemList isDark={isDark}>
+              <CommentLabel isDark={isDark}>해설</CommentLabel>
               <DiscribeInput
                 id="ProblemDiscribe"
                 type="text"
@@ -91,6 +102,7 @@ const UploadModal = ({
           </ProblemLists>
         </ProblemContent>
         <SubmitBtn
+          isDark={isDark}
           onClick={() => {
             if (!isProblem.content) {
               return alert("지문을 입력해 주세요.");
@@ -123,7 +135,7 @@ export const ModalBackground = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgb(200, 200, 200, 40%);
+  background-color: rgba(255,255,255,0.15);
   width: 100vw;
   height: 100vh;
 `;
@@ -143,15 +155,15 @@ export const Close = styled.button`
 
 export const ProblemModal = styled.div`
   position: relative;
-  background-color: white;
-  border: 2px solid rgb(200, 200, 200);
+  background-color: ${props=>props.isDark?globalTokens.Black.value:globalTokens.White.value};
+  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
   border-radius: 8px;
   width: 100%;
   max-width: 600px;
   padding: 10px 30px 30px 30px;
 `;
 
-export const ProblemTitle = styled.h2`
+export const ProblemTitle = styled(Heading5Typo)`
   display: flex;
   flex-direction: column;
   justify-content: start;
@@ -181,7 +193,7 @@ export const ProblemList = styled.li`
   margin: 10px 0px;
 `;
 
-export const RegularLabel = styled.label`
+export const RegularLabel = styled(BodyTextTypo)`
   width: 100%;
   max-width: 80px;
   text-align: end;
@@ -195,9 +207,7 @@ export const CommentLabel = styled(RegularLabel)`
   margin-top: 5px;
 `;
 
-export const GrayInput = styled.input`
-  border: 2px solid rgb(236, 236, 236);
-  border-radius: 8px;
+export const GrayInput = styled(RegularInput)`
   margin-left: 15px;
   padding-left: 10px;
 `;
@@ -208,11 +218,9 @@ export const CheckNumber = styled.input`
   margin-top: 12px;
 `;
 
-export const TitleInput = styled.textarea`
+export const TitleInput = styled(RegularTextArea)`
   width: 100%;
   height: 80px;
-  border: 2px solid rgb(236, 236, 236);
-  border-radius: 8px;
   margin-top: 20px;
   padding: 10px 0px 0px 10px;
   resize: none;
@@ -224,37 +232,27 @@ export const ListInput = styled(GrayInput)`
   max-width: 500px;
 `;
 
-export const CommentInput = styled.textarea`
+export const CommentInput = styled(RegularTextArea)`
   width: 100%;
   height: 65px;
-  border: 2px solid rgb(236, 236, 236);
-  border-radius: 8px;
   margin-left: 15px;
   padding: 10px 0px 0px 10px;
   resize: none;
 `;
 
-export const DiscribeInput = styled.textarea`
+export const DiscribeInput = styled(RegularTextArea)`
   width: 100%;
   height: 100px;
-  border: 2px solid rgb(236, 236, 236);
-  border-radius: 8px;
   margin-left: 15px;
   padding: 10px 0px 0px 10px;
   resize: none;
 `;
 
-export const SubmitBtn = styled.button`
+export const SubmitBtn = styled(RegularButton)`
   position: absolute;
   bottom: 3%;
   right: 4%;
   width: 100px;
   height: 40px;
-  color: white;
-  font-weight: 600;
-  border-radius: 8px;
-  background-color: rgb(255, 100, 100);
-  &:hover {
-    background-color: rgb(255, 150, 150);
-  }
+  font-weight: ${globalTokens.Bold.value};
 `;

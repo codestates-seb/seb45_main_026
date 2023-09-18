@@ -126,7 +126,6 @@ export default function NoticeItem({ channelInfor, notice, accessToken, getHandl
       <ButtonContainer>
         <NoticeButton isDark={isDark} onClick={() => deleteHandler()}>삭제</NoticeButton>
         <NoticeButton isDark={isDark} onClick={() => setOpenEdit(!openEdit)}>수정</NoticeButton>
-
       </ButtonContainer>
     </ItemBody>
   );

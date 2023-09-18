@@ -45,12 +45,14 @@ const Toggle = () => {
   };
 
   return (
-    <ToggleWrapper onClick={handleToggleClick}>
-      <ToggleContainer isDark={isDark}>
-        <ToggleCircle isDark={isDark} className={isDark ? "dark" : "light"} />
-      </ToggleContainer>
-    </ToggleWrapper>
-  );
+        <ToggleWrapper onClick={handleToggleClick}>
+            <ToggleContainer 
+                isDark={isDark}>
+                <ToggleCircle 
+                    isDark={isDark}/>
+            </ToggleContainer>
+        </ToggleWrapper>
+    );
 };
 
 export default Toggle;

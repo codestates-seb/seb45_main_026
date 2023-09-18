@@ -8,6 +8,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { HomeTitle } from './ChannelHome';
 import { useInView } from "react-intersection-observer";
 import { resetToInitialState,setPage,setMaxPage } from "../../redux/createSlice/FilterSlice";
+import { Heading5Typo } from "../../atoms/typographys/Typographys";
 
 const globalTokens = tokens.global;
 
@@ -30,19 +31,17 @@ const NoticeTitle = styled(HomeTitle)`
 `
 const ItemContainer = styled.div`
     width: 100%;
+    min-height: 600px;
     padding: ${globalTokens.Spacing20.value}px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: ${globalTokens.Spacing28.value}px;
 `
-const Nothing = styled.div`
+const Nothing = styled(Heading5Typo)`
     width: 100%;
-    height: 500px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: ${globalTokens.Heading4.value}px;
+    margin-top: 200px;
+    text-align: center;
 `
 const BottomDiv = styled.div`
   height: 10px;
@@ -124,7 +123,7 @@ export default function ChannelNotice({channelInfor,userId}) {
             />
           ))}
           {notices.length === 0 ? (
-            <Nothing>등록된 공지사항이 없습니다.</Nothing>
+            <Nothing isDark={isDark}>등록된 공지사항이 없습니다.</Nothing>
           ) : (
             <></>
           )}

@@ -83,6 +83,7 @@ const ChannelDescription = styled.div`
 
 export default function ChannelPage() {
   const refreshToken = useToken();
+  const myId = useSelector((state) => state.loginInfo.myid);
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const accessToken = useSelector((state) => state.loginInfo.accessToken);
   const [navigate, setNavigate] = useState(0);
@@ -107,51 +108,50 @@ export default function ChannelPage() {
       });
   }, [accessToken, userId, isSub]);
 
-  return (
-    <PageContainer isDark={isDark}>
-      <ChannelMainContainer>
-        <ProfileContainer>
-          <ImgContainer>
-            <ProfileImg
-              src={
-                channelInfor.imageUrl
-                  ? `${channelInfor.imageUrl}?${new Date().getTime()}`
-                  : profileGray
-              }
-            />
-          </ImgContainer>
-          <InforContainer>
-            <ChannelTitle isDark={isDark}>
-              {channelInfor.channelName}
-              <SubscribeBtn
-                memberId={channelInfor.memberId}
-                channelInfo={channelInfor}
-                setSub={setSub}
+    return (
+      <PageContainer isDark={isDark}>
+        <ChannelMainContainer>
+          <ProfileContainer>
+            <ImgContainer>
+              <ProfileImg
+                src={
+                  channelInfor.imageUrl
+                    ? `${channelInfor.imageUrl}?${new Date().getTime()}`
+                    : profileGray
+                }
               />
-            </ChannelTitle>
-            <ChannelSubscribers isDark={isDark}>
-              구독자 {channelInfor.subscribers}명
-            </ChannelSubscribers>
-            <ChannelDescription isDark={isDark}>
-              {channelInfor.description
-                ? channelInfor.description
-                : "아직 채널 소개가 없습니다"}
-            </ChannelDescription>
-          </InforContainer>
-        </ProfileContainer>
-        <ChannelNav navigate={navigate} setNavigate={setNavigate} />
-        {navigate === 0 ? (
-          <ChannelHome
-            channelInfor={channelInfor}
-            accessToken={accessToken}
-            userId={userId}
-          />
-        ) : navigate === 1 ? (
-          <ChannelList
-            channelInfor={channelInfor}
-            accessToken={accessToken}
-            userId={userId}
-          />
+            </ImgContainer>
+            <InforContainer>
+              <ChannelTitle isDark={isDark}>
+                {channelInfor.channelName}
+                {Number(userId)!==myId?<SubscribeBtn
+                  memberId={channelInfor.memberId}
+                  channelInfo={channelInfor}
+                  setSub={setSub}
+                />:<></>}
+              </ChannelTitle>
+              <ChannelSubscribers isDark={isDark}>
+                구독자 {channelInfor.subscribers}명
+              </ChannelSubscribers>
+              <ChannelDescription isDark={isDark}>
+                {channelInfor.description
+                  ? channelInfor.description
+                  : "아직 채널 소개가 없습니다"}
+              </ChannelDescription>
+            </InforContainer>
+          </ProfileContainer>
+          <ChannelNav navigate={navigate} setNavigate={setNavigate} />
+          {navigate === 0 ? (
+            <ChannelHome
+              channelInfor={channelInfor}
+              accessToken={accessToken}
+              userId={userId}
+            />
+          ) : navigate === 1 ? (
+            <ChannelList
+              channelInfor={channelInfor}
+              accessToken={accessToken}
+              userId={userId}/>
         ) : navigate === 2 ? (
           <ChannelNotice channelInfor={channelInfor} userId={userId} />
         ) : (
