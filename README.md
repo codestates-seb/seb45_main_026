@@ -458,7 +458,7 @@ warm up 상세 내용 확인 ☞ [warm up](https://hobeen-kim.github.io/java/JAV
 
 - 김진아
 
-- 함예준
+- [함예준](https://da9dac.tistory.com/157)
 
 </details>
 
