@@ -13,7 +13,7 @@
 
 ## 🔗 배포주소 : [PROMETHEUS](https://www.itprometheus.net) 
 - 게스트용 ID/PW : guest@gmail.com / 1q2w3e4r!
-- 마음에 드신다면 `Star` 부탁드립니다! ㅎㅎ
+- 마음에 드신다면 ⭐ 부탁드립니다! ㅎㅎ
 
 ## 🛫 소개
 > 🧐 부담없이 IT 교육 동영상을 보고 올릴 수 있는 공간이 없을까?
@@ -36,8 +36,7 @@
 - [[FE] 왜/어떻게 이 기술을 사용했나요?](#whyfe)
 - [[BE] 왜/어떻게 이 기술을 사용했나요?](#whybe)
 - [테스트/모니터링](#test)
-- [리팩토링/성능 개선](#refactoring)
-- [성과 및 회고](#retrospection)
+- [회고](#retrospection)
 
 # 👨‍👨‍👧‍👧 팀원 소개 <a name = "team"></a>
 |[김혜림](https://github.com/HyerimKimm)|[방승환](https://github.com/BangSeung)|[이종범](https://github.com/JB0129)|[김호빈](https://github.com/hobeen-kim)|[김진아](https://github.com/oksu01)|[함예준](https://github.com/da9dac)|
@@ -452,22 +451,6 @@ warm up 상세 내용 확인 ☞ [warm up](https://hobeen-kim.github.io/java/JAV
 
 <br>
 
-# ♻️ 리팩토링/성능 개선 <a name = "refactoring"></a>
-
-<details>
-   <summary> 리팩토링/성능 개선 확인 (👈 Click)</summary>
-<br />
-
-## 리팩토링1
-기술 사진, 설명 등등
-
-## 성능개선1
-기술 사진, 설명 등등
-
-</details>
-
-<br>
-
 # 📌 회고 <a name = "retrospection"></a>
 
 <details>
@@ -480,7 +463,7 @@ warm up 상세 내용 확인 ☞ [warm up](https://hobeen-kim.github.io/java/JAV
 
 - [이종범](https://dunggu.tistory.com/66)
 
-- 김호빈
+- [김호빈](https://hobeen-kim.github.io/review/Review-%EC%B2%AB-%ED%8C%80%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%EB%A5%BC-%EB%A7%88%EC%B9%98%EB%A9%B0/)
 
 - [김진아](https://www.notion.so/jiina/19b6722eb48d431f8059e22dc3eb8167)
 
