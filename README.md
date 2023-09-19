@@ -266,9 +266,10 @@ styled-component를 사용한 이번 프로젝트에서 useRef나 addEventListen
  👉🏻 <a href="https://6509249be693180105e6fcc7-tgkycquvac.chromatic.com/?path=/docs/configure-your-project--docs">storybook chromatic 배포 링크 바로가기</a>
 
 ## CSS keyframes
-기술 사진, 설명 등등
+메인페이지의 Viewport 애니메이션과 롤링 배너, 사이드바 디자인을 위해서 styled-component에 keyframes를 적용하여 애니메이션을 구현했습니다.
 
 ## react-flicking
+메인페이지 두 번째 페이지에 슬라이드 배너를 만들기 위해서 react-flicking UI 라이브러리를 적용했습니다. 
 
 </details>
 
