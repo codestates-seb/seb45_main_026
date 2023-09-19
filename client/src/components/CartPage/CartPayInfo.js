@@ -55,23 +55,28 @@ const CartPayInfo = () => {
   const handleBlurDiscount = (reward) => {
     const regExp = /[a-z|ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/g;
     if (regExp.test(reward)) {
-      setDiscount(0);
-      return setCountModal(true)
+      setCountModal(true);
+      return setDiscount(0);
     }
 
-    if (totalPrice < parseInt(reward)) {
-      setDiscount(totalPrice);
-      return setOverPointModal(true)
+    if (totalPrice / 2 < parseInt(reward)) {
+      setOverPointModal(true);
+      if (totalPrice / 2 < myCartInfo.reward) {
+        return setDiscount(totalPrice / 2);
+      } else {
+        setSpendPointModal(true);
+        return setDiscount(myCartInfo.reward);
+      }
     }
 
     if (reward > myCartInfo.reward) {
-      setDiscount(myCartInfo.reward);
-      return setSpendPointModal(true)
+      setSpendPointModal(true);
+      return setDiscount(myCartInfo.reward);
     }
   };
 
   useMemo(() => {
-    if (totalPrice - isDiscount <= 0) {
+    if ((totalPrice - isDiscount) <= 0) {
       setDiscount(0);
     }
   }, [totalPrice]);
@@ -134,7 +139,7 @@ const CartPayInfo = () => {
         isModalOpen={overPointModal}
         setIsModalOpen={setOverPointModal}
         isBackdropClickClose={true}
-        content="선택하신 상품 금액을 넘어서 포인트를 사용할 수 없습니다."
+        content="선택한 상품 금액의 최대 50%의 포인트를 사용할 수 있습니다."
         buttonTitle="확인"
         handleButtonClick={() => setOverPointModal(false)}
       />
@@ -142,7 +147,7 @@ const CartPayInfo = () => {
         isModalOpen={spendPointModal}
         setIsModalOpen={setSpendPointModal}
         isBackdropClickClose={true}
-        content={`현재 사용할 수 있는 포인트는 ${myCartInfo.reward}포인트 입니다.`}
+        content={`현재 보유 포인트는 ${myCartInfo.reward}포인트 입니다.`}
         buttonTitle="확인"
         handleButtonClick={() => setSpendPointModal(false)}
       />
