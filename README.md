@@ -146,6 +146,7 @@
 - 사용자 요구사항 정의서 바로가기 ☞ [요구사항 정의서 파일](https://1drv.ms/x/s!AjqmbzT14UKwi0P6wFF3pjN1tkgw?e=mchNti)
 - API 명세서 바로가기 ☞ [API 명세서 (restDocs)](https://api.itprometheus.net)
 - Figma 바로가기 ☞ [Figma](https://www.figma.com/file/PXVOZwRkw6LmWof1HUL2q1/%ED%94%84%EB%A1%9C%EB%A9%94%ED%85%8C%EC%9A%B0%EC%8A%A4-%EC%9B%B9%EC%82%AC%EC%9D%B4%ED%8A%B8-%ED%99%94%EB%A9%B4-%EC%84%A4%EA%B3%84%EC%84%9C?type=design&node-id=0-1&mode=design&t=FxvRqxuBDV44mvy0-0)
+- Storybook 배포 링크 바로가기 ☞ [Storybook](https://6509249be693180105e6fcc7-tgkycquvac.chromatic.com/?path=/docs/configure-your-project--docs)
 - 개발자 테스트 문서 바로가기 ☞ [개발자 테스트 파일](https://1drv.ms/x/s!AjqmbzT14UKwi0404Ht2GZMTb-oD?e=Djm5VW)
 - <details>
    <summary> ERD 보기 (👈 Click)</summary>
