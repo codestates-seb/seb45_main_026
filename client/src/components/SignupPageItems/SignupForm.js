@@ -252,14 +252,17 @@ export const SignupForm = () => {
                         isDark={isDark} 
                         isChecked={isUseAgree}
                         setIsChecked={handleUseAgreeCheckClick}/>
-                    <SignupAgreeCheckLabel isDark={isDark}>이용약관 동의</SignupAgreeCheckLabel>
+                    <a href="https://field-hellebore-58d.notion.site/c50fadcd93e04c4fb19580c0f99ca773?pvs=4">
+                        <SignupAgreeCheckLabel isDark={isDark}>이용약관 동의</SignupAgreeCheckLabel> </a>
                 </SignupAgreeCheckContainer>
                 <SignupAgreeCheckContainer>
                     <Checkbox
                         isDark={isDark} 
                         isChecked={isPrivacyAgree}
                         setIsChecked={handlePrivacyAgreeCkeckClick}/>
-                    <SignupAgreeCheckLabel isDark={isDark}>개인정보 처리방침 동의</SignupAgreeCheckLabel>
+                    <a href="https://field-hellebore-58d.notion.site/8263a881b70445d6a8defaef30648745?pvs=4">
+                        <SignupAgreeCheckLabel isDark={isDark}>개인정보 처리방침 동의</SignupAgreeCheckLabel>
+                    </a>
                 </SignupAgreeCheckContainer>
             </SignupAgreeContainer>
             <SignupButton isDark={isDark} type='submit'>가입하기</SignupButton>

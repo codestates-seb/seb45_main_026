@@ -21,6 +21,7 @@ import watch from '../../assets/images/icons/sideBar/watch.svg';
 
 import { useNavigate } from 'react-router-dom';
 import { useLogout } from '../../hooks/useLogout';
+import Toggle from '../../atoms/buttons/Toggle';
 
 const globalTokens = tokens.global;
 

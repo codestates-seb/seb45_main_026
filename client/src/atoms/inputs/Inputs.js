@@ -19,7 +19,7 @@ export const InputContainer = styled.div`
 export const InputWithButtonContainer = styled.div`
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: start;
 `
 export const RegularInput = styled.input`
     width: ${ (props)=>props.width };
@@ -59,9 +59,12 @@ export const InputPositiveTypo = styled(SmallTextTypo)`
     color: ${(props)=>props.isDark ? globalTokens.LightNavy.value : globalTokens.Positive.value};
     text-align: end;
 `
+export const InputLabelTextTypo = styled(BodyTextTypo)`
+    margin-bottom: ${globalTokens.Spacing4.value}px;
+`
 export const Input = ({
     marginTop, marginBottom, marginLeft, marginRight,
-    label, labelDirection, name, type, placeholder, width,
+    label, labelDirection, name, type, placeholder, width, minWidth, maxWidth,
     register, required, maxLength, minLength, pattern, validateFunc,
     isButton, buttonTitle, handleButtonClick, disabled
 }) => {
@@ -75,9 +78,9 @@ export const Input = ({
             marginLeft={marginLeft}
             marginRight={marginRight}>
         { label && 
-                <BodyTextTypo isDark={isDark}>
+                <InputLabelTextTypo isDark={isDark}>
                     {label}
-                </BodyTextTypo> }
+                </InputLabelTextTypo> }
             <InputWithButtonContainer>
                 <RegularInput
                     isDark={isDark}

@@ -60,7 +60,6 @@ const ReceiptDropdown = ({category, setCategory}) => {
                         <DropdownMenuButton isDropdownOpen={isDropdownOpen} isDark={isDark} onClick={handleDropdownButtonClick}>최근 6달</DropdownMenuButton>
                         <DropdownMenuButton isDropdownOpen={isDropdownOpen} isDark={isDark} onClick={handleDropdownButtonClick}>최근 1년</DropdownMenuButton>
                     </DropdownMenuWrapper>
-               
                 </DropdownContainer>
             </DropdownWrapper>
         </ReceiptDropdownContainer>
