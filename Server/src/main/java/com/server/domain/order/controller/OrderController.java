@@ -1,23 +1,25 @@
 package com.server.domain.order.controller;
 
+import com.server.domain.order.controller.dto.request.AdjustmentSort;
 import com.server.domain.order.controller.dto.request.OrderCreateApiRequest;
 import com.server.domain.order.controller.dto.response.PaymentApiResponse;
 import com.server.domain.order.controller.dto.response.VideoCancelApiResponse;
 import com.server.domain.order.service.OrderService;
+import com.server.domain.order.service.dto.response.AdjustmentResponse;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
 import com.server.domain.order.service.dto.response.CancelServiceResponse;
 import com.server.global.annotation.LoginId;
+import com.server.global.exception.businessexception.orderexception.AdjustmentDateException;
+import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 
 @RestController
@@ -88,5 +90,35 @@ public class OrderController {
         return ResponseEntity.ok(
                 ApiSingleResponse.ok(VideoCancelApiResponse.of(serviceResponse),
                         "비디오 취소 결과"));
+    }
+
+    @GetMapping("/adjustment")
+    public ResponseEntity<ApiPageResponse<AdjustmentResponse>> adjustment(
+            @RequestParam(defaultValue = "1") @Positive(message = "{validation.positive}") int page,
+            @RequestParam(defaultValue = "10") @Positive(message = "{validation.positive}") int size,
+            @RequestParam @Min(value = 1) @Max(value = 12) Integer month,
+            @RequestParam @Min(value = 2020) Integer year,
+            @RequestParam(defaultValue = "video-created-date") AdjustmentSort sort,
+            @LoginId Long loginMemberId) {
+
+        if(month != null && year == null) {
+            throw new AdjustmentDateException();
+        }
+
+        Page<AdjustmentResponse> response = orderService.adjustment(loginMemberId, page - 1, size, month, year, sort.getSort());
+
+        return ResponseEntity.ok(ApiPageResponse.ok(response, getAdjustmentMessage(month, year)));
+    }
+
+    private String getAdjustmentMessage(Integer month, Integer year) {
+        if(month == null && year == null) {
+            return "전체 정산 내역";
+        }
+
+        if(month != null && year != null) {
+            return year + "년 " + month + "월 정산 내역";
+        }
+
+        return year + "년 정산 내역";
     }
 }

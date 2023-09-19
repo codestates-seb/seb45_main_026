@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class VideoReportData {
 
-    Long videoId;
-    String videoName;
+    private Long videoId;
+    private String videoName;
     private Long reportCount;
     private LocalDateTime createdDate;
     private LocalDateTime lastReportedDate;

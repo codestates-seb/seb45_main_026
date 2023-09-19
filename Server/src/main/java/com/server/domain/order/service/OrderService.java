@@ -6,7 +6,9 @@ import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.order.repository.OrderRepository;
+import com.server.domain.order.repository.dto.AdjustmentData;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
+import com.server.domain.order.service.dto.response.AdjustmentResponse;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
 import com.server.domain.order.service.dto.response.CancelServiceResponse;
@@ -21,6 +23,9 @@ import com.server.global.exception.businessexception.videoexception.VideoClosedE
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -131,6 +136,16 @@ public class OrderService {
         Order.Refund totalRefund = videoCancelProcess(order, orderVideo);
 
         return CancelServiceResponse.of(totalRequest, totalRefund);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AdjustmentResponse> adjustment(Long loginMemberId, int page, int size, Integer month, Integer year, String sort) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<AdjustmentData> datas = orderRepository.findByPeriod(loginMemberId, pageable, month, year, sort);
+
+        return datas.map(AdjustmentResponse::of);
     }
 
     private void checkIfVideoClosed(List<Video> videos) {
