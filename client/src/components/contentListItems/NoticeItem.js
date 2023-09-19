@@ -1,17 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { styled } from "styled-components";
 import tokens from "../../styles/tokens.json";
 import { useSelector } from "react-redux";
 import { BodyTextTypo, SmallTextTypo } from "../../atoms/typographys/Typographys";
+import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
+import NoticeSubmit from "./NoticeSubmit";
+import { PositiveTextButton } from "../../atoms/buttons/Buttons";
+import axios from "axios";
+import { useToken } from "../../hooks/useToken";
+import {ConfirmModal} from "../../atoms/modal/Modal"
 
 const globalTokens = tokens.global;
 
 const ItemBody = styled.div`
     width: 100%;
-    min-height: 300px;
-    padding: ${globalTokens.Spacing28.value}px;
+    min-height: 200px;
+    padding: ${globalTokens.Spacing20.value}px;
     gap: ${globalTokens.Spacing28.value}px;
-    border: 1px ${props=>props.isDark?globalTokens.White.value:globalTokens.Gray.value} solid;
+    border: 1px ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value} solid;
     border-radius: ${globalTokens.RegularRadius.value}px;
     display: flex;
     flex-direction: column;
@@ -46,32 +52,86 @@ const TextInfor = styled.div`
     justify-content: center;
 `
 const AuthorName = styled(BodyTextTypo)`
-    font-size: ${globalTokens.Heading5.value}px;
     font-weight: ${globalTokens.Bold.value};
 `
 const CreatedAt = styled(SmallTextTypo)`
-    font-size: ${globalTokens.BodyText.value}px;
+  color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
 `
 const NoticeContent = styled(BodyTextTypo)`
-    font-size: ${globalTokens.Heading5.value}px;
+    margin-bottom: ${globalTokens.Spacing28.value}px;
+`
+const ButtonContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  height: 30px;
+`
+const NoticeButton = styled(PositiveTextButton)`
 `
 
-export default function NoticeItem() {
-  const isDark = useSelector(state=>state.uiSetting.isDark);
-  const text = "이 편지는 영국에서 최초로 시작되어 일년에 한바퀴를 돌면서 받는 사람에게 행운을 주었고 지금은 당신에게로 옮겨진 이 편지는 4일 안에 당신 곁을 떠나야 합니다. 이 편지를 포함해서 7통을 행운이 필요한 사람에게 보내 주셔야 합니다. 복사를 해도 좋습니다. 혹 미신이라 하실지 모르지만 사실입니다.영국에서 HGXWCH이라는 사람은 1930년에 이 편지를 받았습니다. 그는 비서에게 복사해서 보내라고 했습니다. 며칠 뒤에 복권이 당첨되어 20억을 받았습니다. 어떤 이는 이 편지를 받았으나 96시간 이내 자신의 손에서 떠나야 한다는 사실을 잊었습니다. 그는 곧 사직되었습니다. 나중에야 이 사실을 알고 7통의 편지를 보냈는데 다시 좋은 직장을 얻었습니다. 미국의 케네디 대통령은 이 편지를 받았지만 그냥 버렸습니다. 결국 9일 후 그는 암살당했습니다. 기억해 주세요. 이 편지를 보내면 7년의 행운이 있을 것이고 그렇지 않으면 3년의 불행이 있을 것입니다. 그리고 이 편지를 버리거나 낙서를 해서는 절대로 안됩니다. 7통입니다. 이 편지를 받은 사람은 행운이 깃들것입니다. 힘들겠지만 좋은게 좋다고 생각하세요. 7년의 행운을 빌면서..."
-  
+export default function NoticeItem({ channelInfor, notice, accessToken, getHandler, userId }) {
+  const isDark = useSelector((state) => state.uiSetting.isDark);
+  const myId = useSelector((state) => state.loginInfo.myid);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [isModalOpen,setIsModalOpen]=useState(false)
+  const refreshToken = useToken();
+  const date = new Date(notice.createdDate);
+  date.setHours(date.getHours() + 9);
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+
+  const deleteHandler = () => {
+    axios
+      .delete(
+        `https://api.itprometheus.net/announcements/${notice.announcementId}`,
+        { headers: { Authorization: accessToken.authorization } }
+      )
+      .then((res) => {
+        getHandler(userId)
+      })
+      .catch((err) => {
+        if (err.response.data.message === "만료된 토큰입니다.") {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
+  };
+
   return (
-      <ItemBody>
-        <ProfileContainer>
-          <ImgContainer>
-            <ProfileImg src="https://avatars.githubusercontent.com/u/50258232?v=4" />
-          </ImgContainer>
-          <TextInfor>
-            <AuthorName isDark={isDark}>HyerimKimm</AuthorName>
-            <CreatedAt isDark={isDark}>9월 1일 작성됨</CreatedAt>
-          </TextInfor>
-        </ProfileContainer>
-        <NoticeContent isDark={isDark}>{text}</NoticeContent>
-      </ItemBody>
-    );
+    <ItemBody isDark={isDark}>
+      <ProfileContainer>
+        <ImgContainer>
+          <ProfileImg
+            src={channelInfor.imageUrl ? channelInfor.imageUrl : frofileGray}
+          />
+        </ImgContainer>
+        <TextInfor>
+          <AuthorName isDark={isDark}>{channelInfor.channelName}</AuthorName>
+          <CreatedAt isDark={isDark}>
+            {month}월 {day}일 작성됨
+          </CreatedAt>
+        </TextInfor>
+      </ProfileContainer>
+      {openEdit ? (
+        <NoticeSubmit
+          announcementId={notice.announcementId}
+          fixValue={notice.content}
+          accessToken={accessToken}
+          getHandler={getHandler}
+          todo="patch"
+          userId={userId}
+          setOpenEdit={setOpenEdit}
+        />
+      ) : (
+        <NoticeContent isDark={isDark}>{notice.content}</NoticeContent>
+      )}
+      {myId === Number(userId)?<ButtonContainer>
+        <NoticeButton isDark={isDark} onClick={() => setIsModalOpen(true)}>삭제</NoticeButton>
+        <NoticeButton isDark={isDark} onClick={() => setOpenEdit(!openEdit)}>수정</NoticeButton>
+      </ButtonContainer>:<></>}
+      <ConfirmModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} isBackdropClickClose={false} content={"해당 공지사항을 삭제하시겠습니까?"} negativeButtonTitle="취소" positiveButtonTitle="삭제" handleNegativeButtonClick={()=>setIsModalOpen(false)} handlePositiveButtonClick={()=>deleteHandler()} />
+    </ItemBody>
+  );
 }

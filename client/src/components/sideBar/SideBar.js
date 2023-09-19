@@ -16,9 +16,12 @@ import basketWhite from '../../assets/images/icons/sideBar/basketWhite.svg';
 import write from '../../assets/images/icons/sideBar/write.svg';
 import writeWhite from '../../assets/images/icons/sideBar/writeWhite.svg';
 import tokens from '../../styles/tokens.json'
-import { setIsLogin, setLoginInfo, setMyid, setProvider, setToken } from '../../redux/createSlice/LoginInfoSlice';
+import watchWhite from '../../assets/images/icons/sideBar/watchWhite.svg';
+import watch from '../../assets/images/icons/sideBar/watch.svg';
+
 import { useNavigate } from 'react-router-dom';
 import { useLogout } from '../../hooks/useLogout';
+import Toggle from '../../atoms/buttons/Toggle';
 
 const globalTokens = tokens.global;
 
@@ -80,6 +83,9 @@ export const SideBar = () => {
     const handleMyChannelClick = () => {
         navigate(`/channels/${userId}`);
     }
+    const handleWatchClick = () => {
+        navigate(`/watched`);
+    }
     const handleLogoutClick = () => {
         logoutHook();
         navigate('/');
@@ -94,7 +100,7 @@ export const SideBar = () => {
         navigate('/carts');
     }
     const handleSubscribeClick = () => {
-
+        navigate('/channellist')
     }
     const handleWriteClick = () => {
         navigate('/upload/course');
@@ -105,6 +111,10 @@ export const SideBar = () => {
             <SideBarButtonContainer onClick={handleMyChannelClick}>
                 <SideBarButtonIcon src={profileGray}/>
                 <SideBarButtonTitle isDark={isDark}>내 채널</SideBarButtonTitle>
+            </SideBarButtonContainer>
+            <SideBarButtonContainer onClick={handleWatchClick}>
+                <SideBarButtonIcon src={isDark?watchWhite:watch}/>
+                <SideBarButtonTitle isDark={isDark}>시청 기록</SideBarButtonTitle>
             </SideBarButtonContainer>
             <SideBarButtonContainer onClick={handleHelpClick}>
                 <SideBarButtonIcon src={isDark?helpWhite:help}/>

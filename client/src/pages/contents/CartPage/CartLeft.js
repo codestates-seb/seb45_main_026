@@ -33,7 +33,7 @@ const CartLeft = () => {
       })
       .then((res) => {
         console.log(res.data);
-        dispatch(setChecked([]))
+        dispatch(setChecked([]));
       })
       .catch((err) => console.log(err));
   };
@@ -80,7 +80,9 @@ export const CartItems = styled.div`
   min-height: 750px;
   margin: 20px 0px;
   padding: 0px 10px;
-  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
   border-radius: 8px;
   position: relative;
   background-color: ${(props) =>

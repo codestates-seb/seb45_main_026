@@ -1,12 +1,14 @@
 import axios from "axios";
+import { useState } from "react";
 import { styled } from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
 import { BigButton } from "../../../atoms/buttons/Buttons";
-import { setIsLoading } from "../../../redux/createSlice/UISettingSlice";
+import Loading from "../../../atoms/loading/Loading";
+import { AlertModal } from "../../../atoms/modal/Modal";
 
 const PaymentBtn = ({ isDiscount }) => {
-  const dispatch = useDispatch();
+  const [isLoading, setLoading] = useState(false);
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const cartsItems = useSelector((state) => state.cartSlice.data);
   const token = useSelector((state) => state.loginInfo.accessToken);
@@ -16,10 +18,11 @@ const PaymentBtn = ({ isDiscount }) => {
   const orderName = orderList && orderList.videoName;
   const orderDetail =
     checkedItems.length > 1 ? ` 외 ${checkedItems.length - 1}건` : "";
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handlePostPayment = () => {
     if (!checkedItems.length) {
-      return alert("선택된 강의가 없습니다.");
+      return setIsModalOpen(true);
     }
     return axios
       .post(
@@ -37,9 +40,9 @@ const PaymentBtn = ({ isDiscount }) => {
             successUrl: "https://www.itprometheus.net/carts",
             failUrl: "https://www.itprometheus.net/carts",
           };
-          dispatch(setIsLoading(true));
+          setLoading(true);
           setTimeout(() => {
-            dispatch(setIsLoading(false));
+            setLoading(false);
             tossActive(paymentInfo);
           }, 1000);
         }
@@ -75,6 +78,15 @@ const PaymentBtn = ({ isDiscount }) => {
       >
         결제하기
       </PayBtn>
+      <Loading isLoading={isLoading} />
+      <AlertModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        isBackdropClickClose={true}
+        content="선택된 강의가 없습니다."
+        buttonTitle="확인"
+        handleButtonClick={() => setIsModalOpen(false)}
+      />
     </>
   );
 };

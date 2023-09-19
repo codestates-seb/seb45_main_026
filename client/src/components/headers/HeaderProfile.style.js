@@ -1,15 +1,26 @@
 import { styled } from 'styled-components';
 import tokens from '../../styles/tokens.json'
-
+import { TextButton } from '../../atoms/buttons/Buttons';
 const globalTokens = tokens.global;
 
+export const HeaderProfileWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+`
 export const HeaderProfileContainer = styled.button`
-    padding: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing32.value}px;
+    padding: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing32.value}px ${globalTokens.Spacing4.value}px ${globalTokens.Spacing4.value}px;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+`
+export const HeaderProfileInfo = styled(TextButton)`
+    border-right: 1px solid ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
+    margin-right: ${globalTokens.Spacing12.value}px;
+    padding: ${globalTokens.Spacing4.value}px ${globalTokens.Spacing12.value}px ${globalTokens.Spacing4.value}px ${globalTokens.Spacing12.value}px
 `
 export const HeaderProfileImgContainer = styled.div`
     margin-left: ${globalTokens.Spacing8.value}px;

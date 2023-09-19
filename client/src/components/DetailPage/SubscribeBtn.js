@@ -1,20 +1,46 @@
-import { styled } from "styled-components";
-import bell from "../../assets/images/icons/bell.svg";
-import arrowup from "../../assets/images/icons/arrow/subscribe_arrow_up.svg";
-import arrowdown from "../../assets/images/icons/arrow/subscribe_arrow_down.svg";
-import { RoundButton } from "../../atoms/buttons/Buttons";
+import axios from "axios";
 import { useSelector } from "react-redux";
+import { styled } from "styled-components";
 import tokens from "../../styles/tokens.json";
+import bell from "../../assets/images/icons/bell.svg";
+import { RoundButton } from "../../atoms/buttons/Buttons";
 
-const SubscribeBtn = () => {
+const SubscribeBtn = ({ memberId, setSub, channelInfo }) => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
+  const token = useSelector((state) => state.loginInfo.accessToken);
+
+  const handleSubscribe = () => {
+    return axios
+      .patch(
+        `https://api.itprometheus.net/channels/${memberId}/subscribe`,
+        null,
+        {
+          headers: { Authorization: token.authorization },
+        }
+      )
+      .then((res) => {
+        if (res.data.code === 200) {
+          setSub(res.data.data);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   return (
-    <Subscribed isDark={isDark}>
-      <BellImg src={bell} alt="구독버튼" />
-      구독중
-      <ArrowImg isOpened={false} alt="구독버튼 열기" />
-    </Subscribed>
+    <>
+      <Subscribed isDark={isDark} onClick={() => handleSubscribe()}>
+        {!channelInfo.isSubscribed ? (
+          <>구독하기</>
+        ) : (
+          <>
+            <BellImg src={bell} alt="구독버튼" />
+            구독중
+          </>
+        )}
+      </Subscribed>
+    </>
   );
 };
 
@@ -23,6 +49,7 @@ export default SubscribeBtn;
 const globalTokens = tokens.global;
 
 export const Subscribed = styled(RoundButton)`
+  position: relative;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
@@ -45,11 +72,4 @@ export const BellImg = styled.img.attrs({
 })`
   width: 20px;
   height: 20px;
-`;
-
-export const ArrowImg = styled.img.attrs((props) => ({
-  src: `${props.isOpened ? arrowup : arrowdown}`,
-}))`
-  width: 15px;
-  height: 15px;
 `;

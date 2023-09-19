@@ -1,11 +1,17 @@
 import { styled } from "styled-components";
 import { PageContainer } from "../../atoms/layouts/PageContainer";
 import ProblemUpload from "../../components/UploadPage/ProblemUpload";
+import { useSelector } from "react-redux";
+import tokens from '../../styles/tokens.json';
+
+const globalTokens = tokens.global;
 
 const ProblemUploadPage = () => {
+  const isDark = useSelector(state=>state.uiSetting.isDark);
+
   return (
-    <PageContainer>
-      <UploadContainer>
+    <PageContainer isDark={isDark}>
+      <UploadContainer isDark={isDark}>
         <ProblemUpload />
       </UploadContainer>
     </PageContainer>
@@ -17,9 +23,13 @@ export default ProblemUploadPage;
 export const UploadContainer = styled.section`
   width: 100%;
   max-width: 1000px;
+  margin: ${globalTokens.Spacing40.value}px 0;
   padding: 50px 0px 100px 0px;
-  background-color: white;
-  border-radius: 8px;
+  background-color: ${
+    props=>props.isDark?'rgba(255,255,255,0.15)'
+    :globalTokens.White.value
+  };
+  border-radius: ${globalTokens.RegularRadius.value}px;
   display: flex;
   flex-direction: column;
   justify-content: start;

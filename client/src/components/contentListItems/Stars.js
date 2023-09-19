@@ -1,11 +1,6 @@
-import React from "react";
 import { styled } from "styled-components";
-import tokens from "../../styles/tokens.json";
 import starWhite from "../../assets/images/icons/star/starWhite.svg";
 import starYellow from "../../assets/images/icons/star/starYellow.svg";
-
-const globalTokens = tokens.global;
-
 
 const StarsBody = styled.div`
     display: flex;
@@ -18,7 +13,7 @@ const StarImage = styled.img`
 `;
 const YellowStars = styled.div`
     height: 100%;
-    width: ${(props) => props.score * 20}%;
+    width: ${(props) => props.score * 10}%;
     display: flex;
     flex-direction: row;
     position: absolute;

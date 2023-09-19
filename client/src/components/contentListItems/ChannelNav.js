@@ -16,7 +16,7 @@ const NavyContainer = styled.div`
   border-bottom: 3px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
 `;
 //선택한 Nav Item
-const NavyItem = styled.div`
+export const NavyItem = styled.div`
   width: 85px;
   height: 45px;
   color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
@@ -30,7 +30,7 @@ const NavyItem = styled.div`
   }
 `;
 //선택하지 않은 Nav Item
-const NavyItem2 = styled.div`
+export const NavyItem2 = styled.div`
   width: 85px;
   height: 45px;
   color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
@@ -49,7 +49,7 @@ export default function ChannelNav({ navigate, setNavigate }) {
   const myid = useSelector(state=>state.loginInfo.myid);
   const { userId } = useParams();
   
-  const navs = ["홈", "동영상", "커뮤니티"];
+  const navs = ["홈", "강의", "커뮤니티"];
   if( myid === Number(userId) ) navs.push('설정');
 
   return (

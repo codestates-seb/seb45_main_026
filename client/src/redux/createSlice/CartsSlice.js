@@ -17,6 +17,7 @@ const CartsSlice = createSlice({
           subscribes: 0,
           imageUrl: "",
         },
+        videoCategories:[]
       },
     ],
     myCartInfo: {

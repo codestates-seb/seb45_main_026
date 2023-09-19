@@ -10,11 +10,17 @@ import {
 import UploadModal from "./Modal/UploadModal";
 import plus_circle from "../../assets/images/icons/plus_circle.svg";
 import { useToken } from "../../hooks/useToken";
+import tokens from "../../styles/tokens.json";
+import { RoundButton } from "../../atoms/buttons/Buttons";
+import { AlertModal } from "../../atoms/modal/Modal";
+
+const globalTokens = tokens.global;
 
 const ProblemUpload = () => {
   const { videoId } = useParams();
   const navigate = useNavigate();
   const refreshToken = useToken();
+  const isDark = useSelector((state) => state.uiSetting.isDark);
   const token = useSelector((state) => state.loginInfo.accessToken);
   const initialState = {
     content: "",
@@ -25,15 +31,17 @@ const ProblemUpload = () => {
   const [isModal, setModal] = useState(false);
   const [isProblemList, setProblemList] = useState([]);
   const [isProblem, setProblem] = useState(initialState);
+  const [selectMode, setSelectMode] = useState(true); // ture(객관식), false(주관식)
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleChangeContent = (e, num) => {
+  const handleChangeContent = (e, answer) => {
     switch (e.target.id) {
       case "ProblemTitle":
         setProblem({ ...isProblem, content: e.target.value });
         return;
 
       case "questionAnswer":
-        setProblem({ ...isProblem, questionAnswer: "answer" + num });
+        setProblem({ ...isProblem, questionAnswer: answer });
         return;
 
       case "ProblemDiscribe":
@@ -42,7 +50,7 @@ const ProblemUpload = () => {
 
       case "selections":
         const isSelection = isProblem.selections.map((el, idx) => {
-          if (idx === num - 1) {
+          if (idx === answer - 1) {
             return e.target.value;
           } else {
             return el;
@@ -61,7 +69,18 @@ const ProblemUpload = () => {
   };
 
   const handleCreateProblem = () => {
-    setProblemList([...isProblemList, isProblem]);
+    if (selectMode) {
+      setProblemList([...isProblemList, isProblem]);
+    } else {
+      setProblemList([
+        ...isProblemList,
+        {
+          content: isProblem.content,
+          questionAnswer: isProblem.questionAnswer,
+          description: isProblem.description,
+        },
+      ]);
+    }
   };
 
   const handleDeleteList = (num) => {
@@ -81,9 +100,7 @@ const ProblemUpload = () => {
       .then((res) => {
         console.log(res.data);
         if (res.data.code === 201) {
-          alert("성공적으로 강의 문제가 등록되었습니다.");
-          navigate(`/videos/${videoId}/problems`);
-          setProblemList([]);
+          setIsModalOpen(true);
         }
       })
       .catch((err) => {
@@ -95,46 +112,95 @@ const ProblemUpload = () => {
   };
 
   return (
-    <QuestionBox>
-      <UploadTitle>문제 등록하기</UploadTitle>
-      <UploadSubtitle>
-        수강 후 성취도를 검사할 문제를 등록합니다.
-      </UploadSubtitle>
-      <AddQuestionBox>
-        {isProblemList.map((el, idx) => (
-          <QuestionList key={idx}>
-            {/* <QuestionNumber>{idx + 1}번 문제</QuestionNumber> */}
-            <QuestionTitle>{el.content}</QuestionTitle>
-            <QuestionDelete onClick={() => handleDeleteList(idx + 1)}>
-              &times;
-            </QuestionDelete>
-          </QuestionList>
-        ))}
-      </AddQuestionBox>
-      <AddQuestionBox>
-        <AddQuestion onClick={() => setModal(!isModal)}>
-          <AddImg src={plus_circle} alt="문제 등록하기" />
-          문제를 등록해 주세요.
-        </AddQuestion>
-        <SubmitProblem onClick={() => handleSubmitProblem()}>
-          강의 등록 완료
-        </SubmitProblem>
-      </AddQuestionBox>
-      {isModal && (
-        <UploadModal
-          setModal={setModal}
-          isProblem={isProblem}
-          setProblem={setProblem}
-          handleChangeContent={handleChangeContent}
-          handleCreateProblem={handleCreateProblem}
-          initProblem={initProblem}
-        />
-      )}
-    </QuestionBox>
+    <>
+      <QuestionBox isDark={isDark}>
+        <UploadTitle isDark={isDark}>문제 등록하기</UploadTitle>
+        <UploadSubtitle isDark={isDark}>
+          수강 후 성취도를 검사할 문제를 등록합니다.
+        </UploadSubtitle>
+        <ProblemBox>
+          <AddQuestionBox isDark={isDark}>
+            {isProblemList.map((el, idx) => (
+              <QuestionList isDark={isDark} key={idx}>
+                {/* <QuestionNumber>{idx + 1}번 문제</QuestionNumber> */}
+                <QuestionTitle>{el.content}</QuestionTitle>
+                <QuestionDelete onClick={() => handleDeleteList(idx + 1)}>
+                  &times;
+                </QuestionDelete>
+              </QuestionList>
+            ))}
+          </AddQuestionBox>
+          <AddQuestionBox isDark={isDark}>
+            <AddQuestion
+              isDark={isDark}
+              onClick={() => {
+                setModal(!isModal);
+                document.body.style.overflow = "hidden";
+              }}
+            >
+              <AddImg src={plus_circle} alt="문제 등록하기" />
+              문제를 등록해 주세요.
+            </AddQuestion>
+            <SubmitProblem
+              isDark={isDark}
+              onClick={() => handleSubmitProblem()}
+            >
+              강의 등록 완료
+            </SubmitProblem>
+          </AddQuestionBox>
+        </ProblemBox>
+        {isModal && (
+          <UploadModal
+            isDark={isDark}
+            setModal={setModal}
+            isProblem={isProblem}
+            setProblem={setProblem}
+            handleChangeContent={handleChangeContent}
+            handleCreateProblem={handleCreateProblem}
+            initProblem={initProblem}
+            selectMode={selectMode}
+            setSelectMode={setSelectMode}
+          />
+        )}
+      </QuestionBox>
+      <AlertModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        isBackdropClickClose={true}
+        content="성공적으로 강의 문제가 등록되었습니다."
+        buttonTitle="확인"
+        handleButtonClick={() => {
+          setIsModalOpen(false);
+          navigate(`/videos/${videoId}/problems`);
+          setProblemList([]);
+        }}
+      />
+    </>
   );
 };
 
 export default ProblemUpload;
+
+export const QuestionBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  width: 100%;
+  max-width: 800px;
+  min-height: 100vh;
+  padding: 20px;
+`;
+
+export const ProblemBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  width: 100%;
+  max-width: 800px;
+  margin-top: 30px;
+`;
 
 export const QuestionList = styled.li`
   width: 100%;
@@ -160,18 +226,6 @@ export const QuestionTitle = styled.div`
   font-weight: bold;
   color: rgb(255, 100, 100);
 `;
-
-export const QuestionBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  align-items: start;
-  width: 100%;
-  max-width: 800px;
-  min-height: 100vh;
-  padding: 20px;
-`;
-
 export const AddQuestionBox = styled.ul`
   width: 100%;
   max-width: 800px;
@@ -182,20 +236,25 @@ export const AddQuestionBox = styled.ul`
 `;
 
 export const AddQuestion = styled.div`
+  margin-top: ${globalTokens.Spacing8.value}px;
   width: 100%;
   max-width: 500px;
   height: 200px;
-  border: 2px solid rgb(236, 236, 236);
-  border-radius: 8px;
-  color: rgb(200, 200, 200);
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
+  border-radius: ${globalTokens.RegularRadius.value}px;
+  color: ${(props) =>
+    props.isDark ? globalTokens.White.value : globalTokens.Black.value};
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
+  cursor: pointer;
+  transition: 300ms;
   &:hover {
-    border: 2px solid rgb(220, 220, 220);
-    background-color: rgb(236, 236, 236);
+    background-color: ${(props) =>
+      props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
   }
 `;
 
@@ -205,15 +264,9 @@ export const AddImg = styled.img`
   margin-bottom: 10px;
 `;
 
-export const SubmitProblem = styled.button`
-  width: 200px;
-  height: 40px;
+export const SubmitProblem = styled(RoundButton)`
+  width: 180px;
+  height: 45px;
   margin-top: 50px;
-  color: white;
-  font-weight: 600;
-  border-radius: 20px;
-  background-color: rgb(255, 100, 100);
-  &:hover {
-    background-color: rgb(255, 150, 150);
-  }
+  font-weight: ${globalTokens.Bold.value};
 `;

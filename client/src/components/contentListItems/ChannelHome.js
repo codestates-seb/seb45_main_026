@@ -19,7 +19,6 @@ const HomeBody = styled.div`
     align-items: center;
     background-color: ${ props=>props.isDark ? 'rgba(255,255,255,0.15)' : globalTokens.White.value };
     border-radius: 0 0 ${globalTokens.RegularRadius.value}px ${globalTokens.RegularRadius.value}px;
-
 `
 export const HomeTitle = styled(Heading5Typo)`
     margin-left: ${globalTokens.Spacing28.value}px;
@@ -35,11 +34,16 @@ const ItemContainer = styled.ul`
     flex-wrap: wrap;
     gap: ${globalTokens.Spacing12.value}px;
 `
+const LectureBlank = styled(Heading5Typo)`
+  width: 100%;
+  margin-top: 200px;
+  text-align: center;
+`;
 
 export default function ChannelHome({ channelInfor, accessToken, userId }) {
   const [lectures, setLectures] = useState({
     free: [],
-    poular: [],
+    popular: [],
   });
   const isDark = useSelector(state=>state.uiSetting.isDark);
   const refreshToken = useToken();
@@ -69,7 +73,7 @@ export default function ChannelHome({ channelInfor, accessToken, userId }) {
         }
       )
       .then((res) =>
-        setLectures((prev) => ({ ...prev, poular: res.data.data }))
+        setLectures((prev) => ({ ...prev, popular: res.data.data }))
       )
       .catch((err) => {
         if(err.response.data.message==='만료된 토큰입니다.') {
@@ -78,7 +82,7 @@ export default function ChannelHome({ channelInfor, accessToken, userId }) {
           console.log(err);
         }
       });
-  }, [tokens]);
+  }, [tokens,userId]);
 
   return (
     <HomeBody isDark={isDark}>
@@ -87,12 +91,14 @@ export default function ChannelHome({ channelInfor, accessToken, userId }) {
         {lectures.free.map((el) => (
           <VerticalItem key={el.videoId} lecture={el} channel={channelInfor} />
         ))}
+        {lectures.free.length===0?<LectureBlank isDark={isDark}>채널 내 무료강의가 없습니다.</LectureBlank>:<></>}
       </ItemContainer>
       <HomeTitle isDark={isDark}>채널 내 인기 강의</HomeTitle>
       <ItemContainer>
-        {lectures.poular.map((el) => (
+        {lectures.popular.map((el) => (
           <VerticalItem key={el.videoId} lecture={el} channel={channelInfor} />
         ))}
+        {lectures.popular.length===0?<LectureBlank isDark={isDark}>채널 내 강의가 없습니다.</LectureBlank>:<></>}
       </ItemContainer>
     </HomeBody>
   );

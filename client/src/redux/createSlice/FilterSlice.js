@@ -2,13 +2,17 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   dropdown: false,
   isHorizon: true,
-  isList : false,
+  isList: false,
+  page: 1,
+  maxPage: null,
+
   filter: {
     sortBy: { text: "최신순", value: "created-date" },
     category: { text: "카테고리", value: "" },
     isPurchased: { text: "구매여부", value: "true" },
     isFree: { text: "유료/무료", value: "" },
     isSubscribed: { text: "구독여부", value: "" },
+    watchedDate: { text: "7일간", value: "7" },
   },
 };
 const FilterSlice = createSlice({
@@ -33,11 +37,20 @@ const FilterSlice = createSlice({
     setIsSubscribed: (state, action) => {
       state.filter.isSubscribed = action.payload;
     },
+    setWatchedDate: (state, action) => {
+      state.filter.watchedDate = action.payload;
+    },
     setIsHorizon: (state, action) => {
       state.isHorizon = action.payload;
     },
     setIsList: (state, action) => {
       state.isList = action.payload;
+    },
+    setPage: (state, action) => {
+      state.page = action.payload;
+    },
+    setMaxPage: (state, action) => {
+      state.maxPage = action.payload;
     },
     resetToInitialState: (state) => {
       return initialState;
@@ -56,4 +69,7 @@ export const {
   setIsHorizon,
   setIsSubscribed,
   setIsList,
+  setPage,
+  setMaxPage,
+  setWatchedDate,
 } = FilterSlice.actions;
