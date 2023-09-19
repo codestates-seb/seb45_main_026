@@ -12,6 +12,7 @@ import plus_circle from "../../assets/images/icons/plus_circle.svg";
 import { useToken } from "../../hooks/useToken";
 import tokens from "../../styles/tokens.json";
 import { RoundButton } from "../../atoms/buttons/Buttons";
+import { AlertModal } from "../../atoms/modal/Modal";
 
 const globalTokens = tokens.global;
 
@@ -31,6 +32,7 @@ const ProblemUpload = () => {
   const [isProblemList, setProblemList] = useState([]);
   const [isProblem, setProblem] = useState(initialState);
   const [selectMode, setSelectMode] = useState(true); // ture(객관식), false(주관식)
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleChangeContent = (e, answer) => {
     switch (e.target.id) {
@@ -98,9 +100,7 @@ const ProblemUpload = () => {
       .then((res) => {
         console.log(res.data);
         if (res.data.code === 201) {
-          alert("성공적으로 강의 문제가 등록되었습니다.");
-          navigate(`/videos/${videoId}/problems`);
-          setProblemList([]);
+          setIsModalOpen(true);
         }
       })
       .catch((err) => {
@@ -112,53 +112,70 @@ const ProblemUpload = () => {
   };
 
   return (
-    <QuestionBox isDark={isDark}>
-      <UploadTitle isDark={isDark}>문제 등록하기</UploadTitle>
-      <UploadSubtitle isDark={isDark}>
-        수강 후 성취도를 검사할 문제를 등록합니다.
-      </UploadSubtitle>
-      <ProblemBox>
-        <AddQuestionBox isDark={isDark}>
-          {isProblemList.map((el, idx) => (
-            <QuestionList isDark={isDark} key={idx}>
-              {/* <QuestionNumber>{idx + 1}번 문제</QuestionNumber> */}
-              <QuestionTitle>{el.content}</QuestionTitle>
-              <QuestionDelete onClick={() => handleDeleteList(idx + 1)}>
-                &times;
-              </QuestionDelete>
-            </QuestionList>
-          ))}
-        </AddQuestionBox>
-        <AddQuestionBox isDark={isDark}>
-          <AddQuestion
+    <>
+      <QuestionBox isDark={isDark}>
+        <UploadTitle isDark={isDark}>문제 등록하기</UploadTitle>
+        <UploadSubtitle isDark={isDark}>
+          수강 후 성취도를 검사할 문제를 등록합니다.
+        </UploadSubtitle>
+        <ProblemBox>
+          <AddQuestionBox isDark={isDark}>
+            {isProblemList.map((el, idx) => (
+              <QuestionList isDark={isDark} key={idx}>
+                {/* <QuestionNumber>{idx + 1}번 문제</QuestionNumber> */}
+                <QuestionTitle>{el.content}</QuestionTitle>
+                <QuestionDelete onClick={() => handleDeleteList(idx + 1)}>
+                  &times;
+                </QuestionDelete>
+              </QuestionList>
+            ))}
+          </AddQuestionBox>
+          <AddQuestionBox isDark={isDark}>
+            <AddQuestion
+              isDark={isDark}
+              onClick={() => {
+                setModal(!isModal);
+                document.body.style.overflow = "hidden";
+              }}
+            >
+              <AddImg src={plus_circle} alt="문제 등록하기" />
+              문제를 등록해 주세요.
+            </AddQuestion>
+            <SubmitProblem
+              isDark={isDark}
+              onClick={() => handleSubmitProblem()}
+            >
+              강의 등록 완료
+            </SubmitProblem>
+          </AddQuestionBox>
+        </ProblemBox>
+        {isModal && (
+          <UploadModal
             isDark={isDark}
-            onClick={() => {
-              setModal(!isModal);
-              document.body.style.overflow = "hidden";
-            }}
-          >
-            <AddImg src={plus_circle} alt="문제 등록하기" />
-            문제를 등록해 주세요.
-          </AddQuestion>
-          <SubmitProblem isDark={isDark} onClick={() => handleSubmitProblem()}>
-            강의 등록 완료
-          </SubmitProblem>
-        </AddQuestionBox>
-      </ProblemBox>
-      {isModal && (
-        <UploadModal
-          isDark={isDark}
-          setModal={setModal}
-          isProblem={isProblem}
-          setProblem={setProblem}
-          handleChangeContent={handleChangeContent}
-          handleCreateProblem={handleCreateProblem}
-          initProblem={initProblem}
-          selectMode={selectMode}
-          setSelectMode={setSelectMode}
-        />
-      )}
-    </QuestionBox>
+            setModal={setModal}
+            isProblem={isProblem}
+            setProblem={setProblem}
+            handleChangeContent={handleChangeContent}
+            handleCreateProblem={handleCreateProblem}
+            initProblem={initProblem}
+            selectMode={selectMode}
+            setSelectMode={setSelectMode}
+          />
+        )}
+      </QuestionBox>
+      <AlertModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        isBackdropClickClose={true}
+        content="성공적으로 강의 문제가 등록되었습니다."
+        buttonTitle="확인"
+        handleButtonClick={() => {
+          setIsModalOpen(false);
+          navigate(`/videos/${videoId}/problems`);
+          setProblemList([]);
+        }}
+      />
+    </>
   );
 };
 

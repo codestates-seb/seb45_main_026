@@ -1,12 +1,12 @@
 import axios from "axios";
 import { useEffect, useMemo, useRef, useState } from "react";
+import screenfull from "screenfull";
 import ReactPlayer from "react-player";
 import styled from "styled-components";
 import { ReactComponent as Play } from "../../assets/images/icons/Play.svg";
 import { ReactComponent as Pause } from "../../assets/images/icons/Pause.svg";
 import { ReactComponent as Volume } from "../../assets/images/icons/Volume.svg";
 import { ReactComponent as FullScreen } from "../../assets/images/icons/FullScreen.svg";
-import screenfull from "screenfull";
 
 const VideoPlayer = ({
   videoId,

@@ -6,12 +6,14 @@ import { useToken } from "../../hooks/useToken";
 import tokens from "../../styles/tokens.json";
 import { ReactComponent as Cart } from "../../assets/images/icons/listItem/Cart.svg";
 import { RoundButton } from "../../atoms/buttons/Buttons";
+import { AlertModal } from "../../atoms/modal/Modal";
 
 const AddCart = ({ videoId, isInCart, content = "", border = false }) => {
   const refreshToken = useToken();
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const token = useSelector((state) => state.loginInfo.accessToken);
   const [isCart, setCart] = useState(isInCart);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handlePahctCart = () => {
     return axios
@@ -19,14 +21,13 @@ const AddCart = ({ videoId, isInCart, content = "", border = false }) => {
         headers: { Authorization: token.authorization },
       })
       .then((res) => {
-        // console.log(res.data.data);
         setCart(res.data.data);
       })
       .catch((err) => {
         if (err.response.data.message === "만료된 토큰입니다.") {
           refreshToken();
         } else if (err.response.data.code === 403) {
-          alert("로그인 시 이용 가능합니다.");
+          setIsModalOpen(true)
         } else {
           console.log(err);
         }
@@ -42,6 +43,14 @@ const AddCart = ({ videoId, isInCart, content = "", border = false }) => {
       ) : (
         <CartImage isCart={isCart} onClick={() => handlePahctCart()} />
       )}
+      <AlertModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        isBackdropClickClose={true}
+        content="로그인 시 이용 가능합니다."
+        buttonTitle="확인"
+        handleButtonClick={() => setIsModalOpen(false)}
+      />
     </>
   );
 };

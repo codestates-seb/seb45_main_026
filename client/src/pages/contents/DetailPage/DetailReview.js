@@ -14,6 +14,7 @@ import {
   Heading5Typo,
 } from "../../../atoms/typographys/Typographys";
 import { RegularButton, TextButton } from "../../../atoms/buttons/Buttons";
+import { AlertModal } from "../../../atoms/modal/Modal";
 
 const globalTokens = tokens.global;
 
@@ -36,6 +37,10 @@ const DetailReview = () => {
   const myId = useSelector((state) => state.loginInfo.myid);
   const videoDatas = useSelector((state) => state.videoInfo.data);
   const token = useSelector((state) => state.loginInfo.accessToken);
+  const [isModalOpen, setIsModalOpen] = useState({
+    isModalOpen: false,
+    content: "",
+  });
 
   const getReview = () => {
     const queryString = new URLSearchParams(isParams).toString();
@@ -55,13 +60,25 @@ const DetailReview = () => {
 
   const postReview = () => {
     if (myId === videoDatas.channel.memberId) {
-      return alert("내 강의에는 리뷰를 쓸 수 없습니다.");
+      return setIsModalOpen({
+        ...isModalOpen,
+        isModalOpen: true,
+        content: "내 강의에는 리뷰를 쓸 수 없습니다.",
+      });
     }
     if (!isReply.content) {
-      return alert("감상평을 입력해주세요.");
+      return setIsModalOpen({
+        ...isModalOpen,
+        isModalOpen: true,
+        content: "감상평을 입력해주세요.",
+      });
     }
     if (!isReply.star) {
-      return alert("별점을 선택해주세요.");
+      return setIsModalOpen({
+        ...isModalOpen,
+        isModalOpen: true,
+        content: "별점을 선택해주세요.",
+      });
     }
     return axios
       .post(`https://api.itprometheus.net/videos/${videoId}/replies`, isReply, {
@@ -69,18 +86,29 @@ const DetailReview = () => {
       })
       .then((res) => {
         if (res.status === 201) {
-          alert("성공적으로 댓글이 등록되었습니다.");
+          setIsModalOpen({
+            ...isModalOpen,
+            isModalOpen: true,
+            content: "성공적으로 댓글이 등록되었습니다.",
+          });
         }
         setReply({ content: "", star: 0 });
-        // window.location.reload();
         getReview();
       })
       .catch((err) => {
         if (err.response.status === 403) {
-          alert("구매한 강의만 리뷰를 남길 수 있습니다.");
+          return setIsModalOpen({
+            ...isModalOpen,
+            isModalOpen: true,
+            content: "구매한 강의만 리뷰를 남길 수 있습니다.",
+          });
         }
         if (err.response.status === 404) {
-          alert("수강평은 한 번만 작성할 수 있습니다.");
+          return setIsModalOpen({
+            ...isModalOpen,
+            isModalOpen: true,
+            content: "수강평은 한 번만 작성할 수 있습니다.",
+          });
         }
       });
   };
@@ -91,104 +119,123 @@ const DetailReview = () => {
 
   useEffect(() => {
     getReview();
-  }, []); // isParams.page, isParams.sort, isParams.star
+  }, []);
 
   useMemo(() => {
     getReview();
   }, [isParams.page, isParams.sort, isParams.star]);
 
   return (
-    <ReviewContainer isDark={isDark}>
-      <ReviewTitle isDark={isDark}>수강평 {isReviews.length}</ReviewTitle>
-      { videoDatas.isPurchased && 
-        <ReviewForm isDark={isDark}>
-          <ReviewLabel isDark={isDark}>리뷰</ReviewLabel>
-          <WriteTitle isDark={isDark}>별점을 선택해주세요.</WriteTitle>
-          <ReviewStar isDark={isDark} isStar={isReply} setStar={setReply} />
-          <ReviewSubmit isDark={isDark}>
-            <ReviewInput
+    <>
+      <ReviewContainer isDark={isDark}>
+        <ReviewTitle isDark={isDark}>수강평 {isReviews.length}</ReviewTitle>
+        {videoDatas.isPurchased && (
+          <ReviewForm isDark={isDark}>
+            <ReviewLabel isDark={isDark}>리뷰</ReviewLabel>
+            <WriteTitle isDark={isDark}>별점을 선택해주세요.</WriteTitle>
+            <ReviewStar isDark={isDark} isStar={isReply} setStar={setReply} />
+            <ReviewSubmit isDark={isDark}>
+              <ReviewInput
+                isDark={isDark}
+                placeholder="한 줄 감상평을 등록해주세요."
+                value={isReply.content}
+                onChange={(e) => handleChangeReply(e)}
+              />
+              <ReviewBtn
+                isDark={isDark}
+                onClick={(e) => {
+                  e.preventDefault();
+                  postReview();
+                }}
+              >
+                등록
+              </ReviewBtn>
+            </ReviewSubmit>
+          </ReviewForm>
+        )}
+        <Reviews isDark={isDark}>
+          <FilterBtns isDark={isDark}>
+            <FilterBtn
               isDark={isDark}
-              placeholder="한 줄 감상평을 등록해주세요."
-              value={isReply.content}
-              onChange={(e) => handleChangeReply(e)}
-            />
-            <ReviewBtn
-              isDark={isDark}
-              onClick={(e) => {
-                e.preventDefault();
-                postReview();
+              isActive={isActive === 1}
+              onClick={() => {
+                setActive(1);
+                setParams({ ...isParams, sort: "created-date" });
               }}
             >
-              등록
-            </ReviewBtn>
-          </ReviewSubmit>
-        </ReviewForm>
-      }
-      <Reviews isDark={isDark}>
-        <FilterBtns isDark={isDark}>
-          <FilterBtn
-            isDark={isDark}
-            isActive={isActive === 1}
-            onClick={() => {
-              setActive(1);
-              setParams({ ...isParams, sort: "created-date" });
-            }}
-          >
-            최신순
-          </FilterBtn>
-          <FilterBtn
-            isDark={isDark}
-            isActive={isActive === 2}
-            onClick={() => {
-              setActive(2);
-              setParams({ ...isParams, sort: "star" });
-            }}
-          >
-            별점순
-          </FilterBtn>
-          <FilterBtn
-            isDark={isDark}
-            isActive={isActive === 3}
-            onClick={() => {
-              setActive(3);
-            }}
-          >
-            별점별
-            {isActive === 3 && (
-              <>
-                <Star />
-                {isParams.star}
-                <FilterStar
-                  type="range"
-                  max={10}
-                  min={1}
-                  step={1}
-                  value={isParams.star}
-                  onChange={(e) => {
-                    setParams({ ...isParams, sort: "", star: e.target.value });
-                  }}
-                />
-              </>
-            )}
-          </FilterBtn>
-        </FilterBtns>
-        {!isReviews.length ? (
-          <ReviewEmpty>현재 리뷰가 없습니다.</ReviewEmpty>
-        ) : (
-          <ReviewLists isDark={isDark}>
-            {isReviews.map((el, idx) => (
-              <ReviewList key={idx} el={el} getReview={getReview} />
-            ))}
-          </ReviewLists>
-        )}
-      </Reviews>
-      <Pagination
-        isDark={isDark}
-        isPage={isPage}
-        setParams={setParams}
-        isParams={isParams}
+              최신순
+            </FilterBtn>
+            <FilterBtn
+              isDark={isDark}
+              isActive={isActive === 2}
+              onClick={() => {
+                setActive(2);
+                setParams({ ...isParams, sort: "star" });
+              }}
+            >
+              별점순
+            </FilterBtn>
+            <FilterBtn
+              isDark={isDark}
+              isActive={isActive === 3}
+              onClick={() => {
+                setActive(3);
+              }}
+            >
+              별점별
+              {isActive === 3 && (
+                <>
+                  <Star />
+                  {isParams.star}
+                  <FilterStar
+                    type="range"
+                    max={10}
+                    min={1}
+                    step={1}
+                    value={isParams.star}
+                    onChange={(e) => {
+                      setParams({
+                        ...isParams,
+                        sort: "",
+                        star: e.target.value,
+                      });
+                    }}
+                  />
+                </>
+              )}
+            </FilterBtn>
+          </FilterBtns>
+          {!isReviews.length ? (
+            <ReviewEmpty>현재 리뷰가 없습니다.</ReviewEmpty>
+          ) : (
+            <ReviewLists isDark={isDark}>
+              {isReviews.map((el, idx) => (
+                <ReviewList key={idx} el={el} getReview={getReview} />
+              ))}
+            </ReviewLists>
+          )}
+        </Reviews>
+        <Pagination
+          isDark={isDark}
+          isPage={isPage}
+          setParams={setParams}
+          isParams={isParams}
+        />
+      </ReviewContainer>
+      <AlertModal
+        isModalOpen={isModalOpen.isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        isBackdropClickClose={false}
+        content={isModalOpen.content}
+        buttonTitle="확인"
+        handleButtonClick={() =>
+          setIsModalOpen({
+            ...isModalOpen,
+            isModalOpen: false,
+          })
+        }
       />
-    </ReviewContainer>
+    </>
   );
 };
 

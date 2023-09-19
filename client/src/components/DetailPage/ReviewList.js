@@ -3,15 +3,22 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { styled } from "styled-components";
 import Stars from "../contentListItems/Stars";
-import tokens from '../../styles/tokens.json';
-import { NegativeTextButton, PositiveTextButton } from "../../atoms/buttons/Buttons";
-import { BodyTextTypo, SmallTextTypo } from "../../atoms/typographys/Typographys";
+import tokens from "../../styles/tokens.json";
+import {
+  NegativeTextButton,
+  PositiveTextButton,
+} from "../../atoms/buttons/Buttons";
+import {
+  BodyTextTypo,
+  SmallTextTypo,
+} from "../../atoms/typographys/Typographys";
 import { RegularInput } from "../../atoms/inputs/Inputs";
+import { ConfirmModal } from "../../atoms/modal/Modal";
 
 const globalTokens = tokens.global;
 
 const ReviewList = ({ el, getReview }) => {
-  const isDark = useSelector(state=>state.uiSetting.isDark);
+  const isDark = useSelector((state) => state.uiSetting.isDark);
   const myId = useSelector((state) => state.loginInfo.myid);
   const token = useSelector((state) => state.loginInfo.accessToken);
   const [isEditMode, setEditMode] = useState(false);
@@ -19,6 +26,8 @@ const ReviewList = ({ el, getReview }) => {
     content: el.content,
     star: 0,
   });
+  const [saveReview, setSaveReview] = useState(false);
+  const [delReview, setDelReview] = useState(false);
 
   const patchReview = (replyId) => {
     return axios
@@ -28,7 +37,6 @@ const ReviewList = ({ el, getReview }) => {
       .then((res) => {
         console.log(res);
         if (res.status === 204) {
-          // window.location.reload();
           getReview();
         }
       })
@@ -43,7 +51,6 @@ const ReviewList = ({ el, getReview }) => {
       .then((res) => {
         console.log(res);
         if (res.status === 204) {
-          // window.location.reload();
           getReview();
         }
       })
@@ -51,65 +58,102 @@ const ReviewList = ({ el, getReview }) => {
   };
 
   return (
-    <ReList isDark={isDark}>
-      {myId === el.member.memberId && (
-        <>
-          {isEditMode ? (
-            <ReviewPatch
+    <>
+      <ReList isDark={isDark}>
+        {myId === el.member.memberId && (
+          <>
+            {isEditMode ? (
+              <ReviewPatch
+                isDark={isDark}
+                onClick={() => {
+                  setSaveReview(true);
+                  // if (window.confirm("댓글을 저장 하시겠습니까?")) {
+                  //   setEditMode(false);
+                  //   patchReview(el.replyId);
+                  // }
+                }}
+              >
+                저장
+              </ReviewPatch>
+            ) : (
+              <ReviewPatch
+                isDark={isDark}
+                onClick={() => {
+                  setEditMode(true);
+                  setEditReply({ ...editReply, star: el.star });
+                }}
+              >
+                수정
+              </ReviewPatch>
+            )}
+            <ReviewDelete
               isDark={isDark}
               onClick={() => {
-                if (window.confirm("댓글을 저장 하시겠습니까?")) {
-                  setEditMode(false);
-                  patchReview(el.replyId);
-                }
+                setDelReview(true);
+                // if (window.confirm("댓글을 삭제 하시겠습니까?")) {
+                //   deleteReview(el.replyId);
+                // }
               }}
             >
-              저장
-            </ReviewPatch>
-          ) : (
-            <ReviewPatch
-              isDark={isDark}
-              onClick={() => {
-                setEditMode(true);
-                setEditReply({ ...editReply, star: el.star });
-              }}
-            >
-              수정
-            </ReviewPatch>
-          )}
-          <ReviewDelete
+              삭제
+            </ReviewDelete>
+          </>
+        )}
+
+        <StarBox>
+          <Stars score={el.star} />
+        </StarBox>
+        {isEditMode ? (
+          <ReviewEdit
             isDark={isDark}
-            onClick={() => {
-              if (window.confirm("댓글을 삭제 하시겠습니까?")) {
-                deleteReview(el.replyId);
-              }
-            }}
-          >
-            삭제
-          </ReviewDelete>
-        </>
-      )}
+            value={editReply.content}
+            onChange={(e) =>
+              setEditReply({ ...editReply, content: e.target.value })
+            }
+          />
+        ) : (
+          <ReviewContent isDark={isDark}>{el.content}</ReviewContent>
+        )}
 
-      <StarBox>
-        <Stars score={el.star} />
-      </StarBox>
-      {isEditMode ? (
-        <ReviewEdit
-          isDark={isDark}
-          value={editReply.content}
-          onChange={(e) =>
-            setEditReply({ ...editReply, content: e.target.value })
-          }
-        />
-      ) : (
-        <ReviewContent isDark={isDark}>{el.content}</ReviewContent>
-      )}
-
-      <ReviewInfo isDark={isDark}>
-        <ReviewName isDark={isDark}>{el.member.nickname}</ReviewName>
-        <ReviewDate isDark={isDark}>{el.createdDate.split("T")[0]}</ReviewDate>
-      </ReviewInfo>
-    </ReList>
+        <ReviewInfo isDark={isDark}>
+          <ReviewName isDark={isDark}>{el.member.nickname}</ReviewName>
+          <ReviewDate isDark={isDark}>
+            {el.createdDate.split("T")[0]}
+          </ReviewDate>
+        </ReviewInfo>
+      </ReList>
+      <ConfirmModal
+        isModalOpen={saveReview}
+        setIsModalOpen={setSaveReview}
+        isBackdropClickClose={false}
+        content="댓글을 저장 하시겠습니까?"
+        negativeButtonTitle="아니요"
+        positiveButtonTitle="네"
+        handleNegativeButtonClick={() => {
+          setSaveReview(false);
+        }}
+        handlePositiveButtonClick={() => {
+          setEditMode(false);
+          patchReview(el.replyId);
+          setSaveReview(false);
+        }}
+      />
+      <ConfirmModal
+        isModalOpen={delReview}
+        setIsModalOpen={setDelReview}
+        isBackdropClickClose={false}
+        content="댓글을 삭제 하시겠습니까?"
+        negativeButtonTitle="아니요"
+        positiveButtonTitle="네"
+        handleNegativeButtonClick={() => {
+          setDelReview(false);
+        }}
+        handlePositiveButtonClick={() => {
+          deleteReview(el.replyId);
+          setDelReview(false);
+        }}
+      />
+    </>
   );
 };
 
@@ -131,7 +175,9 @@ export const ReList = styled.li`
   flex-direction: column;
   justify-content: space-around;
   align-items: start;
-  border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
   border-radius: ${globalTokens.RegularRadius.value}px;
   padding: ${globalTokens.Spacing16.value}px ${globalTokens.Spacing20.value}px;
   margin-top: 15px;
@@ -159,7 +205,8 @@ export const ReviewEdit = styled(RegularInput)`
   margin: 5px 0px;
   padding: 5px 10px;
   border: none;
-  background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
+  background-color: ${(props) =>
+    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
   &:focus {
     outline: none;
   }
@@ -168,7 +215,7 @@ export const ReviewContent = styled(BodyTextTypo)`
   width: 100%;
   flex-wrap: wrap;
   margin: 5px 0px;
-  padding: 5px 0px
+  padding: 5px 0px;
 `;
 
 export const ReviewInfo = styled(SmallTextTypo)`
@@ -176,20 +223,17 @@ export const ReviewInfo = styled(SmallTextTypo)`
   flex-direction: row;
   justify-content: start;
   align-items: center;
-  color: ${ props=>props.isDark ?
-    globalTokens.LightGray.value
-    : globalTokens.Gray.value };
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;
 
 export const ReviewName = styled(SmallTextTypo)`
   margin-right: 10px;
-  color: ${ props=>props.isDark ?
-    globalTokens.LightGray.value
-    : globalTokens.Gray.value };
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;
 
 export const ReviewDate = styled(SmallTextTypo)`
-  color: ${ props=>props.isDark ?
-    globalTokens.LightGray.value
-    : globalTokens.Gray.value };
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;
