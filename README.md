@@ -457,7 +457,7 @@ warm up 상세 내용 확인 ☞ [warm up](https://hobeen-kim.github.io/java/JAV
 
 - 김호빈
 
-- [김진아](https://www.notion.so/jiina)
+- [김진아](https://www.notion.so/jiina/19b6722eb48d431f8059e22dc3eb8167)
 
 - [함예준](https://da9dac.tistory.com/157)
 
