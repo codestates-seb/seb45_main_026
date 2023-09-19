@@ -254,10 +254,10 @@ useLogout, useLongPress useConfirm 등의 로직을 재활용 하기 위해 사�
 
 ## react-intersection-observer
 무한 스크롤을 구현하기 위해서 사용했습니다. 
-styled-component를 사용한 이번 프로젝트에서 useRef나 addEventListener등을 따로 설정할 필요 없이 ```useInView```로 간편하게 스크롤 바닥 감지 기능을 구현할 수 있습니다. 
+styled-component를 사용한 이번 프로젝트에서 ```useRef```나 ```addEventListener```등을 따로 설정할 필요 없이 ```useInView```로 간편하게 스크롤 바닥 감지 기능을 구현할 수 있습니다. 
 
 ## Redux Toolkit with Persistent
-기술 사진, 설명 등등
+로그인 정보, 유저 정보, 다크모드 등 UI 설정 정보, 장바구니 정보, 재생 비디오 정보 등을 전역 상태로 관리하기 위해서 Redux Toolkit을 사용했습니다. Redux Toolkit을 사용하면 Redux에서 action 생성을 따로 작성해주지 않아도 된다는 장점이 있으며, persist를 사용해서 원하는 상태 정보를 로컬스토리지에 자동으로 저장되도록 설정할 수 있습니다. 
 
 ## react-player
 기술 사진, 설명 등등
