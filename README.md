@@ -463,7 +463,7 @@ warm up 상세 내용 확인 ☞ [warm up](https://hobeen-kim.github.io/java/JAV
 
 - [김혜림](https://velog.io/@hyerimkimm/메인-프로젝트-회고)
 
-- 방승환
+- [방승환](https://velog.io/@luna1328/%EB%A9%94%EC%9D%B8%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%ED%9A%8C%EA%B3%A0-lc2prhgg)
 
 - [이종범](https://dunggu.tistory.com/66)
 
