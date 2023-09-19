@@ -264,6 +264,7 @@ styled-component를 사용한 이번 프로젝트에서 ```useRef```나 ```addEv
 
 ## Storybook & Figma Token
 <img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/21f14492-9896-4c68-85c5-b6c5b49e3388" width="400px"/>
+ 
  👉🏻 <a href="https://6509249be693180105e6fcc7-tgkycquvac.chromatic.com/?path=/docs/configure-your-project--docs">storybook chromatic 배포 링크 바로가기</a>
 전체 화면 디자인의 통일성을 지키고 다크모드 등 전체 UI 설정을 변경하기 위해서 Figma Token을 적용하였으며, 
 재사용할 컴포넌트의 디자인을 확인하며 사용할 수 있도록 Storybook을 적용했습니다. 
