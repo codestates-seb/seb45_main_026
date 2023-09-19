@@ -35,7 +35,7 @@ const SecondPageSubTitleTypo = styled(MainPageSubTitleTypo)`
 
 const SecondPageCarouselContainer = styled.div`
   max-width: 1000px;
-  max-height: 60vh;
+  max-height: 65vh;
   &.second-frame-in {
     animation: ${frameInBottomToTopAnimation} 1.5s;
   }

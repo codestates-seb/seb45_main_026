@@ -9,6 +9,12 @@ import { Arrow } from "@egjs/flicking-plugins";
 import "@egjs/flicking-plugins/dist/arrow.css";
 
 const CarouselItemContainer = styled.div`
+    min-width: 400px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 `
 const CarouselImg = styled.img`
     width: 95%;
