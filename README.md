@@ -257,10 +257,10 @@ Refresh Token을 이용한 Authorization 토큰 재발급 로직 재활용
 styled-component를 사용한 이번 프로젝트에서 ```useRef```나 ```addEventListener```등을 따로 설정할 필요 없이 ```useInView```로 간편하게 스크롤 바닥 감지 기능을 구현할 수 있습니다. 
 
 ## Redux Toolkit with Persistent
-로그인 정보, 유저 정보, 다크모드 등 UI 설정 정보, 장바구니 정보, 재생 비디오 정보 등을 전역 상태로 관리하기 위해서 Redux Toolkit을 사용했습니다. Redux Toolkit을 사용하면 Redux에서 action 생성을 따로 작성해주지 않아도 된다는 장점이 있으며, ```persist```를 사용해서 원하는 상태 정보를 로컬스토리지에 자동으로 저장되도록 설정할 수 있습니다. 
+로그인 정보, 유저 정보, 다크모드 등 UI 설정 정보, 장바구니 정보, 재생 비디오 정보 등을 전역 상태로 관리하기 위해서 Redux Toolkit을 사용했습니다. Redux Toolkit을 사용하면 Redux에서 action 생성을 따로 작성해주지 않아도 된다는 장점이 있으며, ```redux-persist```의 추가 라이브러리를 통합하여 원하는 상태 정보만 로컬스토리지에 자동으로 저장되도록 설정할 수 있습니다.
 
 ## react-player
-기술 사진, 설명 등등
+기존의 video 태그에서의 기능들을 좀 더 쉽게 속성들을 접근할 수 있어서, 커스텀 컨트롤러를 만들 때 react-player에 내장된 메서드들을 사용해 기존보다 간편하고 빠르게 작업이 가능합니다.
 
 ## Storybook & Figma Token
 <img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/21f14492-9896-4c68-85c5-b6c5b49e3388" width="400px"/>
