@@ -1,18 +1,22 @@
 package com.server.domain.order.controller;
 
+import com.server.domain.order.controller.dto.request.AdjustmentSort;
 import com.server.domain.order.controller.dto.request.OrderCreateApiRequest;
 import com.server.domain.order.controller.dto.response.PaymentApiResponse;
 import com.server.domain.order.controller.dto.response.VideoCancelApiResponse;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
+import com.server.domain.order.service.dto.response.AdjustmentResponse;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
 import com.server.domain.order.service.dto.response.CancelServiceResponse;
+import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.global.testhelper.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -21,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.server.global.testhelper.RestDocsUtil.pageResponseFields;
 import static com.server.global.testhelper.RestDocsUtil.singleResponseFields;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.ArgumentMatchers.*;
@@ -240,7 +245,81 @@ class OrderControllerTest extends ControllerTest {
                 )
         ));
     }
-    
+
+    @Test
+    @DisplayName("주문 정산 API")
+    void adjustment() throws Exception {
+        //given
+        int page = 1;
+        int size = 5;
+        int month = 9;
+        int year = 2023;
+        String sort = "video-created-date";
+
+        Page<AdjustmentResponse> pageResponse = createPage(createAdjustmentResponse(size), page, size, 100);
+
+        given(orderService.adjustment(anyLong(), anyInt(), anyInt(), anyInt(), anyInt(), anyString()))
+                .willReturn(pageResponse);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponse, year + "년 " + month + "월 정산 내역"));
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                get(BASE_URL + "/adjustment")
+                        .header(AUTHORIZATION, TOKEN)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .param("month", String.valueOf(month))
+                        .param("year", String.valueOf(year))
+                        .param("sort", sort)
+        );
+
+        //then
+        actions
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse));
+
+        //restDocs
+        actions.andDo(
+                documentHandler.document(
+                    requestHeaders(
+                            headerWithName(AUTHORIZATION).description("액세스 토큰")
+                    ),
+                    requestParameters(
+                            parameterWithName("page").description("페이지 번호").optional(),
+                            parameterWithName("size").description("페이지 크기").optional(),
+                            parameterWithName("month").description("정산 월").optional(),
+                            parameterWithName("year").description("정산 년도").optional(),
+                            parameterWithName("sort").description(generateLinkCode(AdjustmentSort.class)).optional()
+                    ),
+                    pageResponseFields(
+                            fieldWithPath("data").description("정산 내역"),
+                            fieldWithPath("data[].videoId").description("비디오 ID"),
+                            fieldWithPath("data[].videoName").description("비디오 이름"),
+                            fieldWithPath("data[].totalSaleAmount").description("기간 내 총 판매 금액"),
+                            fieldWithPath("data[].refundAmount").description("기간 내 환불 금액")
+                    )
+                )
+        );
+    }
+
+    private List<AdjustmentResponse> createAdjustmentResponse(int size) {
+
+        List<AdjustmentResponse> responses = new ArrayList<>();
+
+        for(int i = 1; i <= size; i++) {
+            responses.add(AdjustmentResponse.builder()
+                    .videoId((long) i)
+                    .videoName("비디오 " + i)
+                    .totalSaleAmount(100000)
+                    .refundAmount(1000)
+                    .build());
+        }
+
+        return responses;
+    }
+
     @TestFactory
     @DisplayName("주문 요청 시 validation 테스트")
     Collection<DynamicTest> createOrderValidation() {

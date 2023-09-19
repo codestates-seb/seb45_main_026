@@ -9,8 +9,6 @@
 [[Order]]
 = 주문 생성 및 결제 API
 
-link:/index.html[APIs, onclick="window.location.href='index.html'"]
-
 == 주문 생성 요청
 === HTTP Request
 include::{snippets}/order/createorder/http-request.adoc[]
