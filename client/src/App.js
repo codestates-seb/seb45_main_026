@@ -32,6 +32,7 @@ import RewardPage from "./pages/userInfo/RewardPage";
 import ReceiptPage from "./pages/userInfo/ReceiptPage";
 import WatchedListPage from "./pages/contents/WatchedListPage";
 import ResultPage from "./pages/contents/ResultPage";
+import NotFound from "./pages/NotFound";
 
 function App() {
   const dispatch = useDispatch();
@@ -113,6 +114,7 @@ function App() {
         <Route path="/activity/receipt" element={<ReceiptPage />} />
         <Route path="/watched" element={<WatchedListPage />} />
         <Route path="/result/:keyword" element={<ResultPage />} />
+        <Route path="/*" element={<NotFound/>} />
       </Routes>
       <Footer />
     </BrowserRouter>

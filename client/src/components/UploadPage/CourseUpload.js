@@ -142,7 +142,6 @@ const CourseUpload = ({ isTags }) => {
           setPresignedUrl(res.data.data);
         })
         .catch((err) => {
-          console.log(err);
           if (err.response.data.code === 409) {
             return setIsModalOpen({
               ...isModalOpen,
