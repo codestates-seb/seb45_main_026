@@ -242,13 +242,19 @@
 <br />
 
 ## React Hook Form
-기술 사진, 설명 등등
+너무 많은 input state관리로 인한 코드의 가독성 저하와 잦은 화면 재랜더링을 해결하기 위해 사용했습니다. 
+React Hook Form 은 input 입력값을 ref 형식으로 제어하여 화면의 재랜더링을 최소화하고, 
+register, handleSubmit, formState, useWatch 등 다양한 메소드를 제공하여 
+복잡한 유효성 검사를 간단하게 구현할 수 있도록 도와줍니다. 
 
 ## Custom Hook
-기술 사진, 설명 등등
+반복 사용되는 로직을 재사용하기 위해 Custom Hook을 작성했습니다. 
+Refresh Token을 이용한 Authorization 토큰 재발급 로직 재활용
+useLogout, useLongPress useConfirm 등의 로직을 재활용 하기 위해 사용했습니다. 
 
 ## react-intersection-observer
-기술 사진, 설명 등등
+무한 스크롤을 구현하기 위해서 사용했습니다. 
+styled-component를 사용한 이번 프로젝트에서 useRef나 addEventListener등을 따로 설정할 필요 없이 ```useInView```로 간편하게 스크롤 바닥 감지 기능을 구현할 수 있습니다. 
 
 ## Redux Toolkit with Persistent
 기술 사진, 설명 등등
