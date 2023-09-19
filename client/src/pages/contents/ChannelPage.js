@@ -20,6 +20,7 @@ import {
 } from "../../atoms/typographys/Typographys";
 import { useToken } from "../../hooks/useToken";
 import SubscribeBtn from "../../components/DetailPage/SubscribeBtn";
+import Tier from "../../components/contentListItems/Tier";
 
 const globalTokens = tokens.global;
 
@@ -61,10 +62,14 @@ const InforContainer = styled.div`
   justify-content: space-between;
   gap: ${globalTokens.Spacing8.value}px;
 `;
-const ChannelTitle = styled(Heading5Typo)`
+const TitleContainer = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
+`
+const ChannelTitle = styled(Heading5Typo)`
+  display: flex;
+  gap: ${globalTokens.Spacing4.value}px;
 `;
 const ChannelSubscribers = styled(BodyTextTypo)`
   /* height: 20px;
@@ -75,11 +80,12 @@ const ChannelDescription = styled.div`
   flex-grow: 1;
   padding: ${globalTokens.Spacing8.value}px;
   background-color: ${(props) =>
-    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
+  props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
   color: ${(props) =>
-    props.isDark ? globalTokens.White.value : globalTokens.Black.value};
+  props.isDark ? globalTokens.White.value : globalTokens.Black.value};
   border-radius: ${globalTokens.RegularRadius.value}px;
 `;
+
 
 export default function ChannelPage() {
   const refreshToken = useToken();
@@ -122,14 +128,17 @@ export default function ChannelPage() {
               />
             </ImgContainer>
             <InforContainer>
-              <ChannelTitle isDark={isDark}>
-                {channelInfor.channelName}
-                {Number(userId)!==myId?<SubscribeBtn
-                  memberId={channelInfor.memberId}
-                  channelInfo={channelInfor}
-                  setSub={setSub}
-                />:<></>}
-              </ChannelTitle>
+              <TitleContainer>
+                <ChannelTitle isDark={isDark}>
+                  {channelInfor.channelName}
+                  <Tier tier={channelInfor.grade} />
+                </ChannelTitle>
+                  {Number(userId)!==myId?<SubscribeBtn
+                    memberId={channelInfor.memberId}
+                    channelInfo={channelInfor}
+                    setSub={setSub}
+                  /> : <></>}
+              </TitleContainer>
               <ChannelSubscribers isDark={isDark}>
                 구독자 {channelInfor.subscribers}명
               </ChannelSubscribers>

@@ -49,7 +49,7 @@ export default function ChannelNav({ navigate, setNavigate }) {
   const myid = useSelector(state=>state.loginInfo.myid);
   const { userId } = useParams();
   
-  const navs = ["홈", "동영상", "커뮤니티"];
+  const navs = ["홈", "강의", "커뮤니티"];
   if( myid === Number(userId) ) navs.push('설정');
 
   return (
