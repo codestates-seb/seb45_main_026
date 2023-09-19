@@ -135,11 +135,11 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                                  getDateCondition(month, year) +
                                 "GROUP BY v.id " +
                                 getAdjustmentSort(sort), Object[].class)
-                .setParameter("month", month)
-                .setParameter("year", year)
                 .setParameter("memberId", memberId)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize());
+
+        setDateCondition(month, year, jpqlQuery);
 
         List<Object[]> resultList = jpqlQuery.getResultList();
         List<AdjustmentData> videoReportDatas = resultList.stream()
@@ -159,6 +159,17 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
         return new PageImpl<>(videoReportDatas, pageable, countQuery.fetchOne());
     }
 
+    private void setDateCondition(Integer month, Integer year, TypedQuery<Object[]> jpqlQuery) {
+
+            if (year != null) {
+                jpqlQuery.setParameter("year", year);
+            }
+
+            if (month != null) {
+                jpqlQuery.setParameter("month", month);
+            }
+    }
+
     private String getDateCondition(Integer month, Integer year) {
 
         String dateCondition = "";
@@ -173,6 +184,8 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
 
         return dateCondition;
     }
+
+
 
     private String getAdjustmentSort(String sort) {
 
