@@ -1,5 +1,8 @@
 package com.server.intergration;
 
+import com.server.domain.announcement.entity.Announcement;
+import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
+import com.server.domain.channel.controller.dto.request.CreateAnnouncementApiRequest;
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.channel.service.dto.ChannelInfo;
 import com.server.domain.channel.service.dto.ChannelUpdate;
@@ -7,6 +10,7 @@ import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
 import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
 import com.server.global.reponse.ApiPageResponse;
+import com.server.global.reponse.PageInfo;
 import com.server.module.s3.service.dto.FileType;
 import org.junit.jupiter.api.*;
 import org.springframework.test.web.servlet.ResultActions;
@@ -295,6 +299,102 @@ public class ChannelIntegrationTest extends IntegrationTest {
                             assertThat(responses).isEqualTo(expectedVideos);
                         }
                 )
+        );
+    }
+
+    @TestFactory
+    @DisplayName("공지사항을 조회한다.")
+    Collection<DynamicTest> getAnnouncement() throws Exception {
+        return List.of(
+                dynamicTest("채널이 존재하지 않으면 예외가 발생한다.", () -> {
+
+                    ResultActions resultActions = mockMvc.perform(get("/channels/{member-id}", 99999999L)
+                            .header(AUTHORIZATION, "")
+                            .contentType(APPLICATION_JSON));
+
+                    resultActions
+                            .andExpect(status().isNotFound())
+                            .andExpect(jsonPath("message").value("존재하지않는 채널입니다."))
+                            .andDo(print());
+                }),
+
+                dynamicTest("공지사항을 페이징으로 조회한다.", () -> {
+                    ResultActions actions = mockMvc.perform(
+                            get("/channels/{member-id}/announcements", loginMember.getMemberId())
+                                    .header(AUTHORIZATION, "")
+                                    .param("page", ("1"))
+                                    .param("size", ("5"))
+                                    .accept(APPLICATION_JSON)
+                    );
+
+                    actions
+                            .andDo(print())
+                            .andExpect(status().isOk());
+
+                    ApiPageResponse<AnnouncementResponse> response = getApiPageResponseFromResult(actions, AnnouncementResponse.class);
+
+                    PageInfo pageInfo = response.getPageInfo();
+                    List<AnnouncementResponse> responses = response.getData();
+
+                    assertThat(pageInfo.getPage()).isEqualTo(1);
+                    assertThat(pageInfo.getSize()).isEqualTo(5);
+                })
+        );
+    }
+
+    @TestFactory
+    @DisplayName("공지사항을 생성한다.")
+    Collection<DynamicTest> createAnnouncement() throws Exception {
+        return List.of(
+                dynamicTest("채널이 존재하지 않으면 예외가 발생한다.", () -> {
+
+                    ResultActions resultActions = mockMvc.perform(get("/channels/{member-id}", 999999999L)
+                            .header(AUTHORIZATION, loginMemberAccessToken)
+                            .contentType(APPLICATION_JSON));
+
+                    resultActions
+                            .andExpect(status().isNotFound())
+                            .andExpect(jsonPath("message").value("존재하지않는 채널입니다."))
+                            .andDo(print());
+                }),
+
+                dynamicTest("신규 공지사항을 생성한다.", () -> {
+
+                    Long memberId = loginMember.getMemberId();
+                    String content = "content";
+
+                    CreateAnnouncementApiRequest request = CreateAnnouncementApiRequest.builder()
+                            .content(content)
+                            .build();
+
+                    ResultActions resultActions = mockMvc.perform(post("/channels/{member-id}/announcements", memberId)
+                            .header(AUTHORIZATION, loginMemberAccessToken)
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)));
+
+                    resultActions
+                            .andExpect(status().isCreated());
+                }),
+
+                dynamicTest("로그인한 사용자가 아니면 예외가 발생한다.", () -> {
+
+                    Long memberId = loginMember.getMemberId();
+                    String content = "content";
+
+                    CreateAnnouncementApiRequest request = CreateAnnouncementApiRequest.builder()
+                            .content(content)
+                            .build();
+
+                    ResultActions resultActions = mockMvc.perform(post("/channels/{member-id}/announcements", memberId)
+                            .header(AUTHORIZATION, "")
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)));
+
+                    resultActions
+                            .andExpect(status().isForbidden())
+                            .andExpect(jsonPath("message").value("접근 권한이 없습니다."))
+                            .andDo(print());
+                })
         );
     }
 }
