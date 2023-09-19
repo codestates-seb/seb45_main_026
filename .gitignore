@@ -1,0 +1,71 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/client/node_modules
+/client/.pnp
+/client/.pnp.js
+
+# testing
+/client/coverage
+
+# production
+/client/build
+
+# misc
+.DS_Store
+/client/.DS_Store
+/client/.env.local
+/client/.env.development.local
+/client/.env.test.local
+/client/.env.production.local
+
+/client/npm-debug.log*
+/client/yarn-debug.log*
+/client/yarn-error.log*
+
+
+#server
+Server/HELP.md
+Server/.gradle
+Server/build/
+Server/!gradle/wrapper/gradle-wrapper.jar
+Server/!**/src/main/**/build/
+Server/!**/src/test/**/build/
+
+### STS ###
+Server/.apt_generated
+Server/.classpath
+Server/.factorypath
+Server/.project
+Server/.settings
+Server/.springBeans
+Server/.sts4-cache
+Server/bin/
+Server/!**/src/main/**/bin/
+Server/!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+Server/out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+Server/nbproject/private/
+Server/nbbuild/
+Server/dist/
+Server/nbdist/
+Server/.nb-gradle/
+
+### VS Code ###
+Server/.vscode/
+
+### secret ###
+application-secret.yml
+prometheus.pem
+Server/spy.log
+Server/src/main/resources/static/
+Server/logs/

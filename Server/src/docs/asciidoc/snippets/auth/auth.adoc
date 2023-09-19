@@ -1,0 +1,108 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Member]]
+= 인증 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 로컬 로그인
+=== HTTP Request
+include::{snippets}/auth/login/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/login/request-body.adoc[]
+==== Request Field
+include::{snippets}/auth/login/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/login/http-response.adoc[]
+=== Response Header
+include::{snippets}/auth/login/response-headers.adoc[]
+==== Response Body
+include::{snippets}/auth/login/response-body.adoc[]
+
+== OAuth2 로그인
+=== HTTP Request
+include::{snippets}/auth/oauth/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/oauth/request-body.adoc[]
+==== Request Field
+include::{snippets}/auth/oauth/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/oauth/http-response.adoc[]
+=== Response Header
+include::{snippets}/auth/oauth/response-headers.adoc[]
+
+== 리프래시 토큰으로 액세스 토큰 재발급
+=== HTTP Request
+include::{snippets}/auth/refresh/http-request.adoc[]
+==== Request Header
+include::{snippets}/auth/refresh/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/auth/refresh/http-response.adoc[]
+=== Response Header
+include::{snippets}/auth/refresh/response-headers.adoc[]
+
+== 회원가입 인증 이메일 전송
+=== HTTP Request
+include::{snippets}/auth/signup/email/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/signup/email/request-body.adoc[]
+==== Request Fields
+include::{snippets}/auth/signup/email/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/signup/email/http-response.adoc[]
+
+== 패스워드 찾기 인증 이메일 전송
+=== HTTP Request
+include::{snippets}/auth/password/email/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/password/email/request-body.adoc[]
+==== Request Fields
+include::{snippets}/auth/password/email/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/password/email/http-response.adoc[]
+
+== 회원가입 이메일 인증 확인
+=== HTTP Request
+include::{snippets}/auth/signup/confirm/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/signup/confirm/request-body.adoc[]
+==== Request Fields
+include::{snippets}/auth/signup/confirm/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/signup/confirm/http-response.adoc[]
+
+== 패스워드 찾기 이메일 인증 확인
+=== HTTP Request
+include::{snippets}/auth/password/confirm/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/password/confirm/request-body.adoc[]
+==== Request Fields
+include::{snippets}/auth/password/confirm/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/password/confirm/http-response.adoc[]
+
+== 회원가입
+=== HTTP Request
+include::{snippets}/auth/signup/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/signup/request-body.adoc[]
+==== Request Fields
+include::{snippets}/auth/signup/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/signup/http-response.adoc[]
+
+== 비밀번호 초기화
+=== HTTP Request
+include::{snippets}/auth/password/http-request.adoc[]
+==== Request Body
+include::{snippets}/auth/password/request-body.adoc[]
+==== Request Fields
+include::{snippets}/auth/password/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/auth/password/http-response.adoc[]

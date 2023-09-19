@@ -1,0 +1,44 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Video]]
+= 비디오 생성 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 비디오 Upload Url 생성
+=== HTTP Request
+include::{snippets}/video/getvideocreateurl/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/getvideocreateurl/request-headers.adoc[]
+==== Request Body
+include::{snippets}/video/getvideocreateurl/request-body.adoc[]
+==== Request Fields
+include::{snippets}/video/getvideocreateurl/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/video/getvideocreateurl/http-response.adoc[]
+==== Response Fields
+include::{snippets}/video/getvideocreateurl/response-fields.adoc[]
+
+== 비디오 생성
+=== HTTP Request
+include::{snippets}/video/createvideo/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/createvideo/request-headers.adoc[]
+==== Request Body
+include::{snippets}/video/createvideo/request-body.adoc[]
+==== Request Fields
+include::{snippets}/video/createvideo/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/video/createvideo/http-response.adoc[]
+==== Response Header
+include::{snippets}/video/createvideo/response-headers.adoc[]
+
+
+
+

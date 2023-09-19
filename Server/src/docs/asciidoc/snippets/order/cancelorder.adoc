@@ -1,0 +1,30 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Order]]
+= 주문/비디오 취소 API
+
+== 주문 취소
+=== HTTP Request
+include::{snippets}/order/cancelorder/http-request.adoc[]
+==== Request Headers
+include::{snippets}/order/cancelorder/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/order/cancelorder/http-response.adoc[]
+
+== 비디오 개별 취소
+=== HTTP Request
+include::{snippets}/order/cancelvideo/http-request.adoc[]
+==== Request Headers
+include::{snippets}/order/cancelvideo/request-headers.adoc[]
+==== Request Path Parameters
+include::{snippets}/order/cancelvideo/path-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/order/cancelvideo/http-response.adoc[]
+==== Response Fields
+include::{snippets}/order/cancelvideo/response-fields.adoc[]

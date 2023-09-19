@@ -1,0 +1,60 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Member]]
+= 회원 정보 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 닉네임 변경
+=== HTTP Request
+include::{snippets}/member/updatenickname/http-request.adoc[]
+==== Request Header
+include::{snippets}/member/updatenickname/request-headers.adoc[]
+==== Request Field
+include::{snippets}/member/updatenickname/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/member/updatenickname/http-response.adoc[]
+
+== 프로필 이미지 변경
+=== HTTP Request
+include::{snippets}/member/updateimage/http-request.adoc[]
+==== Request Header
+include::{snippets}/member/updateimage/request-headers.adoc[]
+==== HTTP Request
+include::{snippets}/member/updateimage/http-request.adoc[]
+==== Request Field
+include::{snippets}/member/updateimage/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/member/updateimage/http-response.adoc[]
+
+== 프로필 이미지 삭제
+=== HTTP Request
+include::{snippets}/member/deleteimage/http-request.adoc[]
+==== Request Header
+include::{snippets}/member/deleteimage/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/member/deleteimage/http-response.adoc[]
+
+== 비밀번호 변경
+=== HTTP Request
+include::{snippets}/member/updatepassword/http-request.adoc[]
+==== Request Header
+include::{snippets}/member/updatepassword/request-headers.adoc[]
+==== Request Field
+include::{snippets}/member/updatepassword/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/member/updatepassword/http-response.adoc[]
+
+== 회원탈퇴
+=== HTTP Request
+include::{snippets}/member/deletemember/http-request.adoc[]
+==== Request Header
+include::{snippets}/member/deletemember/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/member/deletemember/http-response.adoc[]

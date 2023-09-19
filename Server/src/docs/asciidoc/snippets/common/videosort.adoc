@@ -1,0 +1,6 @@
+:doctype: book
+:icons: font
+
+[[VideoSort]]
+
+include::{snippets}/common/enums/custom-response-fields-VideoSort.adoc[]

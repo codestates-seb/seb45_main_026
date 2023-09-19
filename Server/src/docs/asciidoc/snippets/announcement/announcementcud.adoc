@@ -1,0 +1,53 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Announcement]]
+= 공지사항 생성, 수정, 삭제 API
+
+link:/index.html[APIs, onclick="window.location.href='index.html'"]
+
+== 공지사항 생성
+=== HTTP Request
+include::{snippets}/channel/createannouncement/http-request.adoc[]
+==== Request Path Parameters
+include::{snippets}/channel/createannouncement/path-parameters.adoc[]
+==== Request Headers
+include::{snippets}/channel/createannouncement/request-headers.adoc[]
+==== Request Body
+include::{snippets}/channel/createannouncement/request-body.adoc[]
+==== Request Fields
+include::{snippets}/channel/createannouncement/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/channel/createannouncement/http-response.adoc[]
+==== Response Headers
+include::{snippets}/channel/createannouncement/response-headers.adoc[]
+
+
+== 공지사항 수정
+=== HTTP Request
+include::{snippets}/announcement/updateannouncement/http-request.adoc[]
+==== Request Path Parameters
+include::{snippets}/announcement/updateannouncement/path-parameters.adoc[]
+==== Request Headers
+include::{snippets}/announcement/updateannouncement/request-headers.adoc[]
+==== Request Body
+include::{snippets}/announcement/updateannouncement/request-body.adoc[]
+==== Request Fields
+include::{snippets}/announcement/updateannouncement/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/announcement/updateannouncement/http-response.adoc[]
+
+== 공지사항 삭제
+=== HTTP Request
+include::{snippets}/announcement/deleteannouncement/http-request.adoc[]
+==== Request Path Parameters
+include::{snippets}/announcement/deleteannouncement/path-parameters.adoc[]
+==== Request Headers
+include::{snippets}/announcement/deleteannouncement/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/announcement/deleteannouncement/http-response.adoc[]

@@ -1,0 +1,66 @@
+package com.server.domain.video.service.dto.response;
+
+import com.server.domain.video.entity.Video;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import org.springframework.data.domain.Page;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+@AllArgsConstructor
+@Getter
+@Builder
+public class VideoPageResponse {
+
+    private Long videoId;
+    private String videoName;
+    private String thumbnailUrl;
+    private Integer views;
+    private Integer price;
+    private Float star;
+    private Boolean isPurchased;
+    private Boolean isInCart;
+    private String description;
+    private List<VideoCategoryResponse> categories;
+    private VideoChannelResponse channel;
+    private LocalDateTime createdDate;
+
+    public static Page<VideoPageResponse> of(
+            Page<Video> videos,
+            List<Boolean> isPurchaseInOrder,
+            List<Boolean> isSubscribeInOrder,
+            List<Map<String, String>> urlsInOrder,
+            List<Long> videoIdsInCart) {
+        return videos.map(video
+                -> of(video,
+                isPurchaseInOrder.get(videos.getContent().indexOf(video)),
+                isSubscribeInOrder.get(videos.getContent().indexOf(video)),
+                urlsInOrder.get(videos.getContent().indexOf(video)),
+                videoIdsInCart.contains(video.getVideoId())
+        ));
+    }
+
+    private static VideoPageResponse of(Video video,
+                                        boolean isPurchased,
+                                        boolean isSubscribed,
+                                        Map<String, String> urls,
+                                        boolean isInCart) {
+        return VideoPageResponse.builder()
+                .videoId(video.getVideoId())
+                .videoName(video.getVideoName())
+                .thumbnailUrl(urls.get("thumbnailUrl"))
+                .views(video.getView())
+                .price(video.getPrice())
+                .star(video.getStar())
+                .isPurchased(isPurchased)
+                .isInCart(isInCart)
+                .description(video.getDescription())
+                .categories(VideoCategoryResponse.of(video.getVideoCategories()))
+                .channel(VideoChannelResponse.of(video.getChannel(), isSubscribed, urls.get("imageUrl")))
+                .createdDate(video.getCreatedDate())
+                .build();
+    }
+}

@@ -1,0 +1,36 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Order]]
+= 주문 생성 및 결제 API
+
+== 주문 생성 요청
+=== HTTP Request
+include::{snippets}/order/createorder/http-request.adoc[]
+==== Request Headers
+include::{snippets}/order/createorder/request-headers.adoc[]
+==== Request Body
+include::{snippets}/order/createorder/request-body.adoc[]
+==== Request Fields
+include::{snippets}/order/createorder/request-fields.adoc[]
+=== HTTP Response
+include::{snippets}/order/createorder/http-response.adoc[]
+==== Response Fields
+include::{snippets}/order/createorder/response-fields.adoc[]
+
+== 주문 결제 요청
+=== HTTP Request
+include::{snippets}/order/success/http-request.adoc[]
+==== Request Headers
+include::{snippets}/order/success/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/order/success/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/order/success/http-response.adoc[]
+==== Response Fields
+include::{snippets}/order/success/response-fields.adoc[]
