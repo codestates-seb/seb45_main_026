@@ -264,7 +264,8 @@ styled-component를 사용한 이번 프로젝트에서 ```useRef```나 ```addEv
 
 ## Storybook & Figma Token
 <img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/21f14492-9896-4c68-85c5-b6c5b49e3388" width="400px"/>
- 
+<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/ba50a87b-ecb0-4d8e-b1ad-fb81afeec073" width="400px"/>
+
  👉🏻 <a href="https://6509249be693180105e6fcc7-tgkycquvac.chromatic.com/?path=/docs/configure-your-project--docs">storybook chromatic 배포 링크 바로가기</a>
 
 전체 화면 디자인의 통일성을 지키고 다크모드 등 전체 UI 설정을 변경하기 위해서 Figma Token을 적용하였으며, 
@@ -448,7 +449,7 @@ warm up 상세 내용 확인 ☞ [warm up](https://hobeen-kim.github.io/java/JAV
    <summary> 회고 확인 (👈 Click)</summary>
 <br />
 
-- 김혜림
+- [김혜림](https://velog.io/@hyerimkimm/메인-프로젝트-회고)
 
 - 방승환
 
