@@ -106,8 +106,7 @@ public class IntegrationTest {
 	@MockBean protected AwsService mockAwsService;
 
 	// 이메일 및 레디스
-	@Autowired protected RedisService redisService;
-	@Autowired protected StringRedisTemplate stringRedisTemplate;
+	@MockBean protected RedisService redisService;
 
 	protected void flushAll() {
 		memberRepository.flush();
