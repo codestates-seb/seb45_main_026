@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { styled } from 'styled-components';
 import tokens from '../../styles/tokens.json';
 import { useSelector } from 'react-redux';
-import { MainPageSubTitleTypo, MainPageTitleTypo } from './MainPageItems.style';
+import { MainPageStartButton, MainPageSubTitleTypo, MainPageTitleTypo } from './MainPageItems.style';
 import { frameInBottomToTopAnimation, frameInTopToBottomAnimation } from './frameAnimation';
+import { useNavigate } from 'react-router-dom';
 
 const globalTokens = tokens.global;
 
@@ -33,11 +34,16 @@ const MainFourthPageSubTitleTypo = styled(MainPageSubTitleTypo)`
 `
 
 export const MainFourthPageItems = () => {
+    const navigate = useNavigate();
     const isDark = useSelector(state=>state.uiSetting.isDark);
     const ref = useRef();
     const [ isInTitleViewport, setIsInTitleViewport ] = useState(false); 
     const [ isInSubTitleViewport, setIsInSubTitleViewport ] = useState(false);
+    const [ isInButtonVieport, setIsInButtonViewport ] = useState(false);
 
+    const handleStartButtonClick = () => {
+        navigate('/lecture');
+    }
     useEffect(()=>{
         if(!ref.current) return;
         const callback = (entries) => {
@@ -46,10 +52,14 @@ export const MainFourthPageItems = () => {
               setIsInTitleViewport(true);
               setTimeout(()=>{
                 setIsInSubTitleViewport(true);
+                setTimeout(()=>{
+                    setIsInButtonViewport(true);
+                },500)
               },500)
             } else {
               setIsInTitleViewport(false);
               setIsInSubTitleViewport(false);
+              setIsInButtonViewport(false);
             }
           })
         }
@@ -75,6 +85,10 @@ export const MainFourthPageItems = () => {
                 className={isInSubTitleViewport?'fourth-frame-in':'fourth-frame-out'}>
                 문제를 풀면서, 포인트도 얻어봐요!
             </MainFourthPageSubTitleTypo>
+            <MainPageStartButton
+                isDark={isDark} 
+                className={isInButtonVieport?'frame-in' : 'frame-out'}
+                onClick={handleStartButtonClick}>시작하기</MainPageStartButton>
         </MainPageFourthItemContainer>
     );
 };

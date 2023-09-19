@@ -53,6 +53,12 @@ const RewardCategory = ({category}) => {
                 onClick={()=>{ navigate('/activity/receipt') }}>
                     결제 내역
             </RewardNavItem>
+            <RewardNavItem 
+                isDark={isDark}
+                isSelect={category==='income'?true:false}
+                onClick={()=>{ navigate('/activity/income') }}>
+                    정산 내역
+            </RewardNavItem>
             <BorderBox isDark={isDark}/>
         </RewardNavContainer>
     );

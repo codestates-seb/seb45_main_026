@@ -73,7 +73,7 @@ const InforContainerRight = styled.div`
     align-items: end;
 `
 const AuthorInfor = styled.div`
-    width: 120px;
+    width: 145px;
     height: 30px;
     overflow: hidden;
     display: flex;
@@ -174,7 +174,6 @@ export default function VerticalItem({ lecture ,channel}) {
           </InforContainerLeft>
           <InforContainerRight>
             <ScoreContainer>
-              <ScoreText isDark={isDark}>{star}/10</ScoreText>
               <StarContainer>
                 <Stars score={star} />
               </StarContainer>

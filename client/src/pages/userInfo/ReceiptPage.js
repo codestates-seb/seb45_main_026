@@ -20,8 +20,8 @@ const ReceiptPage = () => {
     const accessToken = useSelector(state=>state.loginInfo.accessToken);
     const refreshToken = useToken();
     const [ receiptList, setReceiptList ] = useState([]);
-    let [ page, setPage ] = useState(1);
-    let [ maxPage, setMaxPage ] = useState(10);
+    const [ page, setPage ] = useState(1);
+    const [ maxPage, setMaxPage ] = useState(10);
     const [ month, setMonth ] = useState(1);
     const [ loading, setLoading ] = useState(true);
     const [ ref, inView ] = useInView();
@@ -57,7 +57,7 @@ const ReceiptPage = () => {
                     ]);
                     setLoading(false);
                 } else {
-                    console.log(res);
+                    console.log(res.data);
                 }
             });
         }
