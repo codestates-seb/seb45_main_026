@@ -32,6 +32,7 @@ import RewardPage from "./pages/userInfo/RewardPage";
 import ReceiptPage from "./pages/userInfo/ReceiptPage";
 import WatchedListPage from "./pages/contents/WatchedListPage";
 import ResultPage from "./pages/contents/ResultPage";
+import IncomePage from "./pages/userInfo/IncomePage";
 
 function App() {
   const dispatch = useDispatch();
@@ -111,6 +112,7 @@ function App() {
         <Route path="/channellist" element={<ChannelListPage />} />
         <Route path="/activity/reward" element={<RewardPage />} />
         <Route path="/activity/receipt" element={<ReceiptPage />} />
+        <Route path="/activity/income" element={<IncomePage />} />
         <Route path="/watched" element={<WatchedListPage />} />
         <Route path="/result/:keyword" element={<ResultPage />} />
       </Routes>

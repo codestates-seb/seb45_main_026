@@ -1,6 +1,7 @@
 import { styled } from 'styled-components';
 import tokens from '../../styles/tokens.json';
 import { BodyTextTypo } from '../../atoms/typographys/Typographys';
+import { NegativeTextButton } from '../../atoms/buttons/Buttons';
 
 const globalTokens = tokens.global;
 
@@ -29,4 +30,7 @@ export const ReceiptStatusTypo = styled(BodyTextTypo)`
     width: 150px;
     color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
     text-align: center;
+`
+export const ReceiptCancelButton = styled(NegativeTextButton)`
+    width: 100px;
 `

@@ -48,3 +48,25 @@ export const cancelOnePurchaseService = async (authorization, orderId, videoId) 
         }
     }
 }
+//결제 전체 취소
+export const cancelWholePurchaseService = async (authorization, orderId) => {
+    try {
+        const response = await axios.delete(
+            `${ROOT_URL}/orders/${orderId}`,
+            {
+                headers: {
+                    Authorization: authorization
+                }
+            }
+        );
+        return {
+            status: 'success',
+            data: response.data,
+        }
+    } catch (err) {
+        return {
+            status: 'error',
+            data: err.response.data.message,
+        }
+    }    
+}
