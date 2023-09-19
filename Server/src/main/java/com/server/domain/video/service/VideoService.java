@@ -458,8 +458,6 @@ public class VideoService {
 
         if(memberId == null) return false;
 
-        if (memberId.equals(video.getMemberId())) return true;
-
         return videoRepository.isPurchased(memberId, video.getVideoId());
     }
 
