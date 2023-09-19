@@ -38,7 +38,6 @@ const VideoPlayer = ({
     getVideoUrl();
   }, []);
 
-  // const strcitTime = true && `#t=0, 60`;
   const videoRef = useRef(null);
   const [nowPlaying, setNowPlaying] = useState(Playing); // 재생 여부
   const [showControl, setShowControl] = useState(false); // control bar 보이는지?
@@ -46,6 +45,18 @@ const VideoPlayer = ({
   const [isVolumeOpen, setVolumeOpen] = useState(false); // Prev 볼륨 온/오프
   const [isVolume, setVolume] = useState(0.5); // 볼륨 조절
   const [isMuted, setMuted] = useState(muted); // 음소거 온/오프
+  const [isTime, setIsTime] = useState(0);
+
+  // 컨트롤러 게이지 업로드
+  const infiniteLoop = () => {
+    if (!videoRef.current) {
+      return;
+    }
+    setIsTime(videoRef.current.getCurrentTime());
+    setTimeout(() => {
+      infiniteLoop();
+    }, 1000);
+  };
 
   // 영상 전체 시간
   const totalTime =
@@ -63,6 +74,7 @@ const VideoPlayer = ({
   // 영상 시간 조절
   const handleAdjust = (e) => {
     videoRef.current.seekTo(e.target.value);
+    setIsTime(e.target.value);
   };
 
   // 10초 전 이동
@@ -136,7 +148,10 @@ const VideoPlayer = ({
         // onEnded={handleVideo} // 플레이어 끝났을 때 이벤트
       />
       <VideoCover
-        onMouseOver={() => setShowControl(true)}
+        onMouseOver={() => {
+          setShowControl(true);
+          infiniteLoop();
+        }}
         onMouseOut={() => {
           setShowControl(false);
           onMouseOut();
@@ -169,7 +184,7 @@ const VideoPlayer = ({
               min={0}
               max={totalTime}
               step={0.01}
-              value={currentTime}
+              value={isTime}
               onChange={(e) => handleAdjust(e)}
               disabled={isPrevMode}
             />
@@ -257,6 +272,8 @@ export const PlayBtn = styled(Play)`
   cursor: pointer;
   path {
     fill: white;
+    stroke: black;
+    stroke-width: 5px;
   }
 `;
 
@@ -269,6 +286,8 @@ export const PauseBtn = styled(Pause)`
   cursor: pointer;
   path {
     fill: white;
+    stroke: black;
+    stroke-width: 5px;
   }
 `;
 
@@ -290,6 +309,8 @@ export const VolumeBtn = styled(Volume)`
   cursor: pointer;
   path {
     fill: white;
+    stroke: black;
+    stroke-width: 2px;
   }
 `;
 
@@ -343,5 +364,7 @@ export const FullScreenBtn = styled(FullScreen)`
   cursor: pointer;
   path {
     fill: white;
+    stroke: black;
+    stroke-width: 2px;
   }
 `;
