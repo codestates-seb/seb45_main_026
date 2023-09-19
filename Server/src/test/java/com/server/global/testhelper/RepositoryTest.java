@@ -27,6 +27,7 @@ import java.util.Random;
 @DataJpaTest
 public abstract class RepositoryTest {
 
+
     @Autowired protected EntityManager em;
 
     protected Member createAndSaveMember() {

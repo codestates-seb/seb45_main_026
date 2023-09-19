@@ -90,6 +90,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                 .join(video.watches, watch)
                 .join(watch.member, member)
                 .where(video.videoId.in(orderVideoIds),
+                        watch.member.memberId.eq(checkOrder.getMember().getMemberId()),
                         watch.modifiedDate.after(checkOrder.getCompletedDate())
                 ).fetch();
     }
@@ -101,7 +102,8 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                 .join(video.watches, watch)
                 .join(watch.member, member)
                 .where(video.videoId.eq(videoId),
-                        watch.modifiedDate.goe(checkOrder.getCompletedDate())
+                        watch.member.memberId.eq(checkOrder.getMember().getMemberId()),
+                        watch.modifiedDate.after(checkOrder.getCompletedDate())
                 ).fetchOne();
 
         return watchVideo != null;
@@ -130,7 +132,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                                 "FROM Video v " +
                                 "LEFT JOIN v.orderVideos ov " +
                                 "LEFT JOIN ov.order o " +
-                                "WHERE o.orderStatus != 'ORDERED' " +
+                                "WHERE o.paymentKey != null " +
                                 "AND v.channel.id = :memberId " +
                                  getDateCondition(month, year) +
                                 "GROUP BY v.id " +
