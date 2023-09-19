@@ -89,12 +89,11 @@ const IncomePage = () => {
                 <RewardTitle isDark={isDark}>나의 활동</RewardTitle>
                 <RewardCategory category='income'/>
                 <RewardContentContainer>
+                <IncomeCategory year={year} setYear={setYear} month={month} setMonth={setMonth}/>
                 { incomeList.length===0 &&
                     <ContentNothing isDark={isDark}>정산 내역이 없습니다.</ContentNothing> }
                 { incomeList.length>0 && 
-                    <IncomeCategory year={year} setYear={setYear} month={month} setMonth={setMonth}/>}
-                { incomeList.length>0 && 
-                    <IncomeHeader/> } 
+                    <IncomeHeader/> }
                 { incomeList.length>0 && 
                     incomeList.map((e)=><IncomeItem key={e.videoId} item={e}/>) }
                 </RewardContentContainer>

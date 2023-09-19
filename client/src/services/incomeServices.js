@@ -7,7 +7,7 @@ export const getIncomeService = async (
 ) => {
     try {
         const response = await axios.get(
-            `${ROOT_URL}/orders/adjustment?page=${page}&size=${size}&month=${month}&year=${year}&sort=${sort}`,
+            `${ROOT_URL}/orders/adjustment?page=${page}&size=${size}${month?`&month=${month}`:''}${year?`&year=${year}`:''}&sort=${sort}`,
             {
                 headers: {
                     Authorization: authorization
