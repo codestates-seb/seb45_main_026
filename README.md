@@ -256,7 +256,7 @@
 기술 사진, 설명 등등
 
 ## Storybook & Figma Token
-기술 사진, 설명 등등
+ 👉🏻 <a href="https://6509249be693180105e6fcc7-tgkycquvac.chromatic.com/?path=/docs/configure-your-project--docs">storybook chromatic 배포 링크 바로가기</a>
 
 ## CSS keyframes
 기술 사진, 설명 등등
