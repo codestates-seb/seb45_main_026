@@ -140,7 +140,7 @@ export default function ChannelList({ channelInfor, accessToken, userId }) {
         {lectures.map((el) => (
           <HorizonItem lecture={el} channel={channelInfor} />
         ))}
-        {lectures.length===0?<LectureBlank isDark={isDark}>등록된 영상이 없습니다.</LectureBlank>:<></>}
+        {lectures.length===0?<LectureBlank isDark={isDark}>등록된 강의가 없습니다.</LectureBlank>:<></>}
         {page < maxPage && !loading ? <BottomDiv ref={bottomRef} /> : <></>}
       </ListContainer>
     </ListBody>
