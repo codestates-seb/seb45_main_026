@@ -33,6 +33,7 @@ include::overview.adoc[]
 === Order API
 * link:snippets/order/createorder.html[주문 생성/요청 API, onclick="window.location.href='snippets/order/createorder.html'"]
 * link:snippets/order/cancelorder.html[주문 전체/개별 취소 API, onclick="window.location.href='snippets/order/cancelorder.html'"]
+* link:snippets/order/adjustment.html[주문 정산 API, onclick="window.location.href='snippets/order/adjustment.html'"]
 
 === Video API
 * link:snippets/video/getvideo.html[비디오 조회 API, onclick="window.location.href='snippets/video/getvideo.html'"]
@@ -40,6 +41,10 @@ include::overview.adoc[]
 * link:snippets/video/createvideo.html[비디오 생성 API, onclick="window.location.href='snippets/video/createvideo.html'"]
 * link:snippets/video/updatedeletevideo.html[비디오 수정/폐쇄/재오픈 API, onclick="window.location.href='snippets/video/updatedeletevideo.html'"]
 * link:snippets/video/cartvideo.html[비디오 장바구니 담기/취소 API, onclick="window.location.href='snippets/video/cartvideo.html'"]
+
+=== Video Report API
+* link:snippets/video/videoreport.html[비디오 신고 API, onclick="window.location.href='snippets/video/videoreport.html'"]
+* link:snippets/video/getreport.html[신고된 비디오 조회 API, onclick="window.location.href='snippets/video/getreport.html'"]
 
 === Reply API
 * link:snippets/reply/getreply.html[댓글 목록/단건 조회 API, onclick="window.location.href='snippets/reply/getreply.html'"]

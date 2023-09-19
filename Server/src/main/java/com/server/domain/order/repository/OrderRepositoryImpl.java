@@ -1,32 +1,48 @@
 package com.server.domain.order.repository;
 
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.order.entity.QOrderVideo;
+import com.server.domain.order.repository.dto.AdjustmentData;
+import com.server.domain.order.repository.dto.QAdjustmentData;
 import com.server.domain.video.entity.QVideo;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.repository.dto.response.QVideoReportData;
+import com.server.domain.video.repository.dto.response.VideoReportData;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.server.domain.cart.entity.QCart.cart;
 import static com.server.domain.member.entity.QMember.*;
 import static com.server.domain.order.entity.QOrder.*;
 import static com.server.domain.order.entity.QOrderVideo.orderVideo;
+import static com.server.domain.report.entity.QReport.report;
 import static com.server.domain.video.entity.QVideo.video;
 import static com.server.domain.watch.entity.QWatch.watch;
 
 public class OrderRepositoryImpl implements OrderRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
+    private final EntityManager em;
 
     public OrderRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
+        this.em = em;
     }
 
     @Override
@@ -74,6 +90,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                 .join(video.watches, watch)
                 .join(watch.member, member)
                 .where(video.videoId.in(orderVideoIds),
+                        watch.member.memberId.eq(checkOrder.getMember().getMemberId()),
                         watch.modifiedDate.after(checkOrder.getCompletedDate())
                 ).fetch();
     }
@@ -85,6 +102,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                 .join(video.watches, watch)
                 .join(watch.member, member)
                 .where(video.videoId.eq(videoId),
+                        watch.member.memberId.eq(checkOrder.getMember().getMemberId()),
                         watch.modifiedDate.after(checkOrder.getCompletedDate())
                 ).fetchOne();
 
@@ -101,5 +119,86 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                                 .and(video.videoId.eq(videoId))
                         ).fetchOne()
         );
+    }
+
+    @Override
+    public Page<AdjustmentData> findByPeriod(Long memberId, Pageable pageable, Integer month, Integer year, String sort) {
+
+        TypedQuery<Object[]> jpqlQuery = em.createQuery(
+                        "SELECT v.id, " +
+                                "v.videoName, " +
+                                "SUM(ov.price) AS totalSaleAmount, " +
+                                "SUM(CASE WHEN ov.orderStatus = 'CANCELED' THEN ov.price ELSE 0 END) AS refundAmount " +
+                                "FROM Video v " +
+                                "LEFT JOIN v.orderVideos ov " +
+                                "LEFT JOIN ov.order o " +
+                                "WHERE o.paymentKey != null " +
+                                "AND v.channel.id = :memberId " +
+                                 getDateCondition(month, year) +
+                                "GROUP BY v.id " +
+                                getAdjustmentSort(sort), Object[].class)
+                .setParameter("memberId", memberId)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize());
+
+        setDateCondition(month, year, jpqlQuery);
+
+        List<Object[]> resultList = jpqlQuery.getResultList();
+        List<AdjustmentData> videoReportDatas = resultList.stream()
+                .map(arr -> new AdjustmentData(
+                        (Long) arr[0],
+                        (String) arr[1],
+                        ((Number) arr[2]).intValue(),
+                        ((Number) arr[3]).intValue()
+                ))
+                .collect(Collectors.toList());
+
+
+        JPAQuery<Long> countQuery = queryFactory.select(video.count())
+                .from(video)
+                .where(video.channel.channelId.eq(memberId));
+
+        return new PageImpl<>(videoReportDatas, pageable, countQuery.fetchOne());
+    }
+
+    private void setDateCondition(Integer month, Integer year, TypedQuery<Object[]> jpqlQuery) {
+
+            if (year != null) {
+                jpqlQuery.setParameter("year", year);
+            }
+
+            if (month != null) {
+                jpqlQuery.setParameter("month", month);
+            }
+    }
+
+    private String getDateCondition(Integer month, Integer year) {
+
+        String dateCondition = "";
+
+        if (year != null) {
+            dateCondition += "AND FUNCTION('YEAR', o.completedDate) = :year ";
+        }
+
+        if (month != null) {
+            dateCondition += "AND FUNCTION('MONTH', o.completedDate) = :month ";
+        }
+
+        return dateCondition;
+    }
+
+
+
+    private String getAdjustmentSort(String sort) {
+
+        String order = "ORDER BY ";
+
+        if (sort.equals("totalSaleAmount")) {
+            order += "totalSaleAmount DESC, ";
+        } else if (sort.equals("refundAmount")) {
+            order += "refundAmount DESC, ";
+        }
+
+        return order + "v.createdDate DESC";
     }
 }

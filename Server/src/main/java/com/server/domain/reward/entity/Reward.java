@@ -45,6 +45,7 @@ public abstract class Reward extends BaseEntity {
 									  Rewardable entity) {
 
 		member.addReward(rewardPoint);
+		member.addGradePoint(rewardPoint);
 
 		if (entity instanceof Video) {
 			return new VideoReward(member, rewardPoint, (Video) entity);
@@ -60,5 +61,6 @@ public abstract class Reward extends BaseEntity {
 	public void cancelReward() {
 		this.isCanceled = true;
 		this.member.minusReward(this.rewardPoint);
+		this.member.minusGradePoint(this.rewardPoint);
 	}
 }

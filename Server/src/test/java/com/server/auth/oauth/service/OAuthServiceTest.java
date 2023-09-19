@@ -34,8 +34,7 @@ import com.server.global.exception.businessexception.memberexception.MemberNotFo
 import com.server.global.testhelper.ServiceTest;
 
 public class OAuthServiceTest extends ServiceTest {
-	@MockBean
-	private DefaultOAuth2UserService defaultOAuth2UserService;
+
 	@Autowired
 	private OAuthService oAuthService;
 

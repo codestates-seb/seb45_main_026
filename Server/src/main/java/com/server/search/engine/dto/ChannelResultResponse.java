@@ -8,10 +8,10 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ChannelResultResponse {
-	private Long channelId;
+	private Long memberId;
 	private String channelName;
 	private String description;
-	private Integer subscribers;
+	private Integer subscribes;
 	private Boolean isSubscribed;
 	private String imageUrl;
 }

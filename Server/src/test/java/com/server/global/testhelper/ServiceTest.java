@@ -1,6 +1,7 @@
 package com.server.global.testhelper;
 
 import com.server.auth.jwt.service.CustomUserDetails;
+import com.server.auth.jwt.service.JwtProvider;
 import com.server.domain.announcement.repository.AnnouncementRepository;
 import com.server.domain.answer.entity.Answer;
 import com.server.domain.answer.repository.AnswerRepository;
@@ -19,6 +20,7 @@ import com.server.domain.question.entity.Question;
 import com.server.domain.question.repository.QuestionRepository;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
+import com.server.domain.report.repository.ReportRepository;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.reward.repository.RewardRepository;
@@ -34,15 +36,18 @@ import com.server.domain.watch.repository.WatchRepository;
 import com.server.module.email.service.MailService;
 import com.server.module.redis.service.RedisService;
 import com.server.module.s3.service.AwsService;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
@@ -72,13 +77,16 @@ public abstract class ServiceTest {
     @Autowired protected AnnouncementRepository announcementRepository;
     @Autowired protected CartRepository cartRepository;
     @Autowired protected RewardRepository rewardRepository;
+    @Autowired protected ReportRepository reportRepository;
     @Autowired protected EntityManager em;
-    @Autowired private RewardService rewardService;
 
     @MockBean protected RedisService redisService;
     @MockBean protected RestTemplate restTemplate;
     @MockBean protected MailService mailService;
     @MockBean protected AwsService awsService;
+    @MockBean protected DefaultOAuth2UserService defaultOAuth2UserService;
+    @Mock protected JwtProvider jwtProvider;
+    @Mock protected AuthenticationManager authenticationManager;
 
     protected Member createAndSaveMember() {
         Member member = Member.builder()

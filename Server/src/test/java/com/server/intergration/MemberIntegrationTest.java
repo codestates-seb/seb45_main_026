@@ -14,14 +14,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.*;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,10 +50,11 @@ import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.PageInfo;
 import com.server.module.s3.service.dto.ImageType;
 
-@Transactional
-public class MemberIntergrationTest extends IntegrationTest {
+import javax.persistence.EntityManager;
 
-	private boolean isSetting = false;
+@Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class MemberIntegrationTest extends IntegrationTest {
 
 	// 로그인한 사용자 정보
 	Member loginMember;
@@ -102,12 +98,8 @@ public class MemberIntergrationTest extends IntegrationTest {
 	String otherMemberEmail4 = "other4@email.com";
 	String otherMemberPassword = "other1234!";
 
-	@BeforeEach
+	@BeforeAll
 	void before() {
-
-		if (isSetting) {
-			return;
-		}
 
 		loginMember = createAndSaveMemberWithEmailPassword(loginMemberEmail, loginMemberPassword);
 		loginMemberChannel = createChannelWithRandomName(loginMember);
@@ -204,10 +196,20 @@ public class MemberIntergrationTest extends IntegrationTest {
 			loginMemberRewards.add(createAndSaveReward(loginMember, loginMemberReply));
 		}
 
-		em.flush();
-		em.clear();
+		memberRepository.saveAll(List.of(
+			loginMember,
+			otherMember1,
+			otherMember2,
+			otherMember3,
+			otherMember4
+		));
 
-		isSetting = true;
+		channelRepository.saveAll(List.of(
+			otherMemberChannel1,
+			otherMemberChannel2,
+			otherMemberChannel3,
+			otherMemberChannel4
+		));
 	}
 
 	@Test
@@ -318,17 +320,18 @@ public class MemberIntergrationTest extends IntegrationTest {
 		List<SubscribesResponse> responses = subscribesResponse.getData();
 
 		SubscribesResponse firstContent = responses.get(0);
-		Subscribe firstSubscribe = subscribes.get(totalSize - 1);
 
 		assertThat(pageInfo.getTotalPage()).isEqualTo((int) Math.ceil(totalSize / 16.0));
 		assertThat(pageInfo.getPage()).isEqualTo(1);
 		assertThat(pageInfo.getSize()).isEqualTo(16);
 		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
 
-		assertThat(firstContent.getMemberId()).isEqualTo(firstSubscribe.getChannel().getMember().getMemberId());
-		assertThat(firstContent.getChannelName()).isEqualTo(firstSubscribe.getChannel().getChannelName());
-		assertThat(firstContent.getImageUrl()).isEqualTo(getProfileUrl(firstSubscribe.getChannel().getMember()));
-		assertThat(firstContent.getSubscribes()).isEqualTo(firstSubscribe.getChannel().getSubscribers());
+		Channel findChannel = channelRepository.findById(firstContent.getMemberId()).orElseThrow();
+
+		assertThat(firstContent.getMemberId()).isEqualTo(findChannel.getMember().getMemberId());
+		assertThat(firstContent.getChannelName()).isEqualTo(findChannel.getChannelName());
+		assertThat(firstContent.getImageUrl()).isEqualTo(getProfileUrl(findChannel.getMember()));
+		assertThat(firstContent.getSubscribes()).isEqualTo(findChannel.getSubscribers());
 	}
 
 	@Test
@@ -390,7 +393,8 @@ public class MemberIntergrationTest extends IntegrationTest {
 	@DisplayName("자신의 결제 내역을 조회한다.")
 	void getOrders() throws Exception {
 		// given
-		List<Order> orders = memberRepository.findById(loginMember.getMemberId()).orElseThrow().getOrders();
+		Member member = memberRepository.findById(loginMember.getMemberId()).orElseThrow();
+		List<Order> orders = member.getOrders();
 
 		int totalSize = orders.size();
 
@@ -424,7 +428,7 @@ public class MemberIntergrationTest extends IntegrationTest {
 		assertThat(pageInfo.getTotalSize()).isEqualTo(totalSize);
 
 		OrdersResponse firstContent = responses.get(0);
-		Order firstOrder = orders.get(totalSize - 1);
+		Order firstOrder = orderRepository.findById(firstContent.getOrderId()).orElseThrow();
 
 		assertThat(firstContent.getOrderId()).isEqualTo(firstOrder.getOrderId());
 		assertThat(firstContent.getAmount())
@@ -442,6 +446,7 @@ public class MemberIntergrationTest extends IntegrationTest {
 						.thumbnailFile(getThumbnailUrl(orderVideo.getVideo()))
 						.channelName(orderVideo.getVideo().getChannel().getChannelName())
 						.price(orderVideo.getVideo().getPrice())
+						.orderStatus(orderVideo.getOrderStatus())
 						.build()
 				).collect(Collectors.toList()))
 			);
@@ -1228,6 +1233,8 @@ public class MemberIntergrationTest extends IntegrationTest {
 		List<Integer> beforeSubscribers = member.getSubscribes().stream().map(subscribe -> subscribe.getChannel().getSubscribers()).collect(Collectors.toList());
 
 		List<Long> replyVideoId = member.getReplies().stream().map(reply -> reply.getVideo().getVideoId()).collect(Collectors.toList());
+
+		member.getReplies().stream().forEach(reply -> reply.getVideo().calculateStar());
 		List<Float> beforeStars = member.getReplies().stream().map(reply -> reply.getVideo().getStar()).collect(Collectors.toList());
 
 		em.flush();
@@ -1238,6 +1245,9 @@ public class MemberIntergrationTest extends IntegrationTest {
 			delete("/members")
 				.header(AUTHORIZATION, loginMemberAccessToken)
 		);
+
+		em.flush();
+		em.clear();
 
 		// then
 		actions
@@ -1278,7 +1288,6 @@ public class MemberIntergrationTest extends IntegrationTest {
 		}
 
 		// 강의평을 작성했던 강의들의 평점이 업데이트 되었는가
-		// 회원이 구독하던 채널의 구독자 수가 변경되었는가
 		for (int i = 0; i < replyVideoId.size(); i++) {
 			assertThat(videoRepository.findById(replyVideoId.get(i)).orElseThrow().getStar())
 				.isNotEqualTo(beforeStars.get(i));

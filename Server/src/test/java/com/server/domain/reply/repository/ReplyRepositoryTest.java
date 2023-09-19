@@ -50,7 +50,7 @@ class ReplyRepositoryTest extends RepositoryTest {
     }
 
     @Test
-    @DisplayName("댓글들을 별점순으로 필터링하여 반환한다")
+    @DisplayName("댓글들을 별점순으로 필터링하여 반환한다.")
     void findAllByVideoIdAndStarOrStarIsNull() {
         // Given
         Member member = createAndSaveMember();
@@ -96,7 +96,7 @@ class ReplyRepositoryTest extends RepositoryTest {
     }
 
     @Test
-    @DisplayName("memberId 와 videoId 로 댓글들을 찾는다")
+    @DisplayName("memberId 와 videoId 로 댓글들을 찾는다.")
     void findAllByMemberIdAndVideoId(){
         //given
         Member member = createAndSaveMember();
@@ -115,5 +115,25 @@ class ReplyRepositoryTest extends RepositoryTest {
         //then
         assertThat(findAllByMemberIdAndVideoId.size()).isEqualTo(3);
         assertThat(findAllByMemberIdAndVideoId.get(2).getReplyId()).isEqualTo(reply2.getReplyId());
+    }
+
+    @Test
+    @DisplayName("replyId로 video를 찾는다.")
+    void findByIdWithVideo(){
+        //given
+        Member member = createAndSaveMember();
+        Channel channel = createAndSaveChannel(member);
+        Video video = createAndSaveVideo(channel);
+        Reply reply = createAndSaveReplies(member, video);
+
+        em.flush();
+        em.clear();
+
+        //when
+        Reply findReply = replyRepository.findByIdWithVideo(reply.getReplyId()).orElseThrow();
+
+        //then
+        assertThat(findReply.getReplyId()).isEqualTo(reply.getReplyId());
+        assertThat(findReply.getVideo().getVideoId()).isEqualTo(video.getVideoId());
     }
 }

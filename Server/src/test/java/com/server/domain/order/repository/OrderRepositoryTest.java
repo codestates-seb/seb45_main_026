@@ -6,6 +6,7 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderVideo;
+import com.server.domain.order.repository.dto.AdjustmentData;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.testhelper.RepositoryTest;
@@ -13,7 +14,11 @@ import org.hibernate.Hibernate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
@@ -179,7 +184,7 @@ class OrderRepositoryTest extends RepositoryTest {
         em.clear();
 
         //when
-        Boolean isWatch = orderRepository.checkIfWatchAfterPurchase(order, video1.getVideoId());
+        Boolean isWatch = orderRepository.checkIfWatchAfterPurchase(order, video2.getVideoId());
 
         //then
         assertThat(isWatch).isTrue();
@@ -244,6 +249,45 @@ class OrderRepositoryTest extends RepositoryTest {
 
         assertThat(orderVideo.getOrder().getOrderId()).isEqualTo(order.getOrderId());
         assertThat(orderVideo.getVideo().getVideoId()).isEqualTo(video1.getVideoId());
+    }
+
+    @Test
+    @DisplayName("기간 내 정산 결과를 얻는다.")
+    void findByPeriod() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
+
+        Member member1 = createMemberWithChannel();
+        Member member2 = createMemberWithChannel();
+
+        Order order1 = createAndSaveOrderComplete(member1, List.of(video1, video2));
+        Order order2 = createAndSaveOrderComplete(member2, List.of(video1, video2));
+
+        order1.cancelVideoOrder(order1.getOrderVideos().get(0));
+
+        LocalDateTime now = LocalDateTime.now();
+        int month = now.getMonthValue();
+        int year = now.getYear();
+        Pageable pageable = PageRequest.of(0, 10);
+
+        int totalSaleAmount = video1.getPrice() + video2.getPrice();
+        String sort = "sellingPrice";
+
+        //when
+        Page<AdjustmentData> adjustment = orderRepository.findByPeriod(owner.getMemberId(), pageable, month, year, sort);
+
+        //then
+        assertThat(adjustment.getContent()).hasSize(2)
+                .extracting("videoName")
+                .containsExactly(video1.getVideoName(), video2.getVideoName());
+
+        assertThat(adjustment.getContent()).extracting("totalSaleAmount")
+                .containsExactly(totalSaleAmount, totalSaleAmount);
+
+        assertThat(adjustment.getContent()).extracting("refundAmount")
+                .containsExactlyInAnyOrder(0, video1.getPrice());
     }
 
     private Cart createAndSaveCart(Member member, Video video) {

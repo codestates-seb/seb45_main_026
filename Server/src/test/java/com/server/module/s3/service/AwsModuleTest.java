@@ -25,7 +25,7 @@
  import static org.assertj.core.api.Assertions.assertThat;
  import static org.junit.jupiter.api.DynamicTest.*;
 
- class AwsServiceTest extends ModuleServiceTest {
+ class AwsModuleTest extends ModuleServiceTest {
 
      @Autowired AwsService awsService;
      RestTemplate restTemplate = new RestTemplate();
@@ -44,7 +44,6 @@
          String imageUrl = awsService.getFileUrl(fileName, FileType.PROFILE_IMAGE);
 
          //then
-         System.out.println("imageUrl = " + imageUrl);
          ResponseEntity<byte[]> response = getResponseEntity(imageUrl);
          assertThat(response.getStatusCodeValue()).isEqualTo(200);
      }
@@ -105,7 +104,6 @@
          String thumbnailUrl = awsService.getFileUrl(fileName, FileType.THUMBNAIL);
 
          //then
-         System.out.println("thumbnailUrl = " + thumbnailUrl);
          ResponseEntity<byte[]> response = getResponseEntity(thumbnailUrl);
          assertThat(response.getStatusCodeValue()).isEqualTo(200);
      }
@@ -162,7 +160,6 @@
          String videoUrl = awsService.getFileUrl(fileName, FileType.VIDEO);
 
          //then
-         System.out.println("videoUrl = " + videoUrl);
          ResponseEntity<byte[]> response = getResponseEntity(videoUrl);
          assertThat(response.getStatusCodeValue()).isEqualTo(200);
      }

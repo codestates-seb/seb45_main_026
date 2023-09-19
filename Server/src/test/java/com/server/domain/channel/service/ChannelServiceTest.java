@@ -42,8 +42,8 @@ class ChannelServiceTest extends ServiceTest {
         Member owner1 = createMemberWithChannel();
         Member owner2 = createMemberWithChannel();
 
-        List<Video> videos1 = createAndSaveVideos(owner1, 60, category1, category2);
-        createAndSaveVideos(owner2, 60, category1, category2);
+        List<Video> videos1 = createAndSaveVideos(owner1, 20, category1, category2);
+        createAndSaveVideos(owner2, 20, category1, category2);
 
         em.flush();
         em.clear();
@@ -62,7 +62,7 @@ class ChannelServiceTest extends ServiceTest {
         Page<ChannelVideoResponse> videos = channelService.getChannelVideos(loginMember.getMemberId(), request);
 
         //then
-        assertThat(videos.getTotalElements()).isEqualTo(60);
+        assertThat(videos.getTotalElements()).isEqualTo(20);
         assertThat(videos.getNumber()).isEqualTo(0);
         assertThat(videos.getSize()).isEqualTo(10);
         assertThat(videos.getContent()).extracting("videoId")

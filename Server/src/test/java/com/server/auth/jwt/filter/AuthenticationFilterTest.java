@@ -36,10 +36,7 @@ import com.server.global.testhelper.ServiceTest;
 public class AuthenticationFilterTest extends ServiceTest {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	@Mock
-	private JwtProvider jwtProvider;
-	@Mock
-	private AuthenticationManager authenticationManager;
+
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this); // Mockito 어노테이션 초기화

@@ -6,17 +6,17 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.category.repository.CategoryRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.report.entity.Report;
+import com.server.domain.report.service.ReportService;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.VideoRepository;
+import com.server.domain.video.repository.dto.response.VideoReportData;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
 import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
 import com.server.domain.video.service.dto.request.VideoUpdateServiceRequest;
-import com.server.domain.video.service.dto.response.VideoCreateUrlResponse;
-import com.server.domain.video.service.dto.response.VideoDetailResponse;
-import com.server.domain.video.service.dto.response.VideoPageResponse;
-import com.server.domain.video.service.dto.response.VideoUrlResponse;
+import com.server.domain.video.service.dto.response.*;
 import com.server.domain.watch.entity.Watch;
 import com.server.domain.watch.repository.WatchRepository;
 import com.server.global.exception.businessexception.categoryexception.CategoryNotFoundException;
@@ -26,6 +26,8 @@ import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 import com.server.module.s3.service.dto.ImageType;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,16 +46,18 @@ public class VideoService {
     private final CategoryRepository categoryRepository;
     private final CartRepository cartRepository;
     private final AwsService awsService;
+    private final ReportService reportService;
 
     public VideoService(VideoRepository videoRepository, MemberRepository memberRepository,
                         WatchRepository watchRepository, CategoryRepository categoryRepository,
-                        CartRepository cartRepository, AwsService awsService) {
+                        CartRepository cartRepository, AwsService awsService, ReportService reportService) {
         this.videoRepository = videoRepository;
         this.memberRepository = memberRepository;
         this.watchRepository = watchRepository;
         this.categoryRepository = categoryRepository;
         this.cartRepository = cartRepository;
         this.awsService = awsService;
+        this.reportService = reportService;
     }
 
     public Page<VideoPageResponse> getVideos(VideoGetServiceRequest request) {
@@ -206,6 +210,34 @@ public class VideoService {
 
         video.close();
         return false;
+    }
+
+    @Transactional
+    public boolean reportVideo(Long loginMemberId, Long videoId, String reportContent) {
+
+        Video video = verifiedVideoIncludeWithdrawal(videoId);
+
+        Member reporter = verifiedMember(loginMemberId);
+
+        return reportService.reportVideo(reporter, video, reportContent);
+    }
+
+    public Page<VideoReportResponse> getVideoReports(int page, int size, String sort) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<VideoReportData> videoReportData = videoRepository.findVideoReportDataByCond(pageable, sort);
+
+        return videoReportData.map(VideoReportResponse::of);
+    }
+
+    public Page<ReportResponse> getReports(Long videoId, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Report> reports = videoRepository.findReportsByVideoId(videoId, pageable);
+
+        return reports.map(ReportResponse::of);
     }
 
     private void checkValidVideoName(String fileName) {

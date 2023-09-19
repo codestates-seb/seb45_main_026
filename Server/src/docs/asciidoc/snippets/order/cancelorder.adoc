@@ -9,8 +9,6 @@
 [[Order]]
 = 주문/비디오 취소 API
 
-link:/index.html[APIs, onclick="window.location.href='index.html'"]
-
 == 주문 취소
 === HTTP Request
 include::{snippets}/order/cancelorder/http-request.adoc[]

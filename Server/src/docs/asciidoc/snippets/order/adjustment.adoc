@@ -1,0 +1,25 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Order]]
+= 정산 내역 API
+
+IMPORTANT: month 를 null 로 주면 연도별 조회, year 을 null 로 주면 전체 조회
+
+[[Order-List]]
+== 월별 정산 내역
+=== HTTP Request
+include::{snippets}/order/adjustment/http-request.adoc[]
+==== Request Headers
+include::{snippets}/order/adjustment/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/order/adjustment/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/order/adjustment/http-response.adoc[]
+==== Response Fields
+include::{snippets}/order/adjustment/response-fields.adoc[]

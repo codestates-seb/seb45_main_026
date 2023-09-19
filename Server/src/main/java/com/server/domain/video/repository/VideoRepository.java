@@ -2,7 +2,6 @@ package com.server.domain.video.repository;
 
 import com.server.domain.channel.entity.Channel;
 import com.server.domain.video.entity.Video;
-import com.server.domain.video.repository.dto.VideoGetDataRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

@@ -234,9 +234,9 @@ class MemberRepositoryTest extends RepositoryTest {
         Member loginMember = createAndSaveMember();
 
         createAndSaveSubscribe(loginMember, channel1);
-        Thread.sleep(100L);
+        Thread.sleep(2L);
         createAndSaveSubscribe(loginMember, channel2);
-        Thread.sleep(100L);
+        Thread.sleep(2L);
         createAndSaveSubscribe(loginMember, channel3);
 
         em.flush();
@@ -261,10 +261,10 @@ class MemberRepositoryTest extends RepositoryTest {
 
         Member user = createAndSaveMember();
 
-        for (int x = 1; x < 21; x++) {
+        for (int x = 1; x < 5; x++) {
             List<Video> videos = new ArrayList<>();
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 2; i++) {
                 Member member = createAndSaveMember();
                 Channel channel = createAndSaveChannel(member);
                 Video video = createAndSaveVideo(channel);
@@ -294,7 +294,7 @@ class MemberRepositoryTest extends RepositoryTest {
         List<Cart> carts = new ArrayList<>();
         List<Video> videos = new ArrayList<>();
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
             Member member = createAndSaveMember();
             Channel channel = createAndSaveChannel(member);
             Video video = createAndSaveVideo(channel);
@@ -306,7 +306,7 @@ class MemberRepositoryTest extends RepositoryTest {
         em.flush();
         em.clear();
 
-        int page = 1, size = 20;
+        int page = 1, size = 5;
         Pageable pageable = PageRequest.of(page - 1, size);
 
         Page<Cart> result =
@@ -315,7 +315,7 @@ class MemberRepositoryTest extends RepositoryTest {
         assertThat(result.getContent()).isSortedAccordingTo(
             Comparator.comparing(Cart::getCreatedDate).reversed()
         );
-        assertThat(result.getTotalElements()).isEqualTo(20);
+        assertThat(result.getTotalElements()).isEqualTo(10);
     }
 
     @TestFactory

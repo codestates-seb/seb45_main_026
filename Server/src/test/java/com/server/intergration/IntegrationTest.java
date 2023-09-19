@@ -1,6 +1,7 @@
 package com.server.intergration;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,10 +11,12 @@ import java.util.Random;
 
 import javax.persistence.EntityManager;
 
-import org.junit.jupiter.api.TestInstance;
+import com.server.domain.announcement.entity.Announcement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -43,6 +46,7 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.repository.OrderRepository;
+import com.server.domain.order.service.OrderService;
 import com.server.domain.question.entity.Question;
 import com.server.domain.question.repository.QuestionRepository;
 import com.server.domain.reply.entity.Reply;
@@ -61,6 +65,7 @@ import com.server.domain.watch.entity.Watch;
 import com.server.domain.watch.repository.WatchRepository;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
+import com.server.module.redis.service.RedisService;
 import com.server.module.s3.service.AwsService;
 import com.server.module.s3.service.dto.FileType;
 
@@ -96,6 +101,12 @@ public class IntegrationTest {
 
 	// AWS
 	@Autowired protected AwsService awsService;
+
+	// Mock
+	@MockBean protected AwsService mockAwsService;
+
+	// 이메일 및 레디스
+	@MockBean protected RedisService redisService;
 
 	protected void flushAll() {
 		memberRepository.flush();
@@ -184,6 +195,20 @@ public class IntegrationTest {
 		return memberRepository.save(member);
 	}
 
+	protected Member createAndSaveMemberWithEmailPasswordReward(String email, String password, int reward){
+
+		Member member = Member.builder()
+			.email(email)
+			.nickname(generateRandomString())
+			.password(passwordEncoder.encode(password))
+			.imageFile("imageFile")
+			.reward(reward)
+			.authority(Authority.ROLE_USER)
+			.build();
+
+		return memberRepository.save(member);
+	}
+
 	protected Member createMemberWithEmail(String email) {
 		Member member = Member.builder()
 			.email(email)
@@ -258,7 +283,7 @@ public class IntegrationTest {
 			.thumbnailFile("thumbnailFile")
 			.videoFile("videoFile")
 			.view(0)
-			.star(generateRandomStar())
+			.star(0.0F)
 			.price(price)
 			.videoCategories(new ArrayList<>())
 			.videoStatus(VideoStatus.CREATED)
@@ -276,10 +301,28 @@ public class IntegrationTest {
 			.thumbnailFile("thumbnailFile")
 			.videoFile("videoFile")
 			.view(0)
-			.star(generateRandomStar())
+			.star(0.0F)
 			.price(0)
 			.videoCategories(new ArrayList<>())
 			.videoStatus(VideoStatus.CREATED)
+			.channel(channel)
+			.questions(new ArrayList<>())
+			.build();
+
+		return videoRepository.save(video);
+	}
+
+	protected Video createAndSaveClosedVideo(Channel channel) {
+		Video video = Video.builder()
+			.videoName(generateRandomString())
+			.description("description")
+			.thumbnailFile("thumbnailFile")
+			.videoFile("videoFile")
+			.view(0)
+			.star(0.0F)
+			.price(5000)
+			.videoCategories(new ArrayList<>())
+			.videoStatus(VideoStatus.CLOSED)
 			.channel(channel)
 			.questions(new ArrayList<>())
 			.build();
@@ -341,7 +384,7 @@ public class IntegrationTest {
 	protected Reply createAndSaveReply(Member member, Video video) {
 		Reply reply = Reply.builder()
 			.content("content")
-			.star(0)
+			.star(generateRandomStarInteger())
 			.member(member)
 			.video(video)
 			.build();
@@ -432,18 +475,39 @@ public class IntegrationTest {
 		);
 	}
 
+	protected String getVideoUrl(Video video) {
+		return awsService.getFileUrl(
+			video.getVideoFile(),
+			FileType.VIDEO
+		);
+	}
+
 	protected <T> ApiSingleResponse<T> getApiSingleResponseFromResult(ResultActions actions, Class<T> clazz) throws
 		UnsupportedEncodingException,
 		JsonProcessingException {
-		String contentAsString = actions.andReturn().getResponse().getContentAsString();
+		String contentAsString = actions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
 		JavaType javaType = objectMapper.getTypeFactory().constructParametricType(ApiSingleResponse.class, clazz);
 
 		return objectMapper.readValue(contentAsString, javaType);
 	}
 
+	protected <T> ApiSingleResponse<List<T>> getApiSingleListResponseFromResult(ResultActions actions, Class<T> clazz) throws UnsupportedEncodingException {
+		String jsonData = actions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+		try {
+			JavaType responseType = objectMapper.getTypeFactory().constructParametricType(ApiSingleResponse.class,
+				objectMapper.getTypeFactory().constructCollectionType(List.class, clazz));
+
+			return objectMapper.readValue(jsonData, responseType);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	protected <T> ApiPageResponse<T> getApiPageResponseFromResult(ResultActions actions, Class<T> clazz) throws UnsupportedEncodingException, JsonProcessingException {
-		String contentAsString = actions.andReturn().getResponse().getContentAsString();
+		String contentAsString = actions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
 		JavaType javaType = objectMapper.getTypeFactory().constructParametricType(ApiPageResponse.class, clazz);
 
@@ -464,7 +528,20 @@ public class IntegrationTest {
 		return randomString.toString();
 	}
 
-	private Float generateRandomStar() {
+	private Float generateRandomStarFloat() {
 		return Math.round((0.0f + (10.0f - 0.0f) * new Random().nextFloat()) * 10.0f) / 10.0f;
+	}
+
+	private Integer generateRandomStarInteger() {
+		return new Random().nextInt(10) + 1;
+	}
+
+	Announcement createAndSaveAnnouncement(Channel channel) {
+		Announcement announcement = Announcement.builder()
+				.channel(channel)
+				.content("content")
+				.build();
+
+		return announcementRepository.save(announcement);
 	}
 }

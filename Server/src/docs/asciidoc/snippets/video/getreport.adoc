@@ -1,0 +1,38 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+IMPORTANT: 관리자용 기능입니다. (ROLE_ADMIN)
+
+[[GetReport]]
+= 신고된 비디오 목록 조회 API
+
+== 신고된 비디오 목록 조회
+=== HTTP Request
+include::{snippets}/video/getvideoreports/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/getvideoreports/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/video/getvideoreports/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/video/getvideoreports/http-response.adoc[]
+==== Response Fields
+include::{snippets}/video/getvideoreports/response-fields.adoc[]
+
+== 신고된 비디오의 신고내용 목록 조회
+=== HTTP Request
+include::{snippets}/video/getreports/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/getreports/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/video/getreports/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/video/getreports/http-response.adoc[]
+==== Response Fields
+include::{snippets}/video/getreports/response-fields.adoc[]
+
+

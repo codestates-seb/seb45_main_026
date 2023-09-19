@@ -25,4 +25,18 @@ public enum Grade implements BaseEnum {
 	public String getDescription() {
 		return this.description;
 	}
+
+	public static Grade getGrade(int reward) {
+		if(reward < 100) {
+			return BRONZE;
+		} else if(reward < 1000) {
+			return SILVER;
+		} else if(reward < 3000) {
+			return GOLD;
+		} else if(reward < 10000) {
+			return PLATINUM;
+		} else {
+			return DIAMOND;
+		}
+	}
 }

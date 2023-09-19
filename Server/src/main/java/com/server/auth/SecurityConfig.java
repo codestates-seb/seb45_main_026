@@ -82,23 +82,25 @@ public class SecurityConfig {
 
 	private Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> getAuthorizeRequests() {
 		return (http) -> http
-			.antMatchers("/members/**").hasRole("USER")
+			.antMatchers("/members/**").hasAnyRole("USER", "ADMIN")
 
 			.antMatchers(HttpMethod.GET, "/channels/**").permitAll()
-			.antMatchers("/channels/**").hasRole("USER")
+			.antMatchers("/channels/**").hasAnyRole("USER", "ADMIN")
 
-			.antMatchers(HttpMethod.GET, "/videos/*/questions").hasRole("USER")
+			.antMatchers(HttpMethod.GET, "/videos/reports").hasAnyRole("ADMIN")
+			.antMatchers(HttpMethod.GET, "/videos/*/reports").hasAnyRole("ADMIN")
+			.antMatchers(HttpMethod.GET, "/videos/*/questions").hasAnyRole("USER", "ADMIN")
 			.antMatchers(HttpMethod.GET, "/videos/**").permitAll()
-			.antMatchers("/videos/**").hasRole("USER")
+			.antMatchers("/videos/**").hasAnyRole("USER", "ADMIN")
 
 			.antMatchers(HttpMethod.GET, "/replies/*").permitAll()
-			.antMatchers("/replies/**").hasRole("USER")
+			.antMatchers("/replies/**").hasAnyRole("USER", "ADMIN")
 
-			.antMatchers("/questions/**").hasRole("USER")
-			.antMatchers("/orders/**").hasRole("USER")
+			.antMatchers("/questions/**").hasAnyRole("USER", "ADMIN")
+			.antMatchers("/orders/**").hasAnyRole("USER", "ADMIN")
 
 			.antMatchers(HttpMethod.GET, "/announcements/*").permitAll()
-			.antMatchers("/announcements/**").hasRole("USER")
+			.antMatchers("/announcements/**").hasAnyRole("USER", "ADMIN")
 
 			.antMatchers("/auth/**").permitAll()
 			.anyRequest().permitAll();

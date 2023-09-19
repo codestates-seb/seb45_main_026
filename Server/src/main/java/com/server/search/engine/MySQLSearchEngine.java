@@ -7,8 +7,6 @@ import java.util.stream.Collectors;
 import javax.persistence.Tuple;
 
 import com.server.domain.member.repository.MemberRepository;
-import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
-import com.server.domain.video.service.dto.response.VideoPageResponse;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -140,10 +138,10 @@ public class MySQLSearchEngine implements SearchEngine {
 	private Page<ChannelResultResponse> resultTupleToChannelSearchResult(Page<Tuple> pages) {
 		return pages.map(
 			tuple -> ChannelResultResponse.builder()
-				.channelId(tuple.get(0, BigInteger.class).longValue())
+				.memberId(tuple.get(0, BigInteger.class).longValue())
 				.channelName(tuple.get(1, String.class))
 				.description(tuple.get(2, String.class))
-				.subscribers(tuple.get(3, Integer.class))
+				.subscribes(tuple.get(3, Integer.class))
 				.imageUrl(getImageUrl(tuple.get(4, String.class), FileType.PROFILE_IMAGE))
 				.build()
 		);
@@ -151,7 +149,7 @@ public class MySQLSearchEngine implements SearchEngine {
 
 	private void setIsSubscribedForChannel(Page<ChannelResultResponse> channelResultResponses, Long loginId) {
 		List<Long> ownerMemberIds = channelResultResponses.stream()
-			.map(ChannelResultResponse::getChannelId).collect(Collectors.toList());
+			.map(ChannelResultResponse::getMemberId).collect(Collectors.toList());
 
 		List<Boolean> isSubscribedList = memberRepository.checkMemberSubscribeChannel(loginId, ownerMemberIds);
 
