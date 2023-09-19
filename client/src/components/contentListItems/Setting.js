@@ -6,13 +6,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { deleteUserInfoService, getUserChannelInfoService, updateChannelInfoService, updateNicknameService, updatePasswordService } from '../../services/userInfoService';
 import { setChannelInfo, setIsLogin, setLoginInfo, setMyid, setProvider, setToken } from '../../redux/createSlice/LoginInfoSlice';
 import { NegativeTextButton, PositiveTextButton, } from '../../atoms/buttons/Buttons';
-import { SettingContainer, SettingTitle, SettingTitle2, UserInfoContainer, ExtraButtonContainer  } from './Setting.style';
+import { SettingContainer, SettingTitle, UserInfoContainer, ExtraButtonContainer  } from './Setting.style';
 import { AlertModal, ConfirmModal } from '../../atoms/modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import ImageInput from '../../atoms/inputs/ImageInput';
 import { Textarea } from '../../atoms/inputs/TextAreas';
 import { useLogout } from '../../hooks/useLogout';
 import { useToken } from '../../hooks/useToken';
+import { HomeTitle } from './ChannelHome';
 
 const globalTokens = tokens.global;
 
@@ -285,14 +286,14 @@ const Setting = () => {
                 handleButtonClick={()=>{ setIs비밀번호변경실패팝업(false) }}/>
             <SettingContainer isDark={isDark}>
                 <UserInfoContainer>
-                    <SettingTitle2 isDark={isDark}>내 정보</SettingTitle2>
+                    <SettingTitle isDark={isDark}>내 정보</SettingTitle>
                     <ImageInput
                         marginTop={globalTokens.Spacing8.value} 
                         label='프로필 이미지'/>
                     <Input 
                         marginTop={globalTokens.Spacing8.value} 
                         label='이메일' 
-                        width='50vw' 
+                        width='50vw'
                         name='email' 
                         type='text' 
                         disabled 
@@ -352,7 +353,7 @@ const Setting = () => {
                         errors.channelDescription && errors.channelDescription.type==='required'
                             && <InputErrorTypo isDark={isDark} width='50vw'>채널 설명을 입력해 주세요.</InputErrorTypo>
                     }
-                    <SettingTitle isDark={isDark}>비밀번호 변경하기</SettingTitle>
+                <SettingTitle isDark={isDark}>비밀번호 변경하기</SettingTitle>
                     <Input
                         marginTop={globalTokens.Spacing8.value}
                         label='기존 비밀번호'
@@ -401,8 +402,12 @@ const Setting = () => {
                     { errors.newPassword && errors.newPassword.type==='validate'
                         && <InputErrorTypo isDark={isDark} width='50vw'>새로운 비밀번호와 기존 비밀번호가 동일합니다.</InputErrorTypo>}
                 <ExtraButtonContainer>
-                    <PositiveTextButton isDark={isDark} type='button'>이용약관 보기</PositiveTextButton>
-                    <PositiveTextButton isDark={isDark} type='button'>개인정보 처리방침 보기</PositiveTextButton>
+                    <a href="https://field-hellebore-58d.notion.site/c50fadcd93e04c4fb19580c0f99ca773?pvs=4">
+                        <PositiveTextButton isDark={isDark} type='button'>이용약관 보기</PositiveTextButton>
+                    </a>
+                    <a href="https://field-hellebore-58d.notion.site/8263a881b70445d6a8defaef30648745?pvs=4">
+                        <PositiveTextButton isDark={isDark} type='button'>개인정보 처리방침 보기</PositiveTextButton>
+                    </a>
                     <NegativeTextButton isDark={isDark} type='button' onClick={handleDeleteUserClick}>회원 탈퇴하기</NegativeTextButton>
                 </ExtraButtonContainer>
                 </UserInfoContainer>

@@ -14,15 +14,17 @@ import { AlertModal } from '../modal/Modal';
 const globalTokens = tokens.global;
 
 const ImageInputContainer = styled.div`
+    width: 100%;
     margin-top: ${props=>props.marginTop?props.marginTop:0}px;
     display: flex;
     flex-direction: column;
+    align-items: center;
 `
 const ImageInputButtonContainer = styled.div`
     width: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: start;
+    justify-content: center;
     padding-left: 12px;
 `
 const CautionTextTypo = styled(SmallTextTypo)`

@@ -1,8 +1,7 @@
 import { styled } from "styled-components";
 import tokens from '../../styles/tokens.json'
-import { InputButton, InputContainer, InputWithButtonContainer } from "./Inputs";
+import { InputButton, InputContainer, InputLabelTextTypo, InputWithButtonContainer } from "./Inputs";
 import { useSelector } from "react-redux";
-import { BodyTextTypo } from "../typographys/Typographys";
 
 const globalTokens = tokens.global;
 
@@ -35,9 +34,9 @@ export const Textarea = ({
             marginLeft={marginLeft}
             marginRight={marginRight}>
             { label &&
-                <BodyTextTypo isDark={isDark}>
+                <InputLabelTextTypo isDark={isDark}>
                     {label}
-                </BodyTextTypo>
+                </InputLabelTextTypo>
             }
             <InputWithButtonContainer>
             <RegularTextArea
