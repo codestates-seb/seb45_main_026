@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import arrowUp from '../../assets/images/icons/arrow/subscribe_arrow_up.svg';
 import arrowDown from '../../assets/images/icons/arrow/subscribe_arrow_down.svg';
 import { useSelector } from 'react-redux';
-import { BodyTextTypo } from '../../atoms/typographys/Typographys';
 import { 
     ReceiptDropdownContainer,
     DropdownWrapper,

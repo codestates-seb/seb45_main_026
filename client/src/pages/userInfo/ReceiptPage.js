@@ -57,7 +57,7 @@ const ReceiptPage = () => {
                     ]);
                     setLoading(false);
                 } else {
-                    console.log(res);
+                    console.log(res.data);
                 }
             });
         }
