@@ -96,8 +96,8 @@ public class OrderController {
     public ResponseEntity<ApiPageResponse<AdjustmentResponse>> adjustment(
             @RequestParam(defaultValue = "1") @Positive(message = "{validation.positive}") int page,
             @RequestParam(defaultValue = "10") @Positive(message = "{validation.positive}") int size,
-            @RequestParam @Min(value = 1) @Max(value = 12) Integer month,
-            @RequestParam @Min(value = 2020) Integer year,
+            @RequestParam(required = false) @Min(value = 1) @Max(value = 12) Integer month,
+            @RequestParam(required = false) @Min(value = 2020) Integer year,
             @RequestParam(defaultValue = "video-created-date") AdjustmentSort sort,
             @LoginId Long loginMemberId) {
 
