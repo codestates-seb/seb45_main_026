@@ -428,7 +428,7 @@ warm up 상세 내용 확인 ☞ [warm up](https://hobeen-kim.github.io/java/JAV
 
 - 방승환
 
-- 이종범
+- [이종범](https://dunggu.tistory.com/66)
 
 - 김호빈
 
