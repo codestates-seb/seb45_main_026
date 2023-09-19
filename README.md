@@ -227,9 +227,10 @@
 | <img width="400px" alt="스크린샷 2023-09-15 오전 11 00 53" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/d4d5a5e1-33cc-47dc-adcb-5e4b639d0b71"> | <img width="400px" alt="스크린샷 2023-09-18 오전 1 53 10" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/559c481f-fe13-45e9-9be0-48d5a4130e30"> |
 
 
-|시청기록 페이지|
-|------|
-| <img width="400px" alt="스크린샷 2023-09-18 오전 1 46 48" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/363cadf0-65c9-4957-99c7-0e612fdab52c"> |
+|정산내역 페이지|시청기록 페이지|
+|------|----|
+| <img width="400px" alt="스크린샷 2023-09-15 오전 11 00 53" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/76eee334-5949-4ed7-b4c7-9858358b3306"> | <img width="400px" alt="스크린샷 2023-09-18 오전 1 46 48" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/363cadf0-65c9-4957-99c7-0e612fdab52c"> |
+
 
 </details>
 
@@ -242,29 +243,47 @@
 <br />
 
 ## React Hook Form
+
+<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/324e45c4-c108-4f9b-b178-a84cd4119567" width="400px"/>
+
 너무 많은 input state관리로 인한 코드의 가독성 저하와 잦은 화면 재랜더링을 해결하기 위해 사용했습니다. 
 React Hook Form 은 input 입력값을 ref 형식으로 제어하여 화면의 재랜더링을 최소화하고, 
 ```register```, ```handleSubmit```, ```formState```, ```useWatch``` 등 다양한 메소드를 제공하여 
 복잡한 유효성 검사를 간단하게 구현할 수 있도록 도와줍니다. 
 
 ## Custom Hook
+
+<img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/1*esdkRk3TTqmEkT064DL4Vg.png" width="400px"/>
+
 반복 사용되는 로직을 재사용하기 위해 Custom Hook을 작성했습니다. 
 Refresh Token을 이용한 Authorization 토큰 재발급 로직 재활용
 ```useLogout```, ```useLongPress``` ```useConfirm``` 등의 로직을 재활용 하기 위해 사용했습니다. 
 
 ## react-intersection-observer
+
+<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/700ca69d-942f-46ee-9ef1-06db78a149fb" width="400px"/>
+
 무한 스크롤을 구현하기 위해서 사용했습니다. 
 styled-component를 사용한 이번 프로젝트에서 ```useRef```나 ```addEventListener```등을 따로 설정할 필요 없이 ```useInView```로 간편하게 스크롤 바닥 감지 기능을 구현할 수 있습니다. 
 
 ## Redux Toolkit with Persistent
+
+<img src="https://blog.dastasoft.com/_next/image?url=%2Fassets%2Fposts%2Fpreview%2Fredux-toolkit.webp&w=3840&q=75" width="400px"/>
+
 로그인 정보, 유저 정보, 다크모드 등 UI 설정 정보, 장바구니 정보, 재생 비디오 정보 등을 전역 상태로 관리하기 위해서 Redux Toolkit을 사용했습니다. Redux Toolkit을 사용하면 Redux에서 action 생성을 따로 작성해주지 않아도 된다는 장점이 있으며, ```redux-persist```의 추가 라이브러리를 통합하여 원하는 상태 정보만 로컬스토리지에 자동으로 저장되도록 설정할 수 있습니다.
 
 ## react-player
+
+<img alt="react-player 사용예시" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/4b763082-e28a-4a50-bea6-a0b011d8011d" width="400px"/>
+
+
 기존의 video 태그에서의 기능들을 좀 더 쉽게 속성들을 접근할 수 있어서, 커스텀 컨트롤러를 만들 때 react-player에 내장된 메서드들을 사용해 기존보다 간편하고 빠르게 작업이 가능합니다.
 
 ## Storybook & Figma Token
-<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/21f14492-9896-4c68-85c5-b6c5b49e3388" width="400px"/>
-<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/ba50a87b-ecb0-4d8e-b1ad-fb81afeec073" width="400px"/>
+
+| 다크모드/라이트모드 switch | storybook |
+|-------------|---------|
+| <img alt="다크모드 예시" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/21f14492-9896-4c68-85c5-b6c5b49e3388" width="350px"/> | <img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/ba50a87b-ecb0-4d8e-b1ad-fb81afeec073" width="350px"/> |
 
  👉🏻 <a href="https://6509249be693180105e6fcc7-tgkycquvac.chromatic.com/?path=/docs/configure-your-project--docs">storybook chromatic 배포 링크 바로가기</a>
 
@@ -272,9 +291,15 @@ styled-component를 사용한 이번 프로젝트에서 ```useRef```나 ```addEv
 재사용할 컴포넌트의 디자인을 확인하며 사용할 수 있도록 Storybook을 적용했습니다. 
 
 ## CSS keyframes
+
+<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/e523cbf0-198b-4de5-be55-bf1c304862ad" width="400px"/>
+
 메인페이지의 Viewport 애니메이션과 롤링 배너, 사이드바 디자인을 위해서 styled-component에 keyframes를 적용하여 애니메이션을 구현했습니다.
 
 ## react-flicking
+
+<img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/e0654024-4eb3-477e-9a17-1417887752dc" width="400px"/>
+
 메인페이지 두 번째 페이지에 슬라이드 배너를 만들기 위해서 react-flicking UI 라이브러리를 적용했습니다. 
 
 </details>
