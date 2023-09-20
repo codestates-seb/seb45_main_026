@@ -3,7 +3,6 @@ package com.server.domain.video.service;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.cart.repository.CartRepository;
 import com.server.domain.category.entity.Category;
-import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
@@ -26,13 +25,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.DynamicTest.*;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
@@ -747,6 +750,8 @@ class VideoServiceTest extends ServiceTest {
                 .description("update description")
                 .build();
 
+        setAuthentication(owner);
+
         em.flush();
         em.clear();
 
@@ -758,6 +763,8 @@ class VideoServiceTest extends ServiceTest {
 
         assertThat(updatedVideo.getDescription()).isEqualTo("update description");
     }
+
+
 
     @Test
     @DisplayName("video 수정 시 수정 권한이 없는 memberId 면 VideoAccessDeniedException 이 발생한다.")
@@ -772,6 +779,8 @@ class VideoServiceTest extends ServiceTest {
                 .videoId(video.getVideoId())
                 .description("update description")
                 .build();
+
+        setAuthentication(notOwner);
 
         em.flush();
         em.clear();
@@ -944,6 +953,9 @@ class VideoServiceTest extends ServiceTest {
 
         return List.of(
             dynamicTest("비디오를 폐쇄한다.", ()-> {
+                //given
+                setAuthentication(owner);
+
                 //when
                 boolean result = videoService.changeVideoStatus(owner.getMemberId(), video.getVideoId());
 
@@ -952,6 +964,9 @@ class VideoServiceTest extends ServiceTest {
                 assertThat(result).isFalse();
             }),
             dynamicTest("비디오를 다시 연다.", ()-> {
+                //given
+                setAuthentication(owner);
+
                 //when
                 boolean result = videoService.changeVideoStatus(owner.getMemberId(), video.getVideoId());
 
@@ -963,7 +978,7 @@ class VideoServiceTest extends ServiceTest {
     }
 
     @TestFactory
-    @DisplayName("video 소유자는 video 를 상태변경할 수 있다. 상태변경하면 video status 가 변경된다.")
+    @DisplayName("admin 은 video 를 상태변경할 수 있다. 상태변경하면 video status 가 변경된다.")
     Collection<DynamicTest> changeVideoStatusAdmin() {
         //given
         Member owner = createMemberWithChannel();
@@ -973,6 +988,9 @@ class VideoServiceTest extends ServiceTest {
 
         return List.of(
                 dynamicTest("owner 가 비디오를 폐쇄한다.", ()-> {
+                    //given
+                    setAuthentication(owner);
+
                     //when
                     boolean result = videoService.changeVideoStatus(owner.getMemberId(), video.getVideoId());
 
@@ -981,6 +999,9 @@ class VideoServiceTest extends ServiceTest {
                     assertThat(result).isFalse();
                 }),
                 dynamicTest("admin 이 비디오를 다시 연다.", ()-> {
+                    //given
+                    setAuthentication(admin);
+
                     //when
                     boolean result = videoService.changeVideoStatus(admin.getMemberId(), video.getVideoId());
 
@@ -989,6 +1010,9 @@ class VideoServiceTest extends ServiceTest {
                     assertThat(result).isTrue();
                 }),
                 dynamicTest("admin 이 비디오를 닫는다.", ()-> {
+                    //given
+                    setAuthentication(admin);
+
                     //when
                     boolean result = videoService.changeVideoStatus(admin.getMemberId(), video.getVideoId());
 
@@ -997,11 +1021,17 @@ class VideoServiceTest extends ServiceTest {
                     assertThat(result).isFalse();
                 }),
                 dynamicTest("admin 이 닫으면 owner 는 비디오를 열 수 없다.", ()-> {
+                    //given
+                    setAuthentication(owner);
+
                     //when & then
                     assertThatThrownBy(() -> videoService.changeVideoStatus(owner.getMemberId(), video.getVideoId()))
                             .isInstanceOf(VideoAdminClosedException.class);
                 }),
                 dynamicTest("admin 은 비디오를 다시 열 수 있다.", ()-> {
+                    //given
+                    setAuthentication(admin);
+
                     //when
                     boolean result = videoService.changeVideoStatus(admin.getMemberId(), video.getVideoId());
 
@@ -1020,6 +1050,8 @@ class VideoServiceTest extends ServiceTest {
         Video video = createAndSaveVideo(owner.getChannel());
 
         Member loginMember = createAndSaveMember(); // video 소유자가 아닌 다른 멤버
+
+        setAuthentication(loginMember);
 
         //when & then
         assertThatThrownBy(() -> videoService.changeVideoStatus(loginMember.getMemberId(), video.getVideoId()))
@@ -1053,5 +1085,17 @@ class VideoServiceTest extends ServiceTest {
         given(awsService.getFileUrl(anyString(), any(FileType.class))).willReturn("https://test.com");
         given(awsService.getUploadVideoUrl(anyLong(), anyString())).willReturn("https://test.com");
         given(awsService.getImageUploadUrl(anyLong(), anyString(), any(FileType.class), any(ImageType.class))).willReturn("https://test.com");
+    }
+
+    private void setAuthentication(Member member) {
+
+        String authority = member.getAuthority().toString();
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                member.getMemberId(),
+                null,
+                List.of(new SimpleGrantedAuthority(authority)));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
