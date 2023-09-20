@@ -51,7 +51,8 @@ export const getReportContentService = async (authorization,page,videoId) => {
 export const patchVideoStatus = async (authorization, videoId) => {
     try {
         const response = await axios.patch(
-            `${ROOT_URL}/videos/${videoId}/ADMIN_CLOSED`,
+            `${ROOT_URL}/videos/${videoId}/status`,
+            {},
             {
                 headers: {
                     Authorization: authorization
