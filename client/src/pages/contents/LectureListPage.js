@@ -24,6 +24,7 @@ import { useInView } from "react-intersection-observer";
 import SearchSubmit from "../../components/contentListItems/Searchsubmit";
 import { Heading5Typo } from "../../atoms/typographys/Typographys";
 
+
 const globalTokens = tokens.global;
 
 const LectureMainContainer = styled(MainContainer)`
@@ -91,6 +92,7 @@ const LectureBlank = styled(Heading5Typo)`
   text-align: center;
 `
 
+
 const LectureListPage = () => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const filterState = useSelector((state) => state.filterSlice.filter);
@@ -105,6 +107,9 @@ const LectureListPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    window.scrollTo({
+      top: 0,
+    });
     return () => {
       dispatch(resetToInitialState());
     };
@@ -190,6 +195,13 @@ const LectureListPage = () => {
     }
   }, [bottomInView]);
 
+   const scrollToTop = () => {
+     window.scrollTo({
+       top: 0,
+       behavior: "smooth", // 부드러운 스크롤을 사용하려면 'smooth'를 지정합니다.
+     });
+   };
+
   return (
     <PageContainer isDark={isDark}>
       <LectureMainContainer isDark={isDark}>
@@ -228,6 +240,7 @@ const LectureListPage = () => {
           </VerticalItemContainer>
         )}
         {page < maxPage && !loading ? <BottomDiv ref={bottomRef} /> : <></>}
+      
       </LectureMainContainer>
     </PageContainer>
   );

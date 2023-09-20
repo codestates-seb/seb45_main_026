@@ -36,6 +36,7 @@ import NotFound from "./pages/NotFound";
 import IncomePage from "./pages/userInfo/IncomePage";
 import AdminList from "./pages/admin/AdminList";
 import AdminDetail from "./pages/admin/AdminDetail";
+import ToTopButton from "./pages/contents/ToTopButton";
 
 function App() {
   const dispatch = useDispatch();
@@ -126,6 +127,7 @@ function App() {
         <Route path="/*" element={<NotFound/>} />
       </Routes>
       <Footer />
+      <ToTopButton/>
     </BrowserRouter>
   );
 }

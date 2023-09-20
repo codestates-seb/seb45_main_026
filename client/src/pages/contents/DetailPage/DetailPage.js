@@ -1,6 +1,6 @@
 import { styled } from "styled-components";
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { PageContainer } from "../../../atoms/layouts/PageContainer";
@@ -19,6 +19,7 @@ const DetailPage = () => {
   const { videoId } = useParams();
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const token = useSelector((state) => state.loginInfo.accessToken);
+  const [videoDatas, setVideoDatas] = useState({});
 
   const getVideoInfo = () => {
     return axios
@@ -27,6 +28,8 @@ const DetailPage = () => {
       })
       .then((res) => {
         dispatch(setVideoInfo(res.data.data));
+        setVideoDatas(res.data.data); // ?
+        console.log(res.data.data);
       })
       .catch((err) => {
         if (err.response.data.message === "만료된 토큰입니다.") {
@@ -41,12 +44,18 @@ const DetailPage = () => {
     getVideoInfo();
   }, [token]);
 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+    });
+  },[])
+
   return (
     <PageContainer isDark={isDark}>
       <DetailContainer>
-        <DetailVideo />
-        <DetailContent getVideoInfo={getVideoInfo}/>
-        <DetailReview />
+        <DetailVideo videoDatas={videoDatas} />
+        <DetailContent videoDatas={videoDatas} getVideoInfo={getVideoInfo} />
+        <DetailReview videoDatas={videoDatas} />
       </DetailContainer>
     </PageContainer>
   );
@@ -64,3 +73,4 @@ export const DetailContainer = styled.div`
   align-items: center;
   flex-wrap: wrap;
 `;
+

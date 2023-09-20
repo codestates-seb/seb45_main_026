@@ -77,6 +77,12 @@ const VideoPlayer = ({
     setIsTime(e.target.value);
   };
 
+  const [speedRate, setSpeedRate] = useState(1);
+  // 영상 배속 조절
+  const handleSpeedRate = (rate) => {
+    setSpeedRate(rate);
+  };
+
   // 10초 전 이동
   const rewindHandler = () => {
     videoRef.current.seekTo(videoRef.current.getCurrentTime() - 10);
@@ -137,14 +143,15 @@ const VideoPlayer = ({
       <ReactPlayer
         ref={videoRef}
         url={isUrl}
-        width={"100%"}
-        height={"100%"}
+        width="100%"
+        height="600px"
         playing={nowPlaying} // 자동 재생 on
         muted={isMuted} // 자동 재생 on
         volume={isVolume}
         poster={thumbnailUrl} // 플레이어 초기 포스터 사진
         startTime={0}
         endTime={isPrevMode ? 60 : totalTime}
+        playbackRate={speedRate}
         // onEnded={handleVideo} // 플레이어 끝났을 때 이벤트
       />
       <VideoCover
@@ -161,52 +168,72 @@ const VideoPlayer = ({
         }}
       >
         {controlBar && showControl && (
-          <ControlBox
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          >
-            {!nowPlaying ? (
-              <PlayBtn
-                onClick={() => {
-                  handlePause();
-                }}
-              />
-            ) : (
-              <PauseBtn
-                onClick={() => {
-                  handlePause();
-                }}
-              />
-            )}
-            <VideoBar
-              type="range"
-              min={0}
-              max={totalTime}
-              step={0.01}
-              value={isTime}
-              onChange={(e) => handleAdjust(e)}
-              disabled={isPrevMode}
-            />
-            {screenfull.isEnabled && (
-              // screenfull이 지원되는 경우에만 전체 화면 버튼 표시
-              <FullScreenBtn onClick={handleFullScreen} />
-            )}
-
-            <VolumeBox>
-              {isVolumeOpen && (
-                <VolumeBar
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={isVolume}
-                  onChange={(e) => setVolume(e.target.value)}
+          <>
+            <SpeedRateBox
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <SpeedRate onClick={() => handleSpeedRate(1)}>
+                &times; 1
+              </SpeedRate>
+              <SpeedRate onClick={() => handleSpeedRate(1.2)}>
+                &times; 1.2
+              </SpeedRate>
+              <SpeedRate onClick={() => handleSpeedRate(1.5)}>
+                &times; 1.5
+              </SpeedRate>
+              <SpeedRate onClick={() => handleSpeedRate(3)}>
+                &times; 2
+              </SpeedRate>
+            </SpeedRateBox>
+            <ControlBox
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              {!nowPlaying ? (
+                <PlayBtn
+                  onClick={() => {
+                    handlePause();
+                  }}
+                />
+              ) : (
+                <PauseBtn
+                  onClick={() => {
+                    handlePause();
+                  }}
                 />
               )}
-              <VolumeBtn onClick={() => setVolumeOpen(!isVolumeOpen)} />
-            </VolumeBox>
-          </ControlBox>
+              <VideoBar
+                type="range"
+                min={0}
+                max={totalTime}
+                step={0.01}
+                value={isTime}
+                onChange={(e) => handleAdjust(e)}
+                disabled={isPrevMode}
+              />
+              {screenfull.isEnabled && (
+                // screenfull이 지원되는 경우에만 전체 화면 버튼 표시
+                <FullScreenBtn onClick={handleFullScreen} />
+              )}
+
+              <VolumeBox>
+                {isVolumeOpen && (
+                  <VolumeBar
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={isVolume}
+                    onChange={(e) => setVolume(e.target.value)}
+                  />
+                )}
+                <VolumeBtn onClick={() => setVolumeOpen(!isVolumeOpen)} />
+              </VolumeBox>
+            </ControlBox>
+          </>
         )}
       </VideoCover>
     </VideoBox>
@@ -237,6 +264,23 @@ export const ControlBox = styled.div`
   width: 100%;
   height: 7%;
   bottom: 0%;
+`;
+
+export const SpeedRateBox = styled.div`
+  position: absolute;
+  top: 1%;
+  right: 1%;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+`;
+
+export const SpeedRate = styled.button`
+  margin: 0px 2px;
+  padding: 2px 5px;
+  background-color: rgb(220, 220, 220, 0.1);
+  color: white;
+  font-size: 12px;
 `;
 
 export const VideoBar = styled.input`

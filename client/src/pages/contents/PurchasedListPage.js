@@ -162,6 +162,12 @@ export default function PurchasedListPage() {
       dispatch(setPage(page + 1));
     }
   }, [bottomInView]);
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+    });
+  }, []);
   
     return (
       <PageContainer isDark={isDark}>

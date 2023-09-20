@@ -179,6 +179,9 @@ export default function ResultPage() {
             dispatch(setMaxPage(res.data.pageInfo.totalPage))
             setVideoList(res.data.data)
             setLoading(false)
+            window.scrollTo({
+              top: 0,
+            });
         }).catch((err) => {
         if (err.response.data.message === "만료된 토큰입니다.") {
           refreshToken();
@@ -242,7 +245,7 @@ export default function ResultPage() {
         dispatch(setPage(page + 1));
       }
     }, [bottomInView]);
-
+   
     return (
       <PageContainer isDark={isDark}>
         <ResultMainContainer isDark={isDark}>

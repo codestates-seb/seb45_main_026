@@ -1,4 +1,5 @@
 import { styled } from "styled-components";
+import { useEffect } from "react";
 import { PageContainer } from "../../atoms/layouts/PageContainer";
 import ProblemUpload from "../../components/UploadPage/ProblemUpload";
 import { useSelector } from "react-redux";
@@ -8,7 +9,11 @@ const globalTokens = tokens.global;
 
 const ProblemUploadPage = () => {
   const isDark = useSelector(state=>state.uiSetting.isDark);
-
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+    });
+  }, []);
   return (
     <PageContainer isDark={isDark}>
       <UploadContainer isDark={isDark}>
