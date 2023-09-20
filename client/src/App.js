@@ -34,6 +34,7 @@ import WatchedListPage from "./pages/contents/WatchedListPage";
 import ResultPage from "./pages/contents/ResultPage";
 import NotFound from "./pages/NotFound";
 import IncomePage from "./pages/userInfo/IncomePage";
+import AdminList from "./pages/admin/AdminList";
 
 function App() {
   const dispatch = useDispatch();
@@ -63,6 +64,7 @@ function App() {
               grade: res.data.grade,
               imgUrl: res.data.imageUrl,
               reward: res.data.reward,
+              authority: res.data.authority,
             })
           );
           dispatch(setIsLogin(true));
@@ -116,6 +118,9 @@ function App() {
         <Route path="/activity/income" element={<IncomePage />} />
         <Route path="/watched" element={<WatchedListPage />} />
         <Route path="/result/:keyword" element={<ResultPage />} />
+        
+        <Route path='/admin' element={<AdminList/>}/>
+
         <Route path="/*" element={<NotFound/>} />
       </Routes>
       <Footer />
