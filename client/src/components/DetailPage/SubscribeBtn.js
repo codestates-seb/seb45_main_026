@@ -27,6 +27,7 @@ const SubscribeBtn = ({ memberId, setSub, channelInfo }) => {
       .then((res) => {
         if (res.data.code === 200) {
           setSub(res.data.data);
+          console.log(res.data.data); // 삭제
         }
       })
       .catch((err) => {
