@@ -10,6 +10,7 @@ const LoginInfoSlice = createSlice({
       grade: "", 
       imgUrl: "", 
       reward: "",
+      authority: "",
     },
     channelInfo: {
       channelName: "",

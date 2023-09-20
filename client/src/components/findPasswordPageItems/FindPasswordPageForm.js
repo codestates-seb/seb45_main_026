@@ -9,6 +9,7 @@ import { setFindPasswordEmail } from '../../redux/createSlice/LoginInfoSlice';
 import { useNavigate } from 'react-router-dom';
 import { Input, InputErrorTypo, InputPositiveTypo } from '../../atoms/inputs/Inputs';
 import tokens from '../../styles/tokens.json';
+import { AlertModal } from '../../atoms/modal/Modal';
 
 const globalTokens = tokens.global;
 
@@ -23,10 +24,10 @@ export const FindPasswordPageForm = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const isDark = useSelector(state=>state.uiSetting.isDark);
-    const emailSendConfirm = useConfirm('이메일로 인증번호가 발송되었습니다. 확인 후 인증번호를 입력해 주세요.');
-    const emailSendFailConfirm = useConfirm('입력하신 이메일로 인증번호를 발송할 수 없습니다. 이메일을 다시 확인해 주세요.');
-    const emailCodeComplete = useConfirm('이메일이 인증되었습니다.');
-    const emailCodeFail = useConfirm('이메일 인증에 실패했습니다.');
+    const [ is이메일인증번호발송성공팝업, setIs이메일인증번호발송성공팝업 ] = useState(false);
+    const [ is이메일인증번호발송실패팝업, setIs이메일인증번호발송실패팝업 ] = useState(false);
+    const [ is이메일인증확인성공팝업, setIs이메일인증확인성공팝업 ] = useState(false);
+    const [ is이메일인증확인실패팝업, setIs이메일인증확인실패팝업 ] = useState(false);
     const emailCodeRequireConfirm = useConfirm('이메일을 인증해 주세요.')
     const [ isEmailValid, setIsEmailValid ] = useState(false);
     const {
@@ -55,9 +56,9 @@ export const FindPasswordPageForm = () => {
         if(isValid) {
             const response = await findPasswordEmailValidService(email);
             if(response.status==='success') {
-                emailSendConfirm();
+                setIs이메일인증번호발송성공팝업(true)
             } else {
-                emailSendFailConfirm();
+                setIs이메일인증번호발송실패팝업(true);
             }
         }
     }
@@ -69,10 +70,10 @@ export const FindPasswordPageForm = () => {
         if(isValid) {
             const response = await findPasswordEmailValidConfirmService(email,emailCode);
             if(response.status==='success') {
-                emailCodeComplete();
+                setIs이메일인증확인성공팝업(true);
                 setIsEmailValid(true);
             } else {
-                emailCodeFail();
+                setIs이메일인증확인실패팝업(true);
                 setIsEmailValid(false);
             }
         }
@@ -80,6 +81,34 @@ export const FindPasswordPageForm = () => {
     
     return (
         <>
+        <AlertModal
+            isModalOpen={is이메일인증번호발송성공팝업}
+            setIsModalOpen={setIs이메일인증번호발송성공팝업}
+            isBackdropClickClose={true}
+            content='이메일로 인증번호가 발송되었습니다. 확인 후 인증번호를 입력해 주세요.'
+            buttonTitle='확인'
+            handleButtonClick={()=>{ setIs이메일인증번호발송성공팝업(false) }}/>
+        <AlertModal
+            isModalOpen={is이메일인증번호발송실패팝업}
+            setIsModalOpen={setIs이메일인증번호발송실패팝업}
+            isBackdropClickClose={true}
+            content='입력하신 이메일로 인증번호를 발송할 수 없습니다. 이메일을 다시 확인해 주세요.'
+            buttonTitle='확인'
+            handleButtonClick={()=>{ setIs이메일인증번호발송실패팝업(false) }}/>
+        <AlertModal
+            isModalOpen={is이메일인증확인성공팝업}
+            setIsModalOpen={setIs이메일인증확인성공팝업}
+            isBackdropClickClose={true}
+            content='이메일이 인증되었습니다.'
+            buttonTitle='확인'
+            handleButtonClick={()=>{ setIs이메일인증확인성공팝업(false) }}/>
+        <AlertModal 
+            isModalOpen={is이메일인증확인실패팝업}
+            setIsModalOpen={setIs이메일인증확인실패팝업}
+            isBackdropClickClose={true}
+            content='이메일 인증에 실패했습니다.'
+            buttonTitle='확인'
+            handleButtonClick={()=>{ setIs이메일인증확인실패팝업(false) }}/>
         <FindPasswordFormContainer onSubmit={handleSubmit(onSubmit)}>
             <Input 
                 type='text'
