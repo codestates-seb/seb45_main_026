@@ -1,6 +1,6 @@
 import { styled } from 'styled-components';
 import tokens from '../../styles/tokens.json'
-import { TextButton } from '../../atoms/buttons/Buttons';
+import { NegativeTextButton, TextButton } from '../../atoms/buttons/Buttons';
 const globalTokens = tokens.global;
 
 export const HeaderProfileWrapper = styled.div`
@@ -37,4 +37,6 @@ export const HeaderProfileImgContainer = styled.div`
 export const HeaderProfileImg = styled.img`
     width: 40px;
     object-fit: cover;
+`
+export const HeaderProfileNegativeButton = styled(NegativeTextButton)`
 `

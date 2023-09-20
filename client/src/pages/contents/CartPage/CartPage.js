@@ -68,6 +68,11 @@ const CartPage = () => {
       postOrders(orderData);
     }
   }, [checkedItems]);
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+    });
+  },[])
 
   return (
     <>

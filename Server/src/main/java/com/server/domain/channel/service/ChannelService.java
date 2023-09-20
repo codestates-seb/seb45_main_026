@@ -62,6 +62,7 @@ public class ChannelService {
                     .channelName(channel.getChannelName())
                     .description(channel.getDescription())
                     .subscribers(channel.getSubscribers())
+                    .grade(channel.getMember().getGrade())
                     .isSubscribed(false)
                     .imageUrl(awsService.getFileUrl(
                               channel.getMember().getImageFile(),

@@ -14,12 +14,13 @@ const SubmitBody = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: ${globalTokens.Spacing20.value}px;
+    padding-top: 20px;
     gap: ${globalTokens.Spacing8.value}px;
 `
 const NoticeTextarea = styled(RegularTextArea)`
     background-color: rgba(0,0,0,0);
     width: 100%;
+    max-width: 1170px;
     height: auto;
     min-height: 100px;
     resize: none;

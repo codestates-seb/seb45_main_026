@@ -1,5 +1,6 @@
 package com.server.domain.video.service.dto.response;
 
+import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.dto.response.VideoReportData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ public class VideoReportResponse {
 
     private Long videoId;
     private String videoName;
+    private VideoStatus videoStatus;
     private Long reportCount;
     private LocalDateTime createdDate;
     private LocalDateTime lastReportedDate;
@@ -22,6 +24,7 @@ public class VideoReportResponse {
         return VideoReportResponse.builder()
                 .videoId(data.getVideoId())
                 .videoName(data.getVideoName())
+                .videoStatus(data.getVideoStatus())
                 .reportCount(data.getReportCount())
                 .createdDate(data.getCreatedDate())
                 .lastReportedDate(data.getLastReportedDate())

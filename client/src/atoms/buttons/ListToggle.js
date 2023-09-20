@@ -36,11 +36,13 @@ const ListToggle = ({ OnOff, videoId }) => {
         }
       })
       .catch((err) => {
-        setIsModalOpen({
-          ...isModalOpen,
-          isModalOpen: true,
-          content: "강의 비활성화를 실패했습니다.",
-        });
+
+          setIsModalOpen({
+            ...isModalOpen,
+            isModalOpen: true,
+            content: err.response.data.message?err.response.data.message:'강의 비활성화 실패했습니다.',
+          });
+
       });
   };
 

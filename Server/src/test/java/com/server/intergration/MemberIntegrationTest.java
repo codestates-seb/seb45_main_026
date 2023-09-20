@@ -239,6 +239,7 @@ public class MemberIntegrationTest extends IntegrationTest {
 		assertThat(profileResponse.getImageUrl()).isEqualTo(getProfileUrl(member));
 		assertThat(profileResponse.getGrade()).isEqualTo(member.getGrade());
 		assertThat(profileResponse.getReward()).isEqualTo(member.getReward());
+		assertThat(profileResponse.getAuthority()).isEqualTo(member.getAuthority());
 	}
 
 	@Test
