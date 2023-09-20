@@ -21,7 +21,7 @@ import {
 import profileGray from "../../../assets/images/icons/profile/profileGray.svg";
 import AddCart from "../../../components/DetailPage/AddCart";
 import VideoPlayer from "../../../components/DetailPage/VideoPlayer";
-import { AlertModal } from "../../../atoms/modal/Modal";
+import { AlertModal,ReportModal } from "../../../atoms/modal/Modal";
 
 const globalTokens = tokens.global;
 
@@ -39,6 +39,10 @@ const DetailVideo = () => {
   const [isPrevMode, setPrevMode] = useState(false);
   const [purchaseModal, setPurchaseModal] = useState(false);
   const [alertModal, setAlertModal] = useState(false);
+  const [reportedModal, setReportedModal] = useState(false);
+  const [alreadyReportedModal, setAlreadyReportedModal] = useState(false);
+  const [reportModal, setReportModal] = useState(false);
+  const [reportContent,setReportContent] = useState("")
 
   useEffect(() => {
     getChannelInfo();
@@ -112,14 +116,56 @@ const DetailVideo = () => {
     }
   };
 
+  const handleReportVideo = () => {
+    if (reportContent !== "") {
+      axios.post(
+        `https://api.itprometheus.net/videos/${videoId}/reports`,
+        {
+          reportContent: reportContent,
+        },
+        {
+          headers: { Authorization: token.authorization },
+        }
+      ).then(res => {
+        if (res.data.data) {
+          setReportModal(false);
+          setReportedModal(true);
+          setReportContent("")
+        } else {
+          setReportModal(false);
+          setAlreadyReportedModal(true);
+          setReportContent("");
+        }
+      }).catch((err) => {
+        if (err.response.data.message === "만료된 토큰입니다.") {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      })
+    }
+  }
+
+  const reportContentHandler = (e) => {
+    setReportContent(e.target.value)
+  }
+
   return (
     <>
       <VideoContainer isDark={isDark}>
         <VideoHeader isDark={isDark}>
-          강의를 다 들었다면?
-          <HeaderBtn isDark={isDark} onClick={handleNavProblem}>
-            문제 풀러가기 →
-          </HeaderBtn>
+          <HeaderBtnContainer>
+            부적절한 영상인가요?
+            <HeaderBtn isDark={isDark} onClick={()=>setReportModal(true)}>
+              신고하기
+            </HeaderBtn>
+          </HeaderBtnContainer>
+          <HeaderBtnContainer>
+            강의를 다 들었다면?
+            <HeaderBtn isDark={isDark} onClick={handleNavProblem}>
+              문제 풀러가기 →
+            </HeaderBtn>
+          </HeaderBtnContainer>
         </VideoHeader>
 
         {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
@@ -233,6 +279,33 @@ const DetailVideo = () => {
         buttonTitle="확인"
         handleButtonClick={() => setAlertModal(false)}
       />
+      <AlertModal
+        isModalOpen={reportedModal}
+        setIsModalOpen={setReportedModal}
+        isBackdropClickClose={true}
+        content="비디오가 신고 되었습니다."
+        buttonTitle="확인"
+        handleButtonClick={() => setReportedModal(false)}
+      />
+      <AlertModal
+        isModalOpen={alreadyReportedModal}
+        setIsModalOpen={setAlreadyReportedModal}
+        isBackdropClickClose={true}
+        content="이미 신고한 비디오입니다."
+        buttonTitle="확인"
+        handleButtonClick={() => setAlreadyReportedModal(false)}
+      />
+      <ReportModal
+        reportContent={reportContent}
+        setReportContent={reportContentHandler}
+        isModalOpen={reportModal}
+        setIsModalOpen={setReportModal}
+        isBackdropClickClose={false}
+        negativeButtonTitle="신고"
+        positiveButtonTitle="취소"
+        handleNegativeButtonClick={() => handleReportVideo()}
+        handlePositiveButtonClick={() => setReportModal(false)}
+      />
     </>
   );
 };
@@ -315,12 +388,17 @@ export const PurchaseBtn = styled(RegularNavyButton)`
 export const VideoHeader = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: end;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   color: ${(props) =>
     props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;
+export const HeaderBtnContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`
 
 export const HeaderBtn = styled(NegativeTextButton)`
   margin-left: 10px;
