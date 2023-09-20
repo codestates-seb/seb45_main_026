@@ -1,7 +1,7 @@
 import axios from "axios";
 import { styled } from "styled-components";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import SubscribeBtn from "../../../components/DetailPage/SubscribeBtn";
 import {
@@ -10,7 +10,6 @@ import {
   NegativeTextButton,
   RoundButton,
 } from "../../../atoms/buttons/Buttons";
-import { setPrev } from "../../../redux/createSlice/VideoInfoSlice";
 import { useToken } from "../../../hooks/useToken";
 import tokens from "../../../styles/tokens.json";
 import {
@@ -25,20 +24,17 @@ import { AlertModal, ReportModal } from "../../../atoms/modal/Modal";
 import { PositiveTextButton } from "../../../atoms/buttons/Buttons";
 import { priceToString } from "../../../components/CartPage/CartPayInfo";
 
-const globalTokens = tokens.global;
-
-const DetailVideo = () => {
+const DetailVideo = ({ videoDatas }) => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const refreshToken = useToken();
   const { videoId } = useParams();
   const myId = useSelector((state) => state.loginInfo.myid);
   const isDark = useSelector((state) => state.uiSetting.isDark);
-  const videoDatas = useSelector((state) => state.videoInfo.data);
   const token = useSelector((state) => state.loginInfo.accessToken);
   const [isSub, setSub] = useState("");
   const [channelInfo, setChannelInfo] = useState({});
   const [isPrevMode, setPrevMode] = useState(false);
+  const [isPrevCover, setPrevCover] = useState(!videoDatas.isPurchased);
   const [purchaseModal, setPurchaseModal] = useState(false);
   const [alertModal, setAlertModal] = useState(false);
   const [reportedModal, setReportedModal] = useState(false);
@@ -47,28 +43,27 @@ const DetailVideo = () => {
   const [reportContent,setReportContent] = useState("")
   const [alertLogin, setAlertLogin] = useState(false);
 
-
-  useEffect(() => {
-    getChannelInfo();
-  }, [isSub]);
-
-  const getChannelInfo = () => {
+  const getVideoInfo = () => {
     return axios
-      .get(
-        `https://api.itprometheus.net/channels/${videoDatas.channel.memberId}`,
-        {
-          headers: { Authorization: token.authorization },
-        }
-      )
+      .get(`https://api.itprometheus.net/videos/${videoId}`, {
+        headers: { Authorization: token.authorization },
+      })
       .then((res) => {
-        if (res.data.code === 200) {
-          setChannelInfo(res.data.data);
-        }
+        setChannelInfo({ ...channelInfo, ...res.data.data.channel });
+        console.log(res.data.data.channel);
       })
       .catch((err) => {
-        console.log(err);
+        if (err.response.data.message === "만료된 토큰입니다.") {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
       });
   };
+
+  useMemo(() => {
+    getVideoInfo();
+  }, [isSub]);
 
   const handlePurchase = () => {
     if (!token.authorization) {
@@ -122,14 +117,18 @@ const DetailVideo = () => {
     if (!token.authorization) {
       return setAlertLogin(true);
     }
-    console.log(token);
-    if (!videoDatas.isPurchased && myId !== videoDatas.channel.memberId) {
+    if (!videoDatas.isPurchased && myId !== videoDatas.channel?.memberId) {
       setAlertModal(true);
     } else {
       navigate(`/videos/${videoId}/problems`);
     }
   };
 
+
+  const handleNavChannel = () => {
+    return navigate(`/channels/${videoDatas.channel.memberId}`);
+  };
+    
   const handleReportVideo = () => {
     if (reportContent !== "") {
       axios.post(
@@ -181,7 +180,9 @@ const DetailVideo = () => {
           </HeaderBtnContainer>
         </VideoHeader>
 
-        {videoDatas.isPurchased || myId === videoDatas.channel.memberId ? (
+        {!isPrevCover ||
+        videoDatas.isPurchased ||
+        myId === videoDatas.channel?.memberId ? (
           <VideoPlayer
             videoId={videoId}
             thumbnailUrl={videoDatas.thumbnailUrl}
@@ -193,9 +194,9 @@ const DetailVideo = () => {
             <PrevBtn
               onClick={() => {
                 setPrevMode(true);
-                dispatch(setPrev(true));
+                setPrevCover(false);
                 setTimeout(() => {
-                  dispatch(setPrev(false));
+                  setPrevCover(false);
                 }, 61000);
               }}
             >
@@ -217,7 +218,7 @@ const DetailVideo = () => {
 
         <VideoTitle isDark={isDark}>
           <span>{videoDatas.videoName}</span>
-          {!videoDatas.isPurchased && myId !== videoDatas.channel.memberId && (
+          {!videoDatas.isPurchased && myId !== videoDatas.channel?.memberId && (
             <span>
               {videoDatas.price
                 ? `${priceToString(videoDatas.price)}원`
@@ -226,31 +227,31 @@ const DetailVideo = () => {
           )}
         </VideoTitle>
         <VideoInfo>
-          <Profile>
+          <Profile onClick={handleNavChannel}>
             <ProfileImg
-              src={videoDatas.channel.imageUrl || profileGray}
+              src={videoDatas.channel?.imageUrl || profileGray}
               alt="프로필 이미지"
             />
 
             <ProfileRight>
               <ProfileName isDark={isDark}>
-                {videoDatas.channel.channelName}
+                {videoDatas.channel?.channelName}
               </ProfileName>
               <Subscribed isDark={isDark}>
-                구독자 {channelInfo.subscribers}명
+                구독자 {channelInfo.subscribes}명
               </Subscribed>
             </ProfileRight>
           </Profile>
 
-          {myId === videoDatas.channel.memberId || (
+          {myId === videoDatas.channel?.memberId || (
             <SubscribeBtn
-              memberId={videoDatas.channel.memberId}
+              memberId={videoDatas.channel?.memberId}
               channelInfo={channelInfo}
               setSub={setSub}
             />
           )}
 
-          {!videoDatas.isPurchased && myId !== videoDatas.channel.memberId && (
+          {!videoDatas.isPurchased && myId !== videoDatas.channel?.memberId && (
             <CreditBox>
               {videoDatas.price > 0 && (
                 <AddCart
@@ -337,6 +338,8 @@ const DetailVideo = () => {
 
 export default DetailVideo;
 
+const globalTokens = tokens.global;
+
 export const PurchaseNav = styled(RoundButton)`
   border-radius: ${(props) =>
     props.isFree ? "18px 18px 18px 18px;" : "0px 18px 18px 0px;"};
@@ -382,7 +385,6 @@ export const VideoCover = styled.div`
   justify-content: center;
   align-items: center;
   position: relative;
-
   &::before {
     content: "";
     background-image: ${(props) => props.url && `url(${props.url})`};
@@ -442,7 +444,7 @@ export const VideoTitle = styled(Heading5Typo)`
   justify-content: space-between;
 `;
 
-export const VideoInfo = styled.div`
+export const VideoInfo = styled.button`
   position: relative;
   width: 100%;
   display: flex;
@@ -453,21 +455,34 @@ export const VideoInfo = styled.div`
 `;
 
 export const Profile = styled.div`
+  min-width: 180px;
+  height: 60px;
+  padding: 0px 10px;
   display: flex;
-  flex-direction: row;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
   margin-right: 50px;
+  cursor: pointer;
+  &:hover {
+    background-color: ${globalTokens.Gray.value};
+  }
 `;
 
 export const ProfileImg = styled.img`
   width: 50px;
   height: 50px;
-  margin-right: 10px;
+  margin-right: 15px;
   border-radius: 50%;
 `;
 
-export const ProfileRight = styled.div``;
+export const ProfileRight = styled.div`
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+`;
+
 export const ProfileName = styled(BodyTextTypo)``;
 
 export const Subscribed = styled(SmallTextTypo)`
