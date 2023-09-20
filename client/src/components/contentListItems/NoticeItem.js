@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { BodyTextTypo, SmallTextTypo } from "../../atoms/typographys/Typographys";
 import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
 import NoticeSubmit from "./NoticeSubmit";
-import { PositiveTextButton } from "../../atoms/buttons/Buttons";
+import { PositiveTextButton, NegativeTextButton } from "../../atoms/buttons/Buttons";
 import axios from "axios";
 import { useToken } from "../../hooks/useToken";
 import {ConfirmModal} from "../../atoms/modal/Modal"
@@ -67,8 +67,7 @@ const ButtonContainer = styled.div`
   justify-content: end;
   height: 30px;
 `
-const NoticeButton = styled(PositiveTextButton)`
-`
+
 
 export default function NoticeItem({ channelInfor, notice, accessToken, getHandler, userId }) {
   const isDark = useSelector((state) => state.uiSetting.isDark);
@@ -129,12 +128,12 @@ export default function NoticeItem({ channelInfor, notice, accessToken, getHandl
       )}
       {myId === Number(userId) ? (
         <ButtonContainer>
-          <NoticeButton isDark={isDark} onClick={() => setIsModalOpen(true)}>
+          <NegativeTextButton isDark={isDark} onClick={() => setIsModalOpen(true)}>
             삭제
-          </NoticeButton>
-          <NoticeButton isDark={isDark} onClick={() => setOpenEdit(!openEdit)}>
+          </NegativeTextButton>
+          <PositiveTextButton isDark={isDark} onClick={() => setOpenEdit(!openEdit)}>
             수정
-          </NoticeButton>
+          </PositiveTextButton>
         </ButtonContainer>
       ) : (
         <></>

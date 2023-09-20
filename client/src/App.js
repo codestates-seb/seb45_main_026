@@ -34,6 +34,7 @@ import WatchedListPage from "./pages/contents/WatchedListPage";
 import ResultPage from "./pages/contents/ResultPage";
 import NotFound from "./pages/NotFound";
 import IncomePage from "./pages/userInfo/IncomePage";
+import ToTopButton from "./pages/contents/ToTopButton";
 
 function App() {
   const dispatch = useDispatch();
@@ -119,6 +120,7 @@ function App() {
         <Route path="/*" element={<NotFound/>} />
       </Routes>
       <Footer />
+      <ToTopButton/>
     </BrowserRouter>
   );
 }

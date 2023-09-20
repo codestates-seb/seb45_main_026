@@ -21,7 +21,8 @@ import {
 import profileGray from "../../../assets/images/icons/profile/profileGray.svg";
 import AddCart from "../../../components/DetailPage/AddCart";
 import VideoPlayer from "../../../components/DetailPage/VideoPlayer";
-import { AlertModal,ReportModal } from "../../../atoms/modal/Modal";
+import { AlertModal, ReportModal } from "../../../atoms/modal/Modal";
+import { PositiveTextButton } from "../../../atoms/buttons/Buttons";
 
 const globalTokens = tokens.global;
 
@@ -130,11 +131,9 @@ const DetailVideo = () => {
         if (res.data.data) {
           setReportModal(false);
           setReportedModal(true);
-          setReportContent("")
         } else {
           setReportModal(false);
           setAlreadyReportedModal(true);
-          setReportContent("");
         }
       }).catch((err) => {
         if (err.response.data.message === "만료된 토큰입니다.") {
@@ -153,10 +152,11 @@ const DetailVideo = () => {
   return (
     <>
       <VideoContainer isDark={isDark}>
+        <BackButton onClick={()=>navigate('/lecture')}>← 목록으로</BackButton>
         <VideoHeader isDark={isDark}>
           <HeaderBtnContainer>
             부적절한 영상인가요?
-            <HeaderBtn isDark={isDark} onClick={()=>setReportModal(true)}>
+            <HeaderBtn isDark={isDark} onClick={() => setReportModal(true)}>
               신고하기
             </HeaderBtn>
           </HeaderBtnContainer>
@@ -340,7 +340,7 @@ export const VideoContainer = styled.section`
   justify-content: center;
   align-items: start;
   flex-wrap: wrap;
-  padding: 50px 50px 30px 50px;
+  padding: 28px 50px 30px 50px;
   margin-bottom: 20px;
   border-radius: ${globalTokens.RegularRadius.value}px;
   background-color: ${(props) =>
@@ -457,4 +457,7 @@ export const CreditBox = styled.div`
   align-items: center;
   right: 0%;
   bottom: 15%;
+`;
+
+const BackButton = styled(PositiveTextButton)`
 `;

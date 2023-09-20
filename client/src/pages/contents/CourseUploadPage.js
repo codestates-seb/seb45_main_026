@@ -25,8 +25,11 @@ const CourseUploadPage = () => {
 
   useEffect(() => {
     getTags();
+    window.scrollTo({
+      top: 0,
+    });
   }, []);
-
+  
   return (
     <PageContainer isDark={isDark}>
       <UploadContainer isDark={isDark}>
