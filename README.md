@@ -449,7 +449,7 @@ warm up 상세 내용 확인 ☞ [warm up](https://hobeen-kim.github.io/java/JAV
 
  <img alt="test" src ="/images/be/test.png"/>
 
- BE JAVA 애플리케이션에서 총 754 개의 단위 및 통합테스트를 진행했습니다. 단위 테스트의 대상은 Controller, Service, Repository, Entity 의 모든 public 메서드입니다. 중점은 기능 동작 여부와 엣지 케이스에서 정상적인 예외를 던지는지 였습니다. 통합테스트는 주어진 조건에서 mockMvc 를 활용해 API 를 호출했을 때 기대되는 응답값과 DB CRUD 가 되는지 확인했습니다.
+ BE JAVA 애플리케이션에서 총 793 개의 단위 및 통합테스트를 진행했습니다. 단위 테스트의 대상은 Controller, Service, Repository, Entity 의 모든 public 메서드입니다. 중점은 기능 동작 여부와 엣지 케이스에서 정상적인 예외를 던지는지 였습니다. 통합테스트는 주어진 조건에서 mockMvc 를 활용해 API 를 호출했을 때 기대되는 응답값과 DB CRUD 가 되는지 확인했습니다.
 
 </details>
 
