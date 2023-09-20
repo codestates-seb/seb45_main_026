@@ -113,7 +113,12 @@ export default function ChannelPage() {
         }
       });
   }, [accessToken, userId, isSub]);
-
+  
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+    });
+  },[])
     return (
       <PageContainer isDark={isDark}>
         <ChannelMainContainer>

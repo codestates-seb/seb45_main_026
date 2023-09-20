@@ -17,6 +17,7 @@ import ListToggle from "../../atoms/buttons/ListToggle";
 export default function HorizonItem({ lecture, channel }) {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const myId = useSelector((state) => state.loginInfo.myid);
+  const token = useSelector((state) => state.loginInfo.accessToken);
   const {
     videoName,
     thumbnailUrl,
@@ -79,11 +80,17 @@ export default function HorizonItem({ lecture, channel }) {
             {videoName}
           </VideoName>
           {myId === channel.memberId && (
-            <ListToggle OnOff={videoStatus !== "CREATED"} videoId={lecture.videoId}/>
+            <ListToggle
+              OnOff={videoStatus !== "CREATED"}
+              videoId={lecture.videoId}
+            />
           )}
-          {!isPurchased && price > 0 && myId !== channel.memberId && (
-            <AddCart videoId={videoId} isInCart={isInCart} />
-          )}
+          {!isPurchased &&
+            token.authorization &&
+            price > 0 &&
+            myId !== channel.memberId && (
+              <AddCart videoId={videoId} isInCart={isInCart} />
+            )}
         </Title>
         <Description isDark={isDark}>{description}</Description>
         <InforContainer>

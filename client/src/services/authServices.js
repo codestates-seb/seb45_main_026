@@ -136,7 +136,7 @@ export const findPasswordEmailValidService = async (email) => {
 //패스워드 찾기 email 인증번호 확인
 export const findPasswordEmailValidConfirmService = async (email, emailCode) => {
     try {
-        const response = axios.post(
+        const response = await axios.post(
             `${ROOT_URL}/auth/password/confirm`,
             {
                 email: email,

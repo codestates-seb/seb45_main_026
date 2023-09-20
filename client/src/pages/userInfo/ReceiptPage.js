@@ -69,7 +69,13 @@ const ReceiptPage = () => {
             setLoading(true);
             setPage(page+1);
         }
-    },[inView]);
+    }, [inView]);
+    
+    useEffect(() => {
+      window.scrollTo({
+        top: 0,
+      });
+    }, []);
 
     return (
         <PageContainer isDark={isDark}>

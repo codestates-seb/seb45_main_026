@@ -38,6 +38,7 @@ const ProblemPage = () => {
       })
       .then((res) => {
         dispatch(setProblems(res.data.data));
+        console.log(res)
       })
       .catch((err) => {
         if (err.response.data?.code === 401) {
@@ -85,6 +86,9 @@ const ProblemPage = () => {
 
   useEffect(() => {
     getProblems();
+    window.scrollTo({
+      top: 0,
+    });
   }, []);
 
   return (

@@ -31,9 +31,6 @@ const VideoInfoSlice = createSlice({
     setVideoInfo: (state, action) => {
       state.data = { ...state.data, ...action.payload };
     },
-    setPrev: (state, action) => {
-      state.data.isPurchased = action.payload;
-    },
     setInCart: (state, action) => {
       state.data.isInCart = action.payload;
     },
@@ -44,7 +41,7 @@ const VideoInfoSlice = createSlice({
 });
 
 export default VideoInfoSlice;
-export const { setVideoInfo, setPrev, setInCart, setContnentOpen } =
+export const { setVideoInfo, setInCart, setContnentOpen } =
   VideoInfoSlice.actions;
 
 

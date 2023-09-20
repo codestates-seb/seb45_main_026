@@ -12,6 +12,11 @@ export const MainPageContainer = styled(PageContainer)`
     overflow-y: auto;
     width: 100vw;
     height: 100vh;
+
+    & > .swiper {
+    width: 100vw;
+    height: 100vh;
+  }
 `
 export const LightContainer = styled.div`
     background-color: ${(props)=>props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
