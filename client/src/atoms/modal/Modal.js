@@ -1,8 +1,9 @@
 import { useSelector } from "react-redux";
 import { styled } from "styled-components";
 import tokens from "../../styles/tokens.json";
-import { BodyTextTypo } from "../typographys/Typographys";
+import { BodyTextTypo, SmallTextTypo } from "../typographys/Typographys";
 import { NegativeTextButton, PositiveTextButton } from "../buttons/Buttons";
+import { RegularTextArea } from "../inputs/TextAreas";
 
 //예, 아니오를 선택하는 모달
 export const ConfirmModal = ({
@@ -55,6 +56,7 @@ export const ConfirmModal = ({
   );
 };
 
+
 //확인 버튼만 있는 모달
 export const AlertModal = ({
   isModalOpen,
@@ -95,6 +97,59 @@ export const AlertModal = ({
   );
 };
 
+export const ReportModal = ({
+  reportContent,
+  setReportContent,
+  isModalOpen,
+  setIsModalOpen,
+  isBackdropClickClose,
+  negativeButtonTitle,
+  positiveButtonTitle,
+  handleNegativeButtonClick,
+  handlePositiveButtonClick,
+}) => {
+  const isDark = useSelector((state) => state.uiSetting.isDark);
+
+  return (
+    <ModalBackdrop
+      isModalOpen={isModalOpen}
+      isDark={isDark}
+      onClick={() => {
+        isBackdropClickClose && setIsModalOpen(false);
+      }}
+    >
+      <ReportModalContainer
+        isDark={isDark}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        <ModalContent isDark={isDark}>해당 영상을 신고하시겠습니까?</ModalContent>
+        <ModalSubContent isDark={isDark}>신고 사유를 꼭 적어주세요.</ModalSubContent>
+        <ReportContent isDark={isDark} onChange={setReportContent} value={reportContent}/>
+        <ModalButtonContainer>
+          <ModalPositiveButton
+            isDark={isDark}
+            onClick={(e) => {
+              handlePositiveButtonClick();
+            }}
+          >
+            {positiveButtonTitle}
+          </ModalPositiveButton>
+          <ModalNegativeButton
+            isDark={isDark}
+            onClick={(e) => {
+              handleNegativeButtonClick();
+            }}
+          >
+            {negativeButtonTitle}
+          </ModalNegativeButton>
+        </ModalButtonContainer>
+      </ReportModalContainer>
+    </ModalBackdrop>
+  );
+};
+
 const globalTokens = tokens.global;
 
 export const ModalBackdrop = styled.div`
@@ -126,6 +181,10 @@ export const ModalContainer = styled.div`
   justify-content: center;
   align-items: center;
 `;
+export const ReportModalContainer = styled(ModalContainer)`
+  height: 250px;
+  gap: ${globalTokens.Spacing12.value}px;
+`
 
 export const ModalContent = styled(BodyTextTypo)`
   flex-grow: 1;
@@ -133,6 +192,19 @@ export const ModalContent = styled(BodyTextTypo)`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+`;
+
+export const ModalSubContent = styled(SmallTextTypo)`
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const ReportContent = styled(RegularTextArea)`
+  width: 300px;
+  height: 150px;
 `;
 
 export const ModalButtonContainer = styled.div`

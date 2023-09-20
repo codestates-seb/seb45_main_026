@@ -83,6 +83,12 @@ const IncomePage = () => {
         }
     },[inView])
 
+    useEffect(() => {
+      window.scrollTo({
+        top: 0,
+      });
+    }, []);
+
     return (
         <PageContainer isDark={isDark}>
             <RewardMainContainer isDark={isDark}>
