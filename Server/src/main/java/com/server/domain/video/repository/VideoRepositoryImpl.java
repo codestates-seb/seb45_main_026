@@ -388,7 +388,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
         BooleanExpression eq = video.videoStatus.eq(VideoStatus.CREATED);
 
         if(request.getMemberId().equals(request.getLoginMemberId())) {
-            return eq.or(video.videoStatus.eq(VideoStatus.CLOSED));
+            return eq.or(video.videoStatus.eq(VideoStatus.CLOSED).or(video.videoStatus.eq(VideoStatus.CLOSED)));
         }
 
         return eq;
