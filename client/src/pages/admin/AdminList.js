@@ -10,6 +10,7 @@ import { BottomDiv } from '../contents/LectureListPage';
 import { HomeTitle } from '../../components/contentListItems/ChannelHome';
 import ReportItem from '../../components/adminPageItems/ReportItem';
 import ReportHeader from '../../components/adminPageItems/ReportHeader';
+import { useNavigate } from 'react-router-dom';
 
 const globalTokens = tokens.global;
 
@@ -34,10 +35,15 @@ const AdminList = () => {
     const [ maxPage, setMaxPage ] = useState(10);
     const [ ref, inView ] = useInView();
     const [ loading, setLoading ] = useState(true);
+    const navigate = useNavigate();
 
     //첫 페이지 데이터를 불러옴
     useEffect(()=>{
         if(page>1) return;
+        if(userInfo.authority!=='ROLE_ADMIN') {
+            navigate('/lecture');
+            return;
+        }
         getReportService(accessToken.authorization,1).then((res)=>{
             if(res.status==='success') {
                 setReportList([ ...res.data.data ]);
@@ -60,11 +66,11 @@ const AdminList = () => {
                         ...reportList,
                         ...res.data.data
                     ])
-                }else{
+                } else {
                     console.log(res);
                 }
             })
-        } 
+        }
     },[page]);
 
     //바닥 요소가 보이면 현재 페이지 값을 1 증가
@@ -78,14 +84,11 @@ const AdminList = () => {
     return (
         <PageContainer isDark={isDark}>
             <AdminMainContainer isDark={isDark}>
-                
                 <HomeTitle isDark={isDark}>신고내역 관리</HomeTitle>
                 <ReportHeader/>
-                {
-                    reportList.length>0 && 
+                { reportList.length>0 && 
                         reportList.map((e,idx)=>{ 
-                            return <ReportItem key={e.videoId} item={e}/>})
-                }
+                            return <ReportItem key={e.videoId} item={e}/>}) }
                 { !loading && <BottomDiv ref={ref}/> }
             </AdminMainContainer>
         </PageContainer>

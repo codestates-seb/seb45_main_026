@@ -35,6 +35,7 @@ import ResultPage from "./pages/contents/ResultPage";
 import NotFound from "./pages/NotFound";
 import IncomePage from "./pages/userInfo/IncomePage";
 import AdminList from "./pages/admin/AdminList";
+import AdminDetail from "./pages/admin/AdminDetail";
 
 function App() {
   const dispatch = useDispatch();
@@ -120,6 +121,7 @@ function App() {
         <Route path="/result/:keyword" element={<ResultPage />} />
         
         <Route path='/admin' element={<AdminList/>}/>
+        <Route path='/admin/:videoId' element={<AdminDetail/>}/>
 
         <Route path="/*" element={<NotFound/>} />
       </Routes>
