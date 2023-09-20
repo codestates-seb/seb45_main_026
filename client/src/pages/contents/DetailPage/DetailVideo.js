@@ -22,6 +22,7 @@ import profileGray from "../../../assets/images/icons/profile/profileGray.svg";
 import AddCart from "../../../components/DetailPage/AddCart";
 import VideoPlayer from "../../../components/DetailPage/VideoPlayer";
 import { AlertModal } from "../../../atoms/modal/Modal";
+import { priceToString } from "../../../components/CartPage/CartPayInfo";
 
 const globalTokens = tokens.global;
 
@@ -39,6 +40,7 @@ const DetailVideo = () => {
   const [isPrevMode, setPrevMode] = useState(false);
   const [purchaseModal, setPurchaseModal] = useState(false);
   const [alertModal, setAlertModal] = useState(false);
+  const [alertLogin, setAlertLogin] = useState(false);
 
   useEffect(() => {
     getChannelInfo();
@@ -63,6 +65,9 @@ const DetailVideo = () => {
   };
 
   const handlePurchase = () => {
+    if (!token.authorization) {
+      return setAlertLogin(true);
+    }
     return axios
       .post(
         `https://api.itprometheus.net/orders`,
@@ -84,6 +89,9 @@ const DetailVideo = () => {
   };
 
   const handleCartNav = () => {
+    if (!token.authorization) {
+      return setAlertLogin(true);
+    }
     return axios
       .patch(`https://api.itprometheus.net/videos/${videoId}/carts`, null, {
         headers: { Authorization: token.authorization },
@@ -105,6 +113,10 @@ const DetailVideo = () => {
   };
 
   const handleNavProblem = () => {
+    if (!token.authorization) {
+      return setAlertLogin(true);
+    }
+    console.log(token);
     if (!videoDatas.isPurchased && myId !== videoDatas.channel.memberId) {
       setAlertModal(true);
     } else {
@@ -159,7 +171,11 @@ const DetailVideo = () => {
         <VideoTitle isDark={isDark}>
           <span>{videoDatas.videoName}</span>
           {!videoDatas.isPurchased && myId !== videoDatas.channel.memberId && (
-            <span>{videoDatas.price ? `${videoDatas.price}원` : "무료"}</span>
+            <span>
+              {videoDatas.price
+                ? `${priceToString(videoDatas.price)}원`
+                : "무료"}
+            </span>
           )}
         </VideoTitle>
         <VideoInfo>
@@ -217,7 +233,7 @@ const DetailVideo = () => {
       <AlertModal
         isModalOpen={purchaseModal}
         setIsModalOpen={setPurchaseModal}
-        isBackdropClickClose={true}
+        isBackdropClickClose={false}
         content="성공적으로 강의가 구매 되었습니다."
         buttonTitle="확인"
         handleButtonClick={() => {
@@ -228,10 +244,18 @@ const DetailVideo = () => {
       <AlertModal
         isModalOpen={alertModal}
         setIsModalOpen={setAlertModal}
-        isBackdropClickClose={true}
+        isBackdropClickClose={false}
         content="강의를 먼저 구매해주세요."
         buttonTitle="확인"
         handleButtonClick={() => setAlertModal(false)}
+      />
+      <AlertModal
+        isModalOpen={alertLogin}
+        setIsModalOpen={setAlertLogin}
+        isBackdropClickClose={false}
+        content="로그인 후 이용해주세요."
+        buttonTitle="확인"
+        handleButtonClick={() => setAlertLogin(false)}
       />
     </>
   );

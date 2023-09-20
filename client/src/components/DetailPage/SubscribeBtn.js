@@ -4,12 +4,18 @@ import { styled } from "styled-components";
 import tokens from "../../styles/tokens.json";
 import bell from "../../assets/images/icons/bell.svg";
 import { RoundButton } from "../../atoms/buttons/Buttons";
+import { AlertModal } from "../../atoms/modal/Modal";
+import { useState } from "react";
 
 const SubscribeBtn = ({ memberId, setSub, channelInfo }) => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const token = useSelector((state) => state.loginInfo.accessToken);
+  const [alertLogin, setAlertLogin] = useState(false);
 
   const handleSubscribe = () => {
+    if (!token.authorization) {
+      return setAlertLogin(true);
+    }
     return axios
       .patch(
         `https://api.itprometheus.net/channels/${memberId}/subscribe`,
@@ -40,6 +46,14 @@ const SubscribeBtn = ({ memberId, setSub, channelInfo }) => {
           </>
         )}
       </Subscribed>
+      <AlertModal
+        isModalOpen={alertLogin}
+        setIsModalOpen={setAlertLogin}
+        isBackdropClickClose={false}
+        content="로그인 후 이용해주세요."
+        buttonTitle="확인"
+        handleButtonClick={() => setAlertLogin(false)}
+      />
     </>
   );
 };
