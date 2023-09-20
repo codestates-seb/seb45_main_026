@@ -162,7 +162,7 @@ export const SignupForm = () => {
                 placeholder='이메일을 입력해 주세요.'
                 register={register}
                 required
-                maxLength={20}
+                maxLength={40}
                 minLength={5}
                 pattern={/^[^\s@]+@[^\s@]+\.[^\s@]+$/i}
                 isButton={true}
