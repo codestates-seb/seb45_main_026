@@ -954,6 +954,7 @@ class VideoControllerTest extends ControllerTest {
                                 fieldWithPath("data").description("비디오 신고 목록"),
                                 fieldWithPath("data[].videoId").description("비디오 ID"),
                                 fieldWithPath("data[].videoName").description("비디오 제목"),
+                                fieldWithPath("data[].videoStatus").description(generateLinkCode(VideoStatus.class)),
                                 fieldWithPath("data[].reportCount").description("비디오 신고 횟수"),
                                 fieldWithPath("data[].createdDate").description("비디오 생성일"),
                                 fieldWithPath("data[].lastReportedDate").description("비디오 최근 신고일")
@@ -2149,6 +2150,7 @@ class VideoControllerTest extends ControllerTest {
             VideoReportResponse response = VideoReportResponse.builder()
                     .videoId((long) i)
                     .videoName("비디오 제목")
+                    .videoStatus(VideoStatus.CREATED)
                     .reportCount(2L)
                     .createdDate(LocalDateTime.now())
                     .lastReportedDate(LocalDateTime.now())

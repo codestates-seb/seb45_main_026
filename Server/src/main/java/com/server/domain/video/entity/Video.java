@@ -156,8 +156,16 @@ public class Video extends BaseEntity implements Rewardable {
         return this.videoStatus == VideoStatus.CLOSED;
     }
 
+    public boolean isAdminClosed() {
+        return this.videoStatus == VideoStatus.ADMIN_CLOSED;
+    }
+
     public void close() {
         this.videoStatus = VideoStatus.CLOSED;
+    }
+
+    public void adminClose() {
+        this.videoStatus = VideoStatus.ADMIN_CLOSED;
     }
 
     public void open() {

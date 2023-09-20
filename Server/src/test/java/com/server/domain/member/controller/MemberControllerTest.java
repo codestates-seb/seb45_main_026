@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.server.domain.category.service.dto.response.CategoryResponse;
+import com.server.domain.member.entity.Authority;
 import com.server.domain.member.service.dto.response.RewardsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelDetailsResponse;
 import com.server.domain.member.service.dto.response.PlaylistChannelResponse;
@@ -63,6 +64,7 @@ public class MemberControllerTest extends ControllerTest {
 			.imageUrl("https://d2ouhv9pc4idoe.cloudfront.net/images/test")
 			.grade(Grade.PLATINUM)
 			.reward(777)
+			.authority(Authority.ROLE_ADMIN)
 			.createdDate(LocalDateTime.now())
 			.build();
 
@@ -94,6 +96,7 @@ public class MemberControllerTest extends ControllerTest {
 				fieldWithPath("data.imageUrl").description("회원 프로필 이미지"),
 				fieldWithPath("data.grade").description(generateLinkCode(Grade.class)),
 				fieldWithPath("data.reward").description("보유 중인 리워드"),
+				fieldWithPath("data.authority").description(generateLinkCode(Authority.class)),
 				fieldWithPath("data.createdDate").description("가입일"),
 				fieldWithPath("code").description("응답 코드"),
 				fieldWithPath("status").description("응답 상태"),

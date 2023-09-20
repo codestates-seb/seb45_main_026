@@ -7,6 +7,7 @@ import com.server.domain.member.entity.Member;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.report.entity.Report;
 import com.server.domain.video.entity.Video;
+import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.dto.request.ChannelVideoGetDataRequest;
 import com.server.domain.video.repository.dto.request.VideoGetDataRequest;
 import com.server.domain.video.repository.dto.response.VideoReportData;
@@ -985,6 +986,7 @@ class VideoRepositoryTest extends RepositoryTest {
                             .isSortedAccordingTo(Comparator.comparing(VideoReportData::getLastReportedDate).reversed());
 
                     assertThat(videoReportData.getContent().get(0).getReportCount()).isEqualTo(1L);
+                    assertThat(videoReportData.getContent()).extracting("videoStatus").contains(VideoStatus.CREATED);
                 }),
                 dynamicTest("video 의 createdDate 로 정렬한다.", ()-> {
                     //when
