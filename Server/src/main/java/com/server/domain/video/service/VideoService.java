@@ -29,6 +29,9 @@ import com.server.module.s3.service.dto.ImageType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,7 +66,7 @@ public class VideoService {
 
     public Page<VideoPageResponse> getVideos(VideoGetServiceRequest request) {
 
-        Long memberId = verifiedMemberOrNull(request.getLoginMemberId());
+        Long memberId = verifiedMemberIdOrNull(request.getLoginMemberId());
 
         Page<Video> videos = videoRepository.findAllByCond(request.toDataRequest());
 
@@ -78,7 +81,7 @@ public class VideoService {
 
     public Page<VideoPageResponse> searchVideos(String keyword, VideoGetServiceRequest request) {
 
-        Long memberId = verifiedMemberOrNull(request.getLoginMemberId());
+        Long memberId = verifiedMemberIdOrNull(request.getLoginMemberId());
 
         Page<Video> videos = videoRepository.findAllByCond(keyword, request.toDataRequest());
 
@@ -95,9 +98,13 @@ public class VideoService {
 
         Video video = verifiedVideoIncludeWithdrawal(videoId);
 
-        Long memberId = verifiedMemberOrNull(loginMemberId);
+        Member member = verifiedMemberOrNull(loginMemberId);
+
+        Long memberId = member == null ? null : member.getMemberId();
 
         Boolean isPurchased = isPurchased(memberId, video);
+
+        if(member != null && member.isAdmin()) isPurchased = true;
 
         checkIfVideoClosed(isPurchased, video);
 
@@ -125,7 +132,7 @@ public class VideoService {
 
         Video video = verifiedVideoIncludeWithdrawal(videoId);
 
-        Long memberId = verifiedMemberOrNull(loginMemberId);
+        Long memberId = verifiedMemberIdOrNull(loginMemberId);
 
         video.addView();
         if(memberId == null) return;
@@ -204,9 +211,7 @@ public class VideoService {
 
         Video video = verifiedVideo(loginMemberId, videoId);
 
-        boolean isAdmin = !video.getMemberId().equals(loginMemberId);
-
-        if(isAdmin) {
+        if(isAdmin()) {
             return changeVideoStatusAdmin(video);
         }
 
@@ -402,13 +407,22 @@ public class VideoService {
         }
     }
 
-    private Long verifiedMemberOrNull(Long loginMemberId) {
+    private Long verifiedMemberIdOrNull(Long loginMemberId) {
 
         if(loginMemberId == null || loginMemberId == -1) {
             return null;
         }
 
         return memberRepository.findMemberIdById(loginMemberId);
+    }
+
+    private Member verifiedMemberOrNull(Long loginMemberId) {
+
+        if(loginMemberId == null || loginMemberId == -1) {
+            return null;
+        }
+
+        return memberRepository.findById(loginMemberId).orElse(null);
     }
 
     private Member verifiedMember(Long loginMemberId) {
@@ -429,9 +443,7 @@ public class VideoService {
         Video video = videoRepository.findVideoDetailIncludeWithdrawal(videoId)
                 .orElseThrow(VideoNotFoundException::new);
 
-        Member member = verifiedMember(memberId);
-
-        if(member.getAuthority().equals(Authority.ROLE_ADMIN)) {
+        if(isAdmin()) {
             return video;
         }
 
@@ -543,5 +555,10 @@ public class VideoService {
     private boolean deleteCart(Cart cart) {
         cartRepository.delete(cart);
         return false;
+    }
+
+    private boolean isAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
     }
 }

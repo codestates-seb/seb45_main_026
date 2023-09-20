@@ -280,6 +280,37 @@ class VideoServiceTest extends ServiceTest {
     }
 
     @Test
+    @DisplayName("admin 이 video 를 조회 시 isPurchased 를 true 로 반환한다.")
+    void getVideoAdmin() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+
+        Member admin = createAdminWithChannel();
+
+        //when
+        VideoDetailResponse response = videoService.getVideo(admin.getMemberId(), video.getVideoId());
+
+        //then
+        assertThat(response.getIsPurchased()).isTrue();
+    }
+
+    @Test
+    @DisplayName("admin 이 video 를 조회 시 close 된 video 도 조회할 수 있다.")
+    void getVideoClosedAdmin() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+        video.close();
+
+        Member admin = createAdminWithChannel();
+
+        //when & then
+        assertThatNoException()
+                .isThrownBy(() -> videoService.getVideo(admin.getMemberId(), video.getVideoId()));
+    }
+
+    @Test
     @DisplayName("videoId 로 videoUrl 을 조회한다.")
     void getVideoUrl() {
         //given

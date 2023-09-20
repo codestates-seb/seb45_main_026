@@ -89,11 +89,9 @@ public class Member extends BaseEntity {
 	@Builder.Default
 	private List<Reward> rewards = new ArrayList<>();
 
-	public void checkAdmin() {
+	public boolean isAdmin() {
 
-		if (this.authority != Authority.ROLE_ADMIN) {
-			throw new MemberAccessDeniedException();
-		}
+		return this.authority.equals(Authority.ROLE_ADMIN);
 	}
 
 	public void updatePassword(String password) {
