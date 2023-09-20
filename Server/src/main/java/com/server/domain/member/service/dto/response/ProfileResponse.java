@@ -2,6 +2,7 @@ package com.server.domain.member.service.dto.response;
 
 import java.time.LocalDateTime;
 
+import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Grade;
 import com.server.domain.member.entity.Member;
 
@@ -17,6 +18,7 @@ public class ProfileResponse {
 	private String imageUrl;
 	private Grade grade;
 	private int reward;
+	private Authority authority;
 	private LocalDateTime createdDate;
 
 	public static ProfileResponse getMember(Member member, String imageUrl) {
@@ -27,6 +29,7 @@ public class ProfileResponse {
 			.imageUrl(imageUrl)
 			.grade(member.getGrade())
 			.reward(member.getReward())
+			.authority(member.getAuthority())
 			.createdDate(member.getCreatedDate())
 			.build();
 	}
