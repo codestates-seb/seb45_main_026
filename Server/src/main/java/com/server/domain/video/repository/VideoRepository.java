@@ -27,7 +27,8 @@ public interface VideoRepository extends JpaRepository<Video, Long>, VideoReposi
 
     @Query(value = "select v.video_id, v.thumbnail_file, v.video_name, c.channel_id " +
         "from video v join channel c on v.channel_id = c.channel_id " +
-        "where match(v.video_name) against(?1 in boolean mode) limit ?2", nativeQuery = true)
+        "where match(v.video_name) against(?1 in boolean mode) limit ?2 " +
+        "and v.video_status = 'CREATED'", nativeQuery = true)
     List<Tuple> searchVideoByKeyword(String keyword, int limit);
 
     @Query(value = "select v.videoFile " +
