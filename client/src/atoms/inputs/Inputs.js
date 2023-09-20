@@ -22,7 +22,8 @@ export const InputWithButtonContainer = styled.div`
     align-items: start;
 `
 export const RegularInput = styled.input`
-    width: ${ (props)=>props.width };
+    width: ${ (props) => props.width };
+    max-width: 900px;
     background-color: rgba(255,255,255,0.25);
     padding: ${globalTokens.Spacing8.value}px;
     border-radius: ${globalTokens.RegularRadius.value}px;

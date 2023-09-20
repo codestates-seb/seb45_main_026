@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { PageContainer } from "../atoms/layouts/PageContainer";
 import styled from "styled-components";
@@ -5,7 +6,11 @@ import { Heading5Typo, Heading1Typo } from "../atoms/typographys/Typographys";
 
 const NotFound = () => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
-
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+    });
+  }, []);
   return (
     <PageContainer isDark={isDark}>
       <NotFoundBox>

@@ -95,7 +95,6 @@ const HorizonItemContainer = styled.ul`
     align-items: center;
     gap: ${globalTokens.Spacing16.value}px;
     margin-bottom: ${globalTokens.Spacing28.value}px;
-    max-height: 1000px;
     transition: 500ms;
 `
 const BottomDiv = styled.div`

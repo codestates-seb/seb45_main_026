@@ -79,7 +79,7 @@ export default function ChannelNotice({channelInfor,userId}) {
     };
     useEffect(() => {
         getHandler(userId)
-    }, [])
+    }, [userId])
     useEffect(() => {
         if (page !== 1) {
             axios.get(`https://api.itprometheus.net/channels/${userId}/announcements?page=${page}&size=10`)

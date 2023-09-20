@@ -86,6 +86,9 @@ const ProblemPage = () => {
 
   useEffect(() => {
     getProblems();
+    window.scrollTo({
+      top: 0,
+    });
   }, []);
 
   return (

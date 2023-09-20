@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { BodyTextTypo, SmallTextTypo } from "../../atoms/typographys/Typographys";
 import frofileGray from "../../assets/images/icons/profile/profileGray.svg";
 import NoticeSubmit from "./NoticeSubmit";
-import { PositiveTextButton } from "../../atoms/buttons/Buttons";
+import { PositiveTextButton, NegativeTextButton } from "../../atoms/buttons/Buttons";
 import axios from "axios";
 import { useToken } from "../../hooks/useToken";
 import {ConfirmModal} from "../../atoms/modal/Modal"
@@ -67,8 +67,7 @@ const ButtonContainer = styled.div`
   justify-content: end;
   height: 30px;
 `
-const NoticeButton = styled(PositiveTextButton)`
-`
+
 
 export default function NoticeItem({ channelInfor, notice, accessToken, getHandler, userId }) {
   const isDark = useSelector((state) => state.uiSetting.isDark);
@@ -127,11 +126,28 @@ export default function NoticeItem({ channelInfor, notice, accessToken, getHandl
       ) : (
         <NoticeContent isDark={isDark}>{notice.content}</NoticeContent>
       )}
-      {myId === Number(userId)?<ButtonContainer>
-        <NoticeButton isDark={isDark} onClick={() => setIsModalOpen(true)}>삭제</NoticeButton>
-        <NoticeButton isDark={isDark} onClick={() => setOpenEdit(!openEdit)}>수정</NoticeButton>
-      </ButtonContainer>:<></>}
-      <ConfirmModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} isBackdropClickClose={false} content={"해당 공지사항을 삭제하시겠습니까?"} negativeButtonTitle="취소" positiveButtonTitle="삭제" handleNegativeButtonClick={()=>setIsModalOpen(false)} handlePositiveButtonClick={()=>deleteHandler()} />
+      {myId === Number(userId) ? (
+        <ButtonContainer>
+          <NegativeTextButton isDark={isDark} onClick={() => setIsModalOpen(true)}>
+            삭제
+          </NegativeTextButton>
+          <PositiveTextButton isDark={isDark} onClick={() => setOpenEdit(!openEdit)}>
+            수정
+          </PositiveTextButton>
+        </ButtonContainer>
+      ) : (
+        <></>
+      )}
+      <ConfirmModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        isBackdropClickClose={false}
+        content={"해당 공지사항을 삭제하시겠습니까?"}
+        negativeButtonTitle="삭제"
+        positiveButtonTitle="취소"
+        handleNegativeButtonClick={() => deleteHandler()}
+        handlePositiveButtonClick={() => setIsModalOpen(false)}
+      />
     </ItemBody>
   );
 }

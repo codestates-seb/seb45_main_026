@@ -6,7 +6,8 @@ import { useSelector } from "react-redux";
 const globalTokens = tokens.global;
 
 export const RegularTextArea = styled.textarea`
-    width: ${ (props)=>props.width };
+    width: ${ (props) => props.width };
+    max-width: 900px;
     background-color: rgba(255,255,255,0.25);
     padding: ${globalTokens.Spacing8.value}px;
     border-radius: ${globalTokens.RegularRadius.value}px;

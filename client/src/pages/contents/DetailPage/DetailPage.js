@@ -44,6 +44,12 @@ const DetailPage = () => {
     getVideoInfo();
   }, [token]);
 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+    });
+  },[])
+
   return (
     <PageContainer isDark={isDark}>
       <DetailContainer>
@@ -67,3 +73,4 @@ export const DetailContainer = styled.div`
   align-items: center;
   flex-wrap: wrap;
 `;
+
