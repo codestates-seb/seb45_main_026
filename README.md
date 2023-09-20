@@ -234,6 +234,11 @@
 |------|----|
 | <img width="400px" alt="스크린샷 2023-09-15 오전 11 00 53" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/76eee334-5949-4ed7-b4c7-9858358b3306"> | <img width="400px" alt="스크린샷 2023-09-18 오전 1 46 48" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/363cadf0-65c9-4957-99c7-0e612fdab52c"> |
 
+|관리자용 - 신고된 비디오 목록|관리자용 - 신고 비디오 상세|
+|------|----|
+| <img width="400px" alt="스크린샷 2023-09-15 오전 11 00 53" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/7e0bef47-4072-4471-af35-9c4e7ed40008"> | <img width="400px" alt="스크린샷 2023-09-18 오전 1 46 48" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/9d2c3b5d-cb7e-46cb-bf90-e7262df1da52"> |
+
+
 
 </details>
 
