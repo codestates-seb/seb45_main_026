@@ -732,10 +732,10 @@ class VideoServiceTest extends ServiceTest {
     @DisplayName("video 수정 시 수정 권한이 없는 memberId 면 VideoAccessDeniedException 이 발생한다.")
     void updateVideoVideoAccessDeniedException() {
         //given
-        Member owner = createAndSaveMember();
-        Channel channel = createAndSaveChannel(owner);
+        Member owner = createMemberWithChannel();
+        Member notOwner = createMemberWithChannel();
 
-        Video video = createAndSaveVideo(channel);
+        Video video = createAndSaveVideo(owner.getChannel());
 
         VideoUpdateServiceRequest request = VideoUpdateServiceRequest.builder()
                 .videoId(video.getVideoId())
@@ -746,7 +746,7 @@ class VideoServiceTest extends ServiceTest {
         em.clear();
 
         //when & then (없는 memberId 로 요청)
-        assertThatThrownBy(() -> videoService.updateVideo(owner.getMemberId() + 999L, request))
+        assertThatThrownBy(() -> videoService.updateVideo(notOwner.getMemberId(), request))
                 .isInstanceOf(VideoAccessDeniedException.class);
 
         //then (업데이트가 되지 않았는지 확인)
@@ -928,6 +928,56 @@ class VideoServiceTest extends ServiceTest {
                 assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.CREATED);
                 assertThat(result).isTrue();
             })
+        );
+    }
+
+    @TestFactory
+    @DisplayName("video 소유자는 video 를 상태변경할 수 있다. 상태변경하면 video status 가 변경된다.")
+    Collection<DynamicTest> changeVideoStatusAdmin() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video = createAndSaveVideo(owner.getChannel());
+
+        Member admin = createAdminWithChannel();
+
+        return List.of(
+                dynamicTest("owner 가 비디오를 폐쇄한다.", ()-> {
+                    //when
+                    boolean result = videoService.changeVideoStatus(owner.getMemberId(), video.getVideoId());
+
+                    //then
+                    assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.CLOSED);
+                    assertThat(result).isFalse();
+                }),
+                dynamicTest("admin 이 비디오를 다시 연다.", ()-> {
+                    //when
+                    boolean result = videoService.changeVideoStatus(admin.getMemberId(), video.getVideoId());
+
+                    //then
+                    assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.CREATED);
+                    assertThat(result).isTrue();
+                }),
+                dynamicTest("admin 이 비디오를 닫는다.", ()-> {
+                    //when
+                    boolean result = videoService.changeVideoStatus(admin.getMemberId(), video.getVideoId());
+
+                    //then
+                    assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.ADMIN_CLOSED);
+                    assertThat(result).isFalse();
+                }),
+                dynamicTest("admin 이 닫으면 owner 는 비디오를 열 수 없다.", ()-> {
+                    //when & then
+                    assertThatThrownBy(() -> videoService.changeVideoStatus(owner.getMemberId(), video.getVideoId()))
+                            .isInstanceOf(VideoAdminClosedException.class);
+                }),
+                dynamicTest("admin 은 비디오를 다시 열 수 있다.", ()-> {
+                    //when
+                    boolean result = videoService.changeVideoStatus(admin.getMemberId(), video.getVideoId());
+
+                    //then
+                    assertThat(video.getVideoStatus()).isEqualTo(VideoStatus.CREATED);
+                    assertThat(result).isTrue();
+                })
         );
     }
 

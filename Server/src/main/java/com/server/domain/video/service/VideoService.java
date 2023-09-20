@@ -4,6 +4,7 @@ import com.server.domain.cart.entity.Cart;
 import com.server.domain.cart.repository.CartRepository;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.repository.CategoryRepository;
+import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.report.entity.Report;
@@ -203,6 +204,32 @@ public class VideoService {
 
         Video video = verifiedVideo(loginMemberId, videoId);
 
+        boolean isAdmin = !video.getMemberId().equals(loginMemberId);
+
+        if(isAdmin) {
+            return changeVideoStatusAdmin(video);
+        }
+
+        return changeVideoStatusMember(video);
+    }
+
+    private boolean changeVideoStatusAdmin(Video video) {
+
+        if(video.isClosed() || video.isAdminClosed()) {
+            video.open();
+            return true;
+        }
+
+        video.adminClose();
+        return false;
+    }
+
+    private boolean changeVideoStatusMember(Video video) {
+
+        if(video.isAdminClosed()) {
+            throw new VideoAdminClosedException();
+        }
+
         if(video.isClosed()) {
             video.open();
             return true;
@@ -398,10 +425,17 @@ public class VideoService {
     }
 
     private Video verifiedVideo(Long memberId, Long videoId) {
-        Video video = videoRepository.findVideoDetail(videoId)
+
+        Video video = videoRepository.findVideoDetailIncludeWithdrawal(videoId)
                 .orElseThrow(VideoNotFoundException::new);
 
-        if(!video.getChannel().getMember().getMemberId().equals(memberId)) {
+        Member member = verifiedMember(memberId);
+
+        if(member.getAuthority().equals(Authority.ROLE_ADMIN)) {
+            return video;
+        }
+
+        if(video.getMemberId() == null || !video.getMemberId().equals(memberId)) {
             throw new VideoAccessDeniedException();
         }
 
