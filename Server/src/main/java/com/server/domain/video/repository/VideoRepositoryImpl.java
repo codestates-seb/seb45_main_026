@@ -287,6 +287,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                         new QVideoReportData(
                                 video.videoId,
                                 video.videoName,
+                                video.videoStatus,
                                 report.count(),
                                 video.createdDate,
                                 report.createdDate.max()
