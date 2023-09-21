@@ -234,6 +234,11 @@
 |------|----|
 | <img width="400px" alt="스크린샷 2023-09-15 오전 11 00 53" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/76eee334-5949-4ed7-b4c7-9858358b3306"> | <img width="400px" alt="스크린샷 2023-09-18 오전 1 46 48" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/363cadf0-65c9-4957-99c7-0e612fdab52c"> |
 
+|관리자용 - 신고된 비디오 목록|관리자용 - 신고 비디오 상세|
+|------|----|
+| <img width="400px" alt="스크린샷 2023-09-15 오전 11 00 53" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/7e0bef47-4072-4471-af35-9c4e7ed40008"> | <img width="400px" alt="스크린샷 2023-09-18 오전 1 46 48" src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/9d2c3b5d-cb7e-46cb-bf90-e7262df1da52"> |
+
+
 
 </details>
 
@@ -449,7 +454,7 @@ warm up 상세 내용 확인 ☞ [warm up](https://hobeen-kim.github.io/java/JAV
 
  <img alt="test" src ="/images/be/test.png"/>
 
- BE JAVA 애플리케이션에서 총 800 개의 단위 및 통합테스트를 진행했습니다. 단위 테스트의 대상은 Controller, Service, Repository, Entity 의 모든 public 메서드입니다. 중점은 기능 동작 여부와 엣지 케이스에서 정상적인 예외를 던지는지 였습니다. 통합테스트는 주어진 조건에서 mockMvc 를 활용해 API 를 호출했을 때 기대되는 응답값과 DB CRUD 가 되는지 확인했습니다.
+BE JAVA 애플리케이션에서 총 800 개의 단위 및 통합테스트를 진행했습니다. 단위 테스트의 대상은 Controller, Service, Repository, Entity 의 모든 public 메서드입니다. 중점은 기능 동작 여부와 엣지 케이스에서 정상적인 예외를 던지는지 였습니다. 통합테스트는 주어진 조건에서 mockMvc 를 활용해 API 를 호출했을 때 기대되는 응답값과 DB CRUD 가 되는지 확인했습니다.
 
 </details>
 
