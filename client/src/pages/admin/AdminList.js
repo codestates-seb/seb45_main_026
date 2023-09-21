@@ -11,6 +11,7 @@ import { HomeTitle } from '../../components/contentListItems/ChannelHome';
 import ReportItem from '../../components/adminPageItems/ReportItem';
 import ReportHeader from '../../components/adminPageItems/ReportHeader';
 import { useNavigate } from 'react-router-dom';
+import ReportCategory from '../../components/adminPageItems/ReportCategory';
 
 const globalTokens = tokens.global;
 
@@ -36,6 +37,7 @@ const AdminList = () => {
     const [ ref, inView ] = useInView();
     const [ loading, setLoading ] = useState(true);
     const navigate = useNavigate();
+    const [ category, setCategory ] = useState('report-count');
 
     //첫 페이지 데이터를 불러옴
     useEffect(()=>{
@@ -44,7 +46,7 @@ const AdminList = () => {
             navigate('/lecture');
             return;
         }
-        getReportService(accessToken.authorization,1).then((res)=>{
+        getReportService(accessToken.authorization,page,category).then((res)=>{
             if(res.status==='success') {
                 setReportList([ ...res.data.data ]);
                 setMaxPage(res.data.pageInfo.totalPage);
@@ -55,7 +57,7 @@ const AdminList = () => {
                 console.log(res.data);
             }
         })
-    },[accessToken]);
+    },[accessToken, category]);
 
     //페이지값이 증가하면 새로운 데이터를 불러옴
     useEffect(()=>{
@@ -85,9 +87,10 @@ const AdminList = () => {
         <PageContainer isDark={isDark}>
             <AdminMainContainer isDark={isDark}>
                 <HomeTitle isDark={isDark}>신고내역 관리</HomeTitle>
+                <ReportCategory category={category} setCategory={setCategory}/>
                 <ReportHeader/>
                 { reportList.length>0 && 
-                        reportList.map((e,idx)=>{ 
+                        reportList.map((e)=>{ 
                             return <ReportItem key={e.videoId} item={e}/>}) }
                 { !loading && <BottomDiv ref={ref}/> }
             </AdminMainContainer>
