@@ -2,10 +2,10 @@ import axios from "axios"
 import { ROOT_URL } from "."
 
 //신고 목록 내역 조회
-export const getReportService = async (authorization,page) => {
+export const getReportService = async (authorization,page,category) => {
     try {
         const response = await axios.get(
-            `${ROOT_URL}/videos/reports?page=${page}&size=10&sort=report-count`,
+            `${ROOT_URL}/videos/reports?page=${page}&size=10&sort=${category}`,
             {
                 headers: {
                     Authorization: authorization
@@ -47,7 +47,7 @@ export const getReportContentService = async (authorization,page,videoId) => {
     }
 }
 
-//비디오 폐쇄
+//비디오 폐쇄 / 해제
 export const patchVideoStatus = async (authorization, videoId) => {
     try {
         const response = await axios.patch(
@@ -69,4 +69,27 @@ export const patchVideoStatus = async (authorization, videoId) => {
             data: err.response.data.message,
         }
     }
+}
+
+//비디오 상세 정보 조회
+export const getVideoInfo = async (authorization, videoId) => {
+    try {
+        const response = await axios.get(
+            `${ROOT_URL}/videos/${videoId}`,
+            {
+                headers: {
+                    Authorization : authorization
+                }
+            }
+        );
+        return {
+            status: 'success',
+            data: response.data,
+        }
+     } catch (err) {
+        return {
+            status: 'error',
+            data: err.response.data.message,
+        }
+     }
 }

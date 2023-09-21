@@ -48,7 +48,7 @@ public class RewardServiceImpl implements RewardService {
 
 		Member member = order.getMember();
 
-		List<Reward> rewards = newRewardRepository.findByOrderId(order.getOrderId());
+		List<Reward> rewards = newRewardRepository.findByOrderIdOnce(member.getMemberId(), order.getOrderId());
 
 		int refundRewardPoint = calculateRefundRewardFrom(rewards);
 

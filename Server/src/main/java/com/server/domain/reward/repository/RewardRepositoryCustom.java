@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface RewardRepositoryCustom {
 
-    List<Reward> findByOrderId(String orderId);
+    List<Reward> findByOrderIdOnce(Long memberId, String orderId);
 
     List<Reward> findByMemberAndVideoId(Long memberId, Long videoId);
 
