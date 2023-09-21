@@ -1,13 +1,14 @@
 package com.server.domain.reward.repository;
 
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.member.entity.Member;
-import com.server.domain.member.entity.QMember;
 import com.server.domain.order.entity.OrderStatus;
-import com.server.domain.question.entity.QQuestion;
 import com.server.domain.question.entity.Question;
-import com.server.domain.reward.entity.*;
-import com.server.domain.video.entity.QVideo;
+import com.server.domain.reward.entity.QuestionReward;
+import com.server.domain.reward.entity.ReplyReward;
+import com.server.domain.reward.entity.Reward;
+import com.server.domain.reward.entity.VideoReward;
 import com.server.domain.video.entity.Video;
 
 import javax.persistence.EntityManager;
@@ -16,12 +17,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.server.domain.member.entity.QMember.*;
-import static com.server.domain.order.entity.QOrder.*;
-import static com.server.domain.order.entity.QOrderVideo.*;
+import static com.server.domain.member.entity.QMember.member;
+import static com.server.domain.order.entity.QOrderVideo.orderVideo;
 import static com.server.domain.question.entity.QQuestion.question;
 import static com.server.domain.reward.entity.QQuestionReward.questionReward;
-import static com.server.domain.reward.entity.QReplyReward.*;
+import static com.server.domain.reward.entity.QReplyReward.replyReward;
+import static com.server.domain.reward.entity.QReward.reward;
 import static com.server.domain.reward.entity.QVideoReward.videoReward;
 import static com.server.domain.video.entity.QVideo.video;
 
@@ -33,39 +34,26 @@ public class RewardRepositoryImpl implements RewardRepositoryCustom {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    @Override
-    public List<Reward> findByOrderId(String orderId) {
+    public List<Reward> findByOrderIdOnce(Long memberId, String orderId) {
 
-        List<Long> videoIds = queryFactory.select(video.videoId)
+        JPAQuery<Long> videoIdsWhere = queryFactory.select(orderVideo.video.videoId)
                 .from(orderVideo)
-                .join(orderVideo.video, video)
-                .join(orderVideo.order, order)
-                .where(order.orderId.eq(orderId)
-                        .and(orderVideo.orderStatus.eq(OrderStatus.COMPLETED)))
-                .fetch();
+                .where(orderVideo.order.orderId.eq(orderId)
+                        .and(orderVideo.orderStatus.eq(OrderStatus.COMPLETED)));
 
-        List<ReplyReward> replyRewards = queryFactory.selectFrom(replyReward)
-                .join(replyReward.video, video)
-                .where(video.videoId.in(videoIds))
-                .fetch();
-
-        List<QuestionReward> questionRewards = queryFactory.selectFrom(questionReward)
-                .join(questionReward.question, question)
-                .join(question.video, video)
-                .where(video.videoId.in(videoIds))
-                .fetch();
-
-        List<VideoReward> videoRewards = queryFactory.selectFrom(videoReward)
-                .join(videoReward.video, video)
-                .where(video.videoId.in(videoIds))
-                .fetch();
-
-        List<Reward> rewards = new ArrayList<>();
-        rewards.addAll(replyRewards);
-        rewards.addAll(questionRewards);
-        rewards.addAll(videoRewards);
-
-        return rewards;
+        return queryFactory
+                .selectFrom(reward)
+                .leftJoin(videoReward).on(reward.rewardId.eq(videoReward.rewardId))
+                .leftJoin(replyReward).on(reward.rewardId.eq(replyReward.rewardId))
+                .leftJoin(questionReward).on(reward.rewardId.eq(questionReward.rewardId))
+                .leftJoin(questionReward.question, question)
+                .where(reward.member.memberId.eq(memberId)
+                        .and(
+                                videoReward.video.videoId.in(videoIdsWhere)
+                                        .or(question.video.videoId.in(videoIdsWhere))
+                                        .or(replyReward.video.videoId.in(videoIdsWhere))
+                        )
+                ).fetch();
     }
 
     @Override
@@ -107,10 +95,8 @@ public class RewardRepositoryImpl implements RewardRepositoryCustom {
     public Optional<QuestionReward> findByQuestionAndMember(Question question, Member member) {
 
         QuestionReward reward = queryFactory.selectFrom(questionReward)
-                .join(questionReward.question, QQuestion.question)
-                .join(questionReward.member, QMember.member)
-                .where(QQuestion.question.eq(question)
-                        .and(QMember.member.eq(member))
+                .where(questionReward.question.eq(question)
+                        .and(questionReward.member.eq(member))
                         .and(questionReward.isCanceled.eq(false)))
                 .fetchOne();
 
@@ -121,10 +107,8 @@ public class RewardRepositoryImpl implements RewardRepositoryCustom {
     public List<QuestionReward> findByQuestionsAndMember(List<Question> questions, Member member) {
 
         return queryFactory.selectFrom(questionReward)
-                .join(questionReward.question, QQuestion.question)
-                .join(questionReward.member, QMember.member)
-                .where(QQuestion.question.in(questions)
-                        .and(QMember.member.eq(member))
+                .where(questionReward.question.in(questions)
+                        .and(questionReward.member.eq(member))
                         .and(questionReward.isCanceled.eq(false)))
                 .fetch();
     }
@@ -133,10 +117,8 @@ public class RewardRepositoryImpl implements RewardRepositoryCustom {
     public Optional<ReplyReward> findReplyRewardByVideoAndMember(Video video, Member member) {
 
         ReplyReward reward = queryFactory.selectFrom(replyReward)
-                .join(replyReward.video, QVideo.video)
-                .join(replyReward.member, QMember.member)
-                .where(QVideo.video.eq(video)
-                        .and(QMember.member.eq(member))
+                .where(replyReward.video.eq(video)
+                        .and(replyReward.member.eq(member))
                         .and(replyReward.isCanceled.eq(false)))
                 .fetchOne();
 

@@ -48,7 +48,7 @@ class RewardRepositoryTest extends RepositoryTest {
         em.clear();
 
         //when
-        List<Reward> rewards = rewardRepository.findByOrderId(order.getOrderId());
+        List<Reward> rewards = rewardRepository.findByOrderIdOnce(loginMember.getMemberId(), order.getOrderId());
 
         //then
         assertThat(rewards).hasSize(4)
@@ -86,7 +86,7 @@ class RewardRepositoryTest extends RepositoryTest {
         em.clear();
 
         //when
-        List<Reward> rewards = rewardRepository.findByOrderId(order.getOrderId());
+        List<Reward> rewards = rewardRepository.findByOrderIdOnce(loginMember.getMemberId(), order.getOrderId());
 
         //then
         assertThat(rewards).hasSize(3)
