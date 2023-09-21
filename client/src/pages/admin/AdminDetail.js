@@ -7,7 +7,7 @@ import { HomeTitle } from '../../components/contentListItems/ChannelHome';
 import { styled } from 'styled-components';
 import { BigButton, NegativeTextButton } from '../../atoms/buttons/Buttons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getReportContentService, patchVideoStatus } from '../../services/adminService';
+import { getReportContentService, getVideoInfo, patchVideoStatus } from '../../services/adminService';
 import ReportDetailItem from '../../components/adminPageItems/ReportDetailItem';
 import ReportDetailHeader from '../../components/adminPageItems/ReportDetailHeader';
 import { useInView } from 'react-intersection-observer';
@@ -47,8 +47,9 @@ export const AdminDetail = () => {
     const [ loading, setLoading ] = useState(true);
     const [ is비활성화성공팝업, setIs비활성화성공팝업 ] = useState(false);
     const [ is비활성화실패팝업, setIs비활성화실패팝업 ] = useState(false);
-    let videoName = decodeURI(window.location.search).split('=')[1].split('?')[0];
-    let videoStatus = decodeURI(window.location.search).split('=')[2];
+    const [ is비활성화해제성공팝업, setIs비활성화해제성공팝업 ] = useState(false);
+    const [ is비활성화해제실패팝업, setIs비활성화해제실패팝업 ] = useState(false);
+    let [ videoInfo, setVideoInfo ] = useState({});
 
     const handleBackButtonClick = () => {
         navigate(-1);
@@ -67,6 +68,24 @@ export const AdminDetail = () => {
             setIs비활성화실패팝업(true);
         }
     }
+    const handleDeleteCancelButtonClick = async () => {
+        const response = await patchVideoStatus(accessToken.authorization, videoId);
+        if(response.status==='success') {
+            setIs비활성화해제성공팝업(true);
+        } else if(response.data==='만료된 토큰입니다.'){
+            refreshToken(handleDeleteButtonClick);
+        } else {
+            console.log(response.data);
+            setIs비활성화해제실패팝업(true);
+        }
+    }
+
+    //비디오 데이터 불러옴
+    useEffect(()=>{
+        getVideoInfo(accessToken.authorization,videoId).then((res)=>{
+            setVideoInfo(res.data.data);
+        })
+    },[])
 
     //첫 페이지 데이터 불러옴
     useEffect(()=>{
@@ -118,19 +137,36 @@ export const AdminDetail = () => {
                 isModalOpen={is비활성화성공팝업}
                 setIsModalOpen={setIs비활성화성공팝업}
                 isBackdropClickClose={true}
-                content='강의 비활성화 처리 되었습니다.'
+                content='강의가 비활성화 되었습니다.'
                 buttonTitle='확인'
                 handleButtonClick={()=>{
                     setIs비활성화성공팝업(false);
-                    navigate(-1);
+                    window.location.reload();
                  }}/>
             <AlertModal
                 isModalOpen={is비활성화실패팝업}
                 setIsModalOpen={setIs비활성화실패팝업}
                 isBackdropClickClose={true}
-                content='강의 비활성화 처리 실패했습니다.'
+                content='강의 비활성화에 실패했습니다.'
                 buttonTitle='확인'
                 handleButtonClick={()=>{ setIs비활성화실패팝업(false) }}/>
+            <AlertModal 
+                isModalOpen={is비활성화해제성공팝업}
+                setIsModalOpen={setIs비활성화해제성공팝업}
+                isBackdropClickClose={true}
+                content='강의가 활성화 되었습니다.'
+                buttonTitle='확인'
+                handleButtonClick={()=>{ 
+                    setIs비활성화해제성공팝업(false);
+                    window.location.reload();
+                }}/>
+            <AlertModal 
+                isModalOpen={is비활성화해제실패팝업}
+                setIsModalOpen={setIs비활성화해제실패팝업}
+                isBackdropClickClose={true}
+                content='강의 활성화 실패했습니다.'
+                buttonTitle='확인'
+                handleButtonClick={()=>{ setIs비활성화해제실패팝업(false) }}/>
             <PageContainer isDark={isDark}>
                 <AdminMainContainer isDark={isDark}>
                     <HomeTitle isDark={isDark}>신고내역 관리</HomeTitle>
@@ -138,12 +174,13 @@ export const AdminDetail = () => {
                         <AdminBackButton isDark={isDark} onClick={handleBackButtonClick}>← 뒤로가기</AdminBackButton>
                     </AdminBackContainer>
                     <AdminBackContainer>
-                        <AdminDetailVideoTitleTypo isDark={isDark}>강의명 : {videoName}</AdminDetailVideoTitleTypo>
+                        <AdminDetailVideoTitleTypo isDark={isDark}>강의명 : {videoInfo.videoName}</AdminDetailVideoTitleTypo>
                     </AdminBackContainer>
                     <AdminBackContainer>
                         <BigButton isDark={isDark} onClick={handleVideoButtonClick}>해당 강의 확인하기</BigButton>
-                        { videoStatus!=='CLOSED' && videoStatus!=='ADMIN_CLOSED' &&
-                            <BigButton isDark={isDark} onClick={handleDeleteButtonClick}>강의 비활성화 하기</BigButton>}
+                        { videoInfo.videoStatus!=='CLOSED' && videoInfo.videoStatus!=='ADMIN_CLOSED' ?
+                            <BigButton isDark={isDark} onClick={handleDeleteButtonClick}>강의 비활성화 하기</BigButton>
+                         : <BigButton isDark={isDark} onClick={handleDeleteCancelButtonClick}>강의 활성화 하기</BigButton>}
                     </AdminBackContainer>
                     <ReportDetailHeader/>
                     { contentList.map((e)=><ReportDetailItem key={e.reportId} item={e}/>) }

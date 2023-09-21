@@ -164,7 +164,7 @@ const DetailVideo = ({ videoDatas }) => {
   return (
     <>
       <VideoContainer isDark={isDark}>
-        <BackButton onClick={()=>navigate('/lecture')}>← 목록으로</BackButton>
+        <BackButton isDark={isDark} onClick={()=>navigate('/lecture')}>← 목록으로</BackButton>
         <VideoHeader isDark={isDark}>
           <HeaderBtnContainer>
             부적절한 영상인가요?
