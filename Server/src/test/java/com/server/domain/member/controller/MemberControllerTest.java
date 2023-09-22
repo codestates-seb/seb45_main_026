@@ -1107,7 +1107,7 @@ public class MemberControllerTest extends ControllerTest {
 
 		String presignedUrl = "http://www.uploadUrl.com";
 
-		given(awsService.getImageUploadUrl(anyLong(), anyString(), any(FileType.class), any(ImageType.class)))
+		given(awsService.getPublicUploadUrl(anyLong(), anyString(), any(FileType.class), any(ImageType.class)))
 			.willReturn(presignedUrl);
 
 		//when

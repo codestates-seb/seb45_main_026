@@ -7,11 +7,23 @@
 :docinfo: shared-head
 
 [[VideoUrl]]
-= 비디오 호버링용 Url 조회 API
+= 비디오 Url 조회 API
+
+== 비디오 preview Url 조회
+=== HTTP Request
+include::{snippets}/video/getpreviewurl/http-request.adoc[]
+==== Request Path Parameters
+include::{snippets}/video/getpreviewurl/path-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/video/getpreviewurl/http-response.adoc[]
+==== Response Fields
+include::{snippets}/video/getpreviewurl/response-fields.adoc[]
 
 == 비디오 Url 조회
 === HTTP Request
 include::{snippets}/video/getvideourl/http-request.adoc[]
+==== Request Headers
+include::{snippets}/video/getvideourl/request-headers.adoc[]
 ==== Request Path Parameters
 include::{snippets}/video/getvideourl/path-parameters.adoc[]
 === HTTP Response

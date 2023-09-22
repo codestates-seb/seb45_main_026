@@ -25,6 +25,8 @@ public class VideoCreateApiRequest {
     @NotNull(message = "{validation.video.categories}")
     @Size(min = 1, message = "{validation.video.categories.size}")
     private List<String> categories;
+    @NotNull(message = "{validation.video.preview}")
+    private Boolean hasPreview;
 
     public VideoCreateServiceRequest toServiceRequest() {
         return VideoCreateServiceRequest.builder()
@@ -32,6 +34,7 @@ public class VideoCreateApiRequest {
                 .price(price)
                 .description(description)
                 .categories(categories)
+                .hasPreview(hasPreview)
                 .build();
     }
 

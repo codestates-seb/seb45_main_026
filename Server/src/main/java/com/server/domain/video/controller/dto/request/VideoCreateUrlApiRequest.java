@@ -19,6 +19,7 @@ public class VideoCreateUrlApiRequest {
     @NotBlank(message = "{validation.video.name}")
     private String fileName;
 
+
     public VideoCreateUrlServiceRequest toServiceRequest() {
         return VideoCreateUrlServiceRequest.builder()
                 .imageType(imageType)

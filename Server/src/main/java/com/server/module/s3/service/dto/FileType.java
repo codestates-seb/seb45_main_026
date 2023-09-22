@@ -21,6 +21,10 @@ public enum FileType implements BaseEnum {
             (attributes) -> getVideoBucketName() + attributes.get(0) + "/videos/" + attributes.get(1),
             (attributes) -> getVideoCloudFrontUrl() + attributes.get(0),
             (attributes) -> getVideoBucketName() + attributes.get(0)),
+    PREVIEW("preview", false,
+            (attributes) -> getImageBucketName() + attributes.get(0) + "/previews/" + attributes.get(1),
+            (attributes) -> getImageCloudFrontUrl() + attributes.get(0),
+            (attributes) -> getImageBucketName() + attributes.get(0)),
             ;
 
     private final String description;
