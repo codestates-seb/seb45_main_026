@@ -3,10 +3,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import screenfull from "screenfull";
 import ReactPlayer from "react-player";
 import styled from "styled-components";
+import { ReactComponent as Mute } from "../../assets/images/icons/Mute.svg";
 import { ReactComponent as Play } from "../../assets/images/icons/Play.svg";
 import { ReactComponent as Pause } from "../../assets/images/icons/Pause.svg";
 import { ReactComponent as Volume } from "../../assets/images/icons/Volume.svg";
+import { ReactComponent as PrevBtn } from "../../assets/images/icons/PrevBtn.svg";
 import { ReactComponent as FullScreen } from "../../assets/images/icons/FullScreen.svg";
+import { useSelector } from "react-redux";
 
 const VideoPlayer = ({
   videoId,
@@ -18,16 +21,29 @@ const VideoPlayer = ({
   onMouseOut = () => {},
 }) => {
   const [isUrl, setUrl] = useState("");
+  const [isPreviewUrl, setPreviewUrl] = useState("");
+  const token = useSelector((state) => state.loginInfo.accessToken);
 
-  const getVideoUrl = () => {
+  const getPreviewUrl = () => {
     return axios
-      .get(`https://api.itprometheus.net/videos/${videoId}/url`)
+      .get(`https://api.itprometheus.net/videos/${videoId}/preview`)
       .then((res) => {
-        if (isPrevMode) {
-          setUrl(res.data.data.videoUrl + "#t=0,60");
-        } else {
-          setUrl(res.data.data.videoUrl);
-        }
+        // console.log(res.data.data);
+        setPreviewUrl(res.data.data.previewUrl);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const getUrl = () => {
+    return axios
+      .get(`https://api.itprometheus.net/videos/${videoId}/url`, {
+        headers: { Authorization: token.authorization },
+      })
+      .then((res) => {
+        // console.log(res.data.data);
+        setUrl(res.data.data.videoUrl);
       })
       .catch((err) => {
         console.log(err);
@@ -35,15 +51,20 @@ const VideoPlayer = ({
   };
 
   useEffect(() => {
-    getVideoUrl();
+    if (isPrevMode) {
+      getPreviewUrl();
+    } else {
+      getUrl();
+    }
   }, []);
 
   const videoRef = useRef(null);
   const [nowPlaying, setNowPlaying] = useState(Playing); // 재생 여부
   const [showControl, setShowControl] = useState(false); // control bar 보이는지?
   const [isPrevVolumeBtn, setPrevVolumeBtn] = useState(false); // Prev 볼륨 조절버튼
-  const [isVolumeOpen, setVolumeOpen] = useState(false); // Prev 볼륨 온/오프
+  const [isVolumeMute, setVolumeMute] = useState(false); // 볼륨 온/오프
   const [isVolume, setVolume] = useState(0.5); // 볼륨 조절
+  const [isReVolume, setReVolume] = useState(0.5); // 볼륨 조절
   const [isMuted, setMuted] = useState(muted); // 음소거 온/오프
   const [isTime, setIsTime] = useState(0);
 
@@ -85,12 +106,12 @@ const VideoPlayer = ({
 
   // 10초 전 이동
   const rewindHandler = () => {
-    videoRef.current.seekTo(videoRef.current.getCurrentTime() - 10);
+    videoRef.current.seekTo(videoRef.current.getCurrentTime() - 15);
   };
 
   // 10초 후 이동
   const forwardHandler = () => {
-    videoRef.current.seekTo(videoRef.current.getCurrentTime() + 10);
+    videoRef.current.seekTo(videoRef.current.getCurrentTime() + 15);
   };
 
   // 1분 미리보기
@@ -142,7 +163,7 @@ const VideoPlayer = ({
       )}
       <ReactPlayer
         ref={videoRef}
-        url={isUrl}
+        url={isUrl || isPreviewUrl}
         width="100%"
         height="100%"
         playing={nowPlaying} // 자동 재생 on
@@ -187,6 +208,24 @@ const VideoPlayer = ({
                 &times; 2
               </SpeedRate>
             </SpeedRateBox>
+            <ForwardBox
+              onClick={(e) => {
+                e.stopPropagation();
+                rewindHandler();
+              }}
+            >
+              <BeforeBtn />
+              15
+            </ForwardBox>
+            <RewindBox
+              onClick={(e) => {
+                e.stopPropagation();
+                forwardHandler();
+              }}
+            >
+              <AfterBtn />
+              15
+            </RewindBox>
             <ControlBox
               onClick={(e) => {
                 e.stopPropagation();
@@ -214,24 +253,46 @@ const VideoPlayer = ({
                 onChange={(e) => handleAdjust(e)}
                 disabled={isPrevMode}
               />
+              <NowTime>{`${parseInt(currentTime / 60)}:${parseInt(
+                currentTime % 60
+              )}/${parseInt(totalTime / 60)}:${parseInt(
+                totalTime % 60
+              )}`}</NowTime>
+              <VolumeBar
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={isVolume}
+                onChange={(e) => {
+                  setVolume(e.target.value);
+                  setReVolume(e.target.value);
+                  if (e.target.value > 0) {
+                    setVolumeMute(false);
+                  }
+                }}
+              />
+              {isVolumeMute || isVolume <= 0 ? (
+                <MuteBtn
+                  onClick={() => {
+                    setVolumeMute(false);
+                    setVolume(isReVolume);
+                  }}
+                />
+              ) : (
+                isVolume > 0 && (
+                  <VolumeBtn
+                    onClick={() => {
+                      setVolumeMute(true);
+                      setVolume(0);
+                    }}
+                  />
+                )
+              )}
               {screenfull.isEnabled && (
                 // screenfull이 지원되는 경우에만 전체 화면 버튼 표시
                 <FullScreenBtn onClick={handleFullScreen} />
               )}
-
-              <VolumeBox>
-                {isVolumeOpen && (
-                  <VolumeBar
-                    type="range"
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    value={isVolume}
-                    onChange={(e) => setVolume(e.target.value)}
-                  />
-                )}
-                <VolumeBtn onClick={() => setVolumeOpen(!isVolumeOpen)} />
-              </VolumeBox>
             </ControlBox>
           </>
         )}
@@ -241,6 +302,15 @@ const VideoPlayer = ({
 };
 
 export default VideoPlayer;
+
+export const NowTime = styled.div`
+  position: absolute;
+  bottom: 45%;
+  right: 20%;
+  color: white;
+  font-size: 14px;
+  text-shadow: -1px 0px gray, 0px 1px gray, 1px 0px gray, 0px -1px gray;
+`;
 
 export const VideoBox = styled.div`
   position: relative;
@@ -287,10 +357,9 @@ export const VideoBar = styled.input`
   position: absolute;
   bottom: 45%;
   left: 7%;
-  width: 80%;
+  width: 65%;
   overflow: hidden;
   background: none;
-  /* appearance: none; */
   transition: 100ms;
   z-index: 9999;
 
@@ -335,18 +404,25 @@ export const PauseBtn = styled(Pause)`
   }
 `;
 
-export const VolumeBox = styled.div`
+export const VolumeBtn = styled(Volume)`
   position: absolute;
-  bottom: 40%;
-  right: 4%;
-  width: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: end;
-  align-items: center;
+  bottom: 41%;
+  right: 16%;
+  width: 20px;
+  height: 20px;
+  margin-top: 10px;
+  cursor: pointer;
+  path {
+    fill: white;
+    stroke: black;
+    stroke-width: 2px;
+  }
 `;
 
-export const VolumeBtn = styled(Volume)`
+export const MuteBtn = styled(Mute)`
+  position: absolute;
+  bottom: 41%;
+  right: 16%;
   width: 20px;
   height: 20px;
   margin-top: 10px;
@@ -359,12 +435,13 @@ export const VolumeBtn = styled(Volume)`
 `;
 
 export const VolumeBar = styled.input`
-  width: 100px;
+  position: absolute;
+  bottom: 41%;
+  right: 6%;
+  width: 9.3%;
   height: 20px;
   overflow: hidden;
   background: none;
-  /* appearance: none; */
-  transition: 100ms;
   z-index: 9999;
 
   &::-webkit-slider-runnable-track {
@@ -404,11 +481,62 @@ export const FullScreenBtn = styled(FullScreen)`
   height: 18px;
   position: absolute;
   bottom: 45%;
-  right: 3%;
+  right: 2.2%;
   cursor: pointer;
   path {
     fill: white;
     stroke: black;
+    stroke-width: 2px;
+  }
+`;
+
+export const ForwardBox = styled.div`
+  position: absolute;
+  top: 40%;
+  left: 20%;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  color: rgb(255, 255, 255);
+  text-align: center;
+  padding: 10px;
+`;
+
+export const RewindBox = styled.div`
+  position: absolute;
+  top: 40%;
+  right: 20%;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  color: rgb(255, 255, 255);
+  text-align: center;
+  padding: 12px;
+`;
+
+export const AfterBtn = styled(PrevBtn)`
+  position: absolute;
+  top: -1px;
+  left: 4px;
+  width: 50px;
+  height: 50px;
+  transform: scaleX(-1);
+  path {
+    fill: rgb(255, 255, 255);
+    stroke: gray;
+    stroke-width: 2px;
+  }
+`;
+
+export const BeforeBtn = styled(PrevBtn)`
+  position: absolute;
+  top: -1px;
+  right: 3px;
+  width: 50px;
+  height: 50px;
+  path {
+    fill: rgb(255, 255, 255);
+    stroke: gray;
     stroke-width: 2px;
   }
 `;

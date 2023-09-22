@@ -28,8 +28,7 @@ const DetailPage = () => {
       })
       .then((res) => {
         dispatch(setVideoInfo(res.data.data));
-        setVideoDatas(res.data.data); // ?
-        console.log(res.data.data);
+        setVideoDatas(res.data.data);
       })
       .catch((err) => {
         if (err.response.data.message === "만료된 토큰입니다.") {
