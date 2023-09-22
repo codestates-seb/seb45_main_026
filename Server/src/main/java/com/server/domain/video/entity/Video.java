@@ -38,6 +38,8 @@ public class Video extends BaseEntity implements Rewardable {
 
     private String thumbnailFile;
 
+    private String previewFile;
+
     private String videoFile;
 
     @Column(nullable = false)
@@ -124,17 +126,19 @@ public class Video extends BaseEntity implements Rewardable {
         this.description = description == null ? this.description : description;
     }
 
-    public void additionalCreateProcess(Integer price, String description, List<Category> categories) {
+    public void additionalCreateProcess(Integer price, String description, List<Category> categories, boolean hasPreview) {
 
         checkIsUploading();
 
         String filePath = getMemberId() + "/videos/" + this.videoId + "/" + this.videoName;
+
 
         this.price = price;
         this.description = description;
         this.videoStatus = VideoStatus.CREATED;
         this.thumbnailFile = filePath;
         this.videoFile = filePath;
+
 
         this.videoCategories.clear();
         for (Category category : categories) {
@@ -145,6 +149,10 @@ public class Video extends BaseEntity implements Rewardable {
         if(price == 0) {
             this.getChannel().getMember().addReward(100);
             this.getChannel().getMember().addGradePoint(100);
+        }
+
+        if(hasPreview) {
+            this.previewFile = getMemberId() + "/previews/" + this.videoId + "/" + this.videoName;
         }
     }
 

@@ -123,11 +123,21 @@ public class VideoController {
 
     @GetMapping("/{video-id}/url")
     public ResponseEntity<ApiSingleResponse<VideoUrlResponse>> getVideoUrl(
-            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId) {
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
+            @LoginId Long loginId) {
 
-        VideoUrlResponse videoUrl = videoService.getVideoUrl(videoId);
+        VideoUrlResponse videoUrl = videoService.getVideoUrl(loginId, videoId);
 
         return ResponseEntity.ok(ApiSingleResponse.ok(videoUrl, "비디오 url 조회 성공"));
+    }
+
+    @GetMapping("/{video-id}/preview")
+    public ResponseEntity<ApiSingleResponse<PreviewUrlResponse>> getPreviewUrl(
+            @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId) {
+
+        PreviewUrlResponse previewUrl = videoService.getPreviewUrl(videoId);
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(previewUrl, "preview url 조회 성공"));
     }
 
     @PostMapping("/presigned-url")

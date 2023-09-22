@@ -9,7 +9,7 @@ public interface AwsService {
 
     String getUploadVideoUrl(Long memberId, String fileName);
 
-    String getImageUploadUrl(Long memberId, String fileName, FileType fileType, ImageType imageType);
+    String getPublicUploadUrl(Long memberId, String fileName, FileType fileType, ImageType imageType);
 
     void deleteFile(String fileName, FileType fileType);
 

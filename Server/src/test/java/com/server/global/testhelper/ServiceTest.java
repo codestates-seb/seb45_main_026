@@ -167,6 +167,7 @@ public abstract class ServiceTest {
                 .description("description")
                 .thumbnailFile("thumbnailFile")
                 .videoFile("videoFile")
+                .previewFile("previewFile")
                 .view(0)
                 .star(0.0F)
                 .price(1000)

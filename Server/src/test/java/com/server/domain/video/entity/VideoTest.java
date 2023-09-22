@@ -125,7 +125,7 @@ class VideoTest {
         List<Category> categories = List.of(createCategory("category1"), createCategory("category2"));
 
         //when
-        video.additionalCreateProcess(price, description, categories);
+        video.additionalCreateProcess(price, description, categories, true);
 
         //then
         assertThat(video.getPrice()).isEqualTo(price);
@@ -149,7 +149,7 @@ class VideoTest {
         List<Category> categories = List.of(createCategory("category1"), createCategory("category2"));
 
         //when
-        assertThatThrownBy(() -> video.additionalCreateProcess(price, description, categories))
+        assertThatThrownBy(() -> video.additionalCreateProcess(price, description, categories, true))
                 .isInstanceOf(VideoAlreadyCreatedException.class);
     }
 
@@ -167,7 +167,7 @@ class VideoTest {
         List<Category> categories = List.of(createCategory("category1"), createCategory("category2"));
 
         //when
-        video.additionalCreateProcess(price, description, categories);
+        video.additionalCreateProcess(price, description, categories, true);
 
         //then
         assertThat(member.getReward()).isEqualTo(beforeReward + 100);

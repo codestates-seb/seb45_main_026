@@ -7,9 +7,13 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 @Builder
-public class VideoCreateUrlResponse {
+public class PreviewUrlResponse {
 
-    private String thumbnailUrl;
     private String previewUrl;
-    private String videoUrl;
+
+    public static PreviewUrlResponse of(String url) {
+        return PreviewUrlResponse.builder()
+                .previewUrl(url)
+                .build();
+    }
 }

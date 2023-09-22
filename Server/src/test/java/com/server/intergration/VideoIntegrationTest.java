@@ -783,7 +783,7 @@ public class VideoIntegrationTest extends IntegrationTest {
 	}
 
 	@Test
-	@DisplayName("비디오 호버링용 url 조회 API")
+	@DisplayName("비디오 url 조회 API")
 	void getVideoUrl() throws Exception {
 		// given
 		Video video = memberRepository.findById(loginMember.getMemberId()).orElseThrow()
@@ -794,7 +794,7 @@ public class VideoIntegrationTest extends IntegrationTest {
 		// when
 		ResultActions actions = mockMvc.perform(
 			get(BASE_URL + "/{video-id}/url", videoId)
-
+					.header(AUTHORIZATION, loginMemberAccessToken)
 				.contentType(APPLICATION_JSON)
 		);
 
@@ -953,6 +953,7 @@ public class VideoIntegrationTest extends IntegrationTest {
 						.price(10000)
 						.description("description")
 						.categories(List.of("Java"))
+						.hasPreview(true)
 						.build();
 
 					String apiResponse =

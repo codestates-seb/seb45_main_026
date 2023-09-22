@@ -19,7 +19,7 @@ public class VideoDetailResponse {
     private String videoName;
     private String description;
     private String thumbnailUrl;
-    private String videoUrl;
+    private String previewUrl;
     private Integer views;
     private Float star;
     private Integer price;
@@ -43,7 +43,7 @@ public class VideoDetailResponse {
                 .videoName(video.getVideoName())
                 .description(video.getDescription())
                 .thumbnailUrl(urlMap.get("thumbnailUrl"))
-                .videoUrl(urlMap.get("videoUrl"))
+                .previewUrl(urlMap.get("previewUrl"))
                 .views(video.getView())
                 .star(video.getStar())
                 .price(video.getPrice())

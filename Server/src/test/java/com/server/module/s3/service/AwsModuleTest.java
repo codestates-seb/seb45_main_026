@@ -65,7 +65,7 @@
          return List.of(
                  dynamicTest("presignedUrl 을 가져와서 이미지를 업로드 한 후 200 OK 를 확인한다.", ()-> {
                      //when
-                     String uploadUrl = awsService.getImageUploadUrl(
+                     String uploadUrl = awsService.getPublicUploadUrl(
                              mockMemberId,
                              fileName,
                              FileType.PROFILE_IMAGE,
@@ -125,7 +125,7 @@
          return List.of(
                  dynamicTest("presignedUrl 을 가져와서 썸네일을 업로드 한 후 200 OK 를 확인한다.", ()-> {
                      //when
-                     String uploadUrl = awsService.getImageUploadUrl(mockMemberId, fileName, FileType.THUMBNAIL, imageType);
+                     String uploadUrl = awsService.getPublicUploadUrl(mockMemberId, fileName, FileType.THUMBNAIL, imageType);
                      URL url = new URL(uploadUrl);
 
                      //then

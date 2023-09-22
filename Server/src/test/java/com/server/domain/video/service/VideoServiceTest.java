@@ -201,7 +201,7 @@ class VideoServiceTest extends ServiceTest {
                     assertThat(response.getVideoId()).isEqualTo(video.getVideoId());
                     assertThat(response.getVideoName()).isEqualTo(video.getVideoName());
                     assertThat(response.getDescription()).isEqualTo(video.getDescription());
-                    assertThat(response.getVideoUrl()).isNotNull();
+                    assertThat(response.getPreviewUrl()).isNotNull();
                     assertThat(response.getThumbnailUrl()).isNotNull();
                     assertThat(response.getStar()).isEqualTo(video.getStar());
                     assertThat(response.getPrice()).isEqualTo(video.getPrice());
@@ -320,12 +320,15 @@ class VideoServiceTest extends ServiceTest {
         Member owner = createMemberWithChannel();
         Video video = createAndSaveVideo(owner.getChannel());
 
+        Member member = createMemberWithChannel();
+        createAndSaveOrderWithPurchaseComplete(member, List.of(video), 0);
+
         String videoUrl = "https://s3.ap-northeast-2.amazonaws.com/test/test.mp4";
 
         given(awsService.getFileUrl(anyString(), any(FileType.class))).willReturn(videoUrl);
 
         //when
-        VideoUrlResponse response = videoService.getVideoUrl(video.getVideoId());
+        VideoUrlResponse response = videoService.getVideoUrl(member.getMemberId(), video.getVideoId());
 
         //then
         assertThat(response.getVideoUrl()).isEqualTo(videoUrl);
@@ -1084,7 +1087,7 @@ class VideoServiceTest extends ServiceTest {
     void setFileGetUrlSuccess() {
         given(awsService.getFileUrl(anyString(), any(FileType.class))).willReturn("https://test.com");
         given(awsService.getUploadVideoUrl(anyLong(), anyString())).willReturn("https://test.com");
-        given(awsService.getImageUploadUrl(anyLong(), anyString(), any(FileType.class), any(ImageType.class))).willReturn("https://test.com");
+        given(awsService.getPublicUploadUrl(anyLong(), anyString(), any(FileType.class), any(ImageType.class))).willReturn("https://test.com");
     }
 
     private void setAuthentication(Member member) {
