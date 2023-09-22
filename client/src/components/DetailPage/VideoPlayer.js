@@ -47,7 +47,7 @@ const VideoPlayer = ({
   const [isMuted, setMuted] = useState(muted); // 음소거 온/오프
   const [isTime, setIsTime] = useState(0);
 
-  // 컨트롤러 게이지 업로드
+  // 컨트롤러 게이지 업로드.
   const infiniteLoop = () => {
     if (!videoRef.current) {
       return;
@@ -144,7 +144,7 @@ const VideoPlayer = ({
         ref={videoRef}
         url={isUrl}
         width="100%"
-        height="600px"
+        height="100%"
         playing={nowPlaying} // 자동 재생 on
         muted={isMuted} // 자동 재생 on
         volume={isVolume}
