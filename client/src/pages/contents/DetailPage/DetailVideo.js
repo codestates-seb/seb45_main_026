@@ -1,6 +1,6 @@
 import axios from "axios";
 import { styled } from "styled-components";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import SubscribeBtn from "../../../components/DetailPage/SubscribeBtn";
@@ -50,7 +50,6 @@ const DetailVideo = ({ videoDatas }) => {
       })
       .then((res) => {
         setChannelInfo({ ...channelInfo, ...res.data.data.channel });
-        console.log(res.data.data.channel);
       })
       .catch((err) => {
         if (err.response.data.message === "만료된 토큰입니다.") {
@@ -191,7 +190,7 @@ const DetailVideo = ({ videoDatas }) => {
             <VideoPlayer
               videoId={videoId}
               thumbnailUrl={videoDatas.thumbnailUrl}
-              isPrevMode={isPrevMode}
+              isPrevMode={isPrevMode || !videoDatas.isPurchased}
               controlBar={true}
             />
           ) : (
@@ -200,9 +199,6 @@ const DetailVideo = ({ videoDatas }) => {
                 onClick={() => {
                   setPrevMode(true);
                   setPrevCover(false);
-                  setTimeout(() => {
-                    setPrevCover(false);
-                  }, 61000);
                 }}
               >
                 1분 미리보기
