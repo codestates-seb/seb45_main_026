@@ -2,6 +2,7 @@ package com.server.domain.report.service;
 
 import com.server.domain.member.entity.Member;
 import com.server.domain.report.entity.Report;
+import com.server.domain.report.entity.ReportType;
 import com.server.domain.report.repository.ReportRepository;
 import com.server.domain.video.entity.Video;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class ReportService {
             return false;
         }
 
-        reportRepository.save(Report.createReport(member, video, reportContent));
+        reportRepository.save(Report.createVideoReport(member, video, reportContent, ReportType.VIDEO));
 
         return true;
     }

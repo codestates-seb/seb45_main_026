@@ -6,6 +6,7 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.report.entity.Report;
+import com.server.domain.report.entity.ReportType;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.dto.request.ChannelVideoGetDataRequest;
@@ -1057,7 +1058,7 @@ class VideoRepositoryTest extends RepositoryTest {
     }
 
     private Report createAndSaveReport(Member member, Video video) {
-        Report report = Report.createReport(member, video, "content");
+        Report report = Report.createVideoReport(member, video, "content", ReportType.VIDEO);
         em.persist(report);
         return report;
     }

@@ -290,6 +290,35 @@ class OrderRepositoryTest extends RepositoryTest {
                 .containsExactlyInAnyOrder(0, video1.getPrice());
     }
 
+    @Test
+    @DisplayName("해당 월의 총 판매금액을 얻는다.")
+    void calculateAmount() {
+        //given
+        Member owner = createMemberWithChannel();
+        Video video1 = createAndSaveVideo(owner.getChannel());
+        Video video2 = createAndSaveVideo(owner.getChannel());
+
+        Member member1 = createMemberWithChannel();
+        Member member2 = createMemberWithChannel();
+
+        Order order1 = createAndSaveOrderComplete(member1, List.of(video1, video2));
+        Order order2 = createAndSaveOrderComplete(member2, List.of(video1, video2));
+
+        order1.cancelVideoOrder(order1.getOrderVideos().get(0));
+
+        LocalDateTime now = LocalDateTime.now();
+        int month = now.getMonthValue();
+        int year = now.getYear();
+
+        int totalSaleAmount = video1.getPrice() * 2 + video2.getPrice();
+
+        //when
+        Integer total = orderRepository.calculateAmount(owner.getMemberId(), month, year);
+
+        //then
+        assertThat(total).isEqualTo(totalSaleAmount);
+    }
+
     private Cart createAndSaveCart(Member member, Video video) {
 
         Cart cart = Cart.createCart(member, video, video.getPrice());

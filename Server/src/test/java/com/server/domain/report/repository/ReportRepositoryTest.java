@@ -2,15 +2,14 @@ package com.server.domain.report.repository;
 
 import com.server.domain.member.entity.Member;
 import com.server.domain.report.entity.Report;
+import com.server.domain.report.entity.ReportType;
 import com.server.domain.video.entity.Video;
 import com.server.global.testhelper.RepositoryTest;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class ReportRepositoryTest extends RepositoryTest {
 
@@ -40,7 +39,7 @@ class ReportRepositoryTest extends RepositoryTest {
         Video video = createAndSaveVideo(owner.getChannel());
 
         Member reporter = createMemberWithChannel();
-        Report report = Report.createReport(reporter, video, "신고사유");
+        Report report = Report.createVideoReport(reporter, video, "신고사유", ReportType.VIDEO);
         em.persist(report);
 
         // when

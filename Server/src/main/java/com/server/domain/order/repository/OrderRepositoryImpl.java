@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.querydsl.core.group.GroupBy.sum;
 import static com.server.domain.cart.entity.QCart.cart;
 import static com.server.domain.member.entity.QMember.*;
 import static com.server.domain.order.entity.QOrder.*;
@@ -125,7 +126,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
     public Page<AdjustmentData> findByPeriod(Long memberId, Pageable pageable, Integer month, Integer year, String sort) {
 
         TypedQuery<Object[]> jpqlQuery = em.createQuery(
-                        "SELECT v.id, " +
+                        "SELECT v.videoId, " +
                                 "v.videoName, " +
                                 "SUM(ov.price) AS totalSaleAmount, " +
                                 "SUM(CASE WHEN ov.orderStatus = 'CANCELED' THEN ov.price ELSE 0 END) AS refundAmount " +
@@ -135,7 +136,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                                 "WHERE o.paymentKey != null " +
                                 "AND v.channel.id = :memberId " +
                                  getDateCondition(month, year) +
-                                "GROUP BY v.id " +
+                                "GROUP BY v.videoId " +
                                 getAdjustmentSort(sort), Object[].class)
                 .setParameter("memberId", memberId)
                 .setFirstResult((int) pageable.getOffset())
@@ -144,6 +145,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
         setDateCondition(month, year, jpqlQuery);
 
         List<Object[]> resultList = jpqlQuery.getResultList();
+
         List<AdjustmentData> videoReportDatas = resultList.stream()
                 .map(arr -> new AdjustmentData(
                         (Long) arr[0],
@@ -153,15 +155,35 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                 ))
                 .collect(Collectors.toList());
 
-
         JPAQuery<Long> countQuery = queryFactory.select(video.count())
                 .from(video)
+                .join(video.orderVideos, orderVideo)
                 .where(video.channel.channelId.eq(memberId));
 
         return new PageImpl<>(videoReportDatas, pageable, countQuery.fetchOne());
     }
 
-    private void setDateCondition(Integer month, Integer year, TypedQuery<Object[]> jpqlQuery) {
+    @Override
+    public Integer calculateAmount(Long memberId, Integer month, Integer year) {
+
+        TypedQuery<Long> jpqlCountQuery = em.createQuery(
+                                "SELECT SUM(ov.price) - SUM(CASE WHEN ov.orderStatus = 'CANCELED' THEN ov.price ELSE 0 END) AS total " +
+                                "FROM Video v " +
+                                "JOIN v.orderVideos ov " +
+                                "JOIN ov.order o " +
+                                "WHERE o.paymentKey != null " +
+                                "AND v.channel.id = :memberId " +
+                                getDateCondition(month, year), Long.class)
+                .setParameter("memberId", memberId);
+
+        setDateCondition(month, year, jpqlCountQuery);
+
+        Long singleResult = jpqlCountQuery.getSingleResult();
+
+        return singleResult == null ? 0 : singleResult.intValue();
+    }
+
+    private void setDateCondition(Integer month, Integer year, TypedQuery jpqlQuery) {
 
             if (year != null) {
                 jpqlQuery.setParameter("year", year);

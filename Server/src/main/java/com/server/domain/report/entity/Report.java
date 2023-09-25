@@ -30,18 +30,23 @@ public class Report extends BaseEntity {
     @Lob
     private String reportContent;
 
+    @Enumerated(EnumType.STRING)
+    private ReportType reportType;
+
     @Builder
-    private Report(Member member, Video video, String reportContent) {
+    private Report(Member member, Video video, String reportContent, ReportType reportType) {
         this.member = member;
         this.video = video;
         this.reportContent = reportContent;
+        this.reportType = reportType;
     }
 
-    public static Report createReport(Member member, Video video, String reportContent) {
+    public static Report createVideoReport(Member member, Video video, String reportContent, ReportType reportType) {
         return Report.builder()
                 .member(member)
                 .video(video)
                 .reportContent(reportContent)
+                .reportType(reportType)
                 .build();
     }
 }

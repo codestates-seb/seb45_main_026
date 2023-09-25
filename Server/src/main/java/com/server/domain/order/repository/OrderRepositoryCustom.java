@@ -25,4 +25,6 @@ public interface OrderRepositoryCustom {
     Optional<OrderVideo> findOrderVideoByVideoId(String orderId, Long videoId);
 
     Page<AdjustmentData> findByPeriod(Long memberId, Pageable pageable, Integer month, Integer year, String sort);
+
+    Integer calculateAmount(Long memberId, Integer month, Integer year);
 }

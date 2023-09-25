@@ -110,6 +110,23 @@ public class OrderController {
         return ResponseEntity.ok(ApiPageResponse.ok(response, getAdjustmentMessage(month, year)));
     }
 
+    @GetMapping("/total-adjustment")
+    public ResponseEntity<ApiSingleResponse<Integer>> calculateAmount(
+            @RequestParam(required = false) @Min(value = 1) @Max(value = 12) Integer month,
+            @RequestParam(required = false) @Min(value = 2020) Integer year,
+            @LoginId Long loginMemberId) {
+
+        if(month != null && year == null) {
+            throw new AdjustmentDateException();
+        }
+        
+        //정산되었는지도 반환 필요
+
+        Integer total = orderService.calculateAmount(loginMemberId, month, year);
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(total, getAdjustmentMessage(month, year)));
+    }
+
     private String getAdjustmentMessage(Integer month, Integer year) {
         if(month == null && year == null) {
             return "전체 정산 내역";

@@ -148,6 +148,12 @@ public class OrderService {
         return datas.map(AdjustmentResponse::of);
     }
 
+    @Transactional(readOnly = true)
+    public Integer calculateAmount(Long loginMemberId, Integer month, Integer year) {
+
+        return orderRepository.calculateAmount(loginMemberId, month, year);
+    }
+
     private void checkIfVideoClosed(List<Video> videos) {
 
         List<String> closedVideoNames = videos.stream()
