@@ -23,6 +23,7 @@ import VideoPlayer from "../../../components/DetailPage/VideoPlayer";
 import { AlertModal, ReportModal } from "../../../atoms/modal/Modal";
 import { PositiveTextButton } from "../../../atoms/buttons/Buttons";
 import { priceToString } from "../../../components/CartPage/CartPayInfo";
+import { ReactComponent as Report } from "../../../assets/images/icons/Report.svg";
 
 const DetailVideo = ({ videoDatas }) => {
   const navigate = useNavigate();
@@ -172,6 +173,7 @@ const DetailVideo = ({ videoDatas }) => {
           <HeaderBtnContainer>
             부적절한 영상인가요?
             <HeaderBtn isDark={isDark} onClick={() => setReportModal(true)}>
+              <ReportBtn />
               신고하기
             </HeaderBtn>
           </HeaderBtnContainer>
@@ -436,6 +438,19 @@ export const HeaderBtnContainer = styled.div`
 
 export const HeaderBtn = styled(NegativeTextButton)`
   margin-left: 10px;
+`;
+
+export const ReportBtn = styled(Report)`
+  width: 18px;
+  height: 18px;
+  path {
+    fill: ${globalTokens.Negative.value};
+  }
+  &:hover {
+    path {
+      fill: ${globalTokens.Gray.value};
+    }
+  }
 `;
 
 export const VideoWindow = styled.video`
