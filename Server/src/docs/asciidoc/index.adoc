@@ -42,9 +42,13 @@ include::overview.adoc[]
 * link:snippets/video/updatedeletevideo.html[비디오 수정/폐쇄/재오픈 API, onclick="window.location.href='snippets/video/updatedeletevideo.html'"]
 * link:snippets/video/cartvideo.html[비디오 장바구니 담기/취소 API, onclick="window.location.href='snippets/video/cartvideo.html'"]
 
-=== Video Report API
-* link:snippets/video/videoreport.html[비디오 신고 API, onclick="window.location.href='snippets/video/videoreport.html'"]
-* link:snippets/video/getreport.html[신고된 비디오 조회 API, onclick="window.location.href='snippets/video/getreport.html'"]
+=== Report API
+* link:snippets/report/report.html[신고 요청 API, onclick="window.location.href='snippets/report/report.html'"]
+* link:snippets/report/blockmember.html[멤버 차단 API, onclick="window.location.href='snippets/report/blockmember.html'"]
+* link:snippets/report/getvideoreport.html[비디오 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getvideoreport.html'"]
+* link:snippets/report/getreplyreport.html[댓글 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getreplyreport.html'"]
+* link:snippets/report/getchannelreport.html[채널 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getchannelreport.html'"]
+* link:snippets/report/getannouncementreport.html[공지사항 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getannouncementreport.html'"]
 
 === Reply API
 * link:snippets/reply/getreply.html[댓글 목록/단건 조회 API, onclick="window.location.href='snippets/reply/getreply.html'"]

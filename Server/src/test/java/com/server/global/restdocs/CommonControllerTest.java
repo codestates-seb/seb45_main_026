@@ -5,7 +5,7 @@ import com.server.domain.member.entity.Grade;
 import com.server.domain.order.controller.dto.request.AdjustmentSort;
 import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.reply.controller.convert.ReplySort;
-import com.server.domain.video.controller.dto.request.VideoReportSort;
+import com.server.domain.report.controller.dto.request.ReportSort;
 import com.server.domain.video.controller.dto.request.VideoSort;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.module.s3.service.dto.ImageType;
@@ -158,7 +158,7 @@ public class CommonControllerTest extends ControllerTest {
 			Authority.class,
 			OAuthProvider.class,
 			VideoSort.class,
-			VideoReportSort.class,
+			ReportSort.class,
 			OrderStatus.class,
 			AnswerStatus.class,
 			ImageType.class,

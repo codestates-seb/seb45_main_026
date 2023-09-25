@@ -1,4 +1,4 @@
-package com.server.domain.video.service.dto.response;
+package com.server.domain.report.service.dto.response;
 
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.dto.response.VideoReportData;
