@@ -13,7 +13,7 @@ import com.server.domain.report.service.dto.response.VideoReportResponse;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.VideoRepository;
-import com.server.domain.video.repository.dto.response.VideoReportData;
+import com.server.domain.report.repository.dto.response.VideoReportData;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
 import com.server.domain.video.service.dto.request.VideoGetServiceRequest;

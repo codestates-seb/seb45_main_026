@@ -1,11 +1,10 @@
 package com.server.domain.video.repository;
 
-import com.server.domain.report.entity.Report;
 import com.server.domain.report.entity.VideoReport;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.dto.request.ChannelVideoGetDataRequest;
 import com.server.domain.video.repository.dto.request.VideoGetDataRequest;
-import com.server.domain.video.repository.dto.response.VideoReportData;
+import com.server.domain.report.repository.dto.response.VideoReportData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

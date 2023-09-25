@@ -1,0 +1,6 @@
+:doctype: book
+:icons: font
+
+[[MemberStatus]]
+
+include::{snippets}/common/enums/custom-response-fields-MemberStatus.adoc[]

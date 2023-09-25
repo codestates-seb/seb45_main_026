@@ -25,6 +25,7 @@ import javax.validation.metadata.BeanDescriptor;
 import javax.validation.metadata.ConstraintDescriptor;
 import javax.validation.metadata.PropertyDescriptor;
 
+import com.server.module.redis.service.RedisService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -82,6 +83,8 @@ public class AuthControllerTest {
 	private MailService mailService;
 	@MockBean
 	private MemberService memberService;
+	@MockBean
+	private RedisService redisService;
 	@Autowired
 	private ObjectMapper objectMapper;
 	@Autowired

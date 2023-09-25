@@ -1,7 +1,7 @@
 package com.server.domain.report.service.dto.response;
 
-import com.server.domain.video.entity.VideoStatus;
-import com.server.domain.video.repository.dto.response.VideoReportData;
+import com.server.domain.report.repository.dto.response.ReplyReportData;
+import com.server.domain.report.repository.dto.response.VideoReportData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,4 +20,16 @@ public class ReplyReportResponse {
     private Long reportCount;
     private LocalDateTime createdDate;
     private LocalDateTime lastReportedDate;
+
+    public static ReplyReportResponse of(ReplyReportData data) {
+        return ReplyReportResponse.builder()
+                .videoId(data.getVideoId())
+                .videoName(data.getVideoName())
+                .replyId(data.getReplyId())
+                .content(data.getContent())
+                .reportCount(data.getReportCount())
+                .createdDate(data.getCreatedDate())
+                .lastReportedDate(data.getLastReportedDate())
+                .build();
+    }
 }

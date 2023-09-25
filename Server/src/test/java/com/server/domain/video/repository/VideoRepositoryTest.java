@@ -11,7 +11,7 @@ import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.dto.request.ChannelVideoGetDataRequest;
 import com.server.domain.video.repository.dto.request.VideoGetDataRequest;
-import com.server.domain.video.repository.dto.response.VideoReportData;
+import com.server.domain.report.repository.dto.response.VideoReportData;
 import com.server.global.testhelper.RepositoryTest;
 import org.assertj.core.api.ListAssert;
 import org.hibernate.Hibernate;
