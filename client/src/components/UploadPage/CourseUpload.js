@@ -438,6 +438,20 @@ const CourseUpload = ({ isTags }) => {
               <SubDescribe isDark={isDark}>최대 영상 크기 : 1GB</SubDescribe>
             </ColBox>
           </RowBox>
+
+          <RowBox>
+            <CourseVideo isDark={isDark}>1분 미리보기 영상</CourseVideo>
+            <ColBox>
+              <ChooseVideo
+                isDark={isDark}
+                type="file"
+                accept="video/mp4"
+                // onChange={handleSavePreviewFile}
+                // ref={previewRef}
+              />
+            </ColBox>
+          </RowBox>
+
           <SubmitCourse isDark={isDark} onClick={handleVideoPost}>
             강의 등록 완료
           </SubmitCourse>
