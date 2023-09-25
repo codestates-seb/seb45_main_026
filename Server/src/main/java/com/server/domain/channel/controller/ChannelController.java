@@ -8,6 +8,7 @@ import com.server.domain.channel.service.dto.ChannelInfo;
 import com.server.domain.channel.service.dto.ChannelUpdate;
 import com.server.domain.channel.service.dto.request.ChannelVideoGetServiceRequest;
 import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
+import com.server.domain.report.controller.dto.request.ReportCreateApiRequest;
 import com.server.domain.video.controller.dto.request.VideoSort;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiPageResponse;
@@ -123,5 +124,18 @@ public class ChannelController {
         Page<AnnouncementResponse> announcements = announcementService.getAnnouncements(memberId, page - 1, size);
 
         return ResponseEntity.ok(ApiPageResponse.ok(announcements, "공지사항 목록 조회 성공"));
+    }
+
+    @PostMapping("/{channel-id}/reports")
+    public ResponseEntity<ApiSingleResponse<Boolean>> reportChannel(
+            @PathVariable("channel-id") @Positive(message = "{validation.positive}") Long channelId,
+            @RequestBody @Valid ReportCreateApiRequest request,
+            @LoginId Long loginMemberId) {
+
+        boolean result = channelService.reportChannel(loginMemberId, channelId, request.getReportContent());
+
+        String message = result ? "채널 신고 성공" : "이미 신고한 채널입니다.";
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(result, message));
     }
 }

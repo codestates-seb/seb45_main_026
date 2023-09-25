@@ -1,6 +1,7 @@
 package com.server.domain.video.repository;
 
 import com.server.domain.report.entity.Report;
+import com.server.domain.report.entity.VideoReport;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.dto.request.ChannelVideoGetDataRequest;
 import com.server.domain.video.repository.dto.request.VideoGetDataRequest;
@@ -35,5 +36,5 @@ public interface VideoRepositoryCustom {
 
     Page<VideoReportData> findVideoReportDataByCond(Pageable pageable, String sort);
 
-    Page<Report> findReportsByVideoId(Long videoId, Pageable pageable);
+    Page<VideoReport> findReportsByVideoId(Long videoId, Pageable pageable);
 }

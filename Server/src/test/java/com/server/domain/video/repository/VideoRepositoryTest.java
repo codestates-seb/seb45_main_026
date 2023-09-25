@@ -6,6 +6,7 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.report.entity.Report;
+import com.server.domain.report.entity.VideoReport;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.dto.request.ChannelVideoGetDataRequest;
@@ -1027,7 +1028,7 @@ class VideoRepositoryTest extends RepositoryTest {
         PageRequest pageRequest = PageRequest.of(0, 5);
 
         //when
-        Page<Report> reports = videoRepository.findReportsByVideoId(video.getVideoId(), pageRequest);
+        Page<VideoReport> reports = videoRepository.findReportsByVideoId(video.getVideoId(), pageRequest);
 
         //then
         assertThat(reports.getContent()).hasSize(5);
@@ -1057,7 +1058,7 @@ class VideoRepositoryTest extends RepositoryTest {
     }
 
     private Report createAndSaveReport(Member member, Video video) {
-        Report report = Report.createReport(member, video, "content");
+        Report report = Report.createVideoReport(member, video, "content");
         em.persist(report);
         return report;
     }

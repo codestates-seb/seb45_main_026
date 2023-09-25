@@ -3,6 +3,7 @@ package com.server.domain.reply.controller;
 import com.server.domain.reply.dto.MemberInfo;
 import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.dto.ReplyUpdateControllerApi;
+import com.server.domain.report.controller.dto.request.ReportCreateApiRequest;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.global.testhelper.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +21,7 @@ import static com.server.global.testhelper.RestDocsUtil.singleResponseFields;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
@@ -160,6 +162,51 @@ class ReplyControllerTest extends ControllerTest {
                         ),
                         pathParameters(
                                 parameterWithName("reply-id").description("삭제할 댓글 ID")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("댓글 최초 신고 API")
+    void reportReply() throws Exception {
+        //given
+        Long replyId = 1L;
+
+        ReportCreateApiRequest request = ReportCreateApiRequest.builder()
+                .reportContent("신고 내용")
+                .build();
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(true, "댓글 신고 성공"));
+
+        given(replyService.reportReply(anyLong(), anyLong(), anyString())).willReturn(true);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                post(BASE_URL + "/{reply-id}/reports", replyId)
+                        .header(AUTHORIZATION, TOKEN)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse));
+
+        //restdocs
+        actions
+                .andDo(documentHandler.document(
+                        pathParameters(
+                                parameterWithName("reply-id").description("신고할 댓글 ID")
+                        ),
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("Access Token")
+                        ),
+                        requestFields(
+                                fieldWithPath("reportContent").description("신고 내용")
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("댓글 신고 성공 여부")
                         )
                 ));
     }

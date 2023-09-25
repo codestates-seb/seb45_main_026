@@ -9,7 +9,9 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.report.entity.QReport;
+import com.server.domain.report.entity.QVideoReport;
 import com.server.domain.report.entity.Report;
+import com.server.domain.report.entity.VideoReport;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.dto.request.ChannelVideoGetDataRequest;
@@ -31,6 +33,7 @@ import static com.server.domain.order.entity.QOrder.order;
 import static com.server.domain.order.entity.QOrderVideo.orderVideo;
 import static com.server.domain.reply.entity.QReply.*;
 import static com.server.domain.report.entity.QReport.*;
+import static com.server.domain.report.entity.QVideoReport.*;
 import static com.server.domain.subscribe.entity.QSubscribe.subscribe1;
 import static com.server.domain.video.entity.QVideo.video;
 import static com.server.domain.videoCategory.entity.QVideoCategory.*;
@@ -288,12 +291,12 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                                 video.videoId,
                                 video.videoName,
                                 video.videoStatus,
-                                report.count(),
+                                videoReport.count(),
                                 video.createdDate,
-                                report.createdDate.max()
+                                videoReport.createdDate.max()
                         )
                 ).from(video)
-                .join(video.reports, report)
+                .join(video.videoReports, videoReport)
                 .groupBy(video.videoId)
                 .orderBy(getReportSort(sort))
                 .offset(pageable.getOffset())
@@ -303,23 +306,23 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
         JPAQuery<Long> countQuery = queryFactory
                 .select(video.videoId.countDistinct())  // 중복 제거를 위해 countDistinct 사용
                 .from(video)
-                .join(video.reports, report);
+                .join(video.videoReports, videoReport);
 
         return new PageImpl<>(videoReportDatas, pageable, countQuery.fetchOne());
     }
 
     @Override
-    public Page<Report> findReportsByVideoId(Long videoId, Pageable pageable) {
+    public Page<VideoReport> findReportsByVideoId(Long videoId, Pageable pageable) {
 
-        JPAQuery<Report> query = queryFactory.selectFrom(report)
-                .orderBy(report.createdDate.desc())
+        JPAQuery<VideoReport> query = queryFactory.selectFrom(videoReport)
+                .orderBy(videoReport.createdDate.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .where(report.video.videoId.eq(videoId));
+                .where(videoReport.video.videoId.eq(videoId));
 
         JPAQuery<Long> countQuery = queryFactory.select(report.count())
                 .from(report)
-                .where(report.video.videoId.eq(videoId));
+                .where(videoReport.video.videoId.eq(videoId));
 
         return new PageImpl<>(query.fetch(), pageable, countQuery.fetchOne());
     }
@@ -327,7 +330,7 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
     private OrderSpecifier[] getReportSort(String sort) {
         List<OrderSpecifier<?>> orders = new ArrayList<>();
         orders.add(getReportOrderSpecifier(sort));
-        orders.add(report.createdDate.max().desc());
+        orders.add(videoReport.createdDate.max().desc());
 
         return orders.toArray(new OrderSpecifier[0]);
     }

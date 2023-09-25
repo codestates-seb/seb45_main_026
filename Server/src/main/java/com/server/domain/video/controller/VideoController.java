@@ -6,6 +6,7 @@ import com.server.domain.reply.controller.convert.ReplySort;
 import com.server.domain.reply.dto.ReplyCreateControllerApi;
 import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.service.ReplyService;
+import com.server.domain.report.controller.dto.request.ReportCreateApiRequest;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.service.VideoService;
 import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
@@ -235,7 +236,7 @@ public class VideoController {
     @PostMapping("/{video-id}/reports")
     public ResponseEntity<ApiSingleResponse<Boolean>> reportVideo(
             @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
-            @RequestBody @Valid VideoReportCreateApiRequest request,
+            @RequestBody @Valid ReportCreateApiRequest request,
             @LoginId Long loginMemberId) {
 
         boolean result = videoService.reportVideo(loginMemberId, videoId, request.getReportContent());

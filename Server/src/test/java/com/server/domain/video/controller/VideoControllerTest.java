@@ -7,7 +7,7 @@ import com.server.domain.reply.dto.CreateReply;
 import com.server.domain.reply.dto.MemberInfo;
 import com.server.domain.reply.dto.ReplyCreateControllerApi;
 import com.server.domain.reply.dto.ReplyInfo;
-import com.server.domain.reply.entity.Reply;
+import com.server.domain.report.controller.dto.request.ReportCreateApiRequest;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
@@ -870,7 +870,7 @@ class VideoControllerTest extends ControllerTest {
         //given
         Long videoId = 1L;
 
-        VideoReportCreateApiRequest request = VideoReportCreateApiRequest.builder()
+        ReportCreateApiRequest request = ReportCreateApiRequest.builder()
                 .reportContent("신고 내용")
                 .build();
 
@@ -915,7 +915,7 @@ class VideoControllerTest extends ControllerTest {
         //given
         Long videoId = 1L;
 
-        VideoReportCreateApiRequest request = VideoReportCreateApiRequest.builder()
+        ReportCreateApiRequest request = ReportCreateApiRequest.builder()
                 .reportContent("신고 내용")
                 .build();
 
@@ -937,7 +937,7 @@ class VideoControllerTest extends ControllerTest {
                 .andExpect(content().string(apiResponse));
 
         //restdocs
-        setConstraintClass(VideoReportCreateApiRequest.class);
+        setConstraintClass(ReportCreateApiRequest.class);
 
         actions
                 .andDo(documentHandler.document(

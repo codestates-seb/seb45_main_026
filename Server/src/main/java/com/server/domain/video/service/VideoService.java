@@ -7,6 +7,7 @@ import com.server.domain.category.repository.CategoryRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.report.entity.Report;
+import com.server.domain.report.entity.VideoReport;
 import com.server.domain.report.service.ReportService;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
@@ -283,7 +284,7 @@ public class VideoService {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Report> reports = videoRepository.findReportsByVideoId(videoId, pageable);
+        Page<VideoReport> reports = videoRepository.findReportsByVideoId(videoId, pageable);
 
         return reports.map(ReportResponse::of);
     }

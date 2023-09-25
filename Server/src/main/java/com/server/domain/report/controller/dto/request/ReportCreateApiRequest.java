@@ -1,4 +1,4 @@
-package com.server.domain.video.controller.dto.request;
+package com.server.domain.report.controller.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @Getter
 @Builder
-public class VideoReportCreateApiRequest {
+public class ReportCreateApiRequest {
 
     @NotBlank(message = "{validation.report.content}")
     private String reportContent;
