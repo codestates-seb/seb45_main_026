@@ -1,6 +1,9 @@
 package com.server.domain.report.controller;
 
+import com.server.domain.member.entity.MemberStatus;
+import com.server.domain.report.controller.dto.request.MemberBlockApiRequest;
 import com.server.domain.report.entity.ReportType;
+import com.server.domain.report.service.dto.request.MemberBlockServiceRequest;
 import com.server.domain.report.service.dto.response.*;
 import com.server.domain.report.controller.dto.request.ReportSort;
 import com.server.domain.video.entity.VideoStatus;
@@ -26,6 +29,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.requestHe
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -186,6 +190,9 @@ class ReportControllerTest extends ControllerTest {
                                 fieldWithPath("data").description("채널 신고 목록"),
                                 fieldWithPath("data[].memberId").description("신고된 채널의 멤버 ID"),
                                 fieldWithPath("data[].channelName").description("신고된 채널 이름"),
+                                fieldWithPath("data[].memberStatus").description(generateLinkCode(MemberStatus.class)),
+                                fieldWithPath("data[].blockReason").description("차단 사유"),
+                                fieldWithPath("data[].blockEndDate").description("차단 종료일"),
                                 fieldWithPath("data[].reportCount").description("채널 신고 횟수"),
                                 fieldWithPath("data[].createdDate").description("채널 생성일"),
                                 fieldWithPath("data[].lastReportedDate").description("채널 최근 신고일")
@@ -469,7 +476,9 @@ class ReportControllerTest extends ControllerTest {
         //given
         Long memberId = 1L;
 
-        given(reportService.blockMember(anyLong())).willReturn(true);
+        MemberBlockApiRequest request = new MemberBlockApiRequest(7, "차단 사유");
+
+        given(reportService.blockMember(anyLong(), any(MemberBlockServiceRequest.class))).willReturn(true);
 
         String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(true, "회원 차단 성공"));
 
@@ -477,7 +486,9 @@ class ReportControllerTest extends ControllerTest {
         ResultActions actions = mockMvc.perform(
                 patch(BASE_URL + "/members/{member-id}", memberId)
                         .header(AUTHORIZATION, TOKEN)
+                        .content(objectMapper.writeValueAsString(request))
                         .accept(APPLICATION_JSON)
+                        .contentType(APPLICATION_JSON)
         );
 
         //then
@@ -486,6 +497,8 @@ class ReportControllerTest extends ControllerTest {
                 .andExpect(content().string(apiResponse));
 
         //restdocs
+        setConstraintClass(MemberBlockApiRequest.class);
+
         actions.andDo(
                 documentHandler.document(
                         pathParameters(
@@ -493,6 +506,10 @@ class ReportControllerTest extends ControllerTest {
                         ),
                         requestHeaders(
                                 headerWithName(AUTHORIZATION).description("Access Token / 관리자만 가능")
+                        ),
+                        requestFields(
+                                fieldWithPath("days").description("차단 일수").optional().attributes(getConstraint("days")),
+                                fieldWithPath("blockReason").description("차단 사유").optional().attributes(getConstraint("blockReason"))
                         ),
                         singleResponseFields(
                                 fieldWithPath("data").description("회원 차단 성공 여부")
@@ -507,7 +524,9 @@ class ReportControllerTest extends ControllerTest {
         //given
         Long memberId = 1L;
 
-        given(reportService.blockMember(anyLong())).willReturn(false);
+        MemberBlockApiRequest request = new MemberBlockApiRequest(null, null);
+
+        given(reportService.blockMember(anyLong(), any(MemberBlockServiceRequest.class))).willReturn(false);
 
         String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(false, "회원 차단 해제"));
 
@@ -516,6 +535,8 @@ class ReportControllerTest extends ControllerTest {
                 patch(BASE_URL + "/members/{member-id}", memberId)
                         .header(AUTHORIZATION, TOKEN)
                         .accept(APPLICATION_JSON)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
         );
 
         //then
@@ -587,6 +608,9 @@ class ReportControllerTest extends ControllerTest {
             ChannelReportResponse response = ChannelReportResponse.builder()
                     .memberId((long) i)
                     .channelName("채널 이름")
+                    .memberStatus(MemberStatus.BLOCKED)
+                    .blockReason("차단 사유")
+                    .blockEndDate(LocalDateTime.now())
                     .reportCount(2L)
                     .createdDate(LocalDateTime.now())
                     .lastReportedDate(LocalDateTime.now())

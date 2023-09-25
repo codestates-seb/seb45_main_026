@@ -16,16 +16,26 @@ IMPORTANT: 관리자용 기능입니다. (ROLE_ADMIN)
 include::{snippets}/report/blockmembertrue/http-request.adoc[]
 ==== Request Headers
 include::{snippets}/report/blockmembertrue/request-headers.adoc[]
+==== Request Body
+include::{snippets}/report/blockmembertrue/request-body.adoc[]
+==== Request Fields
+include::{snippets}/report/blockmembertrue/request-fields.adoc[]
 === HTTP Response
 include::{snippets}/report/blockmembertrue/http-response.adoc[]
 ==== Response Fields
 include::{snippets}/report/blockmembertrue/response-fields.adoc[]
+
+IMPORTANT: 차단 해제 시 body 값을 null 로 보내주세요.
 
 == 멤버 차단 해제
 === HTTP Request
 include::{snippets}/report/blockmemberfalse/http-request.adoc[]
 ==== Request Headers
 include::{snippets}/report/blockmemberfalse/request-headers.adoc[]
+==== Request Body
+include::{snippets}/report/blockmembertrue/request-body.adoc[]
+==== Request Fields
+include::{snippets}/report/blockmembertrue/request-fields.adoc[]
 === HTTP Response
 include::{snippets}/report/blockmemberfalse/http-response.adoc[]
 ==== Response Fields

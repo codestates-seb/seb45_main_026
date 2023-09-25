@@ -1,5 +1,6 @@
 package com.server.domain.report.controller;
 
+import com.server.domain.report.controller.dto.request.MemberBlockApiRequest;
 import com.server.domain.report.entity.ReportType;
 import com.server.domain.report.service.ReportService;
 import com.server.domain.report.service.dto.response.*;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 
 @RequestMapping("/reports")
@@ -113,9 +115,10 @@ public class ReportController {
 
     @PatchMapping("/members/{member-id}")
     public ResponseEntity<ApiSingleResponse<Boolean>> blockMember(
-            @PathVariable("member-id") @Positive(message = "{validation.positive}") Long memberId) {
+            @PathVariable("member-id") @Positive(message = "{validation.positive}") Long memberId,
+            @RequestBody @Valid MemberBlockApiRequest request) {
 
-        boolean result = reportService.blockMember(memberId);
+        boolean result = reportService.blockMember(memberId, request.toServiceRequest());
 
         String message = result ? "회원 차단 성공" : "회원 차단 해제";
 

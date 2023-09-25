@@ -17,15 +17,22 @@ public class ChannelReportResponse {
     private Long memberId;
     private String channelName;
     private MemberStatus memberStatus;
+    private String blockReason;
+    private LocalDateTime blockEndDate;
     private Long reportCount;
     private LocalDateTime createdDate;
     private LocalDateTime lastReportedDate;
 
-    public static ChannelReportResponse of(ChannelReportData data) {
+    public static ChannelReportResponse of(ChannelReportData data,
+                                           MemberStatus memberStatus,
+                                           String blockReason,
+                                           LocalDateTime blockEndDate) {
         return ChannelReportResponse.builder()
                 .memberId(data.getMemberId())
                 .channelName(data.getChannelName())
-                .memberStatus(data.getMemberStatus())
+                .memberStatus(memberStatus)
+                .blockReason(blockReason)
+                .blockEndDate(blockEndDate)
                 .reportCount(data.getReportCount())
                 .createdDate(data.getCreatedDate())
                 .lastReportedDate(data.getLastReportedDate())

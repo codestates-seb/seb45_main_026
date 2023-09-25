@@ -57,10 +57,7 @@ public class Member extends BaseEntity {
 	private int gradePoint;
 
 	private int reward;
-
-	@Builder.Default
-	private MemberStatus memberStatus = MemberStatus.ACTIVE;
-
+	
 	@OneToMany(mappedBy = "member")
 	@Builder.Default
 	private List<Order> orders = new ArrayList<>();
@@ -168,4 +165,5 @@ public class Member extends BaseEntity {
 	private void checkEnoughReward(int reward) {
 		if(this.reward - reward < 0) throw new RewardNotEnoughException();
 	}
+
 }

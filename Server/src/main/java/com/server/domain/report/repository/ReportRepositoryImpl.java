@@ -198,7 +198,6 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                         new QChannelReportData(
                                 member.memberId,
                                 channel.channelName,
-                                member.memberStatus,
                                 channelReport.count(),
                                 channel.createdDate,
                                 channelReport.createdDate.max()

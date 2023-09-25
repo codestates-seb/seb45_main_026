@@ -14,16 +14,14 @@ public class ChannelReportData {
 
     private Long memberId;
     private String channelName;
-    private MemberStatus memberStatus;
     private Long reportCount;
     private LocalDateTime createdDate;
     private LocalDateTime lastReportedDate;
 
     @QueryProjection
-    public ChannelReportData(Long memberId, String channelName, MemberStatus memberStatus, Long reportCount, LocalDateTime createdDate, LocalDateTime lastReportedDate) {
+    public ChannelReportData(Long memberId, String channelName, Long reportCount, LocalDateTime createdDate, LocalDateTime lastReportedDate) {
         this.memberId = memberId;
         this.channelName = channelName;
-        this.memberStatus = memberStatus;
         this.reportCount = reportCount;
         this.createdDate = createdDate;
         this.lastReportedDate = lastReportedDate;
