@@ -1,6 +1,7 @@
 package com.server.domain.announcement.entity;
 
 import com.server.domain.channel.entity.Channel;
+import com.server.domain.report.entity.AnnouncementReport;
 import com.server.global.entity.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
@@ -26,6 +29,9 @@ public class Announcement extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id")
     private Channel channel;
+
+    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL)
+    private List<AnnouncementReport> announcementReports = new ArrayList<>();
 
     public static Announcement createAnnouncement(Channel channel, String content) {
 

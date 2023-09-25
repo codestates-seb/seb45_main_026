@@ -58,6 +58,9 @@ public class Member extends BaseEntity {
 
 	private int reward;
 
+	@Builder.Default
+	private MemberStatus memberStatus = MemberStatus.ACTIVE;
+
 	@OneToMany(mappedBy = "member")
 	@Builder.Default
 	private List<Order> orders = new ArrayList<>();

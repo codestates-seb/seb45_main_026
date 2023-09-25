@@ -11,6 +11,8 @@ import com.server.domain.report.service.dto.response.*;
 import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,25 +91,39 @@ public class ReportService {
     }
 
     public Page<VideoReportResponse> getReportVideos(int page, int size, String sort) {
-        return null;
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return reportRepository.findVideoReportDataByCond(pageable, sort).map(VideoReportResponse::of);
     }
 
     public Page<ReplyReportResponse> getReportReplies(int page, int size, String sort) {
-        return null;
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return reportRepository.findReplyReportDataByCond(pageable, sort).map(ReplyReportResponse::of);
     }
 
 
     public Page<ChannelReportResponse> getReportChannels(int page, int size, String sort) {
 
-        return null;
+        Pageable pageable = PageRequest.of(page, size);
+
+        return reportRepository.findChannelReportDataByCond(pageable, sort).map(ChannelReportResponse::of);
     }
 
     public Page<AnnouncementReportResponse> getReportAnnouncements(int page, int size, String sort) {
-        return null;
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return reportRepository.findAnnouncementReportDataByCond(pageable, sort).map(AnnouncementReportResponse::of);
     }
 
     public Page<ReportDetailResponse> getReportDetails(Long entityId, int page, int size, ReportType reportType) {
-        return null;
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return reportRepository.findReportDetailByCond(entityId, pageable, reportType).map(ReportDetailResponse::of);
     }
 
     public boolean blockMember(Long memberId) {

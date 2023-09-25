@@ -67,7 +67,10 @@ public class SecurityConfig {
 
 		return cors -> {
 			CorsConfiguration configuration = new CorsConfiguration();
-			configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://www.itprometheus.net"));
+			configuration.setAllowedOrigins(List.of(
+					"http://localhost:3000",
+					"https://www.itprometheus.net",
+					"https://admin.itprometheus.net"));
 			configuration.addAllowedMethod("*");
 			configuration.addAllowedHeader("*");
 			configuration.setAllowCredentials(true);
@@ -101,6 +104,8 @@ public class SecurityConfig {
 
 			.antMatchers(HttpMethod.GET, "/announcements/*").permitAll()
 			.antMatchers("/announcements/**").hasAnyRole("USER", "ADMIN")
+
+			.antMatchers("/reports/**").hasAnyRole("ADMIN")
 
 			.antMatchers("/auth/**").permitAll()
 			.anyRequest().permitAll();

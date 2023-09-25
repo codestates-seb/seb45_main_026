@@ -1,11 +1,13 @@
 package com.server.domain.report.service.dto.response;
 
+import com.server.domain.member.entity.Member;
 import com.server.domain.report.entity.Report;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Builder
@@ -24,9 +26,9 @@ public class ReportDetailResponse {
                 .reportId(report.getReportId())
                 .reportContent(report.getReportContent())
                 .createdDate(report.getCreatedDate())
-                .memberId(report.getMember().getMemberId())
-                .email(report.getMember().getEmail())
-                .nickname(report.getMember().getNickname())
+                .memberId(Optional.ofNullable(report.getMember()).map(Member::getMemberId).orElse(null))
+                .email(Optional.ofNullable(report.getMember()).map(Member::getEmail).orElse(null))
+                .nickname(Optional.ofNullable(report.getMember()).map(Member::getNickname).orElse(null))
                 .build();
     }
 }

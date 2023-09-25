@@ -1,21 +1,12 @@
 package com.server.domain.order.repository;
 
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.dsl.NumberExpression;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.order.entity.OrderVideo;
-import com.server.domain.order.entity.QOrderVideo;
 import com.server.domain.order.repository.dto.AdjustmentData;
-import com.server.domain.order.repository.dto.QAdjustmentData;
-import com.server.domain.video.entity.QVideo;
 import com.server.domain.video.entity.Video;
-import com.server.domain.video.repository.dto.response.QVideoReportData;
-import com.server.domain.video.repository.dto.response.VideoReportData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +22,6 @@ import static com.server.domain.cart.entity.QCart.cart;
 import static com.server.domain.member.entity.QMember.*;
 import static com.server.domain.order.entity.QOrder.*;
 import static com.server.domain.order.entity.QOrderVideo.orderVideo;
-import static com.server.domain.report.entity.QReport.report;
 import static com.server.domain.video.entity.QVideo.video;
 import static com.server.domain.watch.entity.QWatch.watch;
 
