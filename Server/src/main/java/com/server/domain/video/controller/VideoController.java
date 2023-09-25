@@ -7,6 +7,9 @@ import com.server.domain.reply.dto.ReplyCreateControllerApi;
 import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.service.ReplyService;
 import com.server.domain.report.controller.dto.request.ReportCreateApiRequest;
+import com.server.domain.report.controller.dto.request.ReportSort;
+import com.server.domain.report.service.dto.response.ReportDetailResponse;
+import com.server.domain.report.service.dto.response.VideoReportResponse;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.service.VideoService;
 import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
@@ -250,7 +253,7 @@ public class VideoController {
     public ResponseEntity<ApiPageResponse<VideoReportResponse>> getVideoReports(
             @RequestParam(defaultValue = "1") @Positive(message = "{validation.positive}") int page,
             @RequestParam(defaultValue = "10") @Positive(message = "{validation.positive}") int size,
-            @RequestParam(defaultValue = "last-reported-date") VideoReportSort sort) {
+            @RequestParam(defaultValue = "last-reported-date") ReportSort sort) {
 
         Page<VideoReportResponse> reports = videoService.getVideoReports(page - 1, size, sort.getSort());
 
@@ -258,12 +261,12 @@ public class VideoController {
     }
 
     @GetMapping("/{video-id}/reports")
-    public ResponseEntity<ApiPageResponse<ReportResponse>> getReports(
+    public ResponseEntity<ApiPageResponse<ReportDetailResponse>> getReports(
             @PathVariable("video-id") @Positive(message = "{validation.positive}") Long videoId,
             @RequestParam(defaultValue = "1") @Positive(message = "{validation.positive}") int page,
             @RequestParam(defaultValue = "10") @Positive(message = "{validation.positive}") int size) {
 
-        Page<ReportResponse> reports = videoService.getReports(videoId, page - 1, size);
+        Page<ReportDetailResponse> reports = videoService.getReports(videoId, page - 1, size);
 
         return ResponseEntity.ok(ApiPageResponse.ok(reports, "비디오 신고 세부 내용 조회 성공"));
     }

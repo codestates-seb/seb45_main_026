@@ -1,0 +1,32 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+IMPORTANT: 관리자용 기능입니다. (ROLE_ADMIN)
+
+[[Block]]
+= 멤버 차단 API
+
+== 멤버 차단
+=== HTTP Request
+include::{snippets}/report/blockmembertrue/http-request.adoc[]
+==== Request Headers
+include::{snippets}/report/blockmembertrue/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/report/blockmembertrue/http-response.adoc[]
+==== Response Fields
+include::{snippets}/report/blockmembertrue/response-fields.adoc[]
+
+== 멤버 차단 해제
+=== HTTP Request
+include::{snippets}/report/blockmemberfalse/http-request.adoc[]
+==== Request Headers
+include::{snippets}/report/blockmemberfalse/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/report/blockmemberfalse/http-response.adoc[]
+==== Response Fields
+include::{snippets}/report/blockmemberfalse/response-fields.adoc[]

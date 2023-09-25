@@ -7,8 +7,10 @@ import com.server.domain.reply.entity.Reply;
 import com.server.domain.report.entity.Report;
 import com.server.domain.report.entity.ReportType;
 import com.server.domain.report.repository.ReportRepository;
+import com.server.domain.report.service.dto.response.*;
 import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,5 +86,31 @@ public class ReportService {
             default:
                 return false;
         }
+    }
+
+    public Page<VideoReportResponse> getReportVideos(int page, int size, String sort) {
+        return null;
+    }
+
+    public Page<ReplyReportResponse> getReportReplies(int page, int size, String sort) {
+        return null;
+    }
+
+
+    public Page<ChannelReportResponse> getReportChannels(int page, int size, String sort) {
+
+        return null;
+    }
+
+    public Page<AnnouncementReportResponse> getReportAnnouncements(int page, int size, String sort) {
+        return null;
+    }
+
+    public Page<ReportDetailResponse> getReportDetails(Long entityId, int page, int size, ReportType reportType) {
+        return null;
+    }
+
+    public boolean blockMember(Long memberId) {
+        return false;
     }
 }

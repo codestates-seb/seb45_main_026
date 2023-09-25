@@ -1,4 +1,4 @@
-package com.server.domain.video.service.dto.response;
+package com.server.domain.report.service.dto.response;
 
 import com.server.domain.report.entity.Report;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Getter
-public class ReportResponse {
+public class ReportDetailResponse {
 
     private Long reportId;
     private String reportContent;
@@ -19,8 +19,8 @@ public class ReportResponse {
     private String email;
     private String nickname;
 
-    public static ReportResponse of(Report report) {
-        return ReportResponse.builder()
+    public static ReportDetailResponse of(Report report) {
+        return ReportDetailResponse.builder()
                 .reportId(report.getReportId())
                 .reportContent(report.getReportContent())
                 .createdDate(report.getCreatedDate())

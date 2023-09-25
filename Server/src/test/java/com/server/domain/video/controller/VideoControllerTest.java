@@ -8,6 +8,9 @@ import com.server.domain.reply.dto.MemberInfo;
 import com.server.domain.reply.dto.ReplyCreateControllerApi;
 import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.report.controller.dto.request.ReportCreateApiRequest;
+import com.server.domain.report.controller.dto.request.ReportSort;
+import com.server.domain.report.service.dto.response.ReportDetailResponse;
+import com.server.domain.report.service.dto.response.VideoReportResponse;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
@@ -994,7 +997,7 @@ class VideoControllerTest extends ControllerTest {
                         requestParameters(
                                 parameterWithName("page").description("페이지 번호").optional(),
                                 parameterWithName("size").description("페이지 크기").optional(),
-                                parameterWithName("sort").description(generateLinkCode(VideoReportSort.class)).optional()
+                                parameterWithName("sort").description(generateLinkCode(ReportSort.class)).optional()
                         ),
                         pageResponseFields(
                                 fieldWithPath("data").description("비디오 신고 목록"),
@@ -1017,7 +1020,7 @@ class VideoControllerTest extends ControllerTest {
         int page = 1;
         int size = 10;
 
-        Page<ReportResponse> pageResponses = createPage(createReportResponses(size), page, size, 100);
+        Page<ReportDetailResponse> pageResponses = createPage(createReportResponses(size), page, size, 100);
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses, "비디오 신고 세부 내용 조회 성공"));
 
@@ -1063,11 +1066,11 @@ class VideoControllerTest extends ControllerTest {
         );
     }
 
-    private List<ReportResponse> createReportResponses(int size) {
-        List<ReportResponse> reportResponses = new ArrayList<>();
+    private List<ReportDetailResponse> createReportResponses(int size) {
+        List<ReportDetailResponse> reportDetailResponse = new ArrayList<>();
 
         for (int i = 1; i <= size; i++) {
-            reportResponses.add(ReportResponse.builder()
+            reportDetailResponse.add(ReportDetailResponse.builder()
                     .reportId((long) i)
                     .reportContent("신고 내용")
                     .createdDate(LocalDateTime.now())
@@ -1077,7 +1080,7 @@ class VideoControllerTest extends ControllerTest {
                     .build());
         }
 
-        return reportResponses;
+        return reportDetailResponse;
     }
 
     @Test

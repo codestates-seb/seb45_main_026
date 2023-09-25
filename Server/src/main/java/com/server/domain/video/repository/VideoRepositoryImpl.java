@@ -320,8 +320,8 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
                 .limit(pageable.getPageSize())
                 .where(videoReport.video.videoId.eq(videoId));
 
-        JPAQuery<Long> countQuery = queryFactory.select(report.count())
-                .from(report)
+        JPAQuery<Long> countQuery = queryFactory.select(videoReport.count())
+                .from(videoReport)
                 .where(videoReport.video.videoId.eq(videoId));
 
         return new PageImpl<>(query.fetch(), pageable, countQuery.fetchOne());
@@ -338,16 +338,16 @@ public class VideoRepositoryImpl implements VideoRepositoryCustom{
     private OrderSpecifier<?> getReportOrderSpecifier(String sort) {
 
         if(sort == null || sort.equals("")) {
-            return report.createdDate.max().desc();
+            return videoReport.createdDate.max().desc();
         }
 
         switch (sort) {
             case "createdDate":
                 return video.createdDate.desc();
             case "reportCount":
-                return report.count().desc();
+                return videoReport.count().desc();
             default:
-                return report.createdDate.max().desc();
+                return videoReport.createdDate.max().desc();
         }
     }
 
