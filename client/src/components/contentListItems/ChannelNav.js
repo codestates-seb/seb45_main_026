@@ -15,7 +15,7 @@ export default function ChannelNav({ navigate, setNavigate }) {
   const myid = useSelector((state) => state.loginInfo.myid);
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const token = useSelector((state) => state.loginInfo.accessToken);
-  const [isReportOpen, setReportOpen] = useState(true);
+  const [isReportOpen, setReportOpen] = useState(false);
   const [reportModal, setReportModal] = useState(false);
   const [reportContent, setReportContent] = useState("");
   const [reportedModal, setReportedModal] = useState(false);
@@ -76,26 +76,28 @@ export default function ChannelNav({ navigate, setNavigate }) {
             </NavyItem2>
           )
         )}
-        <ReportBox>
-          <ReportBtn
-            isDark={isDark}
-            onClick={() => setReportOpen(!isReportOpen)}
-            onBlur={() => setReportOpen(false)}
-          >
-            <ReportDot isDark={isDark} />
-            {isReportOpen && (
-              <>
-                <ReportMsg isDark={isDark} />
-                <ReportComment
-                  isDark={isDark}
-                  onClick={() => setReportModal(true)}
-                >
-                  채널 신고
-                </ReportComment>
-              </>
-            )}
-          </ReportBtn>
-        </ReportBox>
+        {myid !== Number(userId) && (
+          <ReportBox>
+            <ReportBtn
+              isDark={isDark}
+              onClick={() => setReportOpen(!isReportOpen)}
+              onBlur={() => setReportOpen(false)}
+            >
+              <ReportDot isDark={isDark} />
+              {isReportOpen && (
+                <>
+                  <ReportMsg isDark={isDark} />
+                  <ReportComment
+                    isDark={isDark}
+                    onClick={() => setReportModal(true)}
+                  >
+                    채널 신고
+                  </ReportComment>
+                </>
+              )}
+            </ReportBtn>
+          </ReportBox>
+        )}
       </NavyContainer>
       <ReportModal
         reportContent={reportContent}

@@ -231,7 +231,7 @@ const DetailVideo = ({ videoDatas }) => {
           )}
         </VideoTitle>
         <VideoInfo>
-          <Profile onClick={handleNavChannel}>
+          <Profile isDark={isDark} onClick={handleNavChannel}>
             <ProfileImg
               src={videoDatas.channel?.imageUrl || profileGray}
               alt="프로필 이미지"
@@ -466,14 +466,20 @@ export const VideoInfo = styled.button`
 export const Profile = styled.div`
   min-width: 180px;
   height: 60px;
-  padding: 0px 10px;
+  padding: 0px 25px 0px 10px;
+  margin-right: 50px;
   display: flex;
   justify-content: start;
   align-items: center;
-  margin-right: 50px;
   cursor: pointer;
+  border-radius: ${globalTokens.RegularRadius.value}px;
+  transition: 300ms;
   &:hover {
-    background-color: ${globalTokens.Gray.value};
+    background-color: ${(props) =>
+      props.isDark
+        ? globalTokens.LightNavy.value
+        : globalTokens.LightRed.value};
+    border-radius: ${globalTokens.RegularRadius.value}px;
   }
 `;
 
