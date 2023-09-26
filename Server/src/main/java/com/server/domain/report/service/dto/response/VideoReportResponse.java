@@ -1,7 +1,7 @@
-package com.server.domain.video.service.dto.response;
+package com.server.domain.report.service.dto.response;
 
 import com.server.domain.video.entity.VideoStatus;
-import com.server.domain.video.repository.dto.response.VideoReportData;
+import com.server.domain.report.repository.dto.response.VideoReportData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

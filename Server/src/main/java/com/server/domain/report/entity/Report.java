@@ -1,6 +1,9 @@
 package com.server.domain.report.entity;
 
+import com.server.domain.announcement.entity.Announcement;
+import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
+import com.server.domain.reply.entity.Reply;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
 import lombok.AccessLevel;
@@ -13,15 +16,12 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Report extends BaseEntity {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public abstract class Report extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long reportId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "video_id")
-    private Video video;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -30,23 +30,24 @@ public class Report extends BaseEntity {
     @Lob
     private String reportContent;
 
-    @Enumerated(EnumType.STRING)
-    private ReportType reportType;
-
-    @Builder
-    private Report(Member member, Video video, String reportContent, ReportType reportType) {
+    protected Report(Member member, String reportContent) {
         this.member = member;
-        this.video = video;
         this.reportContent = reportContent;
-        this.reportType = reportType;
     }
 
-    public static Report createVideoReport(Member member, Video video, String reportContent, ReportType reportType) {
-        return Report.builder()
-                .member(member)
-                .video(video)
-                .reportContent(reportContent)
-                .reportType(reportType)
-                .build();
+    public static Report createVideoReport(Member member, Video video, String reportContent) {
+        return new VideoReport(member, video, reportContent);
+    }
+
+    public static Report createReplyReport(Member member, Reply reply, String reportContent) {
+        return new ReplyReport(member, reply, reportContent);
+    }
+
+    public static Report createAnnouncementReport(Member member, Announcement announcement, String reportContent) {
+        return new AnnouncementReport(member, announcement, reportContent);
+    }
+
+    public static Report createChannelReport(Member member, Channel channel, String reportContent) {
+        return new ChannelReport(member, channel, reportContent);
     }
 }

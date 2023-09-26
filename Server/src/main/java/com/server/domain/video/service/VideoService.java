@@ -6,12 +6,14 @@ import com.server.domain.category.entity.Category;
 import com.server.domain.category.repository.CategoryRepository;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
-import com.server.domain.report.entity.Report;
+import com.server.domain.report.entity.VideoReport;
 import com.server.domain.report.service.ReportService;
+import com.server.domain.report.service.dto.response.ReportDetailResponse;
+import com.server.domain.report.service.dto.response.VideoReportResponse;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.VideoRepository;
-import com.server.domain.video.repository.dto.response.VideoReportData;
+import com.server.domain.report.repository.dto.response.VideoReportData;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
 import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
@@ -279,13 +281,13 @@ public class VideoService {
         return videoReportData.map(VideoReportResponse::of);
     }
 
-    public Page<ReportResponse> getReports(Long videoId, int page, int size) {
+    public Page<ReportDetailResponse> getReports(Long videoId, int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Report> reports = videoRepository.findReportsByVideoId(videoId, pageable);
+        Page<VideoReport> reports = videoRepository.findReportsByVideoId(videoId, pageable);
 
-        return reports.map(ReportResponse::of);
+        return reports.map(ReportDetailResponse::of);
     }
 
     private void checkValidVideoName(String fileName) {

@@ -2,6 +2,7 @@ package com.server.domain.reply.entity;
 
 import com.server.domain.member.entity.Member;
 import com.server.domain.reply.dto.CreateReply;
+import com.server.domain.report.entity.ReplyReport;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
@@ -9,6 +10,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -34,6 +37,9 @@ public class Reply extends BaseEntity implements Rewardable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "video_id")
     private Video video;
+
+    @OneToMany(mappedBy = "reply", cascade = CascadeType.ALL)
+    private List<ReplyReport> replyReports = new ArrayList<>();
 
     public static Reply newReply(Member member, Video video, CreateReply createReply) {
 

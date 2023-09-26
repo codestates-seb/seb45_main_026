@@ -105,6 +105,9 @@ public class AwsServiceImpl implements AwsService {
 
     @Override
     public boolean isExistFile(String fileName, FileType fileType) {
+
+        if(fileName == null) return false;
+
         return isExistFile(fileType.s3FullLocation(fileName));
     }
 

@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum ReportType implements BaseEnum {
     VIDEO("비디오 신고"),
     REPLY("댓글 신고"),
-    CHANEL("채널 신고"),
+    CHANNEL("채널 신고"),
     ANNOUNCEMENT("공지사항 신고");
 
     private final String description;

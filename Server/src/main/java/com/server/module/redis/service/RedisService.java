@@ -19,10 +19,18 @@ public class RedisService {
 		return valueOperations.get(key);
 	}
 
+	public boolean isExist(String key) {
+		return Boolean.TRUE.equals(stringRedisTemplate.hasKey(key));
+	}
+
 	public void setExpire(String key, String value, long duration) {
 		ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
 		Duration expireDuration = Duration.ofSeconds(duration);
 		valueOperations.set(key, value, expireDuration);
+	}
+
+	public long getExpire(String key) {
+		return stringRedisTemplate.getExpire(key);
 	}
 
 	public void deleteData(String key) {

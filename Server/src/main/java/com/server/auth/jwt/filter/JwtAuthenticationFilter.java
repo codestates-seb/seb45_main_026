@@ -10,6 +10,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.server.auth.jwt.service.CustomUserDetails;
+import com.server.global.exception.businessexception.memberexception.MemberBlockedException;
+import com.server.module.redis.service.RedisService;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -18,12 +21,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.auth.controller.dto.AuthApiRequest;
@@ -44,10 +42,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	private final JwtProvider jwtProvider;
 	private final AuthenticationManager authenticationManager;
+	private final RedisService redisService;
 
-	public JwtAuthenticationFilter(JwtProvider jwtProvider, AuthenticationManager authenticationManager) {
+	public JwtAuthenticationFilter(JwtProvider jwtProvider, AuthenticationManager authenticationManager, RedisService redisService) {
 		this.jwtProvider = jwtProvider;
 		this.authenticationManager = authenticationManager;
+		this.redisService = redisService;
 	}
 
 	@SneakyThrows
@@ -62,7 +62,21 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			UsernamePasswordAuthenticationToken authenticationToken =
 				new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword());
 
-			return authenticationManager.authenticate(authenticationToken);
+
+			Authentication authenticate = authenticationManager.authenticate(authenticationToken);
+
+			CustomUserDetails principal = (CustomUserDetails) authenticate.getPrincipal();
+
+			Long memberId = principal.getMemberId();
+
+			if(redisService.isExist(memberId.toString())) {
+
+				String reason = redisService.getData(memberId.toString());
+
+				throw new MemberBlockedException(reason);
+			}
+
+			return authenticate;
 
 		} catch (BadCredentialsException badCredentialsException) {
 			AuthUtil.setResponse(response, new MemberBadCredentialsException());
