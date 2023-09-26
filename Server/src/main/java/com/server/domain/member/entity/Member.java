@@ -2,6 +2,7 @@ package com.server.domain.member.entity;
 
 import javax.persistence.*;
 
+import com.server.domain.account.domain.Account;
 import com.server.domain.answer.entity.Answer;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
@@ -64,6 +65,9 @@ public class Member extends BaseEntity {
 
 	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
 	private Channel channel;
+
+	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+	private Account account;
 
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
 	@Builder.Default
@@ -166,4 +170,7 @@ public class Member extends BaseEntity {
 		if(this.reward - reward < 0) throw new RewardNotEnoughException();
 	}
 
+	public void updateAccount(Account account) {
+		this.account = account;
+	}
 }

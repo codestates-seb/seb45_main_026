@@ -6,7 +6,7 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.member.entity.Member;
 import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderVideo;
-import com.server.domain.order.repository.dto.AdjustmentData;
+import com.server.domain.adjustment.repository.dto.AdjustmentData;
 import com.server.domain.video.entity.Video;
 import com.server.domain.watch.entity.Watch;
 import com.server.global.testhelper.RepositoryTest;

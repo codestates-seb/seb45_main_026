@@ -1,5 +1,6 @@
 package com.server.global.restdocs;
 
+import com.server.domain.adjustment.domain.AdjustmentStatus;
 import com.server.domain.answer.entity.AnswerStatus;
 import com.server.domain.member.entity.Grade;
 import com.server.domain.member.entity.MemberStatus;
@@ -167,7 +168,8 @@ public class CommonControllerTest extends ControllerTest {
 			VideoStatus.class,
 			Grade.class,
 			AdjustmentSort.class,
-			MemberStatus.class
+			MemberStatus.class,
+			AdjustmentStatus.class
 		);
 
 		// Enum의 이름값들을 요청 데이터로 사용하기 위해 Json 형태로 변환

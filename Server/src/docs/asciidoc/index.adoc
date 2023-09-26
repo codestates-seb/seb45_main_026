@@ -33,7 +33,10 @@ include::overview.adoc[]
 === Order API
 * link:snippets/order/createorder.html[주문 생성/요청 API, onclick="window.location.href='snippets/order/createorder.html'"]
 * link:snippets/order/cancelorder.html[주문 전체/개별 취소 API, onclick="window.location.href='snippets/order/cancelorder.html'"]
-* link:snippets/order/adjustment.html[주문 정산 API, onclick="window.location.href='snippets/order/adjustment.html'"]
+
+=== Adjustment API
+* link:snippets/adjustment/adjustment.html[비디오별 정산 내역/월 및 연도별 정산액 API, onclick="window.location.href='snippets/adjustment/adjustment.html'"]
+* link:snippets/adjustment/account.html[계좌 조회 및 등록 API, onclick="window.location.href='snippets/adjustment/account.html'"]
 
 === Video API
 * link:snippets/video/getvideo.html[비디오 조회 API, onclick="window.location.href='snippets/video/getvideo.html'"]
