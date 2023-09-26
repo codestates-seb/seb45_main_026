@@ -1,5 +1,8 @@
 package com.server.global.testhelper;
 
+import com.server.domain.account.domain.Account;
+import com.server.domain.adjustment.domain.Adjustment;
+import com.server.domain.adjustment.domain.AdjustmentStatus;
 import com.server.domain.answer.entity.Answer;
 import com.server.domain.answer.entity.AnswerStatus;
 import com.server.domain.cart.entity.Cart;
@@ -308,5 +311,22 @@ public abstract class RepositoryTest {
         em.persist(reply);
 
         return reply;
+    }
+
+    protected Account createAndSaveAccount(Member member) {
+        Account account = Account.createAccount("kim", "1234", "하나", member);
+
+        em.persist(account);
+
+        return account;
+    }
+
+    protected Adjustment createAndSaveAdjustment(Member member, int year, int month) {
+
+        Adjustment adjustment = Adjustment.createAdjustment(year, month, member, 1000, AdjustmentStatus.ADJUSTED, "test");
+
+        em.persist(adjustment);
+
+        return adjustment;
     }
 }

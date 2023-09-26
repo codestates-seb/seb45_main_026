@@ -1,6 +1,6 @@
-package com.server.domain.order.service.dto.response;
+package com.server.domain.adjustment.service.dto.response;
 
-import com.server.domain.order.repository.dto.AdjustmentData;
+import com.server.domain.adjustment.repository.dto.AdjustmentData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

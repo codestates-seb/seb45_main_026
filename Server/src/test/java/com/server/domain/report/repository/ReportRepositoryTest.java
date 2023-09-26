@@ -3,9 +3,7 @@ package com.server.domain.report.repository;
 import com.server.domain.announcement.entity.Announcement;
 import com.server.domain.member.entity.Member;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.report.entity.ChannelReport;
 import com.server.domain.report.entity.Report;
-import com.server.domain.report.entity.VideoReport;
 import com.server.domain.report.repository.dto.response.AnnouncementReportData;
 import com.server.domain.report.repository.dto.response.ChannelReportData;
 import com.server.domain.report.repository.dto.response.ReplyReportData;
@@ -23,8 +21,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.Collection;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.DynamicTest.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 class ReportRepositoryTest extends RepositoryTest {
 

@@ -1,0 +1,42 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Account]]
+= 계좌 정보 API
+
+== 계좌 조회
+=== HTTP Request
+include::{snippets}/adjustment/getaccount/http-request.adoc[]
+==== Request Headers
+include::{snippets}/adjustment/getaccount/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/adjustment/getaccount/http-response.adoc[]
+==== Response Fields
+include::{snippets}/adjustment/getaccount/response-fields.adoc[]
+
+== 계좌 조회(계좌 미등록 시)
+=== HTTP Request
+include::{snippets}/adjustment/getaccountnull/http-request.adoc[]
+==== Request Headers
+include::{snippets}/adjustment/getaccountnull/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/adjustment/getaccountnull/http-response.adoc[]
+==== Response Fields
+include::{snippets}/adjustment/getaccountnull/response-fields.adoc[]
+
+== 계좌 생성/수정 (put 요청입니다.)
+=== HTTP Request
+include::{snippets}/adjustment/calculateamount/http-request.adoc[]
+==== Request Headers
+include::{snippets}/adjustment/calculateamount/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/adjustment/calculateamount/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/adjustment/calculateamount/http-response.adoc[]
+==== Response Fields
+include::{snippets}/adjustment/calculateamount/response-fields.adoc[]

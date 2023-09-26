@@ -1,4 +1,4 @@
-package com.server.domain.order.repository.dto;
+package com.server.domain.adjustment.repository.dto;
 
 
 import com.querydsl.core.annotations.QueryProjection;

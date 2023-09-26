@@ -16,6 +16,8 @@ import javax.validation.metadata.BeanDescriptor;
 import javax.validation.metadata.ConstraintDescriptor;
 import javax.validation.metadata.PropertyDescriptor;
 
+import com.server.domain.adjustment.controller.AdjustmentController;
+import com.server.domain.adjustment.service.AdjustmentService;
 import com.server.domain.announcement.controller.AnnouncementController;
 import com.server.domain.announcement.service.AnnouncementService;
 import com.server.domain.category.controller.CategoryController;
@@ -90,7 +92,8 @@ import com.server.search.engine.SearchEngine;
 	AnnouncementController.class,
 	CategoryController.class,
 	SearchController.class,
-	ReportController.class
+	ReportController.class,
+	AdjustmentController.class
 })
 @ExtendWith({RestDocumentationExtension.class})
 @ActiveProfiles("local")
@@ -127,6 +130,8 @@ public class ControllerTest {
 	protected SearchEngine searchEngine;
 	@MockBean
 	protected WarmupState warmupState;
+	@MockBean
+	protected AdjustmentService adjustmentService;
 
 	// 컨트롤러 테스트에 필요한 것들
 	@Autowired

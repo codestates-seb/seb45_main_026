@@ -5,7 +5,7 @@ import com.server.domain.order.controller.dto.request.OrderCreateApiRequest;
 import com.server.domain.order.controller.dto.response.PaymentApiResponse;
 import com.server.domain.order.controller.dto.response.VideoCancelApiResponse;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
-import com.server.domain.order.service.dto.response.AdjustmentResponse;
+import com.server.domain.adjustment.service.dto.response.AdjustmentResponse;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
 import com.server.domain.order.service.dto.response.CancelServiceResponse;

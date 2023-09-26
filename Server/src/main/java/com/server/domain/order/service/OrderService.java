@@ -6,9 +6,9 @@ import com.server.domain.order.entity.Order;
 import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.order.repository.OrderRepository;
-import com.server.domain.order.repository.dto.AdjustmentData;
+import com.server.domain.adjustment.repository.dto.AdjustmentData;
 import com.server.domain.order.service.dto.request.OrderCreateServiceRequest;
-import com.server.domain.order.service.dto.response.AdjustmentResponse;
+import com.server.domain.adjustment.service.dto.response.AdjustmentResponse;
 import com.server.domain.order.service.dto.response.OrderResponse;
 import com.server.domain.order.service.dto.response.PaymentServiceResponse;
 import com.server.domain.order.service.dto.response.CancelServiceResponse;
@@ -146,6 +146,12 @@ public class OrderService {
         Page<AdjustmentData> datas = orderRepository.findByPeriod(loginMemberId, pageable, month, year, sort);
 
         return datas.map(AdjustmentResponse::of);
+    }
+
+    @Transactional(readOnly = true)
+    public Integer calculateAmount(Long loginMemberId, Integer month, Integer year) {
+
+        return orderRepository.calculateAmount(loginMemberId, month, year);
     }
 
     private void checkIfVideoClosed(List<Video> videos) {
