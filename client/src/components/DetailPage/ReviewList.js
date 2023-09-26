@@ -13,13 +13,15 @@ import {
   SmallTextTypo,
 } from "../../atoms/typographys/Typographys";
 import { RegularInput } from "../../atoms/inputs/Inputs";
-import { ConfirmModal } from "../../atoms/modal/Modal";
+import { AlertModal, ConfirmModal, ReportModal } from "../../atoms/modal/Modal";
+import { useToken } from "../../hooks/useToken";
 
 const globalTokens = tokens.global;
 
 const ReviewList = ({ el, getReview }) => {
-  const isDark = useSelector((state) => state.uiSetting.isDark);
+  const refreshToken = useToken();
   const myId = useSelector((state) => state.loginInfo.myid);
+  const isDark = useSelector((state) => state.uiSetting.isDark);
   const token = useSelector((state) => state.loginInfo.accessToken);
   const [isEditMode, setEditMode] = useState(false);
   const [editReply, setEditReply] = useState({
@@ -57,22 +59,48 @@ const ReviewList = ({ el, getReview }) => {
       .catch((err) => console.log(err));
   };
 
+  const [reportModal, setReportModal] = useState(false);
+  const [reportContent, setReportContent] = useState("");
+  const [reportedModal, setReportedModal] = useState(false);
+  const [alreadyReportedModal, setAlreadyReportedModal] = useState(false);
+
+  const handleReportReivew = (replyId) => {
+    return axios
+      .post(
+        `https://api.itprometheus.net/replies/${replyId}/reports`,
+        { reportContent: reportContent },
+        { headers: { Authorization: token.authorization } }
+      )
+      .then((res) => {
+        if (res.data.data) {
+          setReportModal(false);
+          setReportedModal(true);
+          setReportContent("");
+        } else {
+          setReportModal(false);
+          setAlreadyReportedModal(true);
+        }
+      })
+      .catch((err) => {
+        if (err.response.data.message === "만료된 토큰입니다.") {
+          refreshToken();
+        } else {
+          console.log(err);
+        }
+      });
+  };
+
+  const handleReportContent = (e) => {
+    setReportContent(e.target.value);
+  };
+
   return (
     <>
       <ReList isDark={isDark}>
-        {myId === el.member.memberId && (
+        {myId === el.member.memberId ? (
           <>
             {isEditMode ? (
-              <ReviewPatch
-                isDark={isDark}
-                onClick={() => {
-                  setSaveReview(true);
-                  // if (window.confirm("댓글을 저장 하시겠습니까?")) {
-                  //   setEditMode(false);
-                  //   patchReview(el.replyId);
-                  // }
-                }}
-              >
+              <ReviewPatch isDark={isDark} onClick={() => setSaveReview(true)}>
                 저장
               </ReviewPatch>
             ) : (
@@ -86,18 +114,12 @@ const ReviewList = ({ el, getReview }) => {
                 수정
               </ReviewPatch>
             )}
-            <ReviewDelete
-              isDark={isDark}
-              onClick={() => {
-                setDelReview(true);
-                // if (window.confirm("댓글을 삭제 하시겠습니까?")) {
-                //   deleteReview(el.replyId);
-                // }
-              }}
-            >
+            <ReviewDelete isDark={isDark} onClick={() => setDelReview(true)}>
               삭제
             </ReviewDelete>
           </>
+        ) : (
+          <ReviewReport onClick={() => setReportModal(true)}>신고</ReviewReport>
         )}
 
         <StarBox>
@@ -153,6 +175,33 @@ const ReviewList = ({ el, getReview }) => {
           setDelReview(false);
         }}
       />
+      <ReportModal
+        reportContent={reportContent}
+        setReportContent={handleReportContent}
+        isModalOpen={reportModal}
+        setIsModalOpen={setReportModal}
+        isBackdropClickClose={false}
+        negativeButtonTitle="신고"
+        positiveButtonTitle="취소"
+        handleNegativeButtonClick={() => handleReportReivew(el.replyId)}
+        handlePositiveButtonClick={() => setReportModal(false)}
+      />
+      <AlertModal
+        isModalOpen={reportedModal}
+        setIsModalOpen={setReportedModal}
+        isBackdropClickClose={true}
+        content="비디오가 신고 되었습니다."
+        buttonTitle="확인"
+        handleButtonClick={() => setReportedModal(false)}
+      />
+      <AlertModal
+        isModalOpen={alreadyReportedModal}
+        setIsModalOpen={setAlreadyReportedModal}
+        isBackdropClickClose={true}
+        content="이미 신고한 비디오입니다."
+        buttonTitle="확인"
+        handleButtonClick={() => setAlreadyReportedModal(false)}
+      />
     </>
   );
 };
@@ -192,6 +241,14 @@ export const ReviewPatch = styled(PositiveTextButton)`
 `;
 
 export const ReviewDelete = styled(NegativeTextButton)`
+  position: absolute;
+  top: 5px;
+  right: 3%;
+  text-decoration: underline;
+  font-size: ${globalTokens.SmallText.value}px;
+`;
+
+export const ReviewReport = styled(NegativeTextButton)`
   position: absolute;
   top: 5px;
   right: 3%;

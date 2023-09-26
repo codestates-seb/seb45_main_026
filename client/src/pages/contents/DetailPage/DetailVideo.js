@@ -144,6 +144,7 @@ const DetailVideo = ({ videoDatas }) => {
           if (res.data.data) {
             setReportModal(false);
             setReportedModal(true);
+            setReportContent("");
           } else {
             setReportModal(false);
             setAlreadyReportedModal(true);
@@ -173,7 +174,6 @@ const DetailVideo = ({ videoDatas }) => {
           <HeaderBtnContainer>
             부적절한 영상인가요?
             <HeaderBtn isDark={isDark} onClick={() => setReportModal(true)}>
-              <ReportBtn />
               신고하기
             </HeaderBtn>
           </HeaderBtnContainer>
@@ -440,19 +440,6 @@ export const HeaderBtn = styled(NegativeTextButton)`
   margin-left: 10px;
 `;
 
-export const ReportBtn = styled(Report)`
-  width: 18px;
-  height: 18px;
-  path {
-    fill: ${globalTokens.Negative.value};
-  }
-  &:hover {
-    path {
-      fill: ${globalTokens.Gray.value};
-    }
-  }
-`;
-
 export const VideoWindow = styled.video`
   width: 100%;
   aspect-ratio: 1.8/1;
@@ -522,3 +509,16 @@ export const CreditBox = styled.div`
 `;
 
 const BackButton = styled(PositiveTextButton)``;
+
+export const ReportBtn = styled(Report)`
+  width: 18px;
+  height: 18px;
+  path {
+    fill: ${globalTokens.Negative.value};
+  }
+  &:hover {
+    path {
+      fill: ${globalTokens.Gray.value};
+    }
+  }
+`;
