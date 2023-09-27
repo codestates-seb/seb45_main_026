@@ -1,11 +1,17 @@
 import React from 'react';
 import './App.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import ReportVideoPage from './pages/ReportVideoPage';
 
 function App() {
   return (
-    <div className="App">
-      안녕하세요, 오펜하이머 관리자페이지 입니다.
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<ReportVideoPage/>}/>
+        <Route path='/login' element={<LoginPage/>}/>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
