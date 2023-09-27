@@ -23,22 +23,23 @@ public class Account extends BaseEntity {
 
     private String bank;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
-
-    private Account(String name, String account, String bank, Member member) {
+    private Account(String name, String account, String bank) {
         this.name = name;
         this.account = account;
         this.bank = bank;
-        this.member = member;
     }
 
     public static Account createAccount(String name, String accountNumber, String bank, Member member) {
-        Account account = new Account(name, accountNumber, bank, member);
+        Account account = new Account(name, accountNumber, bank);
 
         member.updateAccount(account);
 
         return account;
+    }
+
+    public void updateAccount(String name, String account, String bank) {
+        this.name = name;
+        this.account = account;
+        this.bank = bank;
     }
 }

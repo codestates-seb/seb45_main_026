@@ -157,7 +157,10 @@ public class AdjustmentService {
 
         if(account == null) {
             Member member = verifiedMember(loginMemberId);
-            Account.createAccount(request.getName(), request.getAccount(), request.getBank(), member);
+            Account createdAccount = Account.createAccount(request.getName(), request.getAccount(), request.getBank(), member);
+            accountRepository.save(createdAccount);
+        }else {
+            account.updateAccount(request.getName(), request.getAccount(), request.getBank());
         }
 
     }
