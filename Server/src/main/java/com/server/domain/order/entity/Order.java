@@ -210,6 +210,11 @@ public class Order extends BaseEntity {
         this.remainRefundReward -= refundReward;
         return refundReward;
     }
+
+    public boolean isExpired() {
+        return this.getCompletedDate().plusDays(14).isBefore(LocalDateTime.now());
+    }
+
     @Getter
     @AllArgsConstructor
     public static class Refund {

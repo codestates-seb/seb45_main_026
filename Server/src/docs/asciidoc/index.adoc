@@ -9,8 +9,25 @@
 
 include::overview.adoc[]
 
+[[ADMIN-API]]
+== 관리자용 APIs
+
+=== Report API
+* link:snippets/report/getvideoreport.html[비디오 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getvideoreport.html'"]
+* link:snippets/report/getreplyreport.html[댓글 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getreplyreport.html'"]
+* link:snippets/report/getchannelreport.html[채널 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getchannelreport.html'"]
+* link:snippets/report/getannouncementreport.html[공지사항 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getannouncementreport.html'"]
+* link:snippets/report/blockmember.html[멤버 차단/해제 API, onclick="window.location.href='snippets/report/blockmember.html'"]
+
+=== Member API
+* link:snippets/admin/memberlist.html[멤버 목록 조회 API, onclick="window.location.href='snippets/admin/memberlist.html'"]
+
+=== Video API
+* link:snippets/admin/videolist.html[비디오 목록 조회 API, onclick="window.location.href='snippets/admin/videolist.html'"]
+
+
 [[API-List]]
-== APIs
+== 일반 APIs
 
 === Auth API
 * link:snippets/auth/auth.html[인증 관련 API (로그인 / 회원가입 등), onclick="window.location.href='snippets/auth/auth.html'"]
@@ -47,11 +64,6 @@ include::overview.adoc[]
 
 === Report API
 * link:snippets/report/report.html[신고 요청 API, onclick="window.location.href='snippets/report/report.html'"]
-* link:snippets/report/blockmember.html[멤버 차단/해제 API, onclick="window.location.href='snippets/report/blockmember.html'"]
-* link:snippets/report/getvideoreport.html[비디오 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getvideoreport.html'"]
-* link:snippets/report/getreplyreport.html[댓글 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getreplyreport.html'"]
-* link:snippets/report/getchannelreport.html[채널 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getchannelreport.html'"]
-* link:snippets/report/getannouncementreport.html[공지사항 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getannouncementreport.html'"]
 
 === Reply API
 * link:snippets/reply/getreply.html[댓글 목록/단건 조회 API, onclick="window.location.href='snippets/reply/getreply.html'"]
