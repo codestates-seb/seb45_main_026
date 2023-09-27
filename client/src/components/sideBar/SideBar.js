@@ -18,6 +18,8 @@ import writeWhite from '../../assets/images/icons/sideBar/writeWhite.svg';
 import tokens from '../../styles/tokens.json'
 import watchWhite from '../../assets/images/icons/sideBar/watchWhite.svg';
 import watch from '../../assets/images/icons/sideBar/watch.svg';
+import money from '../../assets/images/icons/sideBar/money.svg';
+import moneyWhite from '../../assets/images/icons/sideBar/moneyWhite.svg';
 
 import { useNavigate } from 'react-router-dom';
 import { useLogout } from '../../hooks/useLogout';
@@ -83,6 +85,9 @@ export const SideBar = () => {
     const handleMyChannelClick = () => {
         navigate(`/channels/${userId}`);
     }
+    const handleActivityClick = () => {
+        navigate('/activity/reward');
+    }
     const handleWatchClick = () => {
         navigate(`/watched`);
     }
@@ -111,6 +116,10 @@ export const SideBar = () => {
             <SideBarButtonContainer onClick={handleMyChannelClick}>
                 <SideBarButtonIcon src={profileGray}/>
                 <SideBarButtonTitle isDark={isDark}>내 채널</SideBarButtonTitle>
+            </SideBarButtonContainer>
+            <SideBarButtonContainer onClick={handleActivityClick}>
+                <SideBarButtonIcon src={isDark?moneyWhite:money}/>
+                <SideBarButtonTitle isDark={isDark}>나의 활동</SideBarButtonTitle>
             </SideBarButtonContainer>
             <SideBarButtonContainer onClick={handleWatchClick}>
                 <SideBarButtonIcon src={isDark?watchWhite:watch}/>

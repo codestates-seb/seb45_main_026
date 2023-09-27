@@ -10,6 +10,7 @@ import { useMatch } from "react-router";
 export default function ToTopButton() {
     const isDark = useSelector((state) => state.uiSetting.isDark);
     const match = useMatch("/");
+    
     const scrollToTop = () => {
       window.scrollTo({
         top: 0,
@@ -18,7 +19,6 @@ export default function ToTopButton() {
     };
 
     return (
-
         <ToTopButtonContainer>
             {match===null?<ToButton isDark={isDark} onClick={()=>scrollToTop()}>
                 <TopButtonImg src={arrowUp}/>
