@@ -108,6 +108,8 @@ public class SecurityConfig {
 
 			.antMatchers("/reports/**").hasAnyRole("ADMIN")
 
+			.antMatchers("/admin/**").hasAnyRole("ADMIN")
+
 			.antMatchers("/auth/**").permitAll()
 			.anyRequest().permitAll();
 	}

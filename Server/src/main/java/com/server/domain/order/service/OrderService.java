@@ -114,6 +114,8 @@ public class OrderService {
 
         order.checkAlreadyCanceled();
 
+        if(order.isExpired()) throw new OrderExpiredException();
+
         int totalRequest = order.getRemainRefundAmount() + order.getRemainRefundReward();
 
         Order.Refund totalRefund = orderCancelProcess(order);
@@ -126,6 +128,8 @@ public class OrderService {
         Order order = verifiedOrderWithVideo(loginMemberId, orderId);
 
         if(!order.isComplete()) throw new OrderNotValidException();
+
+        if(order.isExpired()) throw new OrderExpiredException();
 
         OrderVideo orderVideo = getOrderVideo(order, videoId);
 

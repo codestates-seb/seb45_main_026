@@ -31,12 +31,12 @@ include::{snippets}/adjustment/getaccountnull/response-fields.adoc[]
 
 == 계좌 생성/수정 (put 요청입니다.)
 === HTTP Request
-include::{snippets}/adjustment/calculateamount/http-request.adoc[]
+include::{snippets}/adjustment/updateaccount/http-request.adoc[]
 ==== Request Headers
-include::{snippets}/adjustment/calculateamount/request-headers.adoc[]
-==== Request Query Parameters
-include::{snippets}/adjustment/calculateamount/request-parameters.adoc[]
+include::{snippets}/adjustment/updateaccount/request-headers.adoc[]
+==== Request Body
+include::{snippets}/adjustment/updateaccount/request-body.adoc[]
+==== Request Fields
+include::{snippets}/adjustment/updateaccount/request-fields.adoc[]
 === HTTP Response
-include::{snippets}/adjustment/calculateamount/http-response.adoc[]
-==== Response Fields
-include::{snippets}/adjustment/calculateamount/response-fields.adoc[]
+include::{snippets}/adjustment/updateaccount/http-response.adoc[]

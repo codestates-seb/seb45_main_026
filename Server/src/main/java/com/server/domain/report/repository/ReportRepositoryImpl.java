@@ -1,11 +1,18 @@
 package com.server.domain.report.repository;
 
+import com.nimbusds.oauth2.sdk.util.StringUtils;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.server.domain.member.entity.Member;
 import com.server.domain.report.entity.*;
 import com.server.domain.report.repository.dto.response.*;
 import com.server.domain.report.service.dto.response.ReportDetailResponse;
+import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.reportexception.ReportTypeException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -316,8 +323,67 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
             default:
                 throw new ReportTypeException();
         }
+    }
 
+    @Override
+    public Page<Member> findMemberByKeyword(String keyword, Pageable pageable) {
 
+        JPAQuery<Member> query = queryFactory.selectFrom(member)
+                .join(member.channel, channel).fetchJoin()
+                .where(LikeEmailOrNicknameOrChannelName(keyword))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        JPAQuery<Long> countQuery = queryFactory.select(member.count())
+                .from(member)
+                .where(LikeEmailOrNicknameOrChannelName(keyword));
+
+        return new PageImpl<>(query.fetch(), pageable, countQuery.fetchOne());
+    }
+
+    @Override
+    public Page<Video> findVideoByKeyword(String email, String keyword, Pageable pageable) {
+
+        JPAQuery<Video> query = queryFactory
+                .selectFrom(video)
+                .leftJoin(video.channel, channel).fetchJoin()
+                .leftJoin(channel.member, member).fetchJoin()
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .where(
+                        eqEmail(email),
+                        searchKeyword(keyword)
+                );
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(video.count())
+                .from(video)
+                .where(
+                        eqEmail(email),
+                        searchKeyword(keyword)
+                );
+
+        return new PageImpl<>(query.fetch(), pageable, countQuery.fetchOne());
+    }
+
+    private BooleanExpression eqEmail(String email) {
+        return email != null ? member.email.eq(email) : Expressions.asBoolean(true).isTrue();
+    }
+
+    private BooleanExpression searchKeyword(String keyword) {
+        if (StringUtils.isBlank(keyword)) {
+            return null;
+        }
+
+        return Expressions.numberTemplate(Double.class,
+                "function('matchVideo', {0}, {1})", video.videoName, keyword).gt(0);
+    }
+
+    private BooleanExpression LikeEmailOrNicknameOrChannelName(String keyword) {
+
+        return member.nickname.contains(keyword)
+                .or(member.email.contains(keyword))
+                .or(channel.channelName.contains(keyword));
     }
 
     private Page<? extends Report> findVideoReportDetailByCond(Long videoId, Pageable pageable) {

@@ -140,13 +140,35 @@ class ReportRepositoryTest extends RepositoryTest {
                 assertThat(report.getChannelName()).isEqualTo(owner.getChannel().getChannelName());
                 assertThat(report.getReportCount()).isEqualTo(1);
             })
-
-
-
-
-
-
         );
+    }
+
+    @Test
+    @DisplayName("키워드를 통해 이메일, 채널이름, 닉네임으로 멤버를 검색한다.")
+    void findMemberByKeyword() {
+        //given
+        Member member1 = createMemberWithChannel();
+        member1.updateNickname("닉네임채");
+
+        Member member2 = createMemberWithChannel();
+        member2.getChannel().updateChannel("채널이름", "description");
+
+        Member member3 = createMemberWithChannel("이메채일");
+
+        Member member4 = createMemberWithChannel("이메일");
+
+        em.flush();
+        em.clear();
+
+        //when
+        Page<Member> memberPages = reportRepository.findMemberByKeyword("채", Pageable.ofSize(10).withPage(0));
+
+        //then
+        assertThat(memberPages.getContent()).hasSize(3);
+        assertThat(memberPages.getContent())
+                .extracting("memberId")
+                .contains(member1.getMemberId(), member2.getMemberId(), member3.getMemberId());
+
     }
 
     private Announcement createAnnouncement(Member owner) {

@@ -22,6 +22,7 @@ import com.server.domain.announcement.controller.AnnouncementController;
 import com.server.domain.announcement.service.AnnouncementService;
 import com.server.domain.category.controller.CategoryController;
 import com.server.domain.category.service.CategoryService;
+import com.server.domain.report.controller.AdminController;
 import com.server.domain.report.controller.ReportController;
 import com.server.domain.report.service.ReportService;
 import com.server.global.initailizer.warmup.WarmupState;
@@ -93,7 +94,8 @@ import com.server.search.engine.SearchEngine;
 	CategoryController.class,
 	SearchController.class,
 	ReportController.class,
-	AdjustmentController.class
+	AdjustmentController.class,
+	AdminController.class
 })
 @ExtendWith({RestDocumentationExtension.class})
 @ActiveProfiles("local")

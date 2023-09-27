@@ -55,7 +55,7 @@ public class CancelVideoJobConfig {
     @JobScope
     public Step cancelVideoStep() throws Exception {
         return stepBuilderFactory.get("cancelVideoStep")
-                .<Video, Video>chunk(100)
+                .<Video, Video>chunk(1000)
                 .reader(videoReader())
                 .processor(videoProcessor())
                 .writer(videoDeletionWriter())
@@ -103,7 +103,6 @@ public class CancelVideoJobConfig {
     @Bean
     @StepScope
     public ItemWriter<Video> videoDeletionWriter() {
-
 
         return items -> videoRepository.deleteAllInBatch((List<Video>) items);
     }

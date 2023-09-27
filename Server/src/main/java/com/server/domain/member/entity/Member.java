@@ -66,7 +66,7 @@ public class Member extends BaseEntity {
 	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
 	private Channel channel;
 
-	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Account account;
 
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
