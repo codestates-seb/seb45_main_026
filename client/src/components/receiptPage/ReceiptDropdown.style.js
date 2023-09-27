@@ -9,6 +9,7 @@ export const ReceiptDropdownContainer = styled.section`
     width: 100%;
     display: flex;
     flex-direction: row;
+    margin-bottom: ${globalTokens.Spacing12.value}px;
 `
 export const DropdownWrapper = styled.div`
     margin: ${globalTokens.Spacing8.value}px ${globalTokens.Spacing12.value}px;

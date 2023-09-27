@@ -9,6 +9,7 @@ const globalTokens = tokens.global;
 
 export const RewardNavContainer = styled.nav`
     width: 100%;
+    margin-bottom: ${globalTokens.Spacing16.value}px;
     padding: 0 ${globalTokens.Spacing8.value}px;
     display: flex;
     flex-direction: row;
