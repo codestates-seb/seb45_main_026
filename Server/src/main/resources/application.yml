@@ -19,18 +19,19 @@ spring:
       hibernate:
         default_batch_fetch_size: 100
   mail:
-    host: smtp.naver.com
-    port: 465
+    host: smtp.gmail.com
+    port: 587
+    username: sksjsksh32@gmail.com
     properties:
-      debug: true
       mail:
         smtp:
           auth: true
-          ssl:
-            enable: true
-            trust: smtp.naver.com
           starttls:
             enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
   security:
     oauth2:
       client:
