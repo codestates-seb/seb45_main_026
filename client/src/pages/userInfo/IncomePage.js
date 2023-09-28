@@ -29,6 +29,7 @@ import {
 } from "recharts";
 import axios from "axios";
 import styled from "styled-components";
+import FilterSlice from "../../redux/createSlice/FilterSlice";
 
 const IncomePage = () => {
   const date = new Date();
@@ -97,7 +98,7 @@ const IncomePage = () => {
       .then((res) => {
         console.log("Year", res.data.data.monthData);
         const adjustData = res.data.data.monthData;
-        const newData = yearData.map((el) => {
+        const newData = yearData.slice(0, 4).map((el) => {
           for (let i = 0; i < adjustData.length; i++) {
             if (el.month === adjustData[i].month) {
               return { ...el, ...adjustData[i] };
@@ -113,13 +114,13 @@ const IncomePage = () => {
       });
   };
 
-  const getMonth = () => {
+  const getMonthVideoData = () => {
     return axios
       .get(
         `https://api.itprometheus.net/adjustments/videos?year=${year}&month=${month}`
       )
       .then((res) => {
-        console.log(res.data.data);
+        console.log("videos", res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -128,12 +129,13 @@ const IncomePage = () => {
 
   // 연도 or 월별 정산 내역
   useEffect(() => {
-    if (!year) {
+    if (year === null) {
       return;
-    } else if (!month) {
+    } else if (month === null) {
       getAdjustmentYear();
     } else {
       getAdjustmentMonth();
+      getMonthVideoData();
     }
   }, [month, year]);
 
