@@ -1,7 +1,7 @@
 import React from 'react';
-import { PageContainer } from './PageContainer';
+import { PageContainer } from '../../atoms/layouts/PageContainer';
 import { useSelector } from 'react-redux';
-import { RootState } from '../redux/Store';
+import { RootState } from '../../redux/Store';
 
 const ReportVideoPage = () => {
     const isDark=useSelector((state:RootState)=>state.uiSetting.isDark);

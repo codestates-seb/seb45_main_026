@@ -1,15 +1,15 @@
-import React from 'react';
-import { PageContainer } from '../atoms/layouts/PageContainer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/Store';
+import { PageContainer } from '../atoms/layouts/PageContainer';
 
-const LoginPage = () => {
+const VideoPage = () => {
     const isDark = useSelector((state:RootState)=>state.uiSetting.isDark);
 
     return (
         <PageContainer isDark={isDark}>
-        </PageContainer>
+            
+        </PageContainer> 
     );
 };
 
-export default LoginPage;
+export default VideoPage;
