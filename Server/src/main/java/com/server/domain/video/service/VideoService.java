@@ -174,6 +174,8 @@ public class VideoService {
 
         String location = video.getVideoId() + "/" + request.getFileName();
 
+        video.updateVideoPath();
+
         return VideoCreateUrlResponse.builder()
                 .videoUrl(getUploadVideoUrl(loginMemberId, location))
                 .previewUrl(getUploadPreviewUrl(loginMemberId, location))

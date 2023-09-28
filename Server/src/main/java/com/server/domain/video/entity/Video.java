@@ -127,19 +127,20 @@ public class Video extends BaseEntity implements Rewardable {
         this.description = description == null ? this.description : description;
     }
 
+    public void updateVideoPath() {
+        String filePath = getMemberId() + "/videos/" + this.videoId + "/" + this.videoName;
+        this.thumbnailFile = filePath;
+        this.videoFile = filePath;
+        this.previewFile = getMemberId() + "/previews/" + this.videoId + "/" + this.videoName;
+    }
+
     public void additionalCreateProcess(Integer price, String description, List<Category> categories, boolean hasPreview) {
 
         checkIsUploading();
 
-        String filePath = getMemberId() + "/videos/" + this.videoId + "/" + this.videoName;
-
-
         this.price = price;
         this.description = description;
         this.videoStatus = VideoStatus.CREATED;
-        this.thumbnailFile = filePath;
-        this.videoFile = filePath;
-
 
         this.videoCategories.clear();
         for (Category category : categories) {
@@ -152,8 +153,8 @@ public class Video extends BaseEntity implements Rewardable {
             this.getChannel().getMember().addGradePoint(100);
         }
 
-        if(hasPreview) {
-            this.previewFile = getMemberId() + "/previews/" + this.videoId + "/" + this.videoName;
+        if(!hasPreview) {
+            this.previewFile = null;
         }
     }
 

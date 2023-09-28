@@ -491,6 +491,7 @@ class VideoServiceTest extends ServiceTest {
         Member owner = createMemberWithChannel();
         Video video = Video.createVideo(owner.getChannel(), "test");
         videoRepository.save(video);
+        video.updateVideoPath();
 
         createAndSaveCategory("category1");
 
@@ -651,6 +652,7 @@ class VideoServiceTest extends ServiceTest {
         Member owner = createMemberWithChannel();
         Video video = Video.createVideo(owner.getChannel(), "test");
         videoRepository.save(video);
+        video.updateVideoPath();
 
         createAndSaveCategory("category1");
 
