@@ -6,11 +6,9 @@ import com.server.domain.adjustment.domain.Adjustment;
 import com.server.domain.adjustment.domain.AdjustmentStatus;
 import com.server.domain.adjustment.repository.AdjustmentRepository;
 import com.server.domain.adjustment.repository.dto.AdjustmentData;
+import com.server.domain.adjustment.repository.dto.VideoAdjustmentData;
 import com.server.domain.adjustment.service.dto.request.AccountUpdateServiceRequest;
-import com.server.domain.adjustment.service.dto.response.AccountResponse;
-import com.server.domain.adjustment.service.dto.response.AdjustmentResponse;
-import com.server.domain.adjustment.service.dto.response.MonthAdjustmentResponse;
-import com.server.domain.adjustment.service.dto.response.ToTalAdjustmentResponse;
+import com.server.domain.adjustment.service.dto.response.*;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
@@ -151,6 +149,7 @@ public class AdjustmentService {
         return AccountResponse.of(account);
     }
 
+    @Transactional
     public void updateAccount(Long loginMemberId, AccountUpdateServiceRequest request) {
 
         Account account = getAccountOrNull(loginMemberId);
@@ -162,7 +161,15 @@ public class AdjustmentService {
         }else {
             account.updateAccount(request.getName(), request.getAccount(), request.getBank());
         }
+    }
 
+    public List<VideoAdjustmentResponse> calculateVideoRate(Long loginMemberId, Integer month, Integer year) {
+
+        List<VideoAdjustmentData> datas = adjustmentRepository.calculateVideo(loginMemberId, month, year);
+
+        int total = datas.stream().map(VideoAdjustmentData::getAmount).mapToInt(Integer::intValue).sum();
+
+        return datas.stream().map(data -> VideoAdjustmentResponse.of(data, total)).collect(Collectors.toList());
     }
 
     private Account getAccountOrNull(Long loginMemberId) {

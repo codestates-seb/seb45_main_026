@@ -1,10 +1,14 @@
 package com.server.domain.adjustment.repository;
 
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.adjustment.domain.Adjustment;
 import com.server.domain.adjustment.repository.dto.AdjustmentData;
+import com.server.domain.adjustment.repository.dto.QVideoAdjustmentData;
+import com.server.domain.adjustment.repository.dto.VideoAdjustmentData;
+import com.server.domain.order.entity.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.server.domain.adjustment.domain.QAdjustment.*;
+import static com.server.domain.order.entity.QOrder.order;
 import static com.server.domain.order.entity.QOrderVideo.orderVideo;
 import static com.server.domain.video.entity.QVideo.video;
 
@@ -64,7 +69,7 @@ public class AdjustmentRepositoryImpl implements AdjustmentRepositoryCustom {
         JPAQuery<Long> countQuery = queryFactory.select(video.count())
                 .from(video)
                 .join(video.orderVideos, orderVideo)
-                .where(video.channel.channelId.eq(memberId));
+                .where(eqMemberId(memberId));
 
         return new PageImpl<>(videoReportDatas, pageable, countQuery.fetchOne());
     }
@@ -96,6 +101,48 @@ public class AdjustmentRepositoryImpl implements AdjustmentRepositoryCustom {
                 .where(adjustment.member.memberId.eq(memberId)
                         .and(YearEq(year)))
                 .fetch();
+    }
+
+    @Override
+    public List<VideoAdjustmentData> calculateVideo(Long memberId, Integer month, Integer year) {
+
+        return queryFactory.select(
+                        new QVideoAdjustmentData(
+                                video.videoId,
+                                video.videoName,
+                                orderVideo.price.sum()
+                        )
+                )
+                .from(video)
+                .join(video.orderVideos, orderVideo)
+                .join(orderVideo.order, order)
+                .where(getCompletedOrder(),
+                        eqMemberId(memberId),
+                        eqOrderYear(year),
+                        eqOrderMonth(month)
+                )
+                .groupBy(video.videoId)
+                .fetch();
+    }
+
+    private Predicate eqOrderYear(Integer year) {
+        if(year == null) return null;
+
+        return order.completedDate.year().eq(year);
+    }
+
+    private Predicate eqOrderMonth(Integer month) {
+        if(month == null) return null;
+
+        return order.completedDate.month().eq(month);
+    }
+
+    private BooleanExpression eqMemberId(Long memberId) {
+        return video.channel.channelId.eq(memberId);
+    }
+
+    private BooleanExpression getCompletedOrder() {
+        return orderVideo.orderStatus.eq(OrderStatus.COMPLETED);
     }
 
     private BooleanExpression YearEq(Integer year) {

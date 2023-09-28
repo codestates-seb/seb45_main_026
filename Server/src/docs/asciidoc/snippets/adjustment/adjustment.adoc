@@ -12,7 +12,7 @@
 IMPORTANT: month 를 null 로 주면 연도별 조회, year 을 null 로 주면 전체 조회
 
 [[Adjustment-list]]
-== 비디오별 정산 내역
+== 비디오별 정산 내역 페이징
 === HTTP Request
 include::{snippets}/adjustment/adjustment/http-request.adoc[]
 ==== Request Headers

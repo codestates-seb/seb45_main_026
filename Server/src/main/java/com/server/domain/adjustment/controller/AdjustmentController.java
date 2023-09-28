@@ -4,6 +4,7 @@ import com.server.domain.adjustment.controller.dto.request.AccountUpdateApiReque
 import com.server.domain.adjustment.service.AdjustmentService;
 import com.server.domain.adjustment.service.dto.response.AccountResponse;
 import com.server.domain.adjustment.service.dto.response.ToTalAdjustmentResponse;
+import com.server.domain.adjustment.service.dto.response.VideoAdjustmentResponse;
 import com.server.domain.order.controller.dto.request.AdjustmentSort;
 import com.server.domain.adjustment.service.dto.response.AdjustmentResponse;
 import com.server.global.annotation.LoginId;
@@ -21,6 +22,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/adjustments")
@@ -46,7 +48,20 @@ public class AdjustmentController {
 
         Page<AdjustmentResponse> response = adjustmentService.adjustment(loginMemberId, page - 1, size, month, year, sort.getSort());
 
-        return ResponseEntity.ok(ApiPageResponse.ok(response, getAdjustmentMessage(month, year)));
+        return ResponseEntity.ok(ApiPageResponse.ok(response, getAdjustmentMessage(month, year) + " 정산 내역"));
+    }
+
+    @GetMapping("/videos")
+    public ResponseEntity<ApiSingleResponse<List<VideoAdjustmentResponse>>> calculateVideoRate(
+            @RequestParam(required = false) @Min(value = 1) @Max(value = 12) Integer month,
+            @RequestParam(required = false) @Min(value = 2020) Integer year,
+            @LoginId Long loginMemberId) {
+
+        checkValidDate(month, year);
+
+        List<VideoAdjustmentResponse> total = adjustmentService.calculateVideoRate(loginMemberId, month, year);
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(total, getAdjustmentMessage(month, year) + " 비디오 정산 내역"));
     }
 
     @GetMapping("/total-adjustment")
@@ -59,7 +74,7 @@ public class AdjustmentController {
 
         ToTalAdjustmentResponse total = adjustmentService.totalAdjustment(loginMemberId, month, year);
 
-        return ResponseEntity.ok(ApiSingleResponse.ok(total, getAdjustmentMessage(month, year)));
+        return ResponseEntity.ok(ApiSingleResponse.ok(total, getAdjustmentMessage(month, year) + " 정산 내역"));
     }
 
     @GetMapping("/account")
@@ -91,13 +106,13 @@ public class AdjustmentController {
 
     private String getAdjustmentMessage(Integer month, Integer year) {
         if(month == null && year == null) {
-            return "전체 정산 내역";
+            return "전체";
         }
 
         if(month != null && year != null) {
-            return year + "년 " + month + "월 정산 내역";
+            return year + "년 " + month + "월";
         }
 
-        return year + "년 정산 내역";
+        return year + "년";
     }
 }

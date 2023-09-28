@@ -2,10 +2,7 @@ package com.server.domain.adjustment.controller;
 
 import com.server.domain.adjustment.controller.dto.request.AccountUpdateApiRequest;
 import com.server.domain.adjustment.domain.AdjustmentStatus;
-import com.server.domain.adjustment.service.dto.response.AccountResponse;
-import com.server.domain.adjustment.service.dto.response.AdjustmentResponse;
-import com.server.domain.adjustment.service.dto.response.MonthAdjustmentResponse;
-import com.server.domain.adjustment.service.dto.response.ToTalAdjustmentResponse;
+import com.server.domain.adjustment.service.dto.response.*;
 import com.server.domain.order.controller.dto.request.AdjustmentSort;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
@@ -24,6 +21,7 @@ import static com.server.global.testhelper.RestDocsUtil.singleResponseFields;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.http.MediaType.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
@@ -293,7 +291,7 @@ class AdjustmentControllerTest extends ControllerTest {
         ResultActions actions = mockMvc.perform(
                 put(BASE_URL + "/account")
                         .header(AUTHORIZATION, TOKEN)
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
         );
 
@@ -317,8 +315,56 @@ class AdjustmentControllerTest extends ControllerTest {
                         )
                 )
         );
+    }
 
+    @Test
+    @DisplayName("월별/연도별 비디오별 정산 내역 API")
+    void calculateVideoRate() throws Exception {
+        //given
+        int size = 5;
+        int year = 2023;
+        int month = 9;
+        List<VideoAdjustmentResponse> response = createVideoAdjustmentResponse(size);
 
+        given(adjustmentService.calculateVideoRate(anyLong(), anyInt(), anyInt())).willReturn(response);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(response, year + "년 " + month + "월 비디오 정산 내역"));
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                get(BASE_URL + "/videos")
+                        .param("year", String.valueOf(year))
+                        .param("month", String.valueOf(month))
+                        .header(AUTHORIZATION, TOKEN)
+                        .accept(APPLICATION_JSON)
+        );
+
+        //then
+        actions
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse))
+        ;
+
+        //restdocs
+        actions.andDo(
+                documentHandler.document(
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("액세스 토큰")
+                        ),
+                        requestParameters(
+                                parameterWithName("month").description("정산 월").optional(),
+                                parameterWithName("year").description("정산 년도").optional()
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("정산 내역"),
+                                fieldWithPath("data[].videoId").description("비디오 ID"),
+                                fieldWithPath("data[].videoName").description("비디오 이름"),
+                                fieldWithPath("data[].amount").description("해당 기간 정산 금액"),
+                                fieldWithPath("data[].portion").description("해당 기간 판매 비율")
+                        )
+                )
+        );
     }
 
     private ToTalAdjustmentResponse createToTalAdjustmentResponse(Integer month, Integer year) {
@@ -365,6 +411,23 @@ class AdjustmentControllerTest extends ControllerTest {
                     .build());
         }
 
+        return responses;
+    }
+
+    private List<VideoAdjustmentResponse> createVideoAdjustmentResponse(int size) {
+
+        List<VideoAdjustmentResponse> responses = new ArrayList<>();
+
+        for(int i = 1; i <= size; i++) {
+            VideoAdjustmentResponse response = VideoAdjustmentResponse.builder()
+                    .videoId((long) i)
+                    .videoName("videoName")
+                    .amount(10000)
+                    .portion(0.2f)
+                    .build();
+
+            responses.add(response);
+        }
         return responses;
     }
 }
