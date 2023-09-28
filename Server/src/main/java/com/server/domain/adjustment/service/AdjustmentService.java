@@ -76,7 +76,7 @@ public class AdjustmentService {
 
         //이번달 데이터 세팅
         int amount = adjustmentRepository.calculateAmount(1L, month, year);
-        monthAdjustmentResponses.add(MonthAdjustmentResponse.of(month, year, amount));
+        monthAdjustmentResponses.add(MonthAdjustmentResponse.of(year, month, amount));
 
         //지난달 데이터가 있는지 확인
         if (month == 1) {
@@ -89,7 +89,7 @@ public class AdjustmentService {
         boolean hasLastMonth = false;
 
         for(MonthAdjustmentResponse monthAdjustmentResponse : monthAdjustmentResponses) {
-            if (monthAdjustmentResponse.isSameMonthAndYear(month, year)) {
+            if (monthAdjustmentResponse.isSameMonthAndYear(year, month)) {
                 hasLastMonth = true;
                 break;
             }
@@ -98,7 +98,7 @@ public class AdjustmentService {
         //지난달 데이터가 없다면 세팅
         if (!hasLastMonth) {
             amount = adjustmentRepository.calculateAmount(1L, month, year);
-            monthAdjustmentResponses.add(MonthAdjustmentResponse.of(month, year, amount));
+            monthAdjustmentResponses.add(MonthAdjustmentResponse.of(year, month, amount));
         }
     }
 
