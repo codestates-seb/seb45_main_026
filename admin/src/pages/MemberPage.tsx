@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageContainer } from '../atoms/layouts/PageContainer';
+import { MainContainer, PageContainer } from '../atoms/layouts/PageContainer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/Store';
 
@@ -8,7 +8,9 @@ const MemberPage = () => {
 
     return (
         <PageContainer isDark={isDark}>
-            
+            <MainContainer isDark={isDark}>
+                
+            </MainContainer>
         </PageContainer>
     );
 };

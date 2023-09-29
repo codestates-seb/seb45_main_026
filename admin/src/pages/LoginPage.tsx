@@ -1,14 +1,24 @@
 import React from 'react';
-import { PageContainer } from '../atoms/layouts/PageContainer';
+import { MainContainer, PageContainer } from '../atoms/layouts/PageContainer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/Store';
+import LoginForm from '../components/loginPage/LoginForm';
+import styled from 'styled-components';
+
+const LoginPageContainer = styled(PageContainer)`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+`
 
 const LoginPage = () => {
     const isDark = useSelector((state:RootState)=>state.uiSetting.isDark);
 
     return (
-        <PageContainer isDark={isDark}>
-        </PageContainer>
+        <LoginPageContainer isDark={isDark}>
+            <LoginForm/>
+        </LoginPageContainer>
     );
 };
 
