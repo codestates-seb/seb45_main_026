@@ -1,4 +1,8 @@
 import type { Preview } from "@storybook/react";
+import './index.css';
+import tokens from '../src/styles/tokens.json';
+
+const globalTokens = tokens.global;
 
 const preview: Preview = {
   parameters: {
@@ -9,7 +13,15 @@ const preview: Preview = {
         date: /Date$/,
       },
     },
+    backgrounds: {
+      default: 'light',
+      values: [
+        { name: 'dark', value: `${globalTokens.Black.value}` },
+        { name: 'light', value: `${globalTokens.Background.value}` }
+      ]
+    }, 
   },
 };
+
 
 export default preview;

@@ -1,11 +1,25 @@
 import React from 'react';
 import './App.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import ReportVideoPage from './pages/reports/ReportVideoPage';
+import Header from './components/header/Header';
+import Footer from './components/Footer';
+import VideoPage from './pages/VideoPage';
+import MemberPage from './pages/MemberPage';
 
 function App() {
   return (
-    <div className="App">
-      안녕하세요, 오펜하이머 관리자페이지 입니다.
-    </div>
+    <BrowserRouter>
+      <Header/>
+      <Routes>
+        <Route path='/' element={<VideoPage/>}/>
+        <Route path='/login' element={<LoginPage/>}/>
+        <Route path='/members' element={<MemberPage/>}/>
+        <Route path='/reports/videos' element={<ReportVideoPage/>}/>
+      </Routes>
+      <Footer/>
+    </BrowserRouter>
   );
 }
 

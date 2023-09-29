@@ -19,7 +19,6 @@ export const LoginForm = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [ isLoginFailModalOpen, setIsLoginFailModalOpen ] = useState(false);
-    const loginFailConfirm = useConfirm('이메일, 비밀번호를 확인해 주세요.');
 
     const isDark = useSelector(state=>state.uiSetting.isDark);
 
