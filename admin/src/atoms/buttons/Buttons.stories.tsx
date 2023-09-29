@@ -7,7 +7,7 @@ type buttonsPropsType = {
 
 const Buttons = ({isDark}:buttonsPropsType) => {
     return (
-        <div style={{display: "grid", gridTemplateColumns: '1fr 1fr 1fr 1fr', gridAutoRows: '1fr', placeItems: 'center', backgroundColor:isDark?'#182333':'white' }}>
+        <div style={{display: "grid", gridTemplateColumns: '1fr 1fr 1fr 1fr', gridAutoRows: '1fr', placeItems: 'center' }}>
             <BigButton isDark={isDark}>Big Button</BigButton>
             <RegularButton isDark={isDark}>Regular Button</RegularButton>
             <TextButton isDark={isDark}>Text Button</TextButton>

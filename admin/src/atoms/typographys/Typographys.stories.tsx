@@ -7,7 +7,7 @@ type typographysPropsType = {
 
 const Typographys = ({isDark}:typographysPropsType) => {
     return (
-        <div style={{ display:'flex', flexDirection:'column', backgroundColor:isDark?'#182333':'white', transition:'200ms'}} >
+        <div style={{ display:'flex', flexDirection:'column'}} >
             <Heading1Typo isDark={isDark}>This is Heading1 Typo.</Heading1Typo>
             <Heading2Typo isDark={isDark}>This is Heading2 Typo.</Heading2Typo>
             <Heading3Typo isDark={isDark}>This is Heading3 Typo.</Heading3Typo>
