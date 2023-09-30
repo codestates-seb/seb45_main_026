@@ -1,10 +1,12 @@
 import styled from "styled-components";
 import tokens from '../../styles/tokens.json';
+import { Heading5Typo, NegativeTextTypo } from "../../atoms/typographys/Typographys";
+import { BigButton } from "../../atoms/buttons/Buttons";
 
 const globalTokens = tokens.global;
 
 export const LoginContainer = styled.section<{isDark : boolean}>`
-    height: 520px;
+    height: 350px;
     padding: ${globalTokens.Spacing24.value}px;
     background-color: ${(props)=>props.isDark ? globalTokens.DarkGray.value : globalTokens.White.value};
     border-radius: ${globalTokens.BigRadius.value}px;
@@ -24,4 +26,20 @@ export const FormContainer = styled.form`
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 10px;
+`
+export const LoginTitleTypo = styled(Heading5Typo)`
+    width: 100%;
+    margin: ${globalTokens.Spacing12.value}px 0; 
+`
+export const InputContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+`
+export const InputErrorTypo = styled(NegativeTextTypo)`
+    width: 100%;
+    text-align: end;
+`
+export const LoginButton = styled(BigButton)`
+    width: 100%;
 `

@@ -8,7 +8,6 @@ import {
 import { loginService } from '../../services/authServices';
 import { setToken, setIsLogin } from '../../redux/createSlice/LoginInfoSlice';
 import { useNavigate } from 'react-router-dom';
-import useConfirm from '../../hooks/useConfirm';
 import { Input, InputErrorTypo } from '../../atoms/inputs/Inputs';
 import tokens from '../../styles/tokens.json';
 import { AlertModal } from '../../atoms/modal/Modal';
