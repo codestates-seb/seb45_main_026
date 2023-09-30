@@ -129,7 +129,7 @@ export default function PurchasedListPage() {
   }, [isList, filterState, accessToken]);
 
   useEffect(() => {
-    if (isList && page !== 1 && videolList !== []) {
+    if (isList && page !== 1 && !videolList.length) {
       axios
         .get(
           `https://api.itprometheus.net/members/playlists?page=${page}&size=16&sort=${filterState.sortBy.value}`,
@@ -148,7 +148,7 @@ export default function PurchasedListPage() {
             console.log(err);
           }
         });
-    } else if (!isList && page !== 1 && channelList !== []) {
+    } else if (!isList && page !== 1 && !channelList.length) {
       axios
         .get(
           `https://api.itprometheus.net/members/playlists/channels?page=${page}&size=16`,
