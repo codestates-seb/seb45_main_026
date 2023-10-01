@@ -46,7 +46,9 @@ const RewardItem = ({ item }) => {
           ? "리뷰 등록"
           : "기타"}
       </RewardTitleTypo>
-      <RewardPointTypo isDark={isDark}>{item.rewardPoint}P</RewardPointTypo>
+      <RewardPointTypo isDark={isDark}>
+        {item.rewardPoint > 0 && "+" + item.rewardPoint}P
+      </RewardPointTypo>
     </RewardItemContainer>
   );
 };

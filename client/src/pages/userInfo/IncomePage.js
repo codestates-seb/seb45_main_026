@@ -116,7 +116,7 @@ const IncomePage = () => {
         `https://api.itprometheus.net/adjustments/total-adjustment?month=${month}&year=${year}`
       )
       .then((res) => {
-        // console.log(`${month}월 정산 내역`, res.data.data);
+        console.log(`${month}월 정산 내역`, res.data.data);
         // console.log(`${month}월 정산된 금액`, res.data.data.amount);
         // console.log(`${month}월 정산 상태`, res.data.data.adjustmentStatus);
         // console.log("이유", res.data.data.reason);
@@ -171,6 +171,7 @@ const IncomePage = () => {
               (el.totalSaleAmount - el.refundAmount) / el.totalSaleAmount,
           };
         });
+        console.log(newMonthData);
         setMonthData(newMonthData);
         setIncomeList(res.data.data);
         setMaxPage(res.data.pageInfo.totalPage);
@@ -399,32 +400,34 @@ const IncomePage = () => {
                 </ResponsiveContainer>
               </ChartBox>
             ) : (
-              <ChartBox>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart width={1000} height={500}>
-                    <Pie
-                      activeIndex={isPointer}
-                      activeShape={renderActiveShape}
-                      data={isMonthData}
-                      dataKey="profit"
-                      nameKey="videoName"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={135}
-                      outerRadius={180}
-                      fill={
-                        isDark
-                          ? globalTokens.Gray.value
-                          : globalTokens.LightGray.value
-                      }
-                      onMouseEnter={(e, idx) => {
-                        setPointer(idx);
-                      }}
-                      onClick={(event) => console.log(event)}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </ChartBox>
+              incomeList.length > 0 && (
+                <ChartBox>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart width={1000} height={500}>
+                      <Pie
+                        activeIndex={isPointer}
+                        activeShape={renderActiveShape}
+                        data={isMonthData}
+                        dataKey="profit"
+                        nameKey="videoName"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={135}
+                        outerRadius={180}
+                        fill={
+                          isDark
+                            ? globalTokens.Gray.value
+                            : globalTokens.LightGray.value
+                        }
+                        onMouseEnter={(e, idx) => {
+                          setPointer(idx);
+                        }}
+                        onClick={(event) => console.log(event)}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </ChartBox>
+              )
             ))}
 
           {month === null ? (
