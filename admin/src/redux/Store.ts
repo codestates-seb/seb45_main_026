@@ -36,6 +36,11 @@ type loginInfoType = {
     authority: string;
 }
 
+type accessTokenType = {
+    authorization : string;
+    refresh : string;
+}
+
 export type RootState = {
     uiSetting: {
         isDark: boolean;
@@ -44,6 +49,7 @@ export type RootState = {
         isLogin: boolean;
         myid: string;
         loginInfo: loginInfoType;
+        accessToken : accessTokenType;
     }
 }
 

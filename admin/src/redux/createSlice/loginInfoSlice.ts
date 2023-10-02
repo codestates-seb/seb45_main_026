@@ -17,7 +17,6 @@ const loginInfoSlice = createSlice({
             authorization: '',
             refresh: '',
         }
-
     },
     reducers: {
         setIsLogin: (state, action) => {
