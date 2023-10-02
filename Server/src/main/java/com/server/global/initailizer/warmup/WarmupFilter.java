@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-@Profile("prod")
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class WarmupFilter implements Filter {
 

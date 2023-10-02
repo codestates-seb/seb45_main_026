@@ -75,6 +75,9 @@ decorator:
 pem:
   location: src/main/resources/prometheus.pem
 
+warmup:
+  is-completed: true
+
 ---
 spring:
   config:
@@ -99,3 +102,6 @@ decorator:
   datasource:
     p6spy:
       enable-logging: false
+
+warmup:
+  is-completed: true

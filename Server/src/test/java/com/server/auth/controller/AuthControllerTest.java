@@ -72,7 +72,6 @@ import com.server.module.email.service.MailService;
 @SpringBootTest // 시큐리티를 사용하기 위해서 통합 테스트 사용해야 함 (다른 방법 나중에 찾아보기)
 @ExtendWith({RestDocumentationExtension.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) // 테스트 인스턴스 생명주기 클래스에 맞추기
-@ActiveProfiles("local")
 public class AuthControllerTest {
 
 	@MockBean

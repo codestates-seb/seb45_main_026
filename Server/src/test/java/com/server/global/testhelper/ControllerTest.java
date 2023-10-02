@@ -16,6 +16,9 @@ import javax.validation.metadata.BeanDescriptor;
 import javax.validation.metadata.ConstraintDescriptor;
 import javax.validation.metadata.PropertyDescriptor;
 
+import com.server.chat.controller.AdminChatController;
+import com.server.chat.controller.UserChatController;
+import com.server.chat.service.ChatService;
 import com.server.domain.adjustment.controller.AdjustmentController;
 import com.server.domain.adjustment.service.AdjustmentService;
 import com.server.domain.announcement.controller.AnnouncementController;
@@ -95,7 +98,9 @@ import com.server.search.engine.SearchEngine;
 	SearchController.class,
 	ReportController.class,
 	AdjustmentController.class,
-	AdminController.class
+	AdminController.class,
+	AdminChatController.class,
+	UserChatController.class
 })
 @ExtendWith({RestDocumentationExtension.class})
 @ActiveProfiles("local")
@@ -134,6 +139,8 @@ public class ControllerTest {
 	protected WarmupState warmupState;
 	@MockBean
 	protected AdjustmentService adjustmentService;
+	@MockBean
+	protected ChatService chatService;
 
 	// 컨트롤러 테스트에 필요한 것들
 	@Autowired

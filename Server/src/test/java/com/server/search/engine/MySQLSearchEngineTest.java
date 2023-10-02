@@ -15,6 +15,7 @@ import javax.persistence.TupleElement;
 
 import com.server.module.ModuleServiceTest;
 import org.hibernate.jpa.spi.NativeQueryTupleTransformer;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
