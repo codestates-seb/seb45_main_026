@@ -1,0 +1,74 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Chat]]
+= 채팅 WS API
+
+= WebSocket API
+
+== Connect
+WebSocket endpoint 연결
+
+`https://api.itprometheus.net/ws`.
+
+== Subscribe
+Subscribe 엔드포인트입니다. 아래 사항을 읽어주세요.
+
+**1. 관리자는 미할당된 채팅방에 대해서 구독 가능**
+
+- 미할당된 채팅방은 `GET : /admin/chats` 으로 조회 가능합니다.
+
+**2. 일반 사용자는 자기 자신 email 만 구독 가능**
+
+[source,text]
+----
+/sub/chat/room/guest@gmail.com
+----
+
+|===
+|필드명|설명
+|`+room-id+`
+|`+구독할 roomId+`
+|===
+
+== UnSubscribe
+Subscribe 엔드포인트입니다. 채팅방 완료 처리 시 반드시 UnSubscribe 해주세요.
+
+[source,text]
+----
+/sub/chat/room/guest@gmail.com
+----
+
+== Message
+Message 는 SEND 로 보내주세요.
+
+=== Request Endpoints
+[source,text]
+----
+/pub/message
+----
+
+=== Request Headers
+|===
+|헤더명|설명|필수여부
+|`+Authorization+`
+|Access Token
+|필수
+|===
+
+=== Request Body
+[source,options="nowrap"]
+----
+{
+  "roomId" : "guest@gmail.com",
+  "message" : "this is message"
+}
+----
+
+
+

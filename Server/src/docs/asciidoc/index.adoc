@@ -85,5 +85,6 @@ include::overview.adoc[]
 
 === Chat API
 * link:snippets/chat/userchat.html[사용자 채팅 API, onclick="window.location.href='snippets/chat/userchat.html'"]
+* link:snippets/chat/chat.html[채팅 WS API, onclick="window.location.href='snippets/chat/chat.html'"]
 
 
