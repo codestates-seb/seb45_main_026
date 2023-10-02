@@ -69,7 +69,7 @@ class AdminControllerTest extends ControllerTest {
                                 headerWithName(AUTHORIZATION).description("Access Token / 관리자만 가능")
                         ),
                         requestParameters(
-                                parameterWithName("keyword").description("검색 키워드 / 이메일, 닉네임, 채널명 통합 검색"),
+                                parameterWithName("keyword").description("검색 키워드 / 이메일, 닉네임, 채널명 통합 검색").optional(),
                                 parameterWithName("page").description("페이지 번호").optional(),
                                 parameterWithName("size").description("페이지 크기").optional()
                         ),
