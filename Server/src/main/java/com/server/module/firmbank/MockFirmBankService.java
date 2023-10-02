@@ -1,12 +1,17 @@
 package com.server.module.firmbank;
 
+import com.server.domain.adjustment.domain.AdjustmentStatus;
+import com.server.module.firmbank.response.AdjustmentResult;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MockFirmBankService implements FirmBankService {
 
     @Override
-    public String adjustment(String name, String account, String bank, int amount) {
-        return "OK";
+    public AdjustmentResult adjustment(String name, String account, String bank, int amount) {
+        return AdjustmentResult.builder()
+                .status(AdjustmentStatus.ADJUSTED)
+                .reason(AdjustmentStatus.ADJUSTED.getDescription())
+                .build();
     }
 }

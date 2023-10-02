@@ -1,6 +1,8 @@
 package com.server.module.firmbank;
 
+import com.server.module.firmbank.response.AdjustmentResult;
+
 public interface FirmBankService {
 
-    String adjustment(String name, String account, String bank, int amount);
+    AdjustmentResult adjustment(String name, String account, String bank, int amount);
 }
