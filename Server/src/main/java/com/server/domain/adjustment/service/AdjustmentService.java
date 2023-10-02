@@ -46,12 +46,7 @@ public class AdjustmentService {
         return datas.map(AdjustmentResponse::of);
     }
 
-    public Integer calculateAmount(Long loginMemberId, Integer month, Integer year) {
-
-        return adjustmentRepository.calculateAmount(loginMemberId, month, year);
-    }
-
-    public ToTalAdjustmentResponse totalAdjustment(Long loginMemberId, Integer month, Integer year) {
+    public List<MonthAdjustmentResponse> totalAdjustment(Long loginMemberId, Integer year) {
 
         List<Adjustment> monthlyData = adjustmentRepository.findMonthlyData(loginMemberId, year);
 
@@ -59,87 +54,10 @@ public class AdjustmentService {
                 .map(MonthAdjustmentResponse::of)
                 .collect(Collectors.toList());
 
-        //최근 2달 데이터 넣기
-        addCurrentMonthData(monthAdjustmentResponses);
+        //없는 데이터 넣기
+        addAdditionalMonthData(monthAdjustmentResponses, year);
 
-        //필요한 데이터 세팅
-        return getTotalAdjustment(monthAdjustmentResponses, monthlyData, month, year);
-    }
-
-    private void addCurrentMonthData(List<MonthAdjustmentResponse> monthAdjustmentResponses) {
-
-        LocalDate now = LocalDate.now();
-        int month = now.getMonthValue();
-        int year = now.getYear();
-
-        //이번달 데이터 세팅
-        int amount = adjustmentRepository.calculateAmount(1L, month, year);
-        monthAdjustmentResponses.add(MonthAdjustmentResponse.of(year, month, amount));
-
-        //지난달 데이터가 있는지 확인
-        if (month == 1) {
-            month = 12;
-            year -= 1;
-        } else {
-            month -= 1;
-        }
-
-        boolean hasLastMonth = false;
-
-        for(MonthAdjustmentResponse monthAdjustmentResponse : monthAdjustmentResponses) {
-            if (monthAdjustmentResponse.isSameMonthAndYear(year, month)) {
-                hasLastMonth = true;
-                break;
-            }
-        }
-
-        //지난달 데이터가 없다면 세팅
-        if (!hasLastMonth) {
-            amount = adjustmentRepository.calculateAmount(1L, month, year);
-            monthAdjustmentResponses.add(MonthAdjustmentResponse.of(year, month, amount));
-        }
-    }
-
-    private ToTalAdjustmentResponse getTotalAdjustment(List<MonthAdjustmentResponse> monthAdjustmentResponses,
-                                                       List<Adjustment> monthlyData,
-                                                       Integer month,
-                                                       Integer year) {
-
-        int amount = 0;
-        AdjustmentStatus status = AdjustmentStatus.NO_ADJUSTMENT;
-        String reason = null;
-
-        if(year == null) {
-
-            amount = adjustmentRepository.calculateAmount(1L, null, null);
-            status = AdjustmentStatus.TOTAL;
-
-            return ToTalAdjustmentResponse.of(amount, status, reason, monthAdjustmentResponses);
-        }
-
-        if(month == null) {
-
-            amount = adjustmentRepository.calculateAmount(1L, null, year);
-            status = AdjustmentStatus.TOTAL;
-
-            return ToTalAdjustmentResponse.of(amount, status, reason, monthAdjustmentResponses);
-        }
-
-        for(MonthAdjustmentResponse monthAdjustmentResponse : monthAdjustmentResponses) {
-            if (monthAdjustmentResponse.isSameMonthAndYear(month, year)) {
-                amount = monthAdjustmentResponse.getAmount();
-                status = AdjustmentStatus.NOT_ADJUSTED;
-            }
-        }
-
-        for(Adjustment adjustment : monthlyData) {
-            if (adjustment.isSameMonthAndYear(month, year)) {
-                status = adjustment.getAdjustmentStatus();
-                reason = adjustment.getReason() == null ? status.getDescription() : adjustment.getReason();
-            }
-        }
-
-        return ToTalAdjustmentResponse.of(amount, status, reason, monthAdjustmentResponses);
+        return monthAdjustmentResponses;
     }
 
     public AccountResponse getAccount(Long loginMemberId) {
@@ -174,6 +92,138 @@ public class AdjustmentService {
 
     private Account getAccountOrNull(Long loginMemberId) {
         return accountRepository.findByMemberId(loginMemberId).orElse(null);
+    }
+
+    private void addAdditionalMonthData(List<MonthAdjustmentResponse> monthAdjustmentResponses, Integer year) {
+
+        LocalDate now = LocalDate.now();
+        int currentMonth = now.getMonthValue();
+        int currentYear = now.getYear();
+
+        if(year == null) {
+
+            //이번달 데이터 세팅
+            int amount = adjustmentRepository.calculateAmount(1L, currentMonth, currentYear);
+            monthAdjustmentResponses.add(MonthAdjustmentResponse.of(currentYear, currentMonth, amount, AdjustmentStatus.NOT_ADJUSTED));
+
+            //지난달 데이터가 있는지 확인
+            if (currentMonth == 1) {
+                currentMonth = 12;
+                currentYear -= 1;
+            } else {
+                currentMonth -= 1;
+            }
+
+            boolean hasLastMonth = false;
+
+            for(MonthAdjustmentResponse monthAdjustmentResponse : monthAdjustmentResponses) {
+                if (monthAdjustmentResponse.isSameMonthAndYear(currentYear, currentMonth)) {
+                    hasLastMonth = true;
+                    break;
+                }
+            }
+
+            //지난달 데이터가 없다면 세팅
+            if (!hasLastMonth) {
+                amount = adjustmentRepository.calculateAmount(1L, currentMonth, currentYear);
+                monthAdjustmentResponses.add(MonthAdjustmentResponse.of(currentYear, currentMonth, amount, AdjustmentStatus.NOT_ADJUSTED));
+            }
+
+            //2023년부터 빈 데이터를 확인해서 0원으로 넣어주기
+            for(int i = 2023; i <= currentYear; i++) {
+                for(int j = 1; j <= 12; j++) {
+                    boolean hasData = false;
+                    for(MonthAdjustmentResponse monthAdjustmentResponse : monthAdjustmentResponses) {
+                        if (monthAdjustmentResponse.isSameMonthAndYear(i, j)) {
+                            hasData = true;
+                            break;
+                        }
+                    }
+                    if(!hasData) {
+                        monthAdjustmentResponses.add(MonthAdjustmentResponse.of(i, j, 0, AdjustmentStatus.NO_ADJUSTMENT));
+                    }
+                }
+            }
+        }else if(year.equals(currentYear)) {
+
+            //이번달 데이터 세팅
+            int amount = adjustmentRepository.calculateAmount(1L, currentMonth, currentYear);
+            monthAdjustmentResponses.add(MonthAdjustmentResponse.of(currentYear, currentMonth, amount, AdjustmentStatus.NOT_ADJUSTED));
+
+            boolean hasLastMonth = false;
+
+            //지난달 데이터가 올해인지 확인
+            if (currentMonth == 1) {
+                hasLastMonth = true;
+            } else {
+                currentMonth -= 1;
+            }
+
+            if(!hasLastMonth) {
+
+                for(MonthAdjustmentResponse monthAdjustmentResponse : monthAdjustmentResponses) {
+                    if (monthAdjustmentResponse.isSameMonthAndYear(currentYear, currentMonth)) {
+                        hasLastMonth = true;
+                        break;
+                    }
+                }
+            }
+
+            //지난달 데이터가 없다면 세팅
+            if (!hasLastMonth) {
+                amount = adjustmentRepository.calculateAmount(1L, currentMonth, currentYear);
+                monthAdjustmentResponses.add(MonthAdjustmentResponse.of(currentYear, currentMonth, amount, AdjustmentStatus.NOT_ADJUSTED));
+            }
+
+            //빈 데이터를 확인해서 0원으로 넣어주기
+            for (int j = 1; j <= 12; j++) {
+                boolean hasData = false;
+                for (MonthAdjustmentResponse monthAdjustmentResponse : monthAdjustmentResponses) {
+                    if (monthAdjustmentResponse.isSameMonthAndYear(year, j)) {
+                        hasData = true;
+                        break;
+                    }
+                }
+                if (!hasData) {
+                    monthAdjustmentResponses.add(MonthAdjustmentResponse.of(year, j, 0, AdjustmentStatus.NO_ADJUSTMENT));
+                }
+            }
+        }else {
+            //현재 월이 1월이라면 지난달 12월 데이터 넣어주기
+            if(currentMonth == 1 && currentYear == year + 1) {
+
+                boolean hasLastMonth = false;
+
+                for(MonthAdjustmentResponse monthAdjustmentResponse : monthAdjustmentResponses) {
+                    if (monthAdjustmentResponse.isSameMonthAndYear(year, 12)) {
+                        hasLastMonth = true;
+                        break;
+                    }
+                }
+
+                //지난달 데이터가 없다면 세팅
+                if (!hasLastMonth) {
+                    int amount = adjustmentRepository.calculateAmount(1L, 12, year);
+                    monthAdjustmentResponses.add(MonthAdjustmentResponse.of(year, 12, amount, AdjustmentStatus.NOT_ADJUSTED));
+                }
+            }
+
+            //빈 데이터를 확인해서 0원으로 넣어주기
+            for (int j = 1; j <= 12; j++) {
+                boolean hasData = false;
+                for (MonthAdjustmentResponse monthAdjustmentResponse : monthAdjustmentResponses) {
+                    if (monthAdjustmentResponse.isSameMonthAndYear(year, j)) {
+                        hasData = true;
+                        break;
+                    }
+                }
+                if (!hasData) {
+                    monthAdjustmentResponses.add(MonthAdjustmentResponse.of(year, j, 0, AdjustmentStatus.NO_ADJUSTMENT));
+                }
+            }
+        }
+
+
     }
 
     private Member verifiedMember(Long memberId) {

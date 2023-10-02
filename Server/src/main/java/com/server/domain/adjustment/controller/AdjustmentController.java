@@ -2,11 +2,8 @@ package com.server.domain.adjustment.controller;
 
 import com.server.domain.adjustment.controller.dto.request.AccountUpdateApiRequest;
 import com.server.domain.adjustment.service.AdjustmentService;
-import com.server.domain.adjustment.service.dto.response.AccountResponse;
-import com.server.domain.adjustment.service.dto.response.ToTalAdjustmentResponse;
-import com.server.domain.adjustment.service.dto.response.VideoAdjustmentResponse;
+import com.server.domain.adjustment.service.dto.response.*;
 import com.server.domain.order.controller.dto.request.AdjustmentSort;
-import com.server.domain.adjustment.service.dto.response.AdjustmentResponse;
 import com.server.global.annotation.LoginId;
 import com.server.global.exception.businessexception.orderexception.AdjustmentDateException;
 import com.server.global.reponse.ApiPageResponse;
@@ -65,16 +62,13 @@ public class AdjustmentController {
     }
 
     @GetMapping("/total-adjustment")
-    public ResponseEntity<ApiSingleResponse<ToTalAdjustmentResponse>> calculateAmount(
-            @RequestParam(required = false) @Min(value = 1) @Max(value = 12) Integer month,
+    public ResponseEntity<ApiSingleResponse<List<MonthAdjustmentResponse>>> calculateAmount(
             @RequestParam(required = false) @Min(value = 2020) Integer year,
             @LoginId Long loginMemberId) {
 
-        checkValidDate(month, year);
+        List<MonthAdjustmentResponse> total = adjustmentService.totalAdjustment(loginMemberId, year);
 
-        ToTalAdjustmentResponse total = adjustmentService.totalAdjustment(loginMemberId, month, year);
-
-        return ResponseEntity.ok(ApiSingleResponse.ok(total, getAdjustmentMessage(month, year) + " 정산 내역"));
+        return ResponseEntity.ok(ApiSingleResponse.ok(total, getAdjustmentMessage(null, year) + " 정산 내역"));
     }
 
     @GetMapping("/account")
