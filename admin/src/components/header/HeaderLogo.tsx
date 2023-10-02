@@ -16,6 +16,7 @@ export const HeaderWrapper = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    width: fit-content;
 `
 export const HeaderLogoContainer = styled.section`
     display: flex;

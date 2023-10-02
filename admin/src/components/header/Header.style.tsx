@@ -11,7 +11,6 @@ export const HeaderContainer = styled.header<{isDark:boolean}>`
     z-index: 999;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     align-items: center;
     box-shadow: 
         ${(props)=>props.isDark ? globalTokens.RegularWhiteShadow.value.x : globalTokens.RegularShadow.value.x}px 

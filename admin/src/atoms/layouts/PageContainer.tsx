@@ -22,4 +22,7 @@ export const MainContainer = styled.div<{isDark:boolean}>`
         :globalTokens.White.value
     };
     border-radius: ${globalTokens.RegularRadius.value}px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 `
