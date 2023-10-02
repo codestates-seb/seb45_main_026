@@ -26,10 +26,12 @@ const CourseUpload = ({ isTags }) => {
   const token = useSelector((state) => state.loginInfo.accessToken);
   const imgRef = useRef();
   const videoRef = useRef();
+  const previewRef = useRef();
   const navigate = useNavigate();
   const refreshToken = useToken();
   const [imgFile, setImgFile] = useState("");
   const [videoFile, setVideoFile] = useState("");
+  const [previewFile, setPreviewFile] = useState("");
   const [uploadVideo, setUploadVideo] = useState({
     imageType: "",
     fileName: "",
@@ -39,9 +41,11 @@ const CourseUpload = ({ isTags }) => {
     price: null,
     description: "",
     categories: [],
+    hasPreview: false, // 1분 미리보기 영상이 있는지 유무
   });
   const [presignedUrl, setPresignedUrl] = useState({
     thumbnailUrl: "",
+    previewUrl: "",
     videoUrl: "",
   });
   const [isLoading, setLoading] = useState(false);
@@ -57,6 +61,7 @@ const CourseUpload = ({ isTags }) => {
   const [alertUpload, setAlertUpload] = useState(false);
   const [confirmUpload, setConfirmUpload] = useState(false);
 
+  // 강의 영상 mp4 파일 추출하기
   const handleSaveFile = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -72,6 +77,22 @@ const CourseUpload = ({ isTags }) => {
           setVideoFile(reader.result);
           setUploadVideo({ ...uploadVideo, fileName });
           setUploadDetail({ ...uploadDetail, videoName: fileName });
+        }
+      };
+    }
+  };
+
+  // 1분 미리보기 영상 mp4 파일 추출하기
+  const handleSavePreviewFile = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const type = file.type;
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        if (type.includes("video")) {
+          setPreviewFile(reader.result);
+          setUploadDetail({ ...uploadDetail, hasPreview: true });
         }
       };
     }
@@ -158,7 +179,7 @@ const CourseUpload = ({ isTags }) => {
   };
 
   const handleImgUpload = () => {
-    if (presignedUrl.thumbnailUrl && presignedUrl.videoUrl) {
+    if (presignedUrl.thumbnailUrl) {
       const file = imgRef.current.files[0];
       const ex = file.name.split(".")[1].toLowerCase();
       return axios
@@ -185,6 +206,27 @@ const CourseUpload = ({ isTags }) => {
     if (presignedUrl.videoUrl) {
       return axios
         .put(`${presignedUrl.videoUrl}`, videoRef.current.files[0], {
+          headers: {
+            "Content-type": "video/mp4",
+          },
+        })
+        .then((res) => {
+          if (res.status === 200) {
+            handlePreviewUpload();
+          }
+        })
+        .catch((err) => {
+          if (err.response.status === 503) {
+            console.log(err);
+          }
+        });
+    }
+  };
+
+  const handlePreviewUpload = () => {
+    if (presignedUrl.previewUrl) {
+      return axios
+        .put(`${presignedUrl.previewUrl}`, previewRef.current.files[0], {
           headers: {
             "Content-type": "video/mp4",
           },
@@ -438,6 +480,29 @@ const CourseUpload = ({ isTags }) => {
               <SubDescribe isDark={isDark}>최대 영상 크기 : 1GB</SubDescribe>
             </ColBox>
           </RowBox>
+
+          <RowBox>
+            <CourseVideo isDark={isDark}>1분 미리보기 영상</CourseVideo>
+            <ColBox>
+              <ChooseVideo
+                isDark={isDark}
+                type="file"
+                accept="video/mp4"
+                onChange={handleSavePreviewFile}
+                ref={previewRef}
+              />
+              <SubDescribe isDark={isDark}>
+                1분 미리보기 영상은 mp4만 등록이 가능합니다.
+              </SubDescribe>
+              <SubDescribe isDark={isDark}>
+                권장 화면 비율 : 1920 &times; 1080
+              </SubDescribe>
+              <SubDescribe isDark={isDark}>
+                영상 길이는 1분으로 업로드 해주세요.
+              </SubDescribe>
+            </ColBox>
+          </RowBox>
+
           <SubmitCourse isDark={isDark} onClick={handleVideoPost}>
             강의 등록 완료
           </SubmitCourse>
@@ -501,7 +566,7 @@ export const CourseBox = styled.div`
 
 export const RegularLabel = styled(BodyTextTypo)`
   width: 100%;
-  max-width: 100px;
+  max-width: 125px;
   text-align: end;
   margin-top: 10px;
 `;
@@ -524,6 +589,8 @@ export const ChooseName = styled(GrayInput)`
   width: 100%;
   max-width: 500px;
   height: 50px;
+  background-color: ${(props) =>
+    props.isDark ? "rgba(255,255,255,0.09)" : "rgba(0,0,0,0.09)"};
 `;
 
 export const ChooseIntro = styled(RegularTextArea)`

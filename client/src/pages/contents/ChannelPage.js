@@ -66,7 +66,7 @@ const TitleContainer = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-`
+`;
 const ChannelTitle = styled(Heading5Typo)`
   display: flex;
   gap: ${globalTokens.Spacing4.value}px;
@@ -80,12 +80,11 @@ const ChannelDescription = styled.div`
   flex-grow: 1;
   padding: ${globalTokens.Spacing8.value}px;
   background-color: ${(props) =>
-  props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
+    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
   color: ${(props) =>
-  props.isDark ? globalTokens.White.value : globalTokens.Black.value};
+    props.isDark ? globalTokens.White.value : globalTokens.Black.value};
   border-radius: ${globalTokens.RegularRadius.value}px;
 `;
-
 
 export default function ChannelPage() {
   const refreshToken = useToken();
@@ -113,59 +112,62 @@ export default function ChannelPage() {
         }
       });
   }, [accessToken, userId, isSub]);
-  
+
   useEffect(() => {
     window.scrollTo({
       top: 0,
     });
-  },[])
-    return (
-      <PageContainer isDark={isDark}>
-        <ChannelMainContainer>
-          <ProfileContainer>
-            <ImgContainer>
-              <ProfileImg
-                src={
-                  channelInfor.imageUrl
-                    ? `${channelInfor.imageUrl}?${new Date().getTime()}`
-                    : profileGray
-                }
-              />
-            </ImgContainer>
-            <InforContainer>
-              <TitleContainer>
-                <ChannelTitle isDark={isDark}>
-                  {channelInfor.channelName}
-                  <Tier tier={channelInfor.grade} />
-                </ChannelTitle>
-                  {Number(userId)!==myId?<SubscribeBtn
-                    memberId={channelInfor.memberId}
-                    channelInfo={channelInfor}
-                    setSub={setSub}
-                  /> : <></>}
-              </TitleContainer>
-              <ChannelSubscribers isDark={isDark}>
-                구독자 {channelInfor.subscribers}명
-              </ChannelSubscribers>
-              <ChannelDescription isDark={isDark}>
-                {channelInfor.description
-                  ? channelInfor.description
-                  : "아직 채널 소개가 없습니다"}
-              </ChannelDescription>
-            </InforContainer>
-          </ProfileContainer>
-          <ChannelNav navigate={navigate} setNavigate={setNavigate} />
-          {navigate === 0 ? (
-            <ChannelHome
-              channelInfor={channelInfor}
-              accessToken={accessToken}
-              userId={userId}
+  }, []);
+  return (
+    <PageContainer isDark={isDark}>
+      <ChannelMainContainer>
+        <ProfileContainer>
+          <ImgContainer>
+            <ProfileImg
+              src={
+                channelInfor.imageUrl
+                  ? `${channelInfor.imageUrl}?${new Date().getTime()}`
+                  : profileGray
+              }
             />
-          ) : navigate === 1 ? (
-            <ChannelList
-              channelInfor={channelInfor}
-              accessToken={accessToken}
-              userId={userId}/>
+          </ImgContainer>
+          <InforContainer>
+            <TitleContainer>
+              <ChannelTitle isDark={isDark}>
+                {channelInfor.channelName}
+                <Tier tier={channelInfor.grade} />
+              </ChannelTitle>
+              {Number(userId) !== myId && (
+                <SubscribeBtn
+                  memberId={channelInfor.memberId}
+                  channelInfo={channelInfor}
+                  setSub={setSub}
+                />
+              )}
+            </TitleContainer>
+            <ChannelSubscribers isDark={isDark}>
+              구독자 {channelInfor.subscribers}명
+            </ChannelSubscribers>
+            <ChannelDescription isDark={isDark}>
+              {channelInfor.description
+                ? channelInfor.description
+                : "아직 채널 소개가 없습니다"}
+            </ChannelDescription>
+          </InforContainer>
+        </ProfileContainer>
+        <ChannelNav navigate={navigate} setNavigate={setNavigate} />
+        {navigate === 0 ? (
+          <ChannelHome
+            channelInfor={channelInfor}
+            accessToken={accessToken}
+            userId={userId}
+          />
+        ) : navigate === 1 ? (
+          <ChannelList
+            channelInfor={channelInfor}
+            accessToken={accessToken}
+            userId={userId}
+          />
         ) : navigate === 2 ? (
           <ChannelNotice channelInfor={channelInfor} userId={userId} />
         ) : (
