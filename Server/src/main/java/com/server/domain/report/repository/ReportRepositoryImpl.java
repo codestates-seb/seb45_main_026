@@ -381,6 +381,10 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
 
     private BooleanExpression LikeEmailOrNicknameOrChannelName(String keyword) {
 
+        if(keyword == null) {
+            return Expressions.asBoolean(true).isTrue();
+        }
+
         return member.nickname.contains(keyword)
                 .or(member.email.contains(keyword))
                 .or(channel.channelName.contains(keyword));

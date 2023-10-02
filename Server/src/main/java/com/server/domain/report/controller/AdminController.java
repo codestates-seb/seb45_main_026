@@ -27,7 +27,7 @@ public class AdminController {
 
     @GetMapping("/members")
     public ResponseEntity<ApiPageResponse<AdminMemberResponse>> getMembers(
-            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
             @RequestParam(value = "size", defaultValue = "10") @Positive(message = "{validation.positive}") int size
     ) {
@@ -37,8 +37,8 @@ public class AdminController {
 
     @GetMapping("/videos")
     public ResponseEntity<ApiPageResponse<AdminVideoResponse>> getVideos(
-            @RequestParam("email") String email,
-            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "page", defaultValue = "1") @Positive(message = "{validation.positive}") int page,
             @RequestParam(value = "size", defaultValue = "10") @Positive(message = "{validation.positive}") int size
     ) {
