@@ -25,6 +25,8 @@ include::overview.adoc[]
 === Video API
 * link:snippets/admin/videolist.html[비디오 목록 조회 API, onclick="window.location.href='snippets/admin/videolist.html'"]
 
+=== Chat API
+* link:snippets/chat/adminchat.html[관리자용 채팅 API, onclick="window.location.href='snippets/chat/adminchat.html'"]
 
 [[API-List]]
 == 일반 APIs
@@ -80,5 +82,8 @@ include::overview.adoc[]
 
 === Search API
 * link:snippets/search/search.html[비디오/채널 통합 검색 API, onclick="window.location.href='snippets/search/search.html'"]
+
+=== Chat API
+* link:snippets/chat/userchat.html[사용자 채팅 API, onclick="window.location.href='snippets/chat/userchat.html'"]
 
 
