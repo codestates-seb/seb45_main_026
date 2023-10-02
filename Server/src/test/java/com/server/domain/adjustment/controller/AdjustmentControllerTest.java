@@ -97,66 +97,14 @@ class AdjustmentControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("연/월별 총 판매 금액 조회 API - 특정 달")
-    void calculateAmount() throws Exception {
-        //given
-        int month = 9;
-        int year = 2023;
-
-        ToTalAdjustmentResponse response = createToTalAdjustmentResponse(9, 2023);
-
-        given(adjustmentService.totalAdjustment(anyLong(), anyInt(), anyInt()))
-                .willReturn(response);
-
-        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(response, year + "년 " + month + "월 정산 내역"));
-
-        //when
-        ResultActions actions = mockMvc.perform(
-                get(BASE_URL + "/total-adjustment")
-                        .header(AUTHORIZATION, TOKEN)
-                        .param("month", String.valueOf(month))
-                        .param("year", String.valueOf(year))
-        );
-
-        //then
-        actions
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().string(apiResponse));
-
-        //restDocs
-        actions.andDo(
-                documentHandler.document(
-                        requestHeaders(
-                                headerWithName(AUTHORIZATION).description("액세스 토큰")
-                        ),
-                        requestParameters(
-                                parameterWithName("month").description("정산 월").optional(),
-                                parameterWithName("year").description("정산 년도").optional()
-                        ),
-                        singleResponseFields(
-                                fieldWithPath("data").description("정산 내역"),
-                                fieldWithPath("data.amount").description("정산 금액"),
-                                fieldWithPath("data.adjustmentStatus").description(generateLinkCode(AdjustmentStatus.class)),
-                                fieldWithPath("data.reason").description("정산 실패 시 사유"),
-                                fieldWithPath("data.monthData").description("월별 정산 내역"),
-                                fieldWithPath("data.monthData[].month").description("월"),
-                                fieldWithPath("data.monthData[].year").description("년"),
-                                fieldWithPath("data.monthData[].amount").description("정산 금액")
-                        )
-                )
-        );
-    }
-
-    @Test
     @DisplayName("연/월별 총 판매 금액 조회 API - 전체 연도")
     void calculateAmountYear() throws Exception {
         //given
         int year = 2023;
 
-        ToTalAdjustmentResponse response = createToTalAdjustmentResponse(null, 2023);
+        List<MonthAdjustmentResponse> response = createToTalAdjustmentResponse(2023);
 
-        given(adjustmentService.totalAdjustment(anyLong(), isNull(), anyInt()))
+        given(adjustmentService.totalAdjustment(anyLong(), anyInt()))
                 .willReturn(response);
 
         String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(response, year + "년 정산 내역"));
@@ -185,13 +133,11 @@ class AdjustmentControllerTest extends ControllerTest {
                         ),
                         singleResponseFields(
                                 fieldWithPath("data").description("정산 내역"),
-                                fieldWithPath("data.amount").description("정산 금액"),
-                                fieldWithPath("data.adjustmentStatus").description(generateLinkCode(AdjustmentStatus.class)),
-                                fieldWithPath("data.reason").description("정산 실패 시 사유"),
-                                fieldWithPath("data.monthData").description("월별 정산 내역"),
-                                fieldWithPath("data.monthData[].month").description("월"),
-                                fieldWithPath("data.monthData[].year").description("년"),
-                                fieldWithPath("data.monthData[].amount").description("정산 금액")
+                                fieldWithPath("data[].month").description("월"),
+                                fieldWithPath("data[].year").description("년"),
+                                fieldWithPath("data[].amount").description("정산 금액"),
+                                fieldWithPath("data[].adjustmentStatus").description(generateLinkCode(AdjustmentStatus.class)),
+                                fieldWithPath("data[].reason").description("정산 상태에 대한 사유")
                         )
                 )
         );
@@ -367,35 +313,31 @@ class AdjustmentControllerTest extends ControllerTest {
         );
     }
 
-    private ToTalAdjustmentResponse createToTalAdjustmentResponse(Integer month, Integer year) {
+    private List<MonthAdjustmentResponse> createToTalAdjustmentResponse(Integer year) {
 
         List<MonthAdjustmentResponse> monthAdjustmentResponses = new ArrayList<>();
 
-        if(month != null) {
-            for(int i = 1; i <= month; i++) {
-                monthAdjustmentResponses.add(MonthAdjustmentResponse.builder()
-                        .month(i)
-                        .year(year)
-                        .amount(10000)
-                        .build());
-            }
-        }
-        else {
-
-            for(int i = 1; i <= 9; i++) {
-                monthAdjustmentResponses.add(MonthAdjustmentResponse.builder()
-                        .month(i)
-                        .year(year)
-                        .amount(10000)
-                        .build());
-            }
+        for(int i = 1; i <= 9; i++) {
+            monthAdjustmentResponses.add(MonthAdjustmentResponse.builder()
+                    .month(i)
+                    .year(year)
+                    .amount(10000)
+                    .adjustmentStatus(AdjustmentStatus.ADJUSTED)
+                    .reason(AdjustmentStatus.ADJUSTED.getDescription())
+                    .build());
         }
 
-        if(month == null || year == null) {
-            return ToTalAdjustmentResponse.of(90000, AdjustmentStatus.TOTAL, "이유", monthAdjustmentResponses);
+        for(int i = 10; i <= 12; i++) {
+            monthAdjustmentResponses.add(MonthAdjustmentResponse.builder()
+                    .month(i)
+                    .year(year)
+                    .amount(0)
+                    .adjustmentStatus(AdjustmentStatus.NO_ADJUSTMENT)
+                    .reason(AdjustmentStatus.NO_ADJUSTMENT.getDescription())
+                    .build());
         }
 
-        return ToTalAdjustmentResponse.of(10000, AdjustmentStatus.NO_ADJUSTMENT, "이유", monthAdjustmentResponses);
+        return monthAdjustmentResponses;
     }
 
     private List<AdjustmentResponse> createAdjustmentResponse(int size) {

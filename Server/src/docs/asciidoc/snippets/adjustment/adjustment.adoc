@@ -24,19 +24,6 @@ include::{snippets}/adjustment/adjustment/http-response.adoc[]
 ==== Response Fields
 include::{snippets}/adjustment/adjustment/response-fields.adoc[]
 
-[[Adjustment-total]]
-== 특정 월의 정산 총 금액 및 월별 정산 내역
-=== HTTP Request
-include::{snippets}/adjustment/calculateamount/http-request.adoc[]
-==== Request Headers
-include::{snippets}/adjustment/calculateamount/request-headers.adoc[]
-==== Request Query Parameters
-include::{snippets}/adjustment/calculateamount/request-parameters.adoc[]
-=== HTTP Response
-include::{snippets}/adjustment/calculateamount/http-response.adoc[]
-==== Response Fields
-include::{snippets}/adjustment/calculateamount/response-fields.adoc[]
-
 [[Adjustment-totalyear]]
 == 특정 연도의 정산 총 금액 및 월별 정산 내역
 === HTTP Request
