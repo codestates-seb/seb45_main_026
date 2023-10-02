@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Collection;
@@ -168,6 +169,43 @@ class ReportRepositoryTest extends RepositoryTest {
         assertThat(memberPages.getContent())
                 .extracting("memberId")
                 .contains(member1.getMemberId(), member2.getMemberId(), member3.getMemberId());
+    }
+
+    @TestFactory
+    @DisplayName("관리자용 video 조회")
+    Collection<DynamicTest> findVideoByKeyword() {
+        //given
+        Member member1 = createMemberWithChannel("member1");
+        Video video1 = createAndSaveVideoWithName(member1.getChannel(), "video1");
+        Video video2 = createAndSaveVideoWithName(member1.getChannel(), "video2");
+
+        Member member2 = createMemberWithChannel("member2");
+        Video video3 = createAndSaveVideoWithName(member2.getChannel(), "video3");
+        Video video4 = createAndSaveVideoWithName(member2.getChannel(), "video4");
+
+        Member member3 = createMemberWithChannel("member3");
+        Video video5 = createAndSaveVideoWithName(member3.getChannel(), "video5");
+        Video video6 = createAndSaveVideoWithName(member3.getChannel(), "video6");
+
+        Member member4 = createMemberWithChannel("member4");
+
+        return List.of(
+                dynamicTest("이메일로 검색한다.", () -> {
+                    //when
+                    Page<Video> videos = reportRepository.findVideoByKeyword(member1.getEmail(), null, PageRequest.of(0, 10));
+
+                    //then
+                    assertThat(videos.getContent()).hasSize(2);
+                }),
+                dynamicTest("전체 검색을 한다.", () -> {
+                    //when
+                    Page<Video> videos = reportRepository.findVideoByKeyword(null, null, PageRequest.of(0, 10));
+
+                    //then
+                    assertThat(videos.getContent()).hasSize(6);
+                })
+                //비디오 검색은 mysql 문법이라 안됨
+        );
 
     }
 

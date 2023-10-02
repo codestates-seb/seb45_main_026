@@ -356,8 +356,10 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
                 );
 
         JPAQuery<Long> countQuery = queryFactory
-                .select(video.count())
+                .select(video.videoId.count())
                 .from(video)
+                .leftJoin(video.channel, channel)
+                .leftJoin(channel.member, member)
                 .where(
                         eqEmail(email),
                         searchKeyword(keyword)
