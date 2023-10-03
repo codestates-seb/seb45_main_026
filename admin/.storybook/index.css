@@ -6,6 +6,7 @@
   button {
     border-style : none;
     cursor: pointer;
+    background: inherit;
   }
   ol,ul {
     list-style: none;

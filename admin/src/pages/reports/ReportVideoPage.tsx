@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { PageContainer } from '../../atoms/layouts/PageContainer';
+import { MainContainer, PageContainer } from '../../atoms/layouts/PageContainer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { useNavigate } from 'react-router-dom';
+import { PageTitle } from '../../styles/PageTitle';
 
 const ReportVideoPage = () => {
     const navigate = useNavigate();
@@ -18,7 +19,9 @@ const ReportVideoPage = () => {
 
     return (
         <PageContainer isDark={isDark}>
-            
+            <MainContainer isDark={isDark}>
+                <PageTitle isDark={isDark}>신고 내역 관리</PageTitle>
+            </MainContainer>
         </PageContainer>
     );
 };

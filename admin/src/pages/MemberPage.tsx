@@ -7,6 +7,8 @@ import { getMemberList } from '../services/memberService';
 import axios from 'axios';
 import { ROOT_URL } from '../services';
 import NavBar from '../components/navBar/NavBar';
+import { PageTitle } from '../styles/PageTitle';
+import Loading from '../components/loading/Loading';
 
 const MemberPage = () => {
     const isDark = useSelector((state:RootState)=>state.uiSetting.isDark);
@@ -19,15 +21,15 @@ const MemberPage = () => {
             return res.data;
         }});
 
-    if (isLoading ) return <>Loading...</>
-
-    if (error) return <>{`An error has occured : ${error}`}</>
-
     console.log(data)
 
     return (
         <PageContainer isDark={isDark}>
             <MainContainer isDark={isDark}>
+                <PageTitle isDark={isDark}>회원 관리</PageTitle>
+                { isLoading ? <Loading/> 
+                  : error ? <>error</>
+                  : null }
             </MainContainer>
         </PageContainer>
     );

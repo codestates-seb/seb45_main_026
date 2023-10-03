@@ -1,13 +1,18 @@
 import React from 'react';
-import { PageContainer } from '../../atoms/layouts/PageContainer';
+import { MainContainer, PageContainer } from '../../atoms/layouts/PageContainer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
+import { PageTitle } from '../../styles/PageTitle';
 
 const ReportReviewPage = () => {
     const isDark = useSelector((state:RootState)=>state.uiSetting.isDark);
 
     return (
-        <PageContainer isDark={isDark}></PageContainer>
+        <PageContainer isDark={isDark}>
+            <MainContainer isDark={isDark}>
+                <PageTitle isDark={isDark}>신고 내역 관리</PageTitle>
+            </MainContainer>
+        </PageContainer>
     );
 };
 
