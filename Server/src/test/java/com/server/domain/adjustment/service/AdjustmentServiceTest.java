@@ -1,6 +1,7 @@
 package com.server.domain.adjustment.service;
 
 import com.server.domain.account.domain.Account;
+import com.server.domain.account.domain.Bank;
 import com.server.domain.adjustment.service.dto.request.AccountUpdateServiceRequest;
 import com.server.domain.member.entity.Member;
 import com.server.global.testhelper.ServiceTest;
@@ -35,8 +36,8 @@ class AdjustmentServiceTest extends ServiceTest {
         return List.of(
             dynamicTest("계좌정보가 없다면 생성한다.", ()-> {
                 //given
-                String accountNumber = "123456789";
-                String bank = "신한은행";
+                String accountNumber = "123-12-123456";
+                Bank bank = Bank.SH;
                 String name = "홍길동";
 
                 AccountUpdateServiceRequest request = new AccountUpdateServiceRequest(name, accountNumber, bank);
@@ -50,8 +51,8 @@ class AdjustmentServiceTest extends ServiceTest {
             }),
                 dynamicTest("계좌정보가 있다면 수정한다.", ()-> {
                     //given
-                    String accountNumber = "1234567892";
-                    String bank = "신한은행2";
+                    String accountNumber = "123-12-123456";
+                    Bank bank = Bank.SH;
                     String name = "홍길동2";
 
                     AccountUpdateServiceRequest request = new AccountUpdateServiceRequest(name, accountNumber, bank);

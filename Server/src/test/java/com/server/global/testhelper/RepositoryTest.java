@@ -1,6 +1,7 @@
 package com.server.global.testhelper;
 
 import com.server.domain.account.domain.Account;
+import com.server.domain.account.domain.Bank;
 import com.server.domain.adjustment.domain.Adjustment;
 import com.server.domain.adjustment.domain.AdjustmentStatus;
 import com.server.domain.answer.entity.Answer;
@@ -331,7 +332,8 @@ public abstract class RepositoryTest {
     }
 
     protected Account createAndSaveAccount(Member member) {
-        Account account = Account.createAccount("kim", "1234", "하나", member);
+
+        Account account = Account.createAccount("kim", "1234", Bank.HN, member);
 
         em.persist(account);
 

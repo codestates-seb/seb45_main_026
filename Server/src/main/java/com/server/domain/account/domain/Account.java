@@ -21,15 +21,16 @@ public class Account extends BaseEntity {
 
     private String account;
 
-    private String bank;
+    @Enumerated(EnumType.STRING)
+    private Bank bank;
 
-    private Account(String name, String account, String bank) {
+    private Account(String name, String account, Bank bank) {
         this.name = name;
         this.account = account;
         this.bank = bank;
     }
 
-    public static Account createAccount(String name, String accountNumber, String bank, Member member) {
+    public static Account createAccount(String name, String accountNumber, Bank bank, Member member) {
         Account account = new Account(name, accountNumber, bank);
 
         member.updateAccount(account);
@@ -37,7 +38,7 @@ public class Account extends BaseEntity {
         return account;
     }
 
-    public void updateAccount(String name, String account, String bank) {
+    public void updateAccount(String name, String account, Bank bank) {
         this.name = name;
         this.account = account;
         this.bank = bank;

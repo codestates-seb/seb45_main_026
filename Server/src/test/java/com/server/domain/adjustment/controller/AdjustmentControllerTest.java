@@ -1,5 +1,6 @@
 package com.server.domain.adjustment.controller;
 
+import com.server.domain.account.domain.Bank;
 import com.server.domain.adjustment.controller.dto.request.AccountUpdateApiRequest;
 import com.server.domain.adjustment.domain.AdjustmentStatus;
 import com.server.domain.adjustment.service.dto.response.*;
@@ -150,7 +151,7 @@ class AdjustmentControllerTest extends ControllerTest {
         AccountResponse response = AccountResponse.builder()
                 .name("홍길*")
                 .account("123-****-12314")
-                .bank("국민은행")
+                .bank(Bank.KB)
                 .build();
 
         given(adjustmentService.getAccount(anyLong())).willReturn(response);
@@ -177,7 +178,7 @@ class AdjustmentControllerTest extends ControllerTest {
                                 fieldWithPath("data").description("계좌 정보"),
                                 fieldWithPath("data.name").description("예금주"),
                                 fieldWithPath("data.account").description("계좌번호"),
-                                fieldWithPath("data.bank").description("은행")
+                                fieldWithPath("data.bank").description(generateLinkCode(Bank.class))
                         )
                 )
         );
@@ -190,7 +191,7 @@ class AdjustmentControllerTest extends ControllerTest {
         AccountResponse response = AccountResponse.builder()
                 .name("계좌 정보가 없습니다.")
                 .account("계좌 정보가 없습니다.")
-                .bank("계좌 정보가 없습니다.")
+                .bank(null)
                 .build();
 
         given(adjustmentService.getAccount(anyLong())).willReturn(response);
@@ -217,7 +218,7 @@ class AdjustmentControllerTest extends ControllerTest {
                                 fieldWithPath("data").description("계좌 정보"),
                                 fieldWithPath("data.name").description("예금주"),
                                 fieldWithPath("data.account").description("계좌번호"),
-                                fieldWithPath("data.bank").description("은행")
+                                fieldWithPath("data.bank").description("null")
                         )
                 )
         );
@@ -230,7 +231,7 @@ class AdjustmentControllerTest extends ControllerTest {
         AccountUpdateApiRequest request = AccountUpdateApiRequest.builder()
                 .name("홍길동")
                 .account("123-123-123123")
-                .bank("국민은행")
+                .bank(Bank.KB)
                 .build();
 
         //when
@@ -257,7 +258,7 @@ class AdjustmentControllerTest extends ControllerTest {
                         requestFields(
                                 fieldWithPath("name").description("예금주").attributes(getConstraint("name")),
                                 fieldWithPath("account").description("계좌번호").attributes(getConstraint("account")),
-                                fieldWithPath("bank").description("은행").attributes(getConstraint("bank"))
+                                fieldWithPath("bank").description(generateLinkCode(Bank.class)).attributes(getConstraint("bank"))
                         )
                 )
         );

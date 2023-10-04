@@ -1,5 +1,6 @@
 package com.server.domain.adjustment.service.dto.request;
 
+import com.server.domain.account.domain.Bank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,5 +12,5 @@ public class AccountUpdateServiceRequest {
 
     private String name;
     private String account;
-    private String bank;
+    private Bank bank;
 }
