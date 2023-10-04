@@ -186,6 +186,28 @@ export const updatePasswordService = async (authorization, prevPassword, newPass
         }
     }
 }
+//계좌 조회
+export const getAccountInfoService = async (authorization) => {
+    try {
+        const response = await axios.get(
+            `${ROOT_URL}/adjustments/account`,
+            {
+                headers: {
+                    Authorization: authorization
+                }
+            });
+            return {
+                status: 'success',
+                data: response.data,
+            }
+    } catch (err) {
+        return {
+            status: 'error',
+            data : err.response.data.message,
+        }
+    }
+}
+
 //회원 탈퇴
 export const deleteUserInfoService = async (authorization) => {
     try {

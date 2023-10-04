@@ -45,6 +45,8 @@ const MemberPage = () => {
         keepPreviousData: true,
         staleTime: 1000*60*5,
         cacheTime: 1000*60*30,
+        retry: 3, //error를 표시하기 전에 실패한 요청을 다시 시도하는 횟수
+        retryDelay: 1000,
     });
 
     useEffect(()=>{

@@ -3,7 +3,7 @@ import tokens from '../../styles/tokens.json';
 import { Input, InputErrorTypo } from '../../atoms/inputs/Inputs';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteUserInfoService, getUserChannelInfoService, updateChannelInfoService, updateNicknameService, updatePasswordService } from '../../services/userInfoService';
+import { deleteUserInfoService, getAccountInfoService, getUserChannelInfoService, updateChannelInfoService, updateNicknameService, updatePasswordService } from '../../services/userInfoService';
 import { setChannelInfo, setIsLogin, setLoginInfo, setMyid, setProvider, setToken } from '../../redux/createSlice/LoginInfoSlice';
 import { NegativeTextButton, PositiveTextButton, } from '../../atoms/buttons/Buttons';
 import { SettingContainer, SettingTitle, UserInfoContainer, ExtraButtonContainer  } from './Setting.style';
@@ -13,7 +13,6 @@ import ImageInput from '../../atoms/inputs/ImageInput';
 import { Textarea } from '../../atoms/inputs/TextAreas';
 import { useLogout } from '../../hooks/useLogout';
 import { useToken } from '../../hooks/useToken';
-import { HomeTitle } from './ChannelHome';
 
 const globalTokens = tokens.global;
 
@@ -49,6 +48,8 @@ const Setting = () => {
                 nickname: loginUserInfo.nickname,
                 channelName: channelInfo.channelName,
                 channelDescription: channelInfo.description,
+                bank: 'bank',
+                accountNumber: 'account',
               }
     });
 
@@ -61,6 +62,13 @@ const Setting = () => {
                     channelName: newChannelName!==null?newChannelName:"",
                     description: newDescription!==null?newDescription:"",
                 }));
+                getAccountInfoService(accessToken.authorization).then((response)=>{
+                    if(response.status==='success') {
+                        console.log(response.data.data);
+                    } else {
+                        console.log(response.data);
+                    }
+                });
             } else if (response.data==='만료된 토큰입니다.') {
                 console.log(response.data);
                 //토큰 만료 에러인 경우 토큰 재발급 실행
@@ -70,7 +78,7 @@ const Setting = () => {
                 navigate('/');
             }
         })
-    },[accessToken])
+    },[accessToken]);
     
     //닉네임 변경 버튼 누르면 동작함
     const handleNicknameUpdateClick = async () => {
@@ -158,6 +166,11 @@ const Setting = () => {
                 setIs비밀번호변경실패팝업(true);
             }
         }
+    }
+    //계좌정보 변경 버튼 누르면 동작함
+    const handleAccountNumberClick = async () => {
+        const bank = await trigger('bank');
+        const accountNumber = await trigger('accountNumber');
     }
     //회원 탈퇴 버튼 누르면 동작함
     const handleDeleteUserClick = () => {
@@ -401,6 +414,45 @@ const Setting = () => {
                         && <InputErrorTypo isDark={isDark} width='50vw'>비밀번호는 영문자, 숫자, 특수문자를 모두 포함합니다.</InputErrorTypo> }
                     { errors.newPassword && errors.newPassword.type==='validate'
                         && <InputErrorTypo isDark={isDark} width='50vw'>새로운 비밀번호와 기존 비밀번호가 동일합니다.</InputErrorTypo>}
+                <SettingTitle isDark={isDark}>내 계좌 정보</SettingTitle>
+                <Input
+                        marginTop={globalTokens.Spacing8.value}
+                        label='은행'
+                        width='50vw'
+                        name='bank'
+                        type='text'
+                        placeholder='은행을 입력해 주세요.'
+                        register={register}
+                        maxLength={20}
+                        pattern={/^[A-Za-z가-힣]+$/}
+                        validateFunc={()=>{
+                            return true;
+                        }}
+                        isButton={false}
+                        required />
+                    { errors.bank && errors.bank.type==='required'
+                        && <InputErrorTypo isDark={isDark} width='50vw'>은행을 입력해 주세요.</InputErrorTypo> }
+                    <Input
+                        marginTop={globalTokens.Spacing8.value}
+                        label='계좌번호'
+                        width='50vw'
+                        name='accountNumber'
+                        type='text'
+                        placeholder='계좌번호를 입력해 주세요.'
+                        register={register}
+                        maxLength={30}
+                        pattern={/^(\d{1,})(-(\d{1,})){1,}/}
+                        validateFunc={()=>{
+                            return true;
+                        }}
+                        isButton={true}
+                        required
+                        buttonTitle='변경하기'
+                        handleButtonClick={handleAccountNumberClick}/>
+                    { errors.accountNumber && errors.accountNumber.type==='required'
+                        && <InputErrorTypo isDark={isDark} width='50vw'>계좌번호를 입력해 주세요.</InputErrorTypo> }
+                    { errors.accountNumber && errors.accountNumber.type==='pattern'
+                        && <InputErrorTypo isDark={isDark} width='50vw'>올바르지 않은 계좌번호 형식입니다.</InputErrorTypo> }
                 <ExtraButtonContainer>
                     <a href="https://field-hellebore-58d.notion.site/c50fadcd93e04c4fb19580c0f99ca773?pvs=4">
                         <PositiveTextButton isDark={isDark} type='button'>이용약관 보기</PositiveTextButton>
