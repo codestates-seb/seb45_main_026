@@ -37,6 +37,7 @@ import axios from "axios";
 import styled from "styled-components";
 import tokens from "../../styles/tokens.json";
 import AdjustmentItem from "../../components/incomePage/AdjustmentItem";
+import IncomeEmpty from "../../components/incomePage/IncomeEmpty";
 
 const globalTokens = tokens.global;
 
@@ -123,6 +124,36 @@ const IncomePage = () => {
         console.log(err);
       });
   };
+
+  // 내 계좌정보 조회
+  const [accountData, setAccountData] = useState({
+    name: "",
+    account: "",
+    bank: "",
+  });
+  const getAccountData = () => {
+    return axios
+      .get(`https://api.itprometheus.net/adjustments/account`, {
+        headers: { Authorization: accessToken.authorization },
+      })
+      .then((res) => {
+        console.log(res.data.data);
+        if (
+          res.data.data.name !== "계좌 정보가 없습니다." &&
+          res.data.data.account !== "계좌 정보가 없습니다." &&
+          res.data.data.bank !== "계좌 정보가 없습니다."
+        ) {
+          setAccountData({ ...accountData, ...res.data.data });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    getAccountData();
+  }, []);
 
   // 연도 or 월별 정산 내역
   useEffect(() => {
@@ -299,151 +330,160 @@ const IncomePage = () => {
     <PageContainer isDark={isDark}>
       <RewardMainContainer isDark={isDark}>
         <RewardTitle isDark={isDark}>나의 활동</RewardTitle>
-        <RewardCategory category="income" />
-        <RewardContentContainer>
-          <IncomeCategory
-            year={year}
-            setYear={setYear}
-            month={month}
-            setMonth={setMonth}
-          />
-          {year !== null &&
-            (month === null ? (
-              <ChartBox>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    width={1000}
-                    height={500}
-                    data={[{}, ...isYearData, {}]}
-                    margin={{ top: 35, right: 20, bottom: 5, left: 0 }}
-                  >
-                    <Bar
-                      dataKey="amount"
-                      fill={isDark ? "#8884d8" : globalTokens.Negative.value}
-                      onClick={(el) => setMonth(el.month)}
-                    />
-                    <CartesianGrid
-                      stroke="#ccc"
-                      strokeDasharray="3 3"
-                      vertical={false}
-                    />
-                    <XAxis
-                      dataKey="month"
-                      tickFormatter={tickFormatX}
-                      tickLine={false}
-                      // axisLine={false}
-                      tick={{
-                        fill: `${
-                          isDark
-                            ? globalTokens.White.value
-                            : globalTokens.Black.value
-                        }`,
-                      }}
-                    />
-                    <YAxis
-                      dataKey="amount"
-                      tickFormatter={tickFormatY}
-                      tickLine={false}
-                      // axisLine={false}
-                      tick={{
-                        fill: `${
-                          isDark
-                            ? globalTokens.White.value
-                            : globalTokens.Black.value
-                        }`,
-                      }}
-                      label={{
-                        value: "(원)",
-                        angle: 0,
-                        offset: 20,
-                        position: "top",
-                        fill: `${
-                          isDark
-                            ? globalTokens.White.value
-                            : globalTokens.Black.value
-                        }`,
-                      }}
-                    ></YAxis>
-                    <Tooltip
-                      cursor={{
-                        strokeDasharray: "3 3",
-                        fill: isDark
-                          ? "rgb(136,132,216, 0.3)"
-                          : "rgb(255,204,204, 0.3)",
-                      }}
-                      formatter={formatTooltip}
-                      labelFormatter={tickFormatX}
-                      // content={} // tooltip을 커스텀해서 랜더링 가능
-                    />
-                    <Legend
-                      formatter={(el) => {
-                        return "정산 금액";
-                      }}
-                      // content={} // Legend를 커스텀해서 랜더링 가능
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartBox>
-            ) : (
-              incomeList.length > 0 && (
-                <ChartBox>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart width={1000} height={500}>
-                      <Pie
-                        activeIndex={isPointer}
-                        activeShape={renderActiveShape}
-                        data={isMonthData}
-                        dataKey="profit"
-                        nameKey="videoName"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={135}
-                        outerRadius={180}
-                        fill={
-                          isDark
-                            ? globalTokens.Gray.value
-                            : globalTokens.LightGray.value
-                        }
-                        onMouseEnter={(e, idx) => {
-                          setPointer(idx);
-                        }}
-                        onClick={(event) => console.log(event)}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </ChartBox>
-              )
-            ))}
+        {accountData.account ? (
+          <>
+            <RewardCategory category="income" />
+            <RewardContentContainer>
+              <IncomeCategory
+                year={year}
+                setYear={setYear}
+                month={month}
+                setMonth={setMonth}
+              />
+              {year !== null &&
+                (month === null ? (
+                  <ChartBox>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        width={1000}
+                        height={500}
+                        data={[{}, ...isYearData, {}]}
+                        margin={{ top: 35, right: 20, bottom: 5, left: 0 }}
+                      >
+                        <Bar
+                          dataKey="amount"
+                          fill={
+                            isDark ? "#8884d8" : globalTokens.Negative.value
+                          }
+                          cursor="pointer"
+                          onClick={(el) => setMonth(el.month)}
+                        />
+                        <CartesianGrid
+                          stroke="#ccc"
+                          strokeDasharray="3 3"
+                          vertical={false}
+                        />
+                        <XAxis
+                          dataKey="month"
+                          tickFormatter={tickFormatX}
+                          tickLine={false}
+                          // axisLine={false}
+                          tick={{
+                            fill: `${
+                              isDark
+                                ? globalTokens.White.value
+                                : globalTokens.Black.value
+                            }`,
+                          }}
+                        />
+                        <YAxis
+                          dataKey="amount"
+                          tickFormatter={tickFormatY}
+                          tickLine={false}
+                          // axisLine={false}
+                          tick={{
+                            fill: `${
+                              isDark
+                                ? globalTokens.White.value
+                                : globalTokens.Black.value
+                            }`,
+                          }}
+                          label={{
+                            value: "(원)",
+                            angle: 0,
+                            offset: 20,
+                            position: "top",
+                            fill: `${
+                              isDark
+                                ? globalTokens.White.value
+                                : globalTokens.Black.value
+                            }`,
+                          }}
+                        ></YAxis>
+                        <Tooltip
+                          cursor={{
+                            strokeDasharray: "3 3",
+                            fill: isDark
+                              ? "rgb(136,132,216, 0.3)"
+                              : "rgb(255,204,204, 0.3)",
+                          }}
+                          formatter={formatTooltip}
+                          labelFormatter={tickFormatX}
+                          // content={} // tooltip을 커스텀해서 랜더링 가능
+                        />
+                        <Legend
+                          formatter={(el) => {
+                            return "정산 금액";
+                          }}
+                          // content={} // Legend를 커스텀해서 랜더링 가능
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartBox>
+                ) : (
+                  incomeList.length > 0 && (
+                    <ChartBox>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart width={1000} height={500}>
+                          <Pie
+                            activeIndex={isPointer}
+                            activeShape={renderActiveShape}
+                            data={isMonthData}
+                            dataKey="profit"
+                            nameKey="videoName"
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={135}
+                            outerRadius={180}
+                            fill={
+                              isDark
+                                ? globalTokens.Gray.value
+                                : globalTokens.LightGray.value
+                            }
+                            onMouseEnter={(e, idx) => {
+                              setPointer(idx);
+                            }}
+                            onClick={(event) => console.log(event)}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </ChartBox>
+                  )
+                ))}
 
-          {month === null ? (
-            <ChartGridBox>
-              <HeadContainer isDark={isDark}>
-                <MonthHeadTypo isDark={isDark}>월</MonthHeadTypo>
-                <AmountHeadTypo isDark={isDark}>정산 금액</AmountHeadTypo>
-                <StatusHeadContainer isDark={isDark}>
-                  정산 상태
-                </StatusHeadContainer>
-                <ReasonHeadTypo isDark={isDark}>비고</ReasonHeadTypo>
-              </HeadContainer>
-              {isYearData.map((el) => {
-                if (currentYear >= el.year && currentMonth >= el.month) {
-                  return <AdjustmentItem item={el} />;
-                }
-              })}
-            </ChartGridBox>
-          ) : incomeList.length > 0 ? (
-            <ChartGridBox>
-              <IncomeHeader />
-              {incomeList.map((e) => (
-                <IncomeItem key={e.videoId} item={e} />
-              ))}
-            </ChartGridBox>
-          ) : (
-            <ContentNothing isDark={isDark}>
-              정산 내역이 없습니다.
-            </ContentNothing>
-          )}
-        </RewardContentContainer>
+              {month === null ? (
+                <ChartGridBox>
+                  <HeadContainer isDark={isDark}>
+                    <MonthHeadTypo isDark={isDark}>월</MonthHeadTypo>
+                    <AmountHeadTypo isDark={isDark}>정산 금액</AmountHeadTypo>
+                    <StatusHeadContainer isDark={isDark}>
+                      정산 상태
+                    </StatusHeadContainer>
+                    <ReasonHeadTypo isDark={isDark}>비고</ReasonHeadTypo>
+                  </HeadContainer>
+                  {isYearData.map((el) => {
+                    if (currentYear >= el.year && currentMonth >= el.month) {
+                      return <AdjustmentItem key={el.month} item={el} />;
+                    }
+                  })}
+                </ChartGridBox>
+              ) : incomeList.length > 0 ? (
+                <ChartGridBox>
+                  <IncomeHeader />
+                  {incomeList.map((e) => (
+                    <IncomeItem key={e.videoId} item={e} />
+                  ))}
+                </ChartGridBox>
+              ) : (
+                <ContentNothing isDark={isDark}>
+                  정산 내역이 없습니다.
+                </ContentNothing>
+              )}
+            </RewardContentContainer>
+          </>
+        ) : (
+          <IncomeEmpty />
+        )}
         {!loading && <BottomDiv ref={ref} />}
       </RewardMainContainer>
     </PageContainer>
