@@ -57,6 +57,7 @@ include::overview.adoc[]
 * link:snippets/adjustment/adjustment.html[비디오별 정산 내역/월 및 연도별 정산액 API, onclick="window.location.href='snippets/adjustment/adjustment.html'"]
 * link:snippets/adjustment/videoadjustment.html[비디오별 정산 금액 및 비율 API, onclick="window.location.href='snippets/adjustment/videoadjustment.html'"]
 * link:snippets/adjustment/account.html[계좌 조회 및 등록 API, onclick="window.location.href='snippets/adjustment/account.html'"]
+* link:snippets/adjustment/bank.html[은행 API, onclick="window.location.href='snippets/adjustment/bank.html'"]
 
 === Video API
 * link:snippets/video/getvideo.html[비디오 조회 API, onclick="window.location.href='snippets/video/getvideo.html'"]
