@@ -118,6 +118,7 @@ export default function ChannelPage() {
       top: 0,
     });
   }, []);
+  
   return (
     <PageContainer isDark={isDark}>
       <ChannelMainContainer>

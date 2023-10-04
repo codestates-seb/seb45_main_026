@@ -85,7 +85,9 @@ const ReceiptItem = ({ item }) => {
           {`${createDay} ${createTime}`}
         </ReceiptGrayTypo>
         <ReceiptTitleTypo isDark={isDark}>{titleName}</ReceiptTitleTypo>
-        <ReceiptAmountTypo isDark={isDark}>{`${amount}원`}</ReceiptAmountTypo>
+        <ReceiptAmountTypo
+          isDark={isDark}
+        >{`${amount.toLocaleString()}원`}</ReceiptAmountTypo>
         <ReceiptStatusTypo isDark={isDark}>
           {item.orderStatus === "COMPLETED"
             ? "결제 완료"

@@ -408,11 +408,7 @@ const CourseUpload = ({ isTags }) => {
                 }
                 onKeyDown={(e) => addTagList(e)}
                 onFocus={() => setTagOpen(true)}
-                onBlur={() => {
-                  setTimeout(() => {
-                    setTagOpen(false);
-                  }, 100);
-                }}
+                onMouseDown={() => setTagOpen(false)}
               />
               {tagOpen && (
                 <TagDropDown isDark={isDark}>
