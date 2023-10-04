@@ -22,6 +22,15 @@ a:active {
 textarea {
   resize: none;
 }
+table{
+  padding:0;
+  border:0;
+  border-spacing:0px;
+  border-collapse:collapse;
+}
+th, td{
+  padding:0;
+}
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
