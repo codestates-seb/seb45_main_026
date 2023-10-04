@@ -26,6 +26,3 @@ export const MainContainer = styled.div<{isDark:boolean}>`
     flex-direction: column;
     align-items: center;
 `
-export const TableContainer = styled.table`
-    width: 100%;
-`

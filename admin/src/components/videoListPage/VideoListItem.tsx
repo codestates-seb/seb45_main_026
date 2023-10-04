@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import tokens from '../../styles/tokens.json';
 import { BodyTextTypo } from '../../atoms/typographys/Typographys';
+import { TableTd, TableTr } from '../../atoms/table/Tabel';
 
 const globalTokens = tokens.global;
 
@@ -22,17 +23,7 @@ const VideoListItem = ({item} : videoListItemType) => {
     );
 };
 
-export const ItemContainer = styled.tr<{isDark : boolean}>`
-    width: 100%;
-    padding: ${globalTokens.Spacing8.value}px;
-    display: flex;
-    flex-direction: row;
-    justify-content: start;
-    align-items: center;
-    border-bottom: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
-`
-const VideoTitleTypo = styled.td<{isDark : boolean}>`
-    
-`
+export const ItemContainer = styled(TableTr)``
+const VideoTitleTypo = styled(TableTd)<{isDark : boolean}>``
 
 export default VideoListItem;

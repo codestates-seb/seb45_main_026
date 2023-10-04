@@ -21,6 +21,11 @@ const LoginInfoSlice = createSlice({
       authorization: "",
       refresh: "",
     },
+    accountInfo: {
+      name: "",
+      bank: "",
+      account: "",
+    },
     myid: "",
     findPasswordEmail: '',
   }, // 초기값 설정, 데이터 값의 형태를 설정 해놓으면 좋음.
@@ -42,6 +47,10 @@ const LoginInfoSlice = createSlice({
       // OAuth에 사용될 provider 값 저장
       state.oAuthProvider = action.payload;
     },
+    //계좌정보 저장
+    setAccountInfo: (state, action) => {
+      state.accountInfo = action.payload;
+    },
     setMyid: (state, action) => {
       // 나의 memberId 를 저장
       state.myid = action.payload;
@@ -60,6 +69,7 @@ export const {
   setChannelInfo,
   setToken,
   setProvider,
+  setAccountInfo,
   setMyid,
   setFindPasswordEmail
 } = LoginInfoSlice.actions;
