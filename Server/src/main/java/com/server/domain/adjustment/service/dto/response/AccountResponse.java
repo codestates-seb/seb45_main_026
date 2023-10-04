@@ -1,6 +1,7 @@
 package com.server.domain.adjustment.service.dto.response;
 
 import com.server.domain.account.domain.Account;
+import com.server.domain.account.domain.Bank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +13,7 @@ public class AccountResponse {
 
     private String name;
     private String account;
-    private String bank;
+    private Bank bank;
 
     public static AccountResponse of(Account account) {
 
@@ -20,7 +21,6 @@ public class AccountResponse {
             return AccountResponse.builder()
                     .name("계좌 정보가 없습니다.")
                     .account("계좌 정보가 없습니다.")
-                    .bank("계좌 정보가 없습니다.")
                     .build();
         }
 

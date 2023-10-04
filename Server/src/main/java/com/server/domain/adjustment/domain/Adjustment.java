@@ -1,5 +1,6 @@
 package com.server.domain.adjustment.domain;
 
+import com.server.domain.account.domain.Bank;
 import com.server.domain.member.entity.Member;
 import com.server.global.entity.BaseEntity;
 import lombok.AccessLevel;
@@ -25,7 +26,7 @@ public class Adjustment extends BaseEntity {
 
     private String account;
 
-    private String bank;
+    private Bank bank;
 
     private Integer amount;
 
@@ -38,7 +39,7 @@ public class Adjustment extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private Adjustment(Integer year, Integer month, String name, String account, String bank, Integer amount, AdjustmentStatus adjustmentStatus, String reason, Member member) {
+    private Adjustment(Integer year, Integer month, String name, String account, Bank bank, Integer amount, AdjustmentStatus adjustmentStatus, String reason, Member member) {
         this.adjustmentYear = year;
         this.adjustmentMonth = month;
         this.name = name;

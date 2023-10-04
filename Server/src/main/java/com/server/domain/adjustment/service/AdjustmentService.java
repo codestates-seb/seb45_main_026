@@ -1,6 +1,7 @@
 package com.server.domain.adjustment.service;
 
 import com.server.domain.account.domain.Account;
+import com.server.domain.account.domain.Bank;
 import com.server.domain.account.repository.AccountRepository;
 import com.server.domain.adjustment.domain.Adjustment;
 import com.server.domain.adjustment.domain.AdjustmentStatus;
@@ -11,6 +12,7 @@ import com.server.domain.adjustment.service.dto.request.AccountUpdateServiceRequ
 import com.server.domain.adjustment.service.dto.response.*;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.global.exception.businessexception.accountexception.AccountNotValidException;
 import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -71,6 +73,10 @@ public class AdjustmentService {
     public void updateAccount(Long loginMemberId, AccountUpdateServiceRequest request) {
 
         Account account = getAccountOrNull(loginMemberId);
+
+        if(!request.getBank().checkAccount(request.getAccount())) {
+            throw new AccountNotValidException();
+        }
 
         if(account == null) {
             Member member = verifiedMember(loginMemberId);
