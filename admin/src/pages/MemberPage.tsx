@@ -53,10 +53,6 @@ const MemberPage = () => {
         if(!isLogin) {
             navigate('/login');
         }
-    },[]);
-
-
-    useEffect(()=>{
         if(data) {
             setMaxPage(data.pageInfo.totalPage);
         } 
@@ -79,7 +75,7 @@ const MemberPage = () => {
                 },
             })
         }
-    },[ data, isPreviousData, currentPage, queryClient ]);
+    },[ isLogin, data, isPreviousData, currentPage, queryClient ]);
 
     console.log(data);
     

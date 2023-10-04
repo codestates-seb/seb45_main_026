@@ -3,8 +3,8 @@ import tokens from '../../styles/tokens.json';
 import { Input, InputErrorTypo } from '../../atoms/inputs/Inputs';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteUserInfoService, getAccountInfoService, getUserChannelInfoService, updateChannelInfoService, updateNicknameService, updatePasswordService } from '../../services/userInfoService';
-import { setChannelInfo, setIsLogin, setLoginInfo, setMyid, setProvider, setToken } from '../../redux/createSlice/LoginInfoSlice';
+import { deleteUserInfoService, getAccountInfoService, getUserChannelInfoService, updateAccountInfoService, updateChannelInfoService, updateNicknameService, updatePasswordService } from '../../services/userInfoService';
+import { setAccountInfo, setChannelInfo, setIsLogin, setLoginInfo, setMyid, setProvider, setToken } from '../../redux/createSlice/LoginInfoSlice';
 import { NegativeTextButton, PositiveTextButton, } from '../../atoms/buttons/Buttons';
 import { SettingContainer, SettingTitle, UserInfoContainer, ExtraButtonContainer  } from './Setting.style';
 import { AlertModal, ConfirmModal } from '../../atoms/modal/Modal';
@@ -24,6 +24,7 @@ const Setting = () => {
     const loginUserInfo = useSelector(state=>state.loginInfo.loginInfo);
     const myid = useSelector(state=>state.loginInfo.myid);
     const channelInfo = useSelector(state=>state.loginInfo.channelInfo);
+    const accountInfo = useSelector(state=>state.loginInfo.accountInfo);
     const accessToken = useSelector(state=>state.loginInfo.accessToken);
     const isDark= useSelector(state=>state.uiSetting.isDark);
     const [ isDeleteUserConfirmModalOpen, setIsDeleteUserConfirmModalOpen ] = useState(false);
@@ -36,6 +37,8 @@ const Setting = () => {
     const [ is채널설명변경실패팝업, setIs채널설명변경실패팝업 ] = useState(false);
     const [ is비밀번호변경성공팝업, setIs비밀번호변경성공팝업 ] = useState(false);
     const [ is비밀번호변경실패팝업, setIs비밀번호변경실패팝업 ] = useState(false);
+    const [ is계좌정보변경성공팝업, setIs계좌정보변경성공팝업 ] = useState(false);
+    const [ is계좌정보변경실패팝업, setIs계좌정보변경실패팝업 ] = useState(false);
     
     const {
         register,
@@ -48,8 +51,9 @@ const Setting = () => {
                 nickname: loginUserInfo.nickname,
                 channelName: channelInfo.channelName,
                 channelDescription: channelInfo.description,
-                bank: 'bank',
-                accountNumber: 'account',
+                accountHolder: accountInfo.accountHolder,
+                bank: accountInfo.bank,
+                accountNumber: accountInfo.account,
               }
     });
 
@@ -64,7 +68,11 @@ const Setting = () => {
                 }));
                 getAccountInfoService(accessToken.authorization).then((response)=>{
                     if(response.status==='success') {
-                        console.log(response.data.data);
+                        dispatch(setAccountInfo({
+                          accountHolder: response.data.data.name,
+                          bank: response.data.data.bank,
+                          account: response.data.data.account
+                        }))
                     } else {
                         console.log(response.data);
                     }
@@ -128,6 +136,7 @@ const Setting = () => {
         setIs채널명변경실패팝업(true);
       }
     }
+  }
   //채널설명 변경 버튼을 누르면 동작함
   const handleChannelDescriptionUpdateClick = async () => {
     const isValid = await trigger("channelDescription");
@@ -155,9 +164,26 @@ const Setting = () => {
   };
   //계좌정보 변경 버튼 누르면 동작함
   const handleAccountNumberClick = async () => {
-        const bank = await trigger('bank');
-        const accountNumber = await trigger('accountNumber');
-   }
+    const accountHolder = watch('accountHolder');
+    const bank = watch('bank');
+    const accountNumber = watch('accountNumber');
+    const isAccountHolder = await trigger('accountHolder');
+    const isBank = await trigger('bank');
+    const isAccountNumber = await trigger('accountNumber');
+    
+    if ( isAccountHolder && isBank && isAccountNumber ) {
+      const response = await updateAccountInfoService( 
+          accessToken.authorization, 
+          accountHolder, 
+          bank, 
+          accountNumber );
+      if (response.status==='success') {
+        setIs계좌정보변경성공팝업(true);
+      } else {
+        setIs계좌정보변경실패팝업(true);
+      }
+    }
+  }
   //비밀번호 변경 버튼 누르면 동작함
   const handlePasswordUpdateClick = async () => {
     const prePassword = watch("password");
@@ -275,8 +301,7 @@ const Setting = () => {
                 isBackdropClickClose={true}
                 content='채널 이름은 한글, 영문, 숫자만 가능합니다.'
                 buttonTitle='확인'
-                handleButtonClick={()=>{ setIs채널명변경실패팝업(false) }}
-                />
+                handleButtonClick={()=>{ setIs채널명변경실패팝업(false) }}/>
             {/* 채널 설명 변경 성공 팝업 */}
             <AlertModal
                 isModalOpen={is채널설명변경성공팝업}
@@ -309,6 +334,22 @@ const Setting = () => {
                 content='비밀번호 변경 실패했습니다.'
                 buttonTitle='확인'
                 handleButtonClick={()=>{ setIs비밀번호변경실패팝업(false) }}/>
+            {/* 계좌정보 변경 성공 팝업 */}
+            <AlertModal 
+                isModalOpen={is계좌정보변경성공팝업}
+                setIsModalOpen={setIs계좌정보변경성공팝업}
+                isBackdropClickClose={true}
+                content='계좌 정보가 변경되었습니다!'
+                buttonTitle='확인'
+                handleButtonClick={ ()=>{ setIs계좌정보변경성공팝업(false); }}/>
+            {/* 계좌정보 변경 실패 팝업 */}
+            <AlertModal 
+                isModalOpen={is계좌정보변경실패팝업}
+                setIsModalOpen={setIs계좌정보변경실패팝업}
+                isBackdropClickClose={true}
+                content='계좌 정보 변경 실패했습니다!'
+                buttonTitle='확인'
+                handleButtonClick={ ()=>{ setIs계좌정보변경실패팝업(false); }}/>
             <SettingContainer isDark={isDark}>
                 <UserInfoContainer>
                     <SettingTitle isDark={isDark}>내 정보</SettingTitle>
@@ -427,7 +468,24 @@ const Setting = () => {
                     { errors.newPassword && errors.newPassword.type==='validate'
                         && <InputErrorTypo isDark={isDark} width='50vw'>새로운 비밀번호와 기존 비밀번호가 동일합니다.</InputErrorTypo>}
                 <SettingTitle isDark={isDark}>내 계좌 정보</SettingTitle>
-                <Input
+                    <Input
+                        marginTop={globalTokens.Spacing8.value}
+                        label='예금주명'
+                        width='50vw'
+                        name='accountHolder'
+                        type='text'
+                        placeholder='예금주명을 입력해 주세요.'
+                        register={register}
+                        maxLength={20}
+                        pattern={/^[A-Za-z가-힣]+$/}
+                        validateFunc={()=>{
+                            return true;
+                        }}
+                        isButton={false}
+                        required />
+                    { errors.accountHolder && errors.accountHolder.type==='required'
+                        && <InputErrorTypo isDark={isDark} width='50vw'>예금주명을 입력해 주세요.</InputErrorTypo> }
+                    <Input
                         marginTop={globalTokens.Spacing8.value}
                         label='은행'
                         width='50vw'
@@ -444,6 +502,8 @@ const Setting = () => {
                         required />
                     { errors.bank && errors.bank.type==='required'
                         && <InputErrorTypo isDark={isDark} width='50vw'>은행을 입력해 주세요.</InputErrorTypo> }
+                    { errors.bank && (errors.bank.type==='maxLength' || errors.bank.type==='pattern' || errors.bank.type==='validate' )
+                        && <InputErrorTypo isDark={isDark} width='50vw'>올바르지 않은 은행 정보입니다.</InputErrorTypo> }
                     <Input
                         marginTop={globalTokens.Spacing8.value}
                         label='계좌번호'
@@ -477,7 +537,8 @@ const Setting = () => {
                 </UserInfoContainer>
             </SettingContainer>
         </>
-    );
-};
+        );
+    };
+
 
 export default Setting;

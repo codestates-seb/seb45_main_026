@@ -13,6 +13,7 @@ import Pagination from "../../atoms/pagination/Pagination";
 import { reportVideoDataType } from "../../types/reportDataType";
 import Loading from "../../components/loading/Loading";
 import styled from "styled-components";
+import NavBar from "../../components/navBar/NavBar";
 
 const ReportVideoPage = () => {
   const navigate = useNavigate();
