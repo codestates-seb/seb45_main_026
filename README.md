@@ -304,11 +304,11 @@ styled-component를 사용한 이번 프로젝트에서 ```useRef```나 ```addEv
 
 메인페이지의 Viewport 애니메이션과 롤링 배너, 사이드바 디자인을 위해서 styled-component에 keyframes를 적용하여 애니메이션을 구현했습니다.
 
-## react-flicking
+## react-flicking & react-slider
 
 <img src="https://github.com/codestates-seb/seb45_main_026/assets/50258232/e0654024-4eb3-477e-9a17-1417887752dc" width="400px"/>
 
-메인페이지 두 번째 페이지에 슬라이드 배너를 만들기 위해서 react-flicking UI 라이브러리를 적용했습니다. 
+메인페이지 페이지 스크롤 이동과 두 번째 페이지에 슬라이드 배너를 만들기 위해서 react-slider, react-flicking UI 라이브러리를 적용했습니다. 
 
 </details>
 
