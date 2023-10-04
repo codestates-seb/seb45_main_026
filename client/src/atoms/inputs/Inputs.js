@@ -97,7 +97,8 @@ export const Input = ({
                         maxLength: maxLength,
                         minLength: minLength,
                         pattern: pattern,
-                        validate: validateFunc })}
+                        validate: validateFunc,
+                    })}
                     disabled={disabled?disabled:false}/>
                     { isButton&&
                         <InputButton
