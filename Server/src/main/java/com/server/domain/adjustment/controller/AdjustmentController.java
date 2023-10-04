@@ -1,5 +1,6 @@
 package com.server.domain.adjustment.controller;
 
+import com.server.domain.account.domain.Bank;
 import com.server.domain.adjustment.controller.dto.request.AccountUpdateApiRequest;
 import com.server.domain.adjustment.service.AdjustmentService;
 import com.server.domain.adjustment.service.dto.response.*;
@@ -19,7 +20,9 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/adjustments")
@@ -92,6 +95,16 @@ public class AdjustmentController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/banks")
+    public ResponseEntity<ApiSingleResponse<List<BankResponse>>> getBanks() {
+
+        List<BankResponse> responses = Arrays.stream(Bank.values())
+                .map(BankResponse::of)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(responses, "은행 조회 성공"));
+    }
+
     private void checkValidDate(Integer month, Integer year) {
         if(month != null && year == null) {
             throw new AdjustmentDateException();
@@ -109,4 +122,5 @@ public class AdjustmentController {
 
         return year + "년";
     }
+
 }

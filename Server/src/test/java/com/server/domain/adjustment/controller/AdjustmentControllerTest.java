@@ -15,7 +15,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.server.global.testhelper.RestDocsUtil.pageResponseFields;
 import static com.server.global.testhelper.RestDocsUtil.singleResponseFields;
@@ -309,6 +311,43 @@ class AdjustmentControllerTest extends ControllerTest {
                                 fieldWithPath("data[].videoName").description("비디오 이름"),
                                 fieldWithPath("data[].amount").description("해당 기간 정산 금액"),
                                 fieldWithPath("data[].portion").description("해당 기간 판매 비율")
+                        )
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("은행 조회 API")
+    void getBanks() throws Exception {
+        //given
+        List<BankResponse> responses = Arrays.stream(Bank.values())
+                .map(BankResponse::of)
+                .collect(Collectors.toList());
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(responses, "은행 조회 성공"));
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                get(BASE_URL + "/banks")
+                        .header(AUTHORIZATION, TOKEN)
+        );
+
+        //then
+        actions
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse));
+
+        //restdocs
+        actions.andDo(
+                documentHandler.document(
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("액세스 토큰")
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("은행 정보"),
+                                fieldWithPath("data[].bank").description(generateLinkCode(Bank.class)),
+                                fieldWithPath("data[].description").description("은행 설명")
                         )
                 )
         );
