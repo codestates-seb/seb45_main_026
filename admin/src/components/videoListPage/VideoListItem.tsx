@@ -22,7 +22,7 @@ const VideoListItem = ({item} : videoListItemType) => {
     );
 };
 
-export const ItemContainer = styled.div<{isDark : boolean}>`
+export const ItemContainer = styled.tr<{isDark : boolean}>`
     width: 100%;
     padding: ${globalTokens.Spacing8.value}px;
     display: flex;
@@ -31,7 +31,7 @@ export const ItemContainer = styled.div<{isDark : boolean}>`
     align-items: center;
     border-bottom: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
 `
-const VideoTitleTypo = styled(BodyTextTypo)`
+const VideoTitleTypo = styled.td<{isDark : boolean}>`
     
 `
 

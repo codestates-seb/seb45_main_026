@@ -30,16 +30,16 @@ const MemberListItem = ({ item } : memberListItemType) => {
     );
 };
 
-const MemberEmailTypo = styled(BodyTextTypo)`
+const MemberEmailTypo = styled.td<{isDark : boolean}>`
     width: 300px;
 `
-const MemberNicknameTypo = styled(BodyTextTypo)`
+const MemberNicknameTypo = styled.td<{isDark : boolean}>`
     width: 150px;
 `
-const MemberChannelTypo = styled(BodyTextTypo)`
+const MemberChannelTypo = styled.td<{isDark : boolean}>`
     width: 250px;
 `
-const MemberStatusTypo = styled(BodyTextTypo)`
+const MemberStatusTypo = styled.td<{isDark : boolean}>`
     width: 100px;
 `
 

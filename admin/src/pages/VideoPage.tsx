@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/Store';
-import { MainContainer, PageContainer } from '../atoms/layouts/PageContainer';
+import { MainContainer, PageContainer, TableContainer } from '../atoms/layouts/PageContainer';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -59,8 +59,10 @@ const VideoPage = () => {
                 <PageTitle isDark={isDark}>강의 관리</PageTitle>
                 { isLoading? <Loading/>
                 : error? <>error</>
-                : data.data.map((e:videoDataType)=>
+                : <TableContainer>
+                    { data.data.map((e:videoDataType)=>
                     <VideoListItem key={e.videoId} item={e}/>) }
+                  </TableContainer> }
                 <Pagination 
                     isDark={isDark} 
                     maxPage={maxPage}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MainContainer, PageContainer } from '../atoms/layouts/PageContainer';
+import { MainContainer, PageContainer, TableContainer } from '../atoms/layouts/PageContainer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/Store';
 import { useQuery } from '@tanstack/react-query';
@@ -61,7 +61,9 @@ const MemberPage = () => {
                 <PageTitle isDark={isDark}>회원 관리</PageTitle>
                 { isLoading ? <Loading/> 
                   : error ? <>error</>
-                  : data.data.map((e:memberDataType)=><MemberListItem item={e}/>) }
+                  : <TableContainer>
+                    { data.data.map((e:memberDataType)=><MemberListItem item={e}/>) }
+                    </TableContainer> }
                 <Pagination
                     isDark={isDark}
                     maxPage={maxPage}
