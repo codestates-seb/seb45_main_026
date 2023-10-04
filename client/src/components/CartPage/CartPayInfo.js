@@ -76,7 +76,7 @@ const CartPayInfo = () => {
   };
 
   useMemo(() => {
-    if ((totalPrice - isDiscount) <= 0) {
+    if (totalPrice - isDiscount <= 0) {
       setDiscount(0);
     }
   }, [totalPrice]);

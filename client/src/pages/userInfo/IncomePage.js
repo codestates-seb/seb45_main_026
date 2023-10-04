@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useToken } from "../../hooks/useToken";
 import { useInView } from "react-intersection-observer";
@@ -11,11 +11,6 @@ import {
 } from "./RewardPage";
 import RewardCategory from "../../components/rewardPage/RewardCategory";
 import {
-  ReceiptAmountTypo,
-  ReceiptItemContainer,
-  ReceiptTitleTypo,
-} from "../../components/receiptPage/ReceiptItem.style";
-import {
   IncomeHeadContainer,
   IncomeAmountHeadTypo,
   IncomeIndexHeadTypo,
@@ -26,8 +21,6 @@ import IncomeItem from "../../components/incomePage/IncomeItem";
 import IncomeHeader from "../../components/incomePage/IncomeHeader";
 import IncomeCategory from "../../components/incomePage/IncomeCategory";
 import {
-  LineChart,
-  Line,
   CartesianGrid,
   XAxis,
   YAxis,
@@ -39,12 +32,11 @@ import {
   PieChart,
   Pie,
   Sector,
-  Cell,
 } from "recharts";
 import axios from "axios";
 import styled from "styled-components";
-import { SmallTextTypo } from "../../atoms/typographys/Typographys";
 import tokens from "../../styles/tokens.json";
+import AdjustmentItem from "../../components/incomePage/AdjustmentItem";
 
 const globalTokens = tokens.global;
 
@@ -92,17 +84,10 @@ const IncomePage = () => {
       .then((res) => {
         // console.log(`${year}년 정산 상태`, res.data.data.adjustmentStatus);
         // console.log(`${year}년 정산 금액`, res.data.data.amount);
-
-        const monthData = res.data.data.monthData;
-        const newYearData = isYearData.map((el) => {
-          const yearData = monthData.find((num) => num.month === el.month);
-          if (yearData) {
-            return yearData;
-          } else {
-            return el;
-          }
+        const isSort = res.data.data.sort((a, b) => {
+          return a.month - b.month;
         });
-        setYearData(newYearData);
+        setYearData(isSort);
       })
       .catch((err) => {
         console.log(err);
@@ -231,10 +216,10 @@ const IncomePage = () => {
       outerRadius,
       startAngle,
       endAngle,
-      fill,
       payload,
       percent,
       value,
+      // fill,
     } = props;
     const sin = Math.sin(-RADIAN * midAngle);
     const cos = Math.cos(-RADIAN * midAngle);
@@ -434,20 +419,17 @@ const IncomePage = () => {
             <ChartGridBox>
               <HeadContainer isDark={isDark}>
                 <MonthHeadTypo isDark={isDark}>월</MonthHeadTypo>
-                <AmountHeadTypo isDark={isDark}>정산 금액(원)</AmountHeadTypo>
+                <AmountHeadTypo isDark={isDark}>정산 금액</AmountHeadTypo>
                 <StatusHeadContainer isDark={isDark}>
                   정산 상태
                 </StatusHeadContainer>
                 <ReasonHeadTypo isDark={isDark}>비고</ReasonHeadTypo>
               </HeadContainer>
-              <IncomeItemContainer isDark={isDark}>
-                <IncomeMonthTypo isDark={isDark}>1월</IncomeMonthTypo>
-                <IncomeAmountTypo isDark={isDark}>10000</IncomeAmountTypo>
-                <IncomeStatusTypo isDark={isDark}>정산 중</IncomeStatusTypo>
-                <IncomeReasonTypo isDark={isDark}>
-                  정산 처리 중 입니다.
-                </IncomeReasonTypo>
-              </IncomeItemContainer>
+              {isYearData.map((el) => {
+                if (currentYear >= el.year && currentMonth >= el.month) {
+                  return <AdjustmentItem item={el} />;
+                }
+              })}
             </ChartGridBox>
           ) : incomeList.length > 0 ? (
             <ChartGridBox>
@@ -501,22 +483,6 @@ export const StatusHeadContainer = styled(IncomeAmountHeadTypo)`
   width: 180px;
 `;
 export const ReasonHeadTypo = styled(IncomeAmountHeadTypo)`
-  width: 100%;
-  max-width: 500px;
-`;
-
-export const IncomeItemContainer = styled(ReceiptItemContainer)``;
-export const IncomeMonthTypo = styled(ReceiptTitleTypo)`
-  text-align: center;
-  width: 70px;
-`;
-export const IncomeAmountTypo = styled(ReceiptAmountTypo)`
-  width: 200px;
-`;
-export const IncomeStatusTypo = styled(ReceiptAmountTypo)`
-  width: 180px;
-`;
-export const IncomeReasonTypo = styled(ReceiptAmountTypo)`
   width: 100%;
   max-width: 500px;
 `;

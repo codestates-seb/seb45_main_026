@@ -27,11 +27,13 @@ const IncomeItem = ({ item }) => {
       <IncomeIndexTypo isDark={isDark}>{item.videoId}</IncomeIndexTypo>
       <IncomeTitleTypo isDark={isDark}>{item.videoName}</IncomeTitleTypo>
       <IncomeAmountTypo isDark={isDark}>
-        {item.totalSaleAmount}원
+        {item.totalSaleAmount.toLocaleString()}원
       </IncomeAmountTypo>
-      <IncomeAmountTypo isDark={isDark}>{item.refundAmount}원</IncomeAmountTypo>
       <IncomeAmountTypo isDark={isDark}>
-        {item.totalSaleAmount - item.refundAmount}원
+        {item.refundAmount.toLocaleString()}원
+      </IncomeAmountTypo>
+      <IncomeAmountTypo isDark={isDark}>
+        {(item.totalSaleAmount - item.refundAmount).toLocaleString()}원
       </IncomeAmountTypo>
     </IncomeItemContainer>
   );
