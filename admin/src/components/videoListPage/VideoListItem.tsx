@@ -17,21 +17,21 @@ const VideoListItem = ({item} : videoListItemType) => {
     
     return (
         <ItemContainer isDark={isDark}>
-            <ItemTitleTypo isDark={isDark}>{item.videoName}</ItemTitleTypo>
+            <VideoTitleTypo isDark={isDark}>{item.videoName}</VideoTitleTypo>
         </ItemContainer>
     );
 };
 
-export const ItemContainer = styled.div<{isDark : boolean}>`
+export const ItemContainer = styled.tr<{isDark : boolean}>`
     width: 100%;
     padding: ${globalTokens.Spacing8.value}px;
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
     border-bottom: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};
 `
-export const ItemTitleTypo = styled(BodyTextTypo)`
+const VideoTitleTypo = styled.td<{isDark : boolean}>`
     
 `
 
