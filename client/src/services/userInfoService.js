@@ -207,6 +207,33 @@ export const getAccountInfoService = async (authorization) => {
         }
     }
 }
+//계좌 정보 수정
+export const updateAccountInfoService = async (authorization, name, bank, account) => {
+    try {
+        const response = await axios.put(
+            `${ROOT_URL}/adjustments/account`, 
+            {
+                name: name,
+                account: account,
+                bank:bank,
+            }, 
+            {
+                headers: {
+                    Authorization : authorization
+                }
+            }
+        )
+        return {
+            status: 'success',
+            data: response.data,
+        }
+    } catch (err) {
+        return {
+            status: 'error', 
+            data: err,
+        }
+    }
+}
 
 //회원 탈퇴
 export const deleteUserInfoService = async (authorization) => {

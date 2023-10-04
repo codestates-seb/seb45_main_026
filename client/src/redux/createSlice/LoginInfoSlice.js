@@ -22,7 +22,7 @@ const LoginInfoSlice = createSlice({
       refresh: "",
     },
     accountInfo: {
-      name: "",
+      accountHolder: "",
       bank: "",
       account: "",
     },
