@@ -46,12 +46,12 @@ const VideoPage = () => {
          cacheTime: 1000*60*30,
     });
 
-    useEffect(()=>{
-        if(!isLogin) {
-            navigate('/login'); 
-            return;
-        }
-    },[]);
+  useEffect(() => {
+    if (!isLogin) {
+      navigate("/login");
+      return;
+    }
+  }, []);
 
     useEffect(()=>{
         if(data) {
