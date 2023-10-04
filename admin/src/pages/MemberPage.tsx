@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MainContainer, PageContainer, TableContainer } from '../atoms/layouts/PageContainer';
+import { MainContainer, PageContainer } from '../atoms/layouts/PageContainer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/Store';
 import { useQuery } from '@tanstack/react-query';
@@ -11,20 +11,36 @@ import { queryClient } from '..';
 import { memberDataType } from '../types/memberDataType';
 import Pagination from '../atoms/pagination/Pagination';
 import MemberListItem from '../components/memberListPage/MemberListItem';
+import { TableContainer } from '../atoms/table/Tabel';
+import { errorResponseDataType } from '../types/axiosErrorType';
+import axios from 'axios';
+import { useToken } from '../hooks/useToken';
 
 const MemberPage = () => {
     const navigate = useNavigate();
+    const refreshToken = useToken();
     const isDark = useSelector((state:RootState)=>state.uiSetting.isDark);
     const isLogin = useSelector((state:RootState)=>state.loginInfo.isLogin);
     const accessToken = useSelector((state:RootState)=>state.loginInfo.accessToken);
 
     const [ currentPage, setCurrentPage ] = useState(1);
     const [ maxPage, setMaxPage ] = useState(10);
+
     const { isLoading, error, data, isPreviousData } = useQuery({ 
-        queryKey: ['members', currentPage], 
+        queryKey: [ 'members', accessToken, currentPage ], 
         queryFn: async ()=>{
-            const res = await getMemberList(accessToken.authorization,'',currentPage,10);
-            return res;
+            try {
+                const res = await getMemberList(accessToken.authorization,'',currentPage,10);
+                return res;
+            } catch (err) {
+                if (axios.isAxiosError<errorResponseDataType, any>(err)) {
+                    if(err.response?.data.message==='만료된 토큰입니다.') {
+                        refreshToken();
+                    }
+                } else {
+                    console.log(err);
+                }
+            }
         },
         keepPreviousData: true,
         staleTime: 1000*60*5,
@@ -44,10 +60,20 @@ const MemberPage = () => {
         } 
         if( !isPreviousData && data?.hasMore ) {
             queryClient.prefetchQuery({
-                queryKey: ['members', currentPage+1], 
+                queryKey: ['members', accessToken, currentPage+1], 
                 queryFn: async ()=>{
-                    const res = await getMemberList(accessToken.authorization,'',currentPage+1,10);
-                    return res;
+                    try {
+                        const res = await getMemberList(accessToken.authorization,'',currentPage+1,10);
+                        return res;
+                    } catch (err) {
+                        if (axios.isAxiosError<errorResponseDataType, any>(err)) {
+                            if(err.response?.data.message==='만료된 토큰입니다.') {
+                                refreshToken();
+                            }
+                        } else {
+                            console.log(err);
+                        }
+                    }
                 },
             })
         }

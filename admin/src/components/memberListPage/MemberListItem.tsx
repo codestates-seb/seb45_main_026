@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { memberDataType } from '../../types/memberDataType';
 import { BodyTextTypo } from '../../atoms/typographys/Typographys';
+import { TableTd } from '../../atoms/table/Tabel';
 
 const globalTokens = tokens.global;
 
@@ -30,16 +31,16 @@ const MemberListItem = ({ item } : memberListItemType) => {
     );
 };
 
-const MemberEmailTypo = styled.td<{isDark : boolean}>`
+const MemberEmailTypo = styled(TableTd)`
     width: 300px;
 `
-const MemberNicknameTypo = styled.td<{isDark : boolean}>`
+const MemberNicknameTypo = styled(TableTd)`
     width: 150px;
 `
-const MemberChannelTypo = styled.td<{isDark : boolean}>`
+const MemberChannelTypo = styled(TableTd)`
     width: 250px;
 `
-const MemberStatusTypo = styled.td<{isDark : boolean}>`
+const MemberStatusTypo = styled(TableTd)`
     width: 100px;
 `
 

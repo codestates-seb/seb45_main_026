@@ -46,3 +46,26 @@ export const getUserInfoService = async (authorization:string) => {
         }
     }
 }
+
+//토큰 재발급
+export const getNewAuthorizationService = async (refresh:string) => {
+    try {
+        const response = await axios.post(
+            `${ROOT_URL}/auth/refresh`,{},
+            {
+                headers: {
+                    Refresh:refresh
+                }
+            }
+        );
+        return {
+            status : 'success',
+            data : response.headers.authorization,
+        };
+    } catch (err) {
+        return {
+            status : 'error',
+            data : err,
+        }
+    }
+}
