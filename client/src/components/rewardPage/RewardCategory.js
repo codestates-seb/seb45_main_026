@@ -10,7 +10,8 @@ const globalTokens = tokens.global;
 export const RewardNavContainer = styled.nav`
   width: 100%;
   margin-bottom: ${globalTokens.Spacing16.value}px;
-  margin: ${globalTokens.Spacing24.value}px 0 ${globalTokens.Spacing36.value}px 0;
+  margin: ${globalTokens.Spacing24.value}px 0 ${globalTokens.Spacing36.value}px
+    0;
   padding: 0 ${globalTokens.Spacing28.value}px;
   display: flex;
   flex-direction: row;
@@ -49,15 +50,6 @@ const RewardCategory = ({ category }) => {
     <RewardNavContainer isDark={isDark}>
       <RewardNavItem
         isDark={isDark}
-        isSelect={category === "income" ? true : false}
-        onClick={() => {
-          navigate("/activity/income");
-        }}
-      >
-        정산 내역
-      </RewardNavItem>
-      <RewardNavItem
-        isDark={isDark}
         isSelect={category === "receipt" ? true : false}
         onClick={() => {
           navigate("/activity/receipt");
@@ -74,7 +66,25 @@ const RewardCategory = ({ category }) => {
       >
         포인트 적립내역
       </RewardNavItem>
-      <BorderBox isDark={isDark} />
+      <RewardNavItem
+        isDark={isDark}
+        isSelect={category === "income" ? true : false}
+        onClick={() => {
+          navigate("/activity/income");
+        }}
+      >
+        정산 내역
+      </RewardNavItem>
+      <RewardNavItem
+        isDark={isDark}
+        isSelect={category === "account" ? true : false}
+        onClick={() => {
+          navigate("/activity/account");
+        }}
+      >
+        설정
+      </RewardNavItem>
+      {/* <BorderBox isDark={isDark} /> */}
     </RewardNavContainer>
   );
 };

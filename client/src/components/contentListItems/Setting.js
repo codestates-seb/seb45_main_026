@@ -79,138 +79,150 @@ const Setting = () => {
             }
         })
     },[accessToken]);
-    
-    //닉네임 변경 버튼 누르면 동작함
-    const handleNicknameUpdateClick = async () => {
-        const isValid = await trigger('nickname');
-        const newNickname = watch('nickname');
 
-        if( isValid ) {
-            const response = await updateNicknameService(
-                accessToken.authorization, newNickname);
-            if(response.status==='success') {
-                dispatch(setLoginInfo({
-                    ...loginUserInfo,
-                    nickname: newNickname,
-                }))
-                setIs닉네임변경성공팝업(true);
-            } else {
-                setIs닉네임변경실패팝업(true);
-                return;
-            }
-        }
-    }
-    //채널명 변경 버튼을 누르면 동작함
-    const handleChannelNameUpdateClick = async () => {
-        const isValid = await trigger('channelName');
-        const newChannelName = watch('channelName');
+  //닉네임 변경 버튼 누르면 동작함
+  const handleNicknameUpdateClick = async () => {
+    const isValid = await trigger("nickname");
+    const newNickname = watch("nickname");
 
-        if(isValid) {
-            const response = await updateChannelInfoService(
-                accessToken.authorization, 
-                myid,
-                newChannelName,
-                channelInfo.description
-            );
-            if(response.status==='success') {
-                dispatch(setChannelInfo({
-                    ...channelInfo,
-                    channelName: newChannelName
-                }))
-                setIs채널명변경성공팝업(true);
-            } else {
-                setIs채널명변경실패팝업(true);
-            }
-        }
+    if (isValid) {
+      const response = await updateNicknameService(
+        accessToken.authorization,
+        newNickname
+      );
+      if (response.status === "success") {
+        dispatch(
+          setLoginInfo({
+            ...loginUserInfo,
+            nickname: newNickname,
+          })
+        );
+        setIs닉네임변경성공팝업(true);
+      } else {
+        setIs닉네임변경실패팝업(true);
+        return;
+      }
     }
-    //채널설명 변경 버튼을 누르면 동작함
-    const handleChannelDescriptionUpdateClick = async () => {
-        const isValid = await trigger('channelDescription');
-        const newChannelDescription = watch('channelDescription');
+  };
+  //채널명 변경 버튼을 누르면 동작함
+  const handleChannelNameUpdateClick = async () => {
+    const isValid = await trigger("channelName");
+    const newChannelName = watch("channelName");
 
-        if(isValid) {
-            const response = await updateChannelInfoService(
-                accessToken.authorization, 
-                myid,
-                channelInfo.channelName,
-                newChannelDescription
-            );
-            if(response.status==='success'){
-                dispatch(setChannelInfo({
-                    ...channelInfo,
-                    description: newChannelDescription
-                }));
-                setIs채널설명변경성공팝업(true);
-            } else{
-                setIs채널설명변경실패팝업(true);
-            }
-        }
+    if (isValid) {
+      const response = await updateChannelInfoService(
+        accessToken.authorization,
+        myid,
+        newChannelName,
+        channelInfo.description
+      );
+      if (response.status === "success") {
+        dispatch(
+          setChannelInfo({
+            ...channelInfo,
+            channelName: newChannelName,
+          })
+        );
+        setIs채널명변경성공팝업(true);
+      } else {
+        setIs채널명변경실패팝업(true);
+      }
     }
-    //비밀번호 변경 버튼 누르면 동작함
-    const handlePasswordUpdateClick = async () => {
-        const prePassword = watch('password');
-        const newPassword = watch('newPassword');
-        const isPasswordValid = await trigger('password');
-        const isNewPasswordValid = await trigger('newPassword');
+  //채널설명 변경 버튼을 누르면 동작함
+  const handleChannelDescriptionUpdateClick = async () => {
+    const isValid = await trigger("channelDescription");
+    const newChannelDescription = watch("channelDescription");
 
-        if(isPasswordValid && isNewPasswordValid) {
-            const response = await updatePasswordService(
-                accessToken.authorization, 
-                prePassword,
-                newPassword );
-            if(response.status==='success') {
-                setValue('password','');
-                setValue('newPassword','');
-                setIs비밀번호변경성공팝업(true);
-            } else {
-                setIs비밀번호변경실패팝업(true);
-            }
-        }
+    if (isValid) {
+      const response = await updateChannelInfoService(
+        accessToken.authorization,
+        myid,
+        channelInfo.channelName,
+        newChannelDescription
+      );
+      if (response.status === "success") {
+        dispatch(
+          setChannelInfo({
+            ...channelInfo,
+            description: newChannelDescription,
+          })
+        );
+        setIs채널설명변경성공팝업(true);
+      } else {
+        setIs채널설명변경실패팝업(true);
+      }
     }
-    //계좌정보 변경 버튼 누르면 동작함
-    const handleAccountNumberClick = async () => {
+  };
+  //계좌정보 변경 버튼 누르면 동작함
+  const handleAccountNumberClick = async () => {
         const bank = await trigger('bank');
         const accountNumber = await trigger('accountNumber');
+   }
+  //비밀번호 변경 버튼 누르면 동작함
+  const handlePasswordUpdateClick = async () => {
+    const prePassword = watch("password");
+    const newPassword = watch("newPassword");
+    const isPasswordValid = await trigger("password");
+    const isNewPasswordValid = await trigger("newPassword");
+
+    if (isPasswordValid && isNewPasswordValid) {
+      const response = await updatePasswordService(
+        accessToken.authorization,
+        prePassword,
+        newPassword
+      );
+      if (response.status === "success") {
+        setValue("password", "");
+        setValue("newPassword", "");
+        setIs비밀번호변경성공팝업(true);
+      } else {
+        setIs비밀번호변경실패팝업(true);
+      }
     }
-    //회원 탈퇴 버튼 누르면 동작함
-    const handleDeleteUserClick = () => {
-        //Confirm 모달을 연다.
-        setIsDeleteUserConfirmModalOpen(true);
+  };
+  //회원 탈퇴 버튼 누르면 동작함
+  const handleDeleteUserClick = () => {
+    //Confirm 모달을 연다.
+    setIsDeleteUserConfirmModalOpen(true);
+  };
+  //Confirm 모달의 '예' 눌렀을 때 실행하는 메소드
+  const handlePositiveButtonClick = async () => {
+    //회원탈퇴 API를 실행한다.
+    const response = await deleteUserInfoService(accessToken.authorization);
+    if (response.status === "success") {
+      dispatch(
+        setLoginInfo({
+          email: "",
+          nickname: "",
+          grade: "",
+          imgUrl: "",
+          reward: "",
+        })
+      );
+      dispatch(
+        setToken({
+          authorization: "",
+          refresh: "",
+        })
+      );
+      dispatch(setProvider(""));
+      dispatch(setMyid(""));
+      dispatch(setIsLogin(false));
+      setIsDeleteUserConfirmModalOpen(true);
     }
-    //Confirm 모달의 '예' 눌렀을 때 실행하는 메소드
-    const handlePositiveButtonClick = async () => {
-        //회원탈퇴 API를 실행한다. 
-        const response = await deleteUserInfoService(accessToken.authorization);
-        if(response.status==='success') {
-            dispatch(setLoginInfo({
-                email: "", 
-                nickname: "", 
-                grade: "", 
-                imgUrl: "", 
-                reward: "" 
-            }));
-            dispatch(setToken({
-                authorization: "",
-                refresh: "",
-            }));
-            dispatch(setProvider(''));
-            dispatch(setMyid(''));
-            dispatch(setIsLogin(false));
-            setIsDeleteUserConfirmModalOpen(true);
-        }
-        setIsDeleteUserConfirmModalOpen(false);
-        navigate('/')
-    }
-    //Confirm 모달의 '아니오' 눌렀을 때 실행되는 메소드
-    const handleNegativeButtonClick = () => {
-        //모달을 닫는다.
-        setIsDeleteUserConfirmModalOpen(false);
-    }
-    //Alert 모달의 '홈으로 가기'를 눌렀을 때 실행되는 메소드
-    const handleAlertButtonClick = () => {
-        setIsDeleteUserAlertModalOpen(false);
-        navigate('/');
-    }
+    setIsDeleteUserConfirmModalOpen(false);
+    navigate("/");
+  };
+  //Confirm 모달의 '아니오' 눌렀을 때 실행되는 메소드
+  const handleNegativeButtonClick = () => {
+    //모달을 닫는다.
+    setIsDeleteUserConfirmModalOpen(false);
+  };
+  //Alert 모달의 '홈으로 가기'를 눌렀을 때 실행되는 메소드
+  const handleAlertButtonClick = () => {
+    setIsDeleteUserAlertModalOpen(false);
+    navigate("/");
+  };
 
     return (
         <>

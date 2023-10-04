@@ -36,7 +36,6 @@ export const CartInfo = styled.form`
   width: 100%;
   padding: 20px;
   margin: 15px 0px;
-  /* border: 1px solid ${props=>props.isDark?globalTokens.Gray.value:globalTokens.LightGray.value};; */
   border-radius: ${globalTokens.Spacing8.value}px;
   background-color: ${props=>props.isDark?'rgba(255,255,255,0.15)':globalTokens.White.value};
 
