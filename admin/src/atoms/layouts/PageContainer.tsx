@@ -16,7 +16,7 @@ export const MainContainer = styled.div<{isDark:boolean}>`
     width: 100%;
     max-width: 1170px;
     margin: ${globalTokens.Spacing40.value}px 0;
-    padding: ${globalTokens.Spacing40.value}px 0;
+    padding: ${globalTokens.Spacing28.value}px;
     background-color: ${
         props=>props.isDark?'rgba(255,255,255,0.15)'
         :globalTokens.White.value

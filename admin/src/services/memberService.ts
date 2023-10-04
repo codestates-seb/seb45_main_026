@@ -15,5 +15,5 @@ export const getMemberList = async (
             }
         }
     );
-    return response.data;
+    return response;
 }
