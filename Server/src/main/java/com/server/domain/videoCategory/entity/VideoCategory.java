@@ -2,13 +2,11 @@ package com.server.domain.videoCategory.entity;
 
 
 import com.server.domain.category.entity.Category;
-import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
 import com.server.global.entity.BaseEntity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Getter
 @Entity
