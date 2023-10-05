@@ -6,7 +6,6 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.report.entity.Report;
 import com.server.domain.report.entity.VideoReport;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.videoCategory.entity.VideoCategory;

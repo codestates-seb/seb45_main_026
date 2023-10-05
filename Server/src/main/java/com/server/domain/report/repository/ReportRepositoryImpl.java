@@ -1,9 +1,7 @@
 package com.server.domain.report.repository;
 
 import com.nimbusds.oauth2.sdk.util.StringUtils;
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -11,7 +9,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.server.domain.member.entity.Member;
 import com.server.domain.report.entity.*;
 import com.server.domain.report.repository.dto.response.*;
-import com.server.domain.report.service.dto.response.ReportDetailResponse;
 import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.reportexception.ReportTypeException;
 import org.springframework.data.domain.Page;
@@ -369,7 +366,10 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
     }
 
     private BooleanExpression eqEmail(String email) {
-        return email != null ? member.email.eq(email) : Expressions.asBoolean(true).isTrue();
+        if(StringUtils.isBlank(email)) {
+            return Expressions.asBoolean(true).isTrue();
+        }
+        return member.email.eq(email);
     }
 
     private BooleanExpression searchKeyword(String keyword) {

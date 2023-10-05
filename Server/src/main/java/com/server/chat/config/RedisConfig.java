@@ -20,9 +20,6 @@ public class RedisConfig {
         return new ChannelTopic("chatroom");
     }
 
-    /**
-     * redis pub/sub 메시지를 처리하는 listener 설정
-     */
     @Bean
     public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory,
                                                               MessageListenerAdapter listenerAdapter,
