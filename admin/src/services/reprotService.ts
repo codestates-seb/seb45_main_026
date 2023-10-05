@@ -44,6 +44,7 @@ export const getVideoReportList = async (
     return err;
   }
 };
+
 // 신고 내역들(댓글) 조회
 export const getReportReviewList = async (
   authorization: string,
@@ -66,7 +67,7 @@ export const getReportReviewList = async (
   }
 };
 
-// 특정 비디오 신고 내역 조회
+// 특정 댓글 신고 내역 조회
 export const getReviewReportList = async (
   authorization: string,
   videoId: number,
@@ -76,6 +77,94 @@ export const getReviewReportList = async (
   try {
     const response = await axios.get(
       `${ROOT_URL}/reports/replies/${videoId}?page=${page}&size=${size}`,
+      {
+        headers: {
+          Authorization: authorization,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    return err;
+  }
+};
+
+// 신고 내역들(채널) 조회
+export const getReportChannelList = async (
+  authorization: string,
+  page: number,
+  size: number,
+  sort: string
+) => {
+  try {
+    const response = await axios.get(
+      `${ROOT_URL}/reports/channels?page=${page}&size=${size}&sort=${sort}`,
+      {
+        headers: {
+          Authorization: authorization,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    return err;
+  }
+};
+
+// 특정 채널 신고 내역 조회
+export const getChannelReportList = async (
+  authorization: string,
+  memberId: number,
+  page: number,
+  size: number
+) => {
+  try {
+    const response = await axios.get(
+      `${ROOT_URL}/reports/channels/${memberId}?page=${page}&size=${size}`,
+      {
+        headers: {
+          Authorization: authorization,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    return err;
+  }
+};
+
+// 신고 내역들(공지사항) 조회
+export const getReportNoticeList = async (
+  authorization: string,
+  page: number,
+  size: number,
+  sort: string
+) => {
+  try {
+    const response = await axios.get(
+      `${ROOT_URL}/reports/announcements?page=${page}&size=${size}&sort=${sort}`,
+      {
+        headers: {
+          Authorization: authorization,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    return err;
+  }
+};
+
+// 특정 공지사항 신고 내역 조회
+export const getNoticeReportList = async (
+  authorization: string,
+  announcementId: number,
+  page: number,
+  size: number
+) => {
+  try {
+    const response = await axios.get(
+      `${ROOT_URL}/reports/announcements/${announcementId}?page=${page}&size=${size}`,
       {
         headers: {
           Authorization: authorization,

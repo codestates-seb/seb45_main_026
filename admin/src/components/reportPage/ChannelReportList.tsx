@@ -4,16 +4,16 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { useQuery } from "@tanstack/react-query";
 import { getVideoReportList } from "../../services/reprotService";
-import { videoReportListType } from "../../types/reportDataType";
+import { ChannelReportListType } from "../../types/reportDataType";
 import Pagination from "../../atoms/pagination/Pagination";
 import Loading from "../loading/Loading";
 import { useToken } from "../../hooks/useToken";
 
 interface OwnProps {
-  videoId: number;
+  memberId: number;
 }
 
-const VideoReportList: React.FC<OwnProps> = ({ videoId }) => {
+const ChannelReportList: React.FC<OwnProps> = ({ memberId }) => {
   const refreshToken = useToken();
   const isDark = useSelector((state: RootState) => state.uiSetting.isDark);
   const accessToken = useSelector(
@@ -28,7 +28,7 @@ const VideoReportList: React.FC<OwnProps> = ({ videoId }) => {
     queryFn: async () => {
       const response = await getVideoReportList(
         accessToken.authorization,
-        videoId,
+        memberId,
         currentPage,
         isSize
       );
@@ -59,7 +59,7 @@ const VideoReportList: React.FC<OwnProps> = ({ videoId }) => {
               </tr>
             </thead>
             <tbody>
-              {data.data.map((el: videoReportListType) => (
+              {data.data.map((el: ChannelReportListType) => (
                 <tr>
                   <BodyReportId>{el.reportId}</BodyReportId>
                   <BodyReportnName>{el.nickname}</BodyReportnName>
@@ -81,7 +81,7 @@ const VideoReportList: React.FC<OwnProps> = ({ videoId }) => {
   );
 };
 
-export default VideoReportList;
+export default ChannelReportList;
 
 export const Typoth = styled.th`
   padding: 10px 0px;

@@ -72,8 +72,8 @@ const ReportReviewPage = () => {
           <Typotable>
             <thead>
               <tr>
-                <TypothId>강의 ID</TypothId>
-                <TypothVideoName>강의 제목</TypothVideoName>
+                {/* <TypothId>강의 ID</TypothId>
+                <TypothVideoName>강의 제목</TypothVideoName> */}
                 <TypothId>댓글 ID</TypothId>
                 <TypothVideoName>신고된 댓글 내용</TypothVideoName>
                 <TypothReportCount>신고 횟수</TypothReportCount>
@@ -85,8 +85,8 @@ const ReportReviewPage = () => {
               {data.data?.map((el: reportReviewDataType) => (
                 <>
                   <tr key={el.videoId}>
-                    <TypotdId>{el.videoId}</TypotdId>
-                    <TypotdVideoName>{el.videoName}</TypotdVideoName>
+                    {/* <TypotdId>{el.videoId}</TypotdId>
+                    <TypotdVideoName>{el.videoName}</TypotdVideoName> */}
                     <TypotdId>{el.replyId}</TypotdId>
                     <TypotdVideoName>{el.content}</TypotdVideoName>
                     <TypotdReportCount>{el.reportCount}회</TypotdReportCount>

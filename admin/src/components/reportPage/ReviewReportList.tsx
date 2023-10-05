@@ -33,6 +33,8 @@ const ReviewReportList: React.FC<OwnProps> = ({ videoId }) => {
         isSize
       );
 
+      console.log(response);
+
       if (response.response?.data.message === "만료된 토큰입니다.") {
         refreshToken();
       } else {
