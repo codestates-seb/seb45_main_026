@@ -39,3 +39,10 @@ export const RegularTextArea = styled.textarea<{ isDark:boolean, width:string }>
         color: ${props=>props.isDark?globalTokens.LightGray.value:globalTokens.Gray.value};
     }
 `
+export const RegularLabel = styled.label<{isDark:boolean, width:string}>`
+    font-size: ${globalTokens.BodyText.value}px;
+    color: ${props=>props.isDark?globalTokens.White.value:globalTokens.Black.value};
+    transition: 200ms;
+    width: ${props=>props.width};
+    color: ${props=>props.isDark?globalTokens.LightGray.value : globalTokens.Gray.value};
+`

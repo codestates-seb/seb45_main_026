@@ -25,4 +25,13 @@ export const MainContainer = styled.div<{isDark:boolean}>`
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition: 300ms;
+`
+export const NoResult = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 `

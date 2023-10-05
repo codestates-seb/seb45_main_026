@@ -15,6 +15,7 @@ import { TableContainer } from '../atoms/table/Tabel';
 import { errorResponseDataType } from '../types/axiosErrorType';
 import axios from 'axios';
 import { useToken } from '../hooks/useToken';
+import MemberListHeader from '../components/memberListPage/MemberListHeader';
 
 const MemberPage = () => {
     const navigate = useNavigate();
@@ -86,7 +87,8 @@ const MemberPage = () => {
                 { isLoading ? <Loading/> 
                   : error ? <>error</>
                   : <TableContainer>
-                    { data.data.map((e:memberDataType)=><MemberListItem item={e}/>) }
+                        <MemberListHeader/>
+                        { data.data.map((e:memberDataType)=><MemberListItem item={e}/>) }
                     </TableContainer> }
                 <Pagination
                     isDark={isDark}

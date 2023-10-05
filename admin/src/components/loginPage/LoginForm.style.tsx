@@ -36,8 +36,8 @@ export const InputContainer = styled.div`
     display: flex;
     flex-direction: column;
 `
-export const InputErrorTypo = styled(NegativeTextTypo)`
-    width: 100%;
+export const InputErrorTypo = styled(NegativeTextTypo)<{width?:string}>`
+    width: ${props=>props.width?props.width:'100%'};
     text-align: end;
 `
 export const LoginButton = styled(BigButton)`

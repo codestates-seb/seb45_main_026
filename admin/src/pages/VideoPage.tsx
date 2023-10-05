@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/Store';
-import { MainContainer, PageContainer } from '../atoms/layouts/PageContainer';
+import { MainContainer, NoResult, PageContainer } from '../atoms/layouts/PageContainer';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -15,6 +15,8 @@ import { TableContainer } from '../atoms/table/Tabel';
 import axios from 'axios';
 import { errorResponseDataType } from '../types/axiosErrorType';
 import { useToken } from '../hooks/useToken';
+import { BodyTextTypo } from '../atoms/typographys/Typographys';
+import VideoListHeader from '../components/videoListPage/VideoListHeader';
 
 const VideoPage = () => {
     const navigate = useNavigate();
@@ -26,10 +28,10 @@ const VideoPage = () => {
     const [ maxPage, setMaxPage ] = useState(10);
 
     const { isLoading, error, data, isPreviousData } = useQuery({
-        queryKey: ['videos', currentPage ],
+        queryKey: ['videos', currentPage, accessToken ],
         queryFn: async ()=>{
             try {
-                const response = await getVideoList(accessToken.authorization,'test@gmail.com','',currentPage,10);
+                const response = await getVideoList(accessToken.authorization,'','',currentPage,10);
                 return response;
             } catch (err) {
                 if (axios.isAxiosError<errorResponseDataType, any>(err)) {
@@ -44,22 +46,21 @@ const VideoPage = () => {
          keepPreviousData: true,
          staleTime: 1000*60*5,
          cacheTime: 1000*60*30,
+         retry: 3, //error를 표시하기 전에 실패한 요청을 다시 시도하는 횟수
+         retryDelay: 1000,
     });
 
-  useEffect(() => {
-    if (!isLogin) {
-      navigate("/login");
-      return;
-    }
-  }, []);
-
     useEffect(()=>{
+        if (!isLogin) {
+            navigate("/login");
+            return;
+          }
         if(data) {
             setMaxPage(data.pageInfo.totalPage);
         }
         if( !isPreviousData && data?.hasMore ) {
             queryClient.prefetchQuery({
-                queryKey: ['videos', currentPage+1],
+                queryKey: ['videos', currentPage+1, accessToken],
                 queryFn:  async () => {
                     try {
                         const response = await getVideoList(accessToken.authorization,'','',currentPage+1,10);
@@ -76,7 +77,7 @@ const VideoPage = () => {
                 }
             })
         }
-    },[ data, isPreviousData, currentPage, queryClient ]);
+    },[ isLogin, data, isPreviousData, currentPage, queryClient ]);
 
     return (
         <PageContainer isDark={isDark}>
@@ -85,14 +86,20 @@ const VideoPage = () => {
                 { isLoading? <Loading/>
                 : error? <>error</>
                 : <TableContainer>
-                    { data.data.map((e:videoDataType)=>
-                    <VideoListItem key={e.videoId} item={e}/>) }
+                    <VideoListHeader/>
+                    { data.data.length>0 ?
+                         data.data.map( (e:videoDataType) =>
+                            <VideoListItem key={e.videoId} item={e}/> ) 
+                        : <NoResult>
+                            <BodyTextTypo isDark={isDark}>강의 검색 결과가 없습니다.</BodyTextTypo>
+                        </NoResult> }
                   </TableContainer> }
-                <Pagination 
-                    isDark={isDark} 
-                    maxPage={maxPage}
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}/>
+                { !isLoading && !error && data.data.length>0 &&
+                    <Pagination 
+                        isDark={isDark} 
+                        maxPage={maxPage}
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}/> }
             </MainContainer>
         </PageContainer>
     );
