@@ -73,11 +73,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
     //socket (stomp)
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-<<<<<<< HEAD
     //test container
-=======
-    //embedded redis
->>>>>>> 60c79000fb391a53d17a70c15a382d26feeb283b
     testImplementation group: 'org.testcontainers', name: 'testcontainers', version: '1.17.2'
 }
 
