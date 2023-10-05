@@ -19,9 +19,13 @@ public class MemberBlockApiRequest {
     private String blockReason;
 
     public MemberBlockServiceRequest toServiceRequest() {
+
+        Integer days = this.days == null ? 7 : this.days;
+        String blockReason = this.blockReason == null ? "부적절한 이용으로 차단되었습니다." : this.blockReason;
+
         return MemberBlockServiceRequest.builder()
-                .days(Optional.ofNullable(this.days).orElse(7))
-                .blockReason(Optional.ofNullable(this.blockReason).orElse("부적절한 이용으로 차단되었습니다."))
+                .days(days)
+                .blockReason(blockReason)
                 .build();
     }
 }
