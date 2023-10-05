@@ -39,8 +39,8 @@ export const SmallTextTypo = styled.div<{isDark:boolean}>`
     transition: 200ms;
 `
 export const PositiveTextTypo = styled(SmallTextTypo)`
-    color: ${globalTokens.Positive.value};
+    color: ${props=>props.isDark?globalTokens.LightNavy.value : globalTokens.Positive.value};
 `
 export const NegativeTextTypo = styled(SmallTextTypo)`
-    color: ${globalTokens.Negative.value};
+    color: ${props=>props.isDark?globalTokens.LightRed.value:globalTokens.Negative.value};
 `
