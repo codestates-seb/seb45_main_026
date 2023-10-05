@@ -18,7 +18,7 @@ export const useToken = ( callback? : Function ) => {
                 }));
                 callback && callback();
             } else { 
-                logout(); 
+                logout();
             }
         })
     }
