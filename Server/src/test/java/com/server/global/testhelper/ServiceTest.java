@@ -2,6 +2,7 @@ package com.server.global.testhelper;
 
 import com.server.auth.jwt.service.CustomUserDetails;
 import com.server.auth.jwt.service.JwtProvider;
+import com.server.domain.account.repository.AccountRepository;
 import com.server.domain.announcement.repository.AnnouncementRepository;
 import com.server.domain.answer.entity.Answer;
 import com.server.domain.answer.repository.AnswerRepository;
@@ -76,6 +77,7 @@ public abstract class ServiceTest {
     @Autowired protected CartRepository cartRepository;
     @Autowired protected RewardRepository rewardRepository;
     @Autowired protected ReportRepository reportRepository;
+    @Autowired protected AccountRepository accountRepository;
     @Autowired protected EntityManager em;
 
     @MockBean protected RedisService redisService;

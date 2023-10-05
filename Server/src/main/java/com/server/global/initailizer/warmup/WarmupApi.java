@@ -26,7 +26,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Component
-@Profile("prod")
 @Slf4j
 public class WarmupApi implements ApplicationListener<ContextRefreshedEvent> {
 
@@ -58,14 +57,14 @@ public class WarmupApi implements ApplicationListener<ContextRefreshedEvent> {
 
         if (event.getApplicationContext().getParent() == null && !warmupState.isWarmupCompleted()) {
 
-//            log.info("Warmup start...");
-//
-//            long startTime = System.currentTimeMillis();
-//            request("http://localhost:8080/warmup");
-//            methodWarmup();
-//            long endTime = System.currentTimeMillis();
-//
-//            log.info("Warmup time : {} ms", endTime - startTime);
+            log.info("Warmup start...");
+
+            long startTime = System.currentTimeMillis();
+            request("http://localhost:8080/warmup");
+            methodWarmup();
+            long endTime = System.currentTimeMillis();
+
+            log.info("Warmup time : {} ms", endTime - startTime);
 
             warmupState.setWarmupCompleted(true);
         }

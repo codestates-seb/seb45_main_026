@@ -515,7 +515,6 @@ class ReportControllerTest extends ControllerTest {
                                 fieldWithPath("data").description("회원 차단 성공 여부")
                         )
                 ));
-
     }
 
     @Test
@@ -558,6 +557,8 @@ class ReportControllerTest extends ControllerTest {
                         )
                 ));
     }
+
+
 
     private List<VideoReportResponse> createVideoReportResponses(int size) {
 

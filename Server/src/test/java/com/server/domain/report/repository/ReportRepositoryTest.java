@@ -3,9 +3,7 @@ package com.server.domain.report.repository;
 import com.server.domain.announcement.entity.Announcement;
 import com.server.domain.member.entity.Member;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.report.entity.ChannelReport;
 import com.server.domain.report.entity.Report;
-import com.server.domain.report.entity.VideoReport;
 import com.server.domain.report.repository.dto.response.AnnouncementReportData;
 import com.server.domain.report.repository.dto.response.ChannelReportData;
 import com.server.domain.report.repository.dto.response.ReplyReportData;
@@ -18,13 +16,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Collection;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.DynamicTest.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 class ReportRepositoryTest extends RepositoryTest {
 
@@ -142,13 +141,72 @@ class ReportRepositoryTest extends RepositoryTest {
                 assertThat(report.getChannelName()).isEqualTo(owner.getChannel().getChannelName());
                 assertThat(report.getReportCount()).isEqualTo(1);
             })
-
-
-
-
-
-
         );
+    }
+
+    @Test
+    @DisplayName("키워드를 통해 이메일, 채널이름, 닉네임으로 멤버를 검색한다.")
+    void findMemberByKeyword() {
+        //given
+        Member member1 = createMemberWithChannel();
+        member1.updateNickname("닉네임채");
+
+        Member member2 = createMemberWithChannel();
+        member2.getChannel().updateChannel("채널이름", "description");
+
+        Member member3 = createMemberWithChannel("이메채일");
+
+        Member member4 = createMemberWithChannel("이메일");
+
+        em.flush();
+        em.clear();
+
+        //when
+        Page<Member> memberPages = reportRepository.findMemberByKeyword("채", Pageable.ofSize(10).withPage(0));
+
+        //then
+        assertThat(memberPages.getContent()).hasSize(3);
+        assertThat(memberPages.getContent())
+                .extracting("memberId")
+                .contains(member1.getMemberId(), member2.getMemberId(), member3.getMemberId());
+    }
+
+    @TestFactory
+    @DisplayName("관리자용 video 조회")
+    Collection<DynamicTest> findVideoByKeyword() {
+        //given
+        Member member1 = createMemberWithChannel("member1");
+        Video video1 = createAndSaveVideoWithName(member1.getChannel(), "video1");
+        Video video2 = createAndSaveVideoWithName(member1.getChannel(), "video2");
+
+        Member member2 = createMemberWithChannel("member2");
+        Video video3 = createAndSaveVideoWithName(member2.getChannel(), "video3");
+        Video video4 = createAndSaveVideoWithName(member2.getChannel(), "video4");
+
+        Member member3 = createMemberWithChannel("member3");
+        Video video5 = createAndSaveVideoWithName(member3.getChannel(), "video5");
+        Video video6 = createAndSaveVideoWithName(member3.getChannel(), "video6");
+
+        Member member4 = createMemberWithChannel("member4");
+
+        return List.of(
+                dynamicTest("이메일로 검색한다.", () -> {
+                    //when
+                    Page<Video> videos = reportRepository.findVideoByKeyword(member1.getEmail(), null, PageRequest.of(0, 10));
+
+                    //then
+                    assertThat(videos.getContent()).hasSize(2);
+                }),
+                dynamicTest("전체 검색을 한다.", () -> {
+                    //when
+                    Page<Video> videos = reportRepository.findVideoByKeyword(null, null, PageRequest.of(0, 10));
+
+                    //then
+                    assertThat(videos.getContent()).hasSize(6);
+                })
+                //비디오 검색은 mysql 문법이라 안됨
+        );
+
     }
 
     private Announcement createAnnouncement(Member owner) {

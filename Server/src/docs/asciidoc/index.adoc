@@ -9,8 +9,27 @@
 
 include::overview.adoc[]
 
+[[ADMIN-API]]
+== 관리자용 APIs
+
+=== Report API
+* link:snippets/report/getvideoreport.html[비디오 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getvideoreport.html'"]
+* link:snippets/report/getreplyreport.html[댓글 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getreplyreport.html'"]
+* link:snippets/report/getchannelreport.html[채널 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getchannelreport.html'"]
+* link:snippets/report/getannouncementreport.html[공지사항 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getannouncementreport.html'"]
+* link:snippets/report/blockmember.html[멤버 차단/해제 API, onclick="window.location.href='snippets/report/blockmember.html'"]
+
+=== Member API
+* link:snippets/admin/memberlist.html[멤버 목록 조회 API, onclick="window.location.href='snippets/admin/memberlist.html'"]
+
+=== Video API
+* link:snippets/admin/videolist.html[비디오 목록 조회 API, onclick="window.location.href='snippets/admin/videolist.html'"]
+
+=== Chat API
+* link:snippets/chat/adminchat.html[관리자용 채팅 API, onclick="window.location.href='snippets/chat/adminchat.html'"]
+
 [[API-List]]
-== APIs
+== 일반 APIs
 
 === Auth API
 * link:snippets/auth/auth.html[인증 관련 API (로그인 / 회원가입 등), onclick="window.location.href='snippets/auth/auth.html'"]
@@ -33,7 +52,12 @@ include::overview.adoc[]
 === Order API
 * link:snippets/order/createorder.html[주문 생성/요청 API, onclick="window.location.href='snippets/order/createorder.html'"]
 * link:snippets/order/cancelorder.html[주문 전체/개별 취소 API, onclick="window.location.href='snippets/order/cancelorder.html'"]
-* link:snippets/order/adjustment.html[주문 정산 API, onclick="window.location.href='snippets/order/adjustment.html'"]
+
+=== Adjustment API
+* link:snippets/adjustment/adjustment.html[비디오별 정산 내역/월 및 연도별 정산액 API, onclick="window.location.href='snippets/adjustment/adjustment.html'"]
+* link:snippets/adjustment/videoadjustment.html[비디오별 정산 금액 및 비율 API, onclick="window.location.href='snippets/adjustment/videoadjustment.html'"]
+* link:snippets/adjustment/account.html[계좌 조회 및 등록 API, onclick="window.location.href='snippets/adjustment/account.html'"]
+* link:snippets/adjustment/bank.html[은행 API, onclick="window.location.href='snippets/adjustment/bank.html'"]
 
 === Video API
 * link:snippets/video/getvideo.html[비디오 조회 API, onclick="window.location.href='snippets/video/getvideo.html'"]
@@ -44,11 +68,6 @@ include::overview.adoc[]
 
 === Report API
 * link:snippets/report/report.html[신고 요청 API, onclick="window.location.href='snippets/report/report.html'"]
-* link:snippets/report/blockmember.html[멤버 차단/해제 API, onclick="window.location.href='snippets/report/blockmember.html'"]
-* link:snippets/report/getvideoreport.html[비디오 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getvideoreport.html'"]
-* link:snippets/report/getreplyreport.html[댓글 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getreplyreport.html'"]
-* link:snippets/report/getchannelreport.html[채널 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getchannelreport.html'"]
-* link:snippets/report/getannouncementreport.html[공지사항 신고목록/상세 조회 API, onclick="window.location.href='snippets/report/getannouncementreport.html'"]
 
 === Reply API
 * link:snippets/reply/getreply.html[댓글 목록/단건 조회 API, onclick="window.location.href='snippets/reply/getreply.html'"]
@@ -64,5 +83,9 @@ include::overview.adoc[]
 
 === Search API
 * link:snippets/search/search.html[비디오/채널 통합 검색 API, onclick="window.location.href='snippets/search/search.html'"]
+
+=== Chat API
+* link:snippets/chat/userchat.html[사용자 채팅 API, onclick="window.location.href='snippets/chat/userchat.html'"]
+* link:snippets/chat/chat.html[채팅 WS API, onclick="window.location.href='snippets/chat/chat.html'"]
 
 

@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.server.auth.jwt.filter.JwtAuthenticationFilter;
@@ -58,7 +59,8 @@ public class SecurityConfig {
 			.accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN))
 			.authenticationEntryPoint(new MemberAuthenticationEntryPoint())
 			.and()
-			.authorizeRequests(getAuthorizeRequests());
+			.authorizeRequests(getAuthorizeRequests())
+		;
 
 		return http.build();
 	}
@@ -71,7 +73,8 @@ public class SecurityConfig {
 			configuration.setAllowedOrigins(List.of(
 					"http://localhost:3000",
 					"https://www.itprometheus.net",
-					"https://admin.itprometheus.net"));
+					"https://admin.itprometheus.net",
+					"file://", "http://jxy.me"));
 			configuration.addAllowedMethod("*");
 			configuration.addAllowedHeader("*");
 			configuration.setAllowCredentials(true);
@@ -107,6 +110,10 @@ public class SecurityConfig {
 			.antMatchers("/announcements/**").hasAnyRole("USER", "ADMIN")
 
 			.antMatchers("/reports/**").hasAnyRole("ADMIN")
+
+			.antMatchers("/admin/**").hasAnyRole("ADMIN")
+
+			.antMatchers("/user/**").hasAnyRole("USER", "ADMIN")
 
 			.antMatchers("/auth/**").permitAll()
 			.anyRequest().permitAll();

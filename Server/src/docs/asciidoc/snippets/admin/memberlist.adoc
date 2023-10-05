@@ -1,0 +1,26 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+IMPORTANT: 관리자용 기능입니다. (ROLE_ADMIN)
+
+[[Member]]
+= 전체 멤버 조회 API
+
+== 멤버 조회
+=== HTTP Request
+include::{snippets}/admin/getmembers/http-request.adoc[]
+==== Request Headers
+include::{snippets}/admin/getmembers/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/admin/getmembers/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/admin/getmembers/http-response.adoc[]
+==== Response Fields
+include::{snippets}/admin/getmembers/response-fields.adoc[]
+
+

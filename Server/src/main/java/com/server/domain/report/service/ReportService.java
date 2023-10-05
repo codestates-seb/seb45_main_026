@@ -168,4 +168,29 @@ public class ReportService {
 
         return true;
     }
+
+    public Page<AdminMemberResponse> getMembers(String keyword, int page, int size) {
+
+        Page<Member> members = reportRepository.findMemberByKeyword(keyword, PageRequest.of(page, size));
+
+        return members.map(member -> {
+                    String blockReason = null;
+                    LocalDateTime blockEndDate = null;
+
+                    if(redisService.isExist(member.getMemberId().toString())) {
+                        blockReason = redisService.getData(member.getMemberId().toString());
+                        long expireDuration = redisService.getExpire(member.getMemberId().toString());
+                        blockEndDate = LocalDateTime.now().plusSeconds(expireDuration);
+                    }
+
+                    return AdminMemberResponse.of(member, blockReason, blockEndDate);
+                });
+    }
+
+    public Page<AdminVideoResponse> getVideos(String email, String keyword, int page, int size) {
+
+        Page<Video> videos = reportRepository.findVideoByKeyword(email, keyword, PageRequest.of(page, size));
+
+        return videos.map(AdminVideoResponse::of);
+    }
 }

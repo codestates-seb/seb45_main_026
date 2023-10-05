@@ -6,9 +6,9 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.server.domain.member.entity.Member;
 import com.server.domain.report.entity.*;
 import com.server.domain.report.repository.dto.response.*;
-import com.server.domain.report.service.dto.response.ReportDetailResponse;
 import com.server.domain.video.entity.Video;
 import com.server.global.exception.businessexception.reportexception.ReportTypeException;
 import org.springframework.data.domain.Page;
@@ -320,6 +320,22 @@ public class ReportRepositoryImpl implements ReportRepositoryCustom {
             default:
                 throw new ReportTypeException();
         }
+    }
+
+    @Override
+    public Page<Member> findMemberByKeyword(String keyword, Pageable pageable) {
+
+        JPAQuery<Member> query = queryFactory.selectFrom(member)
+                .join(member.channel, channel).fetchJoin()
+                .where(LikeEmailOrNicknameOrChannelName(keyword))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        JPAQuery<Long> countQuery = queryFactory.select(member.count())
+                .from(member)
+                .where(LikeEmailOrNicknameOrChannelName(keyword));
+
+        return new PageImpl<>(query.fetch(), pageable, countQuery.fetchOne());
     }
 
     @Override
