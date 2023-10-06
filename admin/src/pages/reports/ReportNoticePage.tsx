@@ -9,13 +9,16 @@ import { PageTitle } from "../../styles/PageTitle";
 import NavBar from "../../components/navBar/NavBar";
 import Loading from "../../components/loading/Loading";
 import Pagination from "../../atoms/pagination/Pagination";
-import { ReportNoticeDataType } from "../../types/reportDataType";
+import { DarkMode, ReportNoticeDataType } from "../../types/reportDataType";
 import { getReportNoticeList } from "../../services/reprotService";
 import {
   MainContainer,
   PageContainer,
 } from "../../atoms/layouts/PageContainer";
 import NoticeReportList from "../../components/reportPage/NoticeReportList";
+import tokens from "../../styles/tokens.json";
+import { RegularButton } from "../../atoms/buttons/Buttons";
+import { HideListArrow, ShowListArrow } from "./ReportVideoPage";
 
 const ReportNoticePage = () => {
   const navigate = useNavigate();
@@ -59,7 +62,7 @@ const ReportNoticePage = () => {
       navigate("/login");
       return;
     }
-    // setMaxPage(data?.pageInfo.totalPage);
+    setMaxPage(data?.pageInfo.totalPage);
   }, []);
 
   return (
@@ -72,38 +75,61 @@ const ReportNoticePage = () => {
         ) : (
           <Typotable>
             <thead>
-              <tr>
-                <TypothId>공지사항 ID</TypothId>
-                <TypothVideoName>신고된 공지사항 내용</TypothVideoName>
-                <TypothReportCount>신고 횟수</TypothReportCount>
-                <TypothLastDate>최근 신고 날짜</TypothLastDate>
-                <TypothReportDetail>비고</TypothReportDetail>
-              </tr>
+              <TableTr isDark={isDark}>
+                <TypothId isDark={isDark}>공지사항 ID</TypothId>
+                <TypothNoticeName isDark={isDark}>
+                  신고된 공지사항 내용
+                </TypothNoticeName>
+                <TypothReportCount isDark={isDark}>신고 횟수</TypothReportCount>
+                <TypothLastDate isDark={isDark}>최근 신고 날짜</TypothLastDate>
+                <TypothReportBlock isDark={isDark}>비고</TypothReportBlock>
+                <TypothReportDetail isDark={isDark}></TypothReportDetail>
+              </TableTr>
             </thead>
             <tbody>
               {data.data?.map((el: ReportNoticeDataType) => (
                 <>
-                  <tr key={el.announcementId}>
-                    <TypotdId>{el.announcementId}</TypotdId>
-                    <TypotdVideoName>{el.content}</TypotdVideoName>
-                    <TypotdReportCount>{el.reportCount}회</TypotdReportCount>
-                    <TypotdLastDate>{el.lastReportedDate}</TypotdLastDate>
-                    <TypotdReportDetail>
-                      <button
-                        onClick={() => {
-                          if (isOpened !== el.announcementId) {
-                            setOpened(el.announcementId);
-                          } else {
-                            setOpened(0);
-                          }
-                        }}
-                      >
-                        {isOpened === el.announcementId
-                          ? "축소하기"
-                          : "상세보기"}
-                      </button>
+                  <TableTr isDark={isDark} key={el.announcementId}>
+                    <TypotdId isDark={isDark}>{el.announcementId}</TypotdId>
+                    <TypotdNoticeName
+                      isDark={isDark}
+                      isOpened={isOpened === el.announcementId}
+                    >
+                      {el.content}
+                    </TypotdNoticeName>
+                    <TypotdReportCount isDark={isDark}>
+                      {el.reportCount}회
+                    </TypotdReportCount>
+                    <TypotdLastDate isDark={isDark}>
+                      {el.lastReportedDate.split("T")[0]}
+                    </TypotdLastDate>
+                    <TypotdReportBlock isDark={isDark}>
+                      <RegularButton isDark={isDark}>삭제</RegularButton>
+                    </TypotdReportBlock>
+                    <TypotdReportDetail isDark={isDark}>
+                      {isOpened === el.announcementId ? (
+                        <HideListArrow
+                          onClick={() => {
+                            if (isOpened !== el.announcementId) {
+                              setOpened(el.announcementId);
+                            } else {
+                              setOpened(0);
+                            }
+                          }}
+                        />
+                      ) : (
+                        <ShowListArrow
+                          onClick={() => {
+                            if (isOpened !== el.announcementId) {
+                              setOpened(el.announcementId);
+                            } else {
+                              setOpened(0);
+                            }
+                          }}
+                        />
+                      )}
                     </TypotdReportDetail>
-                  </tr>
+                  </TableTr>
 
                   {isOpened === el.announcementId && (
                     <NoticeReportList announcementId={el.announcementId} />
@@ -126,52 +152,75 @@ const ReportNoticePage = () => {
 
 export default ReportNoticePage;
 
+const globalTokens = tokens.global;
+
 export const Typotable = styled.table`
   margin: 30px 0px 30px 0px;
+  table-layout: fixed;
+  width: 860px;
 `;
-export const Typoth = styled.th`
-  padding: 10px 0px;
+export const TableTr = styled.tr<DarkMode>`
+  border-bottom: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
+`;
+export const Typoth = styled.th<DarkMode>`
+  background-color: ${(props) =>
+    props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
+  padding: 15px 0px;
   text-align: center;
-  border: 1px solid black;
 `;
-export const Typotd = styled.td`
-  padding: 10px 0px;
+export const Typotd = styled.td<DarkMode>`
+  color: ${(props) =>
+    props.isDark ? globalTokens.White.value : globalTokens.Black.value};
+  padding: 15px 0px;
   text-align: center;
-  border: 1px solid black;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
+
 export const TypothId = styled(Typoth)`
-  width: 70px;
+  width: 100px;
 `;
-export const TypothVideoName = styled(Typoth)`
-  width: 330px;
-`;
-export const TypothVideoStatus = styled(Typoth)`
-  width: 150px;
+export const TypothNoticeName = styled(Typoth)`
+  width: 450px;
 `;
 export const TypothReportCount = styled(Typoth)`
-  width: 85px;
+  width: 90px;
 `;
 export const TypothLastDate = styled(Typoth)`
-  width: 190px;
+  width: 140px;
 `;
 export const TypothReportDetail = styled(Typoth)`
   width: 80px;
 `;
+export const TypothReportBlock = styled(Typoth)`
+  width: 90px;
+`;
+
+interface OwnProps {
+  isOpened: boolean;
+}
 export const TypotdId = styled(Typotd)`
-  width: 70px;
+  width: 100px;
 `;
-export const TypotdVideoName = styled(Typotd)`
-  width: 330px;
-`;
-export const TypotdVideoStatus = styled(Typotd)`
-  width: 150px;
+export const TypotdNoticeName = styled(Typotd)<OwnProps>`
+  width: 450px;
+  white-space: ${(props) => (props.isOpened ? "wrap" : "nowrap")};
+  padding-left: 20px;
+  padding-right: 20px;
 `;
 export const TypotdReportCount = styled(Typotd)`
-  width: 85px;
+  width: 90px;
 `;
 export const TypotdLastDate = styled(Typotd)`
-  width: 190px;
+  width: 140px;
 `;
 export const TypotdReportDetail = styled(Typotd)`
   width: 80px;
+`;
+export const TypotdReportBlock = styled(Typotd)`
+  width: 90px;
 `;

@@ -9,7 +9,11 @@ import { PageTitle } from "../../styles/PageTitle";
 import NavBar from "../../components/navBar/NavBar";
 import Loading from "../../components/loading/Loading";
 import Pagination from "../../atoms/pagination/Pagination";
-import { UseLocateType, reportVideoDataType } from "../../types/reportDataType";
+import {
+  DarkMode,
+  UseLocateType,
+  reportVideoDataType,
+} from "../../types/reportDataType";
 import { getReportVideoList } from "../../services/reprotService";
 import {
   MainContainer,
@@ -17,6 +21,12 @@ import {
 } from "../../atoms/layouts/PageContainer";
 import VideoReportList from "../../components/reportPage/VideoReportList";
 import { useLocate } from "../../hooks/useLocation";
+import tokens from "../../styles/tokens.json";
+import { RegularButton } from "../../atoms/buttons/Buttons";
+import { ReactComponent as arrowPrev } from "../../assets/images/icons/arrowPrev.svg";
+import { ReactComponent as arrowPrevDark } from "../../assets/images/icons/arrowPrevDark.svg";
+import { ReactComponent as arrowNext } from "../../assets/images/icons/arrowNext.svg";
+import { ReactComponent as arrowNextDark } from "../../assets/images/icons/arrowNextDark.svg";
 
 const ReportVideoPage = () => {
   const navigate = useNavigate();
@@ -61,7 +71,7 @@ const ReportVideoPage = () => {
       navigate("/login");
       return;
     }
-    // setMaxPage(data?.pageInfo.totalPage);
+    setMaxPage(data?.pageInfo.totalPage);
   }, []);
 
   return (
@@ -74,40 +84,69 @@ const ReportVideoPage = () => {
         ) : (
           <Typotable>
             <thead>
-              <tr>
-                <TypothId>강의 ID</TypothId>
-                <TypothVideoName>강의 제목</TypothVideoName>
-                <TypothVideoStatus>강의 상태</TypothVideoStatus>
-                <TypothReportCount>신고 횟수</TypothReportCount>
-                <TypothLastDate>최근 신고 날짜</TypothLastDate>
-                <TypothReportDetail>비고</TypothReportDetail>
-              </tr>
+              <TableTr isDark={isDark}>
+                <TypothId isDark={isDark}>강의 ID</TypothId>
+                <TypothVideoName isDark={isDark}>강의 제목</TypothVideoName>
+                <TypothVideoStatus isDark={isDark}>강의 상태</TypothVideoStatus>
+                <TypothReportCount isDark={isDark}>신고 횟수</TypothReportCount>
+                <TypothLastDate isDark={isDark}>최근 신고 날짜</TypothLastDate>
+                <TypothReportBlock isDark={isDark}>비고</TypothReportBlock>
+                <TypothReportDetail isDark={isDark}></TypothReportDetail>
+              </TableTr>
             </thead>
             <tbody>
               {data.data?.map((el: reportVideoDataType) => (
                 <>
-                  <tr key={el.videoId}>
-                    <TypotdId>{el.videoId}</TypotdId>
-                    <TypotdVideoName onClick={() => locateVideo(el.videoId)}>
+                  <TableTr isDark={isDark} key={el.videoId}>
+                    <TypotdId isDark={isDark}>{el.videoId}</TypotdId>
+                    <TypotdVideoName
+                      isDark={isDark}
+                      onClick={() => locateVideo(el.videoId)}
+                    >
                       {el.videoName}
                     </TypotdVideoName>
-                    <TypotdVideoStatus>{el.videoStatus}</TypotdVideoStatus>
-                    <TypotdReportCount>{el.reportCount}회</TypotdReportCount>
-                    <TypotdLastDate>{el.lastReportedDate}</TypotdLastDate>
-                    <TypotdReportDetail>
-                      <button
-                        onClick={() => {
-                          if (isOpened !== el.videoId) {
-                            setOpened(el.videoId);
-                          } else {
-                            setOpened(0);
-                          }
-                        }}
-                      >
-                        {isOpened === el.videoId ? "축소하기" : "상세보기"}
-                      </button>
+                    <TypotdVideoStatus isDark={isDark}>
+                      {el.videoStatus === "CREATED"
+                        ? "정상"
+                        : el.videoStatus === "CLOSED"
+                        ? "폐쇄됨"
+                        : el.videoStatus === "ADMIN_CLOSED"
+                        ? "관리자에 의해 폐쇄됨"
+                        : null}
+                    </TypotdVideoStatus>
+                    <TypotdReportCount isDark={isDark}>
+                      {el.reportCount} 회
+                    </TypotdReportCount>
+                    <TypotdLastDate isDark={isDark}>
+                      {el.lastReportedDate.split("T")[0]}
+                    </TypotdLastDate>
+                    <TypotdReportBlock isDark={isDark}>
+                      <RegularButton isDark={isDark}>비활성화</RegularButton>
+                    </TypotdReportBlock>
+                    <TypotdReportDetail isDark={isDark}>
+                      {isOpened === el.videoId ? (
+                        <HideListArrow
+                          onClick={() => {
+                            if (isOpened !== el.videoId) {
+                              setOpened(el.videoId);
+                            } else {
+                              setOpened(0);
+                            }
+                          }}
+                        />
+                      ) : (
+                        <ShowListArrow
+                          onClick={() => {
+                            if (isOpened !== el.videoId) {
+                              setOpened(el.videoId);
+                            } else {
+                              setOpened(0);
+                            }
+                          }}
+                        />
+                      )}
                     </TypotdReportDetail>
-                  </tr>
+                  </TableTr>
 
                   {isOpened === el.videoId && (
                     <VideoReportList videoId={el.videoId} />
@@ -130,19 +169,31 @@ const ReportVideoPage = () => {
 
 export default ReportVideoPage;
 
+const globalTokens = tokens.global;
+
 export const Typotable = styled.table`
   margin: 30px 0px 30px 0px;
 `;
-export const Typoth = styled.th`
-  padding: 10px 0px;
-  text-align: center;
-  border: 1px solid black;
+export const TableTr = styled.tr<DarkMode>`
+  border-bottom: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
 `;
-export const Typotd = styled.td`
-  padding: 10px 0px;
+export const Typoth = styled.th<DarkMode>`
+  background-color: ${(props) =>
+    props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
+  padding: 15px 0px;
   text-align: center;
-  border: 1px solid black;
 `;
+export const Typotd = styled.td<DarkMode>`
+  color: ${(props) =>
+    props.isDark ? globalTokens.White.value : globalTokens.Black.value};
+  padding: 15px 0px;
+  text-align: center;
+`;
+
 export const TypothId = styled(Typoth)`
   width: 70px;
 `;
@@ -150,17 +201,21 @@ export const TypothVideoName = styled(Typoth)`
   width: 330px;
 `;
 export const TypothVideoStatus = styled(Typoth)`
-  width: 150px;
+  width: 155px;
 `;
 export const TypothReportCount = styled(Typoth)`
   width: 85px;
 `;
 export const TypothLastDate = styled(Typoth)`
-  width: 190px;
+  width: 140px;
 `;
 export const TypothReportDetail = styled(Typoth)`
   width: 80px;
 `;
+export const TypothReportBlock = styled(Typoth)`
+  width: 90px;
+`;
+
 export const TypotdId = styled(Typotd)`
   width: 70px;
 `;
@@ -169,14 +224,30 @@ export const TypotdVideoName = styled(Typotd)`
   cursor: pointer;
 `;
 export const TypotdVideoStatus = styled(Typotd)`
-  width: 150px;
+  width: 155px;
 `;
 export const TypotdReportCount = styled(Typotd)`
   width: 85px;
 `;
 export const TypotdLastDate = styled(Typotd)`
-  width: 190px;
+  width: 140px;
 `;
 export const TypotdReportDetail = styled(Typotd)`
   width: 80px;
+`;
+export const TypotdReportBlock = styled(Typotd)`
+  width: 90px;
+`;
+
+export const ShowListArrow = styled(arrowNext)`
+  width: 18px;
+  height: 18px;
+  transform: rotate(90deg);
+  cursor: pointer;
+`;
+export const HideListArrow = styled(arrowPrev)`
+  width: 18px;
+  height: 18px;
+  transform: rotate(90deg);
+  cursor: pointer;
 `;

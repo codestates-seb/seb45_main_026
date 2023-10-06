@@ -9,13 +9,16 @@ import { PageTitle } from "../../styles/PageTitle";
 import NavBar from "../../components/navBar/NavBar";
 import Loading from "../../components/loading/Loading";
 import Pagination from "../../atoms/pagination/Pagination";
-import { reportReviewDataType } from "../../types/reportDataType";
+import { DarkMode, reportReviewDataType } from "../../types/reportDataType";
 import { getReportReviewList } from "../../services/reprotService";
 import {
   MainContainer,
   PageContainer,
 } from "../../atoms/layouts/PageContainer";
 import ReviewReportList from "../../components/reportPage/ReviewReportList";
+import tokens from "../../styles/tokens.json";
+import { RegularButton } from "../../atoms/buttons/Buttons";
+import { HideListArrow, ShowListArrow } from "./ReportVideoPage";
 
 const ReportReviewPage = () => {
   const navigate = useNavigate();
@@ -59,7 +62,7 @@ const ReportReviewPage = () => {
       navigate("/login");
       return;
     }
-    // setMaxPage(data?.pageInfo.totalPage);
+    setMaxPage(data?.pageInfo.totalPage);
   }, []);
   return (
     <PageContainer isDark={isDark}>
@@ -71,36 +74,58 @@ const ReportReviewPage = () => {
         ) : (
           <Typotable>
             <thead>
-              <tr>
-                <TypothId>댓글 ID</TypothId>
-                <TypothVideoName>신고된 댓글 내용</TypothVideoName>
-                <TypothReportCount>신고 횟수</TypothReportCount>
-                <TypothLastDate>최근 신고 날짜</TypothLastDate>
-                <TypothReportDetail>비고</TypothReportDetail>
-              </tr>
+              <TableTr isDark={isDark}>
+                <TypothId isDark={isDark}>댓글 ID</TypothId>
+                <TypothReplyName isDark={isDark}>
+                  신고된 댓글 내용
+                </TypothReplyName>
+                <TypothReportCount isDark={isDark}>신고 횟수</TypothReportCount>
+                <TypothLastDate isDark={isDark}>최근 신고 날짜</TypothLastDate>
+                <TypothReportDetail isDark={isDark}>비고</TypothReportDetail>
+                <TypothReportBlock isDark={isDark}></TypothReportBlock>
+              </TableTr>
             </thead>
             <tbody>
               {data.data?.map((el: reportReviewDataType) => (
                 <>
-                  <tr key={el.replyId}>
-                    <TypotdId>{el.replyId}</TypotdId>
-                    <TypotdVideoName>{el.content}</TypotdVideoName>
-                    <TypotdReportCount>{el.reportCount}회</TypotdReportCount>
-                    <TypotdLastDate>{el.lastReportedDate}</TypotdLastDate>
-                    <TypotdReportDetail>
-                      <button
-                        onClick={() => {
-                          if (isOpened !== el.replyId) {
-                            setOpened(el.replyId);
-                          } else {
-                            setOpened(0);
-                          }
-                        }}
-                      >
-                        {isOpened === el.replyId ? "축소하기" : "상세보기"}
-                      </button>
+                  <TableTr isDark={isDark} key={el.replyId}>
+                    <TypotdId isDark={isDark}>{el.replyId}</TypotdId>
+                    <TypotdReplyName isDark={isDark}>
+                      {el.content}
+                    </TypotdReplyName>
+                    <TypotdReportCount isDark={isDark}>
+                      {el.reportCount}회
+                    </TypotdReportCount>
+                    <TypotdLastDate isDark={isDark}>
+                      {el.lastReportedDate.split("T")[0]}
+                    </TypotdLastDate>
+                    <TypotdReportBlock isDark={isDark}>
+                      <RegularButton isDark={isDark}>삭제</RegularButton>
+                    </TypotdReportBlock>
+                    <TypotdReportDetail isDark={isDark}>
+                      {isOpened === el.replyId ? (
+                        <HideListArrow
+                          onClick={() => {
+                            if (isOpened !== el.replyId) {
+                              setOpened(el.replyId);
+                            } else {
+                              setOpened(0);
+                            }
+                          }}
+                        />
+                      ) : (
+                        <ShowListArrow
+                          onClick={() => {
+                            if (isOpened !== el.replyId) {
+                              setOpened(el.replyId);
+                            } else {
+                              setOpened(0);
+                            }
+                          }}
+                        />
+                      )}
                     </TypotdReportDetail>
-                  </tr>
+                  </TableTr>
 
                   {isOpened === el.replyId && (
                     <ReviewReportList replyId={el.replyId} />
@@ -123,52 +148,65 @@ const ReportReviewPage = () => {
 
 export default ReportReviewPage;
 
+const globalTokens = tokens.global;
+
 export const Typotable = styled.table`
   margin: 30px 0px 30px 0px;
 `;
-export const Typoth = styled.th`
-  padding: 10px 0px;
-  text-align: center;
-  border: 1px solid black;
+export const TableTr = styled.tr<DarkMode>`
+  border-bottom: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
 `;
-export const Typotd = styled.td`
-  padding: 10px 0px;
+export const Typoth = styled.th<DarkMode>`
+  background-color: ${(props) =>
+    props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
+  padding: 15px 0px;
   text-align: center;
-  border: 1px solid black;
 `;
+export const Typotd = styled.td<DarkMode>`
+  color: ${(props) =>
+    props.isDark ? globalTokens.White.value : globalTokens.Black.value};
+  padding: 15px 0px;
+  text-align: center;
+`;
+
 export const TypothId = styled(Typoth)`
   width: 70px;
 `;
-export const TypothVideoName = styled(Typoth)`
-  width: 330px;
-`;
-export const TypothVideoStatus = styled(Typoth)`
-  width: 150px;
+export const TypothReplyName = styled(Typoth)`
+  width: 400px;
 `;
 export const TypothReportCount = styled(Typoth)`
-  width: 85px;
+  width: 100px;
 `;
 export const TypothLastDate = styled(Typoth)`
-  width: 190px;
-`;
-export const TypothReportDetail = styled(Typoth)`
-  width: 80px;
-`;
-export const TypotdId = styled(Typotd)`
-  width: 70px;
-`;
-export const TypotdVideoName = styled(Typotd)`
-  width: 330px;
-`;
-export const TypotdVideoStatus = styled(Typotd)`
   width: 150px;
 `;
+export const TypothReportDetail = styled(Typoth)`
+  width: 100px;
+`;
+export const TypothReportBlock = styled(Typoth)`
+  width: 80px;
+`;
+
+export const TypotdId = styled(Typotd)`
+  width: 80px;
+`;
+export const TypotdReplyName = styled(Typotd)`
+  width: 400px;
+`;
 export const TypotdReportCount = styled(Typotd)`
-  width: 85px;
+  width: 100px;
 `;
 export const TypotdLastDate = styled(Typotd)`
-  width: 190px;
+  width: 150px;
 `;
 export const TypotdReportDetail = styled(Typotd)`
+  width: 100px;
+`;
+export const TypotdReportBlock = styled(Typotd)`
   width: 80px;
 `;

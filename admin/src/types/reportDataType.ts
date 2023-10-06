@@ -79,3 +79,7 @@ export type UseLocateType = {
   locateChannel?(videoId: number): void;
   locateNotice?(memberId: number, announcementId: number): void;
 };
+
+export interface DarkMode {
+  isDark: boolean;
+}

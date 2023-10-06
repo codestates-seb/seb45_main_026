@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
@@ -43,9 +43,13 @@ const ChannelReportList: React.FC<OwnProps> = ({ memberId }) => {
 
   !isLoading && console.log(data);
 
+  useEffect(() => {
+    setMaxPage(data?.pageInfo.totalPage);
+  }, []);
+
   return (
     <ReportLists>
-      <ReportList colSpan={6}>
+      <ReportList colSpan={7}>
         {isLoading ? (
           <Loading />
         ) : (

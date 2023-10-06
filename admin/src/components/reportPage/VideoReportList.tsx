@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
@@ -43,9 +43,14 @@ const VideoReportList: React.FC<OwnProps> = ({ videoId }) => {
 
   !isLoading && console.log(data);
 
+
+  useEffect(() => {
+    setMaxPage(data?.pageInfo.totalPage);
+  }, []);
+
   return (
     <ReportLists>
-      <ReportList colSpan={6}>
+      <ReportList colSpan={7}>
         {isLoading ? (
           <Loading />
         ) : (
@@ -55,7 +60,8 @@ const VideoReportList: React.FC<OwnProps> = ({ videoId }) => {
                 <HeaderReportId>신고 ID</HeaderReportId>
                 <HeaderReportName>신고자</HeaderReportName>
                 <HeaderReportContent>신고 내용</HeaderReportContent>
-                <HeaderReportDate>신고일자</HeaderReportDate>
+                <HeaderReportDate>신고일</HeaderReportDate>
+                <HeaderReportTime>신고시간</HeaderReportTime>
               </tr>
             </thead>
             <tbody>
@@ -64,7 +70,12 @@ const VideoReportList: React.FC<OwnProps> = ({ videoId }) => {
                   <BodyReportId>{el.reportId}</BodyReportId>
                   <BodyReportnName>{el.nickname}</BodyReportnName>
                   <BodyReportContent>{el.reportContent}</BodyReportContent>
-                  <BodyReportDate>{el.createdDate}</BodyReportDate>
+                  <BodyReportDate>
+                    {el.createdDate.split("T")[0]}
+                  </BodyReportDate>
+                  <BodyReportTime>
+                    {el.createdDate.split("T")[1]}
+                  </BodyReportTime>
                 </tr>
               ))}
             </tbody>
@@ -104,9 +115,10 @@ export const ReportLists = styled.tr`
 `;
 export const ReportList = styled.td`
   width: 100%;
-  padding: 30px 40px;
+  padding: 30px 30px;
   border: 1px solid blue;
 `;
+
 export const HeaderReportId = styled(Typoth)`
   width: 70px;
 `;
@@ -117,8 +129,12 @@ export const HeaderReportContent = styled(Typoth)`
   width: 450px;
 `;
 export const HeaderReportDate = styled(Typoth)`
-  width: 180px;
+  width: 110px;
 `;
+export const HeaderReportTime = styled(Typoth)`
+  width: 90px;
+`;
+
 export const BodyReportId = styled(Typotd)`
   width: 70px;
 `;
@@ -129,5 +145,8 @@ export const BodyReportContent = styled(Typotd)`
   width: 450px;
 `;
 export const BodyReportDate = styled(Typotd)`
-  width: 180px;
+  width: 110px;
+`;
+export const BodyReportTime = styled(Typotd)`
+  width: 90px;
 `;
