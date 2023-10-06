@@ -75,15 +75,6 @@ const RewardCategory = ({ category }) => {
       >
         정산 내역
       </RewardNavItem>
-      <RewardNavItem
-        isDark={isDark}
-        isSelect={category === "account" ? true : false}
-        onClick={() => {
-          navigate("/activity/account");
-        }}
-      >
-        설정
-      </RewardNavItem>
       {/* <BorderBox isDark={isDark} /> */}
     </RewardNavContainer>
   );

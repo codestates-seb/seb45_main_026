@@ -7,32 +7,35 @@ import { BigButton } from "../../atoms/buttons/Buttons";
 
 const globalTokens = tokens.global;
 
-const CartEmpty = () => {
+const IncomeEmpty = () => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
+  const myid = useSelector((state) => state.loginInfo.myid);
 
   return (
-    <CartClearBox>
-      <ClearGuide isDark={isDark}>담긴 강의가 없습니다.</ClearGuide>
-      <ClearGuide isDark={isDark}>
-        나를 성장 시켜줄 좋은 강의들을 찾아보세요
-      </ClearGuide>
-      <Link to="/lecture">
-        <ListNavBtn isDark={isDark}>강의리스트 보기</ListNavBtn>
+    <IncomeEmptyBox>
+      <IncomeEmptyGuide isDark={isDark}>
+        등록된 계좌 정보가 없습니다.
+      </IncomeEmptyGuide>
+      <IncomeEmptyGuide isDark={isDark}>
+        {"'내 채널 > 설정 > 내 계좌 정보' 에서 설정해주세요."}
+      </IncomeEmptyGuide>
+      <Link to={`/channels/${myid}`}>
+        <SettingNavBtn isDark={isDark}>'내 채널'로 이동하기</SettingNavBtn>
       </Link>
-    </CartClearBox>
+    </IncomeEmptyBox>
   );
 };
 
-export default CartEmpty;
+export default IncomeEmpty;
 
-export const CartClearBox = styled.div`
+export const IncomeEmptyBox = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: start;
-  padding-top: 200px;
+  padding: 200px 0px;
 `;
 
-export const ClearGuide = styled(BodyTextTypo)`
+export const IncomeEmptyGuide = styled(BodyTextTypo)`
   width: 100%;
   max-width: 500px;
   text-align: center;
@@ -41,7 +44,7 @@ export const ClearGuide = styled(BodyTextTypo)`
     props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;
 
-export const ListNavBtn = styled(BigButton)`
+export const SettingNavBtn = styled(BigButton)`
   width: 100%;
   max-width: 400px;
   height: 45px;

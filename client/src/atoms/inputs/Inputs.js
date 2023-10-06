@@ -93,47 +93,48 @@ export const Input = ({
   buttonTitle,
   handleButtonClick,
   disabled,
+  value,
 }) => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
 
-    return (
-        <InputContainer 
-            labelDirection={labelDirection}
-            marginTop={marginTop}
-            marginBottom={marginBottom}
-            marginLeft={marginLeft}
-            marginRight={marginRight}>
-        { label && 
-                <InputLabelTextTypo isDark={isDark}>
-                    {label}
-                </InputLabelTextTypo> }
-            <InputWithButtonContainer>
-                <RegularInput
-                    isDark={isDark}
-                    autoComplete={type==='password'?'new-password':'off'}
-                    width={ 
-                        width? `${width}`
-                        : isButton? '200px'
-                        : '300px' }
-                    type={type}
-                    placeholder={placeholder}
-                    {...register(name, { 
-                        required: required,
-                        maxLength: maxLength,
-                        minLength: minLength,
-                        pattern: pattern,
-                        validate: validateFunc,
-                    })}
-                    disabled={disabled?disabled:false}/>
-                    { isButton&&
-                        <InputButton
-                            type='button'
-                            isDark={isDark}
-                            onClick={handleButtonClick}>
-                                {buttonTitle}
-                        </InputButton>
-                    }
-            </InputWithButtonContainer>
-        </InputContainer>
-    );
-}
+  return (
+    <InputContainer
+      labelDirection={labelDirection}
+      marginTop={marginTop}
+      marginBottom={marginBottom}
+      marginLeft={marginLeft}
+      marginRight={marginRight}
+    >
+      {label && (
+        <InputLabelTextTypo isDark={isDark}>{label}</InputLabelTextTypo>
+      )}
+      <InputWithButtonContainer>
+        <RegularInput
+          isDark={isDark}
+          autoComplete={type === "password" ? "new-password" : "off"}
+          width={width ? `${width}` : isButton ? "200px" : "300px"}
+          type={type}
+          placeholder={placeholder}
+          {...register(name, {
+            required: required,
+            maxLength: maxLength,
+            minLength: minLength,
+            pattern: pattern,
+            validate: validateFunc,
+            value: value || "",
+          })}
+          disabled={disabled ? disabled : false}
+        />
+        {isButton && (
+          <InputButton
+            type="button"
+            isDark={isDark}
+            onClick={handleButtonClick}
+          >
+            {buttonTitle}
+          </InputButton>
+        )}
+      </InputWithButtonContainer>
+    </InputContainer>
+  );
+};
