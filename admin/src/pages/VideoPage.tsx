@@ -54,7 +54,7 @@ const VideoPage = () => {
         if (!isLogin) {
             navigate("/login");
             return;
-          }
+        }
         if(data) {
             setMaxPage(data.pageInfo.totalPage);
         }
