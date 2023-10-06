@@ -85,6 +85,7 @@ public class AnnouncementService {
         announcementRepository.delete(announcement);
     }
 
+    @Transactional
     public boolean reportAnnouncement(Long loginMemberId, Long announcementId, String reportContent) {
 
         Announcement announcement = verifiedAnnouncement(announcementId);
