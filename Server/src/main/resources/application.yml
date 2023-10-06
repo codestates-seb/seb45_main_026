@@ -57,7 +57,9 @@ spring:
   redis:
     host: 127.0.0.1
     port: 6379
-
+  batch:
+    job:
+      enabled: false
 jwt:
   access:
     expiration: 3600000
@@ -104,4 +106,4 @@ decorator:
       enable-logging: false
 
 warmup:
-  is-completed: true
+  is-completed: false
