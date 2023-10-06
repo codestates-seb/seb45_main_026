@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { useQuery } from "@tanstack/react-query";
-import { getVideoReportList } from "../../services/reprotService";
+import { getNoticeReportList } from "../../services/reprotService";
 import { NoticeReportListType } from "../../types/reportDataType";
 import Pagination from "../../atoms/pagination/Pagination";
 import Loading from "../loading/Loading";
@@ -26,7 +26,7 @@ const NoticeReportList: React.FC<OwnProps> = ({ announcementId }) => {
   const { isLoading, error, data, isFetching, isPreviousData } = useQuery({
     queryKey: ["videoreportlist"],
     queryFn: async () => {
-      const response = await getVideoReportList(
+      const response = await getNoticeReportList(
         accessToken.authorization,
         announcementId,
         currentPage,

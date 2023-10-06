@@ -70,13 +70,13 @@ export const getReportReviewList = async (
 // 특정 댓글 신고 내역 조회
 export const getReviewReportList = async (
   authorization: string,
-  videoId: number,
+  replyId: number,
   page: number,
   size: number
 ) => {
   try {
     const response = await axios.get(
-      `${ROOT_URL}/reports/replies/${videoId}?page=${page}&size=${size}`,
+      `${ROOT_URL}/reports/replies/${replyId}?page=${page}&size=${size}`,
       {
         headers: {
           Authorization: authorization,

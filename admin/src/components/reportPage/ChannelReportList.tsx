@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { useQuery } from "@tanstack/react-query";
-import { getVideoReportList } from "../../services/reprotService";
+import { getChannelReportList } from "../../services/reprotService";
 import { ChannelReportListType } from "../../types/reportDataType";
 import Pagination from "../../atoms/pagination/Pagination";
 import Loading from "../loading/Loading";
@@ -24,9 +24,9 @@ const ChannelReportList: React.FC<OwnProps> = ({ memberId }) => {
   const [isSize, setSize] = useState<number>(5);
 
   const { isLoading, error, data, isFetching, isPreviousData } = useQuery({
-    queryKey: ["videoreportlist"],
+    queryKey: ["ChannelReportList"],
     queryFn: async () => {
-      const response = await getVideoReportList(
+      const response = await getChannelReportList(
         accessToken.authorization,
         memberId,
         currentPage,

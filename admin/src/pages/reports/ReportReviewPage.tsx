@@ -72,8 +72,6 @@ const ReportReviewPage = () => {
           <Typotable>
             <thead>
               <tr>
-                {/* <TypothId>강의 ID</TypothId>
-                <TypothVideoName>강의 제목</TypothVideoName> */}
                 <TypothId>댓글 ID</TypothId>
                 <TypothVideoName>신고된 댓글 내용</TypothVideoName>
                 <TypothReportCount>신고 횟수</TypothReportCount>
@@ -84,9 +82,7 @@ const ReportReviewPage = () => {
             <tbody>
               {data.data?.map((el: reportReviewDataType) => (
                 <>
-                  <tr key={el.videoId}>
-                    {/* <TypotdId>{el.videoId}</TypotdId>
-                    <TypotdVideoName>{el.videoName}</TypotdVideoName> */}
+                  <tr key={el.replyId}>
                     <TypotdId>{el.replyId}</TypotdId>
                     <TypotdVideoName>{el.content}</TypotdVideoName>
                     <TypotdReportCount>{el.reportCount}회</TypotdReportCount>
@@ -94,20 +90,20 @@ const ReportReviewPage = () => {
                     <TypotdReportDetail>
                       <button
                         onClick={() => {
-                          if (isOpened !== el.videoId) {
-                            setOpened(el.videoId);
+                          if (isOpened !== el.replyId) {
+                            setOpened(el.replyId);
                           } else {
                             setOpened(0);
                           }
                         }}
                       >
-                        {isOpened === el.videoId ? "축소하기" : "상세보기"}
+                        {isOpened === el.replyId ? "축소하기" : "상세보기"}
                       </button>
                     </TypotdReportDetail>
                   </tr>
 
-                  {isOpened === el.videoId && (
-                    <ReviewReportList videoId={el.videoId} />
+                  {isOpened === el.replyId && (
+                    <ReviewReportList replyId={el.replyId} />
                   )}
                 </>
               ))}

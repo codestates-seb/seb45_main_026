@@ -3,17 +3,17 @@ import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { useQuery } from "@tanstack/react-query";
-import { getVideoReportList } from "../../services/reprotService";
+import { getReviewReportList } from "../../services/reprotService";
 import { reviewReportListType } from "../../types/reportDataType";
 import Pagination from "../../atoms/pagination/Pagination";
 import Loading from "../loading/Loading";
 import { useToken } from "../../hooks/useToken";
 
 interface OwnProps {
-  videoId: number;
+  replyId: number;
 }
 
-const ReviewReportList: React.FC<OwnProps> = ({ videoId }) => {
+const ReviewReportList: React.FC<OwnProps> = ({ replyId }) => {
   const refreshToken = useToken();
   const isDark = useSelector((state: RootState) => state.uiSetting.isDark);
   const accessToken = useSelector(
@@ -24,11 +24,11 @@ const ReviewReportList: React.FC<OwnProps> = ({ videoId }) => {
   const [isSize, setSize] = useState<number>(5);
 
   const { isLoading, error, data, isFetching, isPreviousData } = useQuery({
-    queryKey: ["videoreportlist"],
+    queryKey: ["ReviewReportList"],
     queryFn: async () => {
-      const response = await getVideoReportList(
+      const response = await getReviewReportList(
         accessToken.authorization,
-        videoId,
+        replyId,
         currentPage,
         isSize
       );

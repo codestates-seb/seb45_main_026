@@ -9,17 +9,19 @@ import { PageTitle } from "../../styles/PageTitle";
 import NavBar from "../../components/navBar/NavBar";
 import Loading from "../../components/loading/Loading";
 import Pagination from "../../atoms/pagination/Pagination";
-import { reportVideoDataType } from "../../types/reportDataType";
+import { UseLocateType, reportVideoDataType } from "../../types/reportDataType";
 import { getReportVideoList } from "../../services/reprotService";
 import {
   MainContainer,
   PageContainer,
 } from "../../atoms/layouts/PageContainer";
 import VideoReportList from "../../components/reportPage/VideoReportList";
+import { useLocate } from "../../hooks/useLocation";
 
 const ReportVideoPage = () => {
   const navigate = useNavigate();
   const refreshToken = useToken();
+  const { locateVideo }: UseLocateType = useLocate();
   const isDark = useSelector((state: RootState) => state.uiSetting.isDark);
   const isLogin = useSelector((state: RootState) => state.loginInfo.isLogin);
   const accessToken = useSelector(
@@ -86,7 +88,9 @@ const ReportVideoPage = () => {
                 <>
                   <tr key={el.videoId}>
                     <TypotdId>{el.videoId}</TypotdId>
-                    <TypotdVideoName>{el.videoName}</TypotdVideoName>
+                    <TypotdVideoName onClick={() => locateVideo(el.videoId)}>
+                      {el.videoName}
+                    </TypotdVideoName>
                     <TypotdVideoStatus>{el.videoStatus}</TypotdVideoStatus>
                     <TypotdReportCount>{el.reportCount}회</TypotdReportCount>
                     <TypotdLastDate>{el.lastReportedDate}</TypotdLastDate>
@@ -162,6 +166,7 @@ export const TypotdId = styled(Typotd)`
 `;
 export const TypotdVideoName = styled(Typotd)`
   width: 330px;
+  cursor: pointer;
 `;
 export const TypotdVideoStatus = styled(Typotd)`
   width: 150px;

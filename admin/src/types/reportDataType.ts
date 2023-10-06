@@ -72,3 +72,10 @@ export type NoticeReportListType = {
   email: string;
   nickname: string;
 };
+
+export type UseLocateType = {
+  locateVideo?(videoId: number): void;
+  locateReview?(videoId: number, reportId: number): void;
+  locateChannel?(videoId: number): void;
+  locateNotice?(memberId: number, announcementId: number): void;
+};

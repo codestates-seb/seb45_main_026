@@ -84,8 +84,6 @@ const ReportNoticePage = () => {
               {data.data?.map((el: ReportNoticeDataType) => (
                 <>
                   <tr key={el.announcementId}>
-                    {/* <TypotdId>{el.videoId}</TypotdId>
-                    <TypotdVideoName>{el.videoName}</TypotdVideoName> */}
                     <TypotdId>{el.announcementId}</TypotdId>
                     <TypotdVideoName>{el.content}</TypotdVideoName>
                     <TypotdReportCount>{el.reportCount}회</TypotdReportCount>

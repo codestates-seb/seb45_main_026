@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useToken } from "../../hooks/useToken";
 import { useQuery } from "@tanstack/react-query";
 import { PageTitle } from "../../styles/PageTitle";
@@ -16,6 +16,7 @@ import {
   PageContainer,
 } from "../../atoms/layouts/PageContainer";
 import ChannelReportList from "../../components/reportPage/ChannelReportList";
+
 
 const ReportChannelPage = () => {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ const ReportChannelPage = () => {
     <PageContainer isDark={isDark}>
       <MainContainer isDark={isDark}>
         <PageTitle isDark={isDark}>신고 내역 관리</PageTitle>
-        <NavBar NavType="댓글" />
+        <NavBar NavType="채널" />
         {isLoading ? (
           <Loading />
         ) : (
