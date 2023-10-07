@@ -107,7 +107,7 @@ const ReportVideoPage = () => {
                     </TypotdVideoName>
                     <TypotdVideoStatus isDark={isDark}>
                       {el.videoStatus === "CREATED"
-                        ? "정상"
+                        ? "활동중"
                         : el.videoStatus === "CLOSED"
                         ? "폐쇄됨"
                         : el.videoStatus === "ADMIN_CLOSED"
@@ -121,7 +121,17 @@ const ReportVideoPage = () => {
                       {el.lastReportedDate.split("T")[0]}
                     </TypotdLastDate>
                     <TypotdReportBlock isDark={isDark}>
-                      <RegularButton isDark={isDark}>비활성화</RegularButton>
+                      {(el.videoStatus === "CLOSED" ||
+                        el.videoStatus === "ADMIN_CLOSED") && (
+                        <RegularButton isDark={isDark} onClick={() => {}}>
+                          활성화
+                        </RegularButton>
+                      )}
+                      {el.videoStatus === "CREATED" && (
+                        <RegularButton isDark={isDark} onClick={() => {}}>
+                          비활성화
+                        </RegularButton>
+                      )}
                     </TypotdReportBlock>
                     <TypotdReportDetail isDark={isDark}>
                       {isOpened === el.videoId ? (
@@ -147,7 +157,6 @@ const ReportVideoPage = () => {
                       )}
                     </TypotdReportDetail>
                   </TableTr>
-
                   {isOpened === el.videoId && (
                     <VideoReportList videoId={el.videoId} />
                   )}

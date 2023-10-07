@@ -106,7 +106,16 @@ const ReportChannelPage = () => {
                       {el.lastReportedDate.split("T")[0]}
                     </TypotdLastDate>
                     <TypotdReportBlock isDark={isDark}>
-                      <RegularButton isDark={isDark}>차단</RegularButton>
+                      {el.memberStatus === "ACTIVE" && (
+                        <RegularButton isDark={isDark} onClick={() => {}}>
+                          차단
+                        </RegularButton>
+                      )}
+                      {el.memberStatus === "BLOCKED" && (
+                        <RegularButton isDark={isDark} onClick={() => {}}>
+                          차단해제
+                        </RegularButton>
+                      )}
                     </TypotdReportBlock>
                     <TypotdReportDetail isDark={isDark}>
                       {isOpened === el.memberId ? (

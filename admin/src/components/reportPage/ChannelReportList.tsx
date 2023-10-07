@@ -41,8 +41,6 @@ const ChannelReportList: React.FC<OwnProps> = ({ memberId }) => {
     },
   });
 
-  !isLoading && console.log(data);
-
   useEffect(() => {
     setMaxPage(data?.pageInfo.totalPage);
   }, []);
