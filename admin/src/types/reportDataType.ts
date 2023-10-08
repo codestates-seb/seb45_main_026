@@ -1,4 +1,4 @@
-export type reportVideoDataType = {
+export type ReportVideoDataType = {
   videoId: number;
   videoName: string;
   videoStatus: string;
@@ -16,7 +16,7 @@ export type videoReportListType = {
   createdDate: string;
 };
 
-export type reportReviewDataType = {
+export type ReportReviewDataType = {
   videoId: number;
   videoName: string;
   replyId: number;

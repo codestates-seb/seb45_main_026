@@ -15,10 +15,10 @@ import {
   MainContainer,
   PageContainer,
 } from "../../atoms/layouts/PageContainer";
-import ChannelReportList from "../../components/reportPage/ChannelReportList";
 import tokens from "../../styles/tokens.json";
-import { HideListArrow, ShowListArrow } from "./ReportVideoPage";
-import { RegularButton } from "../../atoms/buttons/Buttons";
+import { ReactComponent as arrowPrev } from "../../assets/images/icons/arrowPrev.svg";
+import { ReactComponent as arrowNext } from "../../assets/images/icons/arrowNext.svg";
+import ReportedChannelItems from "../../components/ReportedItems/ReportedChannelItems";
 
 const ReportChannelPage = () => {
   const navigate = useNavigate();
@@ -30,13 +30,12 @@ const ReportChannelPage = () => {
   );
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [maxPage, setMaxPage] = useState<number>(10);
+  const [maxPage, setMaxPage] = useState<number>(1);
   const [isSize, setSize] = useState<number>(10);
   const [isSort, setSort] = useState<string>("last-reported-date");
-  const [isOpened, setOpened] = useState<number>(0);
 
   const { isLoading, error, data, isFetching, isPreviousData } = useQuery({
-    queryKey: ["reportvideos"],
+    queryKey: ["ReportChannel"],
     queryFn: async () => {
       const response = await getReportChannelList(
         accessToken.authorization,
@@ -45,17 +44,18 @@ const ReportChannelPage = () => {
         isSort
       );
 
-      console.log(response);
-
       if (response.response?.data.message === "만료된 토큰입니다.") {
         refreshToken();
       } else {
         return response;
       }
     },
+    keepPreviousData: true,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 30,
+    retry: 3, //error를 표시하기 전에 실패한 요청을 다시 시도하는 횟수
+    retryDelay: 1000,
   });
-
-  // console.log(data);
 
   useEffect(() => {
     if (!isLogin) {
@@ -86,66 +86,7 @@ const ReportChannelPage = () => {
             </thead>
             <tbody>
               {data.data?.map((el: ReportChannelDataType) => (
-                <>
-                  <TableTr isDark={isDark} key={el.memberId}>
-                    <TypotdId isDark={isDark}>{el.memberId}</TypotdId>
-                    <TypotdVideoName isDark={isDark}>
-                      {el.channelName}
-                    </TypotdVideoName>
-                    <TypotdVideoStatus isDark={isDark}>
-                      {el.memberStatus === "ACTIVE"
-                        ? "활동중"
-                        : el.memberStatus === "BLOCKED"
-                        ? "차단됨"
-                        : null}
-                    </TypotdVideoStatus>
-                    <TypotdReportCount isDark={isDark}>
-                      {el.reportCount}회
-                    </TypotdReportCount>
-                    <TypotdLastDate isDark={isDark}>
-                      {el.lastReportedDate.split("T")[0]}
-                    </TypotdLastDate>
-                    <TypotdReportBlock isDark={isDark}>
-                      {el.memberStatus === "ACTIVE" && (
-                        <RegularButton isDark={isDark} onClick={() => {}}>
-                          차단
-                        </RegularButton>
-                      )}
-                      {el.memberStatus === "BLOCKED" && (
-                        <RegularButton isDark={isDark} onClick={() => {}}>
-                          차단해제
-                        </RegularButton>
-                      )}
-                    </TypotdReportBlock>
-                    <TypotdReportDetail isDark={isDark}>
-                      {isOpened === el.memberId ? (
-                        <HideListArrow
-                          onClick={() => {
-                            if (isOpened !== el.memberId) {
-                              setOpened(el.memberId);
-                            } else {
-                              setOpened(0);
-                            }
-                          }}
-                        />
-                      ) : (
-                        <ShowListArrow
-                          onClick={() => {
-                            if (isOpened !== el.memberId) {
-                              setOpened(el.memberId);
-                            } else {
-                              setOpened(0);
-                            }
-                          }}
-                        />
-                      )}
-                    </TypotdReportDetail>
-                  </TableTr>
-
-                  {isOpened === el.memberId && (
-                    <ChannelReportList memberId={el.memberId} />
-                  )}
-                </>
+                <ReportedChannelItems key={el.memberId} item={el} />
               ))}
             </tbody>
           </Typotable>
@@ -201,13 +142,13 @@ export const TypothReportCount = styled(Typoth)`
   width: 85px;
 `;
 export const TypothLastDate = styled(Typoth)`
-  width: 190px;
+  width: 140px;
 `;
 export const TypothReportDetail = styled(Typoth)`
   width: 80px;
 `;
 export const TypothReportBlock = styled(Typoth)`
-  width: 80px;
+  width: 90px;
 `;
 
 export const TypotdId = styled(Typotd)`
@@ -215,6 +156,7 @@ export const TypotdId = styled(Typotd)`
 `;
 export const TypotdVideoName = styled(Typotd)`
   width: 330px;
+  cursor: pointer;
 `;
 export const TypotdVideoStatus = styled(Typotd)`
   width: 145px;
@@ -223,11 +165,24 @@ export const TypotdReportCount = styled(Typotd)`
   width: 85px;
 `;
 export const TypotdLastDate = styled(Typotd)`
-  width: 190px;
+  width: 140px;
 `;
 export const TypotdReportDetail = styled(Typotd)`
   width: 80px;
 `;
 export const TypotdReportBlock = styled(Typotd)`
-  width: 80px;
+  width: 90px;
+`;
+
+export const ShowListArrow = styled(arrowNext)`
+  width: 18px;
+  height: 18px;
+  transform: rotate(90deg);
+  cursor: pointer;
+`;
+export const HideListArrow = styled(arrowPrev)`
+  width: 18px;
+  height: 18px;
+  transform: rotate(90deg);
+  cursor: pointer;
 `;

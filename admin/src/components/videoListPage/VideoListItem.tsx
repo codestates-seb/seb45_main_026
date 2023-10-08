@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import tokens from '../../styles/tokens.json';
-import { BodyTextTypo } from '../../atoms/typographys/Typographys';
 import { TableTd, TableTr } from '../../atoms/table/Tabel';
 import { RegularButton } from '../../atoms/buttons/Buttons';
 import { useMutation } from '@tanstack/react-query';

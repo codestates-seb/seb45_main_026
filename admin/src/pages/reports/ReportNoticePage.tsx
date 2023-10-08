@@ -15,10 +15,8 @@ import {
   MainContainer,
   PageContainer,
 } from "../../atoms/layouts/PageContainer";
-import NoticeReportList from "../../components/reportPage/NoticeReportList";
 import tokens from "../../styles/tokens.json";
-import { RegularButton } from "../../atoms/buttons/Buttons";
-import { HideListArrow, ShowListArrow } from "./ReportVideoPage";
+import ReportedNoticeItems from "../../components/ReportedItems/ReportedNoticeItems";
 
 const ReportNoticePage = () => {
   const navigate = useNavigate();
@@ -30,13 +28,12 @@ const ReportNoticePage = () => {
   );
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [maxPage, setMaxPage] = useState<number>(10);
+  const [maxPage, setMaxPage] = useState<number>(1);
   const [isSize, setSize] = useState<number>(10);
   const [isSort, setSort] = useState<string>("last-reported-date");
-  const [isOpened, setOpened] = useState<number>(0);
 
   const { isLoading, error, data, isFetching, isPreviousData } = useQuery({
-    queryKey: ["reportNotice"],
+    queryKey: ["ReportNotice"],
     queryFn: async () => {
       const response = await getReportNoticeList(
         accessToken.authorization,
@@ -45,17 +42,18 @@ const ReportNoticePage = () => {
         isSort
       );
 
-      console.log(response);
-
       if (response.response?.data.message === "만료된 토큰입니다.") {
         refreshToken();
       } else {
         return response;
       }
     },
+    keepPreviousData: true,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 30,
+    retry: 3, //error를 표시하기 전에 실패한 요청을 다시 시도하는 횟수
+    retryDelay: 1000,
   });
-
-  // console.log(data);
 
   useEffect(() => {
     if (!isLogin) {
@@ -88,53 +86,7 @@ const ReportNoticePage = () => {
             </thead>
             <tbody>
               {data.data?.map((el: ReportNoticeDataType) => (
-                <>
-                  <TableTr isDark={isDark} key={el.announcementId}>
-                    <TypotdId isDark={isDark}>{el.announcementId}</TypotdId>
-                    <TypotdNoticeName
-                      isDark={isDark}
-                      isOpened={isOpened === el.announcementId}
-                    >
-                      {el.content}
-                    </TypotdNoticeName>
-                    <TypotdReportCount isDark={isDark}>
-                      {el.reportCount}회
-                    </TypotdReportCount>
-                    <TypotdLastDate isDark={isDark}>
-                      {el.lastReportedDate.split("T")[0]}
-                    </TypotdLastDate>
-                    <TypotdReportBlock isDark={isDark}>
-                      <RegularButton isDark={isDark}>삭제</RegularButton>
-                    </TypotdReportBlock>
-                    <TypotdReportDetail isDark={isDark}>
-                      {isOpened === el.announcementId ? (
-                        <HideListArrow
-                          onClick={() => {
-                            if (isOpened !== el.announcementId) {
-                              setOpened(el.announcementId);
-                            } else {
-                              setOpened(0);
-                            }
-                          }}
-                        />
-                      ) : (
-                        <ShowListArrow
-                          onClick={() => {
-                            if (isOpened !== el.announcementId) {
-                              setOpened(el.announcementId);
-                            } else {
-                              setOpened(0);
-                            }
-                          }}
-                        />
-                      )}
-                    </TypotdReportDetail>
-                  </TableTr>
-
-                  {isOpened === el.announcementId && (
-                    <NoticeReportList announcementId={el.announcementId} />
-                  )}
-                </>
+                <ReportedNoticeItems key={el.announcementId} item={el} />
               ))}
             </tbody>
           </Typotable>
@@ -172,23 +124,15 @@ export const Typoth = styled.th<DarkMode>`
   padding: 15px 0px;
   text-align: center;
 `;
-export const Typotd = styled.td<DarkMode>`
-  color: ${(props) =>
-    props.isDark ? globalTokens.White.value : globalTokens.Black.value};
-  padding: 15px 0px;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
 
 export const TypothId = styled(Typoth)`
   width: 100px;
 `;
 export const TypothNoticeName = styled(Typoth)`
-  width: 450px;
+  width: 455px;
 `;
 export const TypothReportCount = styled(Typoth)`
-  width: 90px;
+  width: 85px;
 `;
 export const TypothLastDate = styled(Typoth)`
   width: 140px;
@@ -197,30 +141,5 @@ export const TypothReportDetail = styled(Typoth)`
   width: 80px;
 `;
 export const TypothReportBlock = styled(Typoth)`
-  width: 90px;
-`;
-
-interface OwnProps {
-  isOpened: boolean;
-}
-export const TypotdId = styled(Typotd)`
-  width: 100px;
-`;
-export const TypotdNoticeName = styled(Typotd)<OwnProps>`
-  width: 450px;
-  white-space: ${(props) => (props.isOpened ? "wrap" : "nowrap")};
-  padding-left: 20px;
-  padding-right: 20px;
-`;
-export const TypotdReportCount = styled(Typotd)`
-  width: 90px;
-`;
-export const TypotdLastDate = styled(Typotd)`
-  width: 140px;
-`;
-export const TypotdReportDetail = styled(Typotd)`
-  width: 80px;
-`;
-export const TypotdReportBlock = styled(Typotd)`
   width: 90px;
 `;

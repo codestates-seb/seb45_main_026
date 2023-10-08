@@ -9,29 +9,18 @@ import { PageTitle } from "../../styles/PageTitle";
 import NavBar from "../../components/navBar/NavBar";
 import Loading from "../../components/loading/Loading";
 import Pagination from "../../atoms/pagination/Pagination";
-import {
-  DarkMode,
-  UseLocateType,
-  reportVideoDataType,
-} from "../../types/reportDataType";
+import { DarkMode, ReportVideoDataType } from "../../types/reportDataType";
 import { getReportVideoList } from "../../services/reprotService";
 import {
   MainContainer,
   PageContainer,
 } from "../../atoms/layouts/PageContainer";
-import VideoReportList from "../../components/reportPage/VideoReportList";
-import { useLocate } from "../../hooks/useLocation";
 import tokens from "../../styles/tokens.json";
-import { RegularButton } from "../../atoms/buttons/Buttons";
-import { ReactComponent as arrowPrev } from "../../assets/images/icons/arrowPrev.svg";
-import { ReactComponent as arrowPrevDark } from "../../assets/images/icons/arrowPrevDark.svg";
-import { ReactComponent as arrowNext } from "../../assets/images/icons/arrowNext.svg";
-import { ReactComponent as arrowNextDark } from "../../assets/images/icons/arrowNextDark.svg";
+import ReportedVideoItems from "../../components/ReportedItems/ReportedVideoItems";
 
 const ReportVideoPage = () => {
   const navigate = useNavigate();
   const refreshToken = useToken();
-  const { locateVideo }: UseLocateType = useLocate();
   const isDark = useSelector((state: RootState) => state.uiSetting.isDark);
   const isLogin = useSelector((state: RootState) => state.loginInfo.isLogin);
   const accessToken = useSelector(
@@ -39,13 +28,12 @@ const ReportVideoPage = () => {
   );
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [maxPage, setMaxPage] = useState<number>(10);
+  const [maxPage, setMaxPage] = useState<number>(1);
   const [isSize, setSize] = useState<number>(10);
   const [isSort, setSort] = useState<string>("last-reported-date");
-  const [isOpened, setOpened] = useState<number>(0);
 
   const { isLoading, error, data, isFetching, isPreviousData } = useQuery({
-    queryKey: ["reportvideos"],
+    queryKey: ["ReportVideo"],
     queryFn: async () => {
       const response = await getReportVideoList(
         accessToken.authorization,
@@ -54,17 +42,18 @@ const ReportVideoPage = () => {
         isSort
       );
 
-      console.log(response);
-
       if (response.response?.data.message === "만료된 토큰입니다.") {
         refreshToken();
       } else {
         return response;
       }
     },
+    keepPreviousData: true,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 30,
+    retry: 3, //error를 표시하기 전에 실패한 요청을 다시 시도하는 횟수
+    retryDelay: 1000,
   });
-
-  // console.log(data);
 
   useEffect(() => {
     if (!isLogin) {
@@ -95,72 +84,8 @@ const ReportVideoPage = () => {
               </TableTr>
             </thead>
             <tbody>
-              {data.data?.map((el: reportVideoDataType) => (
-                <>
-                  <TableTr isDark={isDark} key={el.videoId}>
-                    <TypotdId isDark={isDark}>{el.videoId}</TypotdId>
-                    <TypotdVideoName
-                      isDark={isDark}
-                      onClick={() => locateVideo(el.videoId)}
-                    >
-                      {el.videoName}
-                    </TypotdVideoName>
-                    <TypotdVideoStatus isDark={isDark}>
-                      {el.videoStatus === "CREATED"
-                        ? "활동중"
-                        : el.videoStatus === "CLOSED"
-                        ? "폐쇄됨"
-                        : el.videoStatus === "ADMIN_CLOSED"
-                        ? "관리자에 의해 폐쇄됨"
-                        : null}
-                    </TypotdVideoStatus>
-                    <TypotdReportCount isDark={isDark}>
-                      {el.reportCount} 회
-                    </TypotdReportCount>
-                    <TypotdLastDate isDark={isDark}>
-                      {el.lastReportedDate.split("T")[0]}
-                    </TypotdLastDate>
-                    <TypotdReportBlock isDark={isDark}>
-                      {(el.videoStatus === "CLOSED" ||
-                        el.videoStatus === "ADMIN_CLOSED") && (
-                        <RegularButton isDark={isDark} onClick={() => {}}>
-                          활성화
-                        </RegularButton>
-                      )}
-                      {el.videoStatus === "CREATED" && (
-                        <RegularButton isDark={isDark} onClick={() => {}}>
-                          비활성화
-                        </RegularButton>
-                      )}
-                    </TypotdReportBlock>
-                    <TypotdReportDetail isDark={isDark}>
-                      {isOpened === el.videoId ? (
-                        <HideListArrow
-                          onClick={() => {
-                            if (isOpened !== el.videoId) {
-                              setOpened(el.videoId);
-                            } else {
-                              setOpened(0);
-                            }
-                          }}
-                        />
-                      ) : (
-                        <ShowListArrow
-                          onClick={() => {
-                            if (isOpened !== el.videoId) {
-                              setOpened(el.videoId);
-                            } else {
-                              setOpened(0);
-                            }
-                          }}
-                        />
-                      )}
-                    </TypotdReportDetail>
-                  </TableTr>
-                  {isOpened === el.videoId && (
-                    <VideoReportList videoId={el.videoId} />
-                  )}
-                </>
+              {data.data?.map((el: ReportVideoDataType) => (
+                <ReportedVideoItems key={el.videoId} item={el} />
               ))}
             </tbody>
           </Typotable>
@@ -183,6 +108,7 @@ const globalTokens = tokens.global;
 export const Typotable = styled.table`
   margin: 30px 0px 30px 0px;
 `;
+
 export const TableTr = styled.tr<DarkMode>`
   border-bottom: 1px solid
     ${(props) =>
@@ -196,21 +122,15 @@ export const Typoth = styled.th<DarkMode>`
   padding: 15px 0px;
   text-align: center;
 `;
-export const Typotd = styled.td<DarkMode>`
-  color: ${(props) =>
-    props.isDark ? globalTokens.White.value : globalTokens.Black.value};
-  padding: 15px 0px;
-  text-align: center;
-`;
 
 export const TypothId = styled(Typoth)`
-  width: 70px;
+  width: 80px;
 `;
 export const TypothVideoName = styled(Typoth)`
   width: 330px;
 `;
 export const TypothVideoStatus = styled(Typoth)`
-  width: 155px;
+  width: 145px;
 `;
 export const TypothReportCount = styled(Typoth)`
   width: 85px;
@@ -223,40 +143,4 @@ export const TypothReportDetail = styled(Typoth)`
 `;
 export const TypothReportBlock = styled(Typoth)`
   width: 90px;
-`;
-
-export const TypotdId = styled(Typotd)`
-  width: 70px;
-`;
-export const TypotdVideoName = styled(Typotd)`
-  width: 330px;
-  cursor: pointer;
-`;
-export const TypotdVideoStatus = styled(Typotd)`
-  width: 155px;
-`;
-export const TypotdReportCount = styled(Typotd)`
-  width: 85px;
-`;
-export const TypotdLastDate = styled(Typotd)`
-  width: 140px;
-`;
-export const TypotdReportDetail = styled(Typotd)`
-  width: 80px;
-`;
-export const TypotdReportBlock = styled(Typotd)`
-  width: 90px;
-`;
-
-export const ShowListArrow = styled(arrowNext)`
-  width: 18px;
-  height: 18px;
-  transform: rotate(90deg);
-  cursor: pointer;
-`;
-export const HideListArrow = styled(arrowPrev)`
-  width: 18px;
-  height: 18px;
-  transform: rotate(90deg);
-  cursor: pointer;
 `;

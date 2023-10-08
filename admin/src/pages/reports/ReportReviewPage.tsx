@@ -9,16 +9,14 @@ import { PageTitle } from "../../styles/PageTitle";
 import NavBar from "../../components/navBar/NavBar";
 import Loading from "../../components/loading/Loading";
 import Pagination from "../../atoms/pagination/Pagination";
-import { DarkMode, reportReviewDataType } from "../../types/reportDataType";
+import { DarkMode, ReportReviewDataType } from "../../types/reportDataType";
 import { getReportReviewList } from "../../services/reprotService";
 import {
   MainContainer,
   PageContainer,
 } from "../../atoms/layouts/PageContainer";
-import ReviewReportList from "../../components/reportPage/ReviewReportList";
 import tokens from "../../styles/tokens.json";
-import { RegularButton } from "../../atoms/buttons/Buttons";
-import { HideListArrow, ShowListArrow } from "./ReportVideoPage";
+import ReportedReviewItems from "../../components/ReportedItems/ReportedReviewItems";
 
 const ReportReviewPage = () => {
   const navigate = useNavigate();
@@ -30,13 +28,12 @@ const ReportReviewPage = () => {
   );
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [maxPage, setMaxPage] = useState<number>(10);
+  const [maxPage, setMaxPage] = useState<number>(1);
   const [isSize, setSize] = useState<number>(10);
   const [isSort, setSort] = useState<string>("last-reported-date");
-  const [isOpened, setOpened] = useState<number>(0);
 
   const { isLoading, error, data, isFetching, isPreviousData } = useQuery({
-    queryKey: ["reportvideos"],
+    queryKey: ["ReportReview"],
     queryFn: async () => {
       const response = await getReportReviewList(
         accessToken.authorization,
@@ -45,17 +42,18 @@ const ReportReviewPage = () => {
         isSort
       );
 
-      console.log(response);
-
       if (response.response?.data.message === "만료된 토큰입니다.") {
         refreshToken();
       } else {
         return response;
       }
     },
+    keepPreviousData: true,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 30,
+    retry: 3, //error를 표시하기 전에 실패한 요청을 다시 시도하는 횟수
+    retryDelay: 1000,
   });
-
-  // console.log(data);
 
   useEffect(() => {
     if (!isLogin) {
@@ -64,6 +62,7 @@ const ReportReviewPage = () => {
     }
     setMaxPage(data?.pageInfo.totalPage);
   }, []);
+
   return (
     <PageContainer isDark={isDark}>
       <MainContainer isDark={isDark}>
@@ -86,51 +85,8 @@ const ReportReviewPage = () => {
               </TableTr>
             </thead>
             <tbody>
-              {data.data?.map((el: reportReviewDataType) => (
-                <>
-                  <TableTr isDark={isDark} key={el.replyId}>
-                    <TypotdId isDark={isDark}>{el.replyId}</TypotdId>
-                    <TypotdReplyName isDark={isDark}>
-                      {el.content}
-                    </TypotdReplyName>
-                    <TypotdReportCount isDark={isDark}>
-                      {el.reportCount}회
-                    </TypotdReportCount>
-                    <TypotdLastDate isDark={isDark}>
-                      {el.lastReportedDate.split("T")[0]}
-                    </TypotdLastDate>
-                    <TypotdReportBlock isDark={isDark}>
-                      <RegularButton isDark={isDark}>삭제</RegularButton>
-                    </TypotdReportBlock>
-                    <TypotdReportDetail isDark={isDark}>
-                      {isOpened === el.replyId ? (
-                        <HideListArrow
-                          onClick={() => {
-                            if (isOpened !== el.replyId) {
-                              setOpened(el.replyId);
-                            } else {
-                              setOpened(0);
-                            }
-                          }}
-                        />
-                      ) : (
-                        <ShowListArrow
-                          onClick={() => {
-                            if (isOpened !== el.replyId) {
-                              setOpened(el.replyId);
-                            } else {
-                              setOpened(0);
-                            }
-                          }}
-                        />
-                      )}
-                    </TypotdReportDetail>
-                  </TableTr>
-
-                  {isOpened === el.replyId && (
-                    <ReviewReportList replyId={el.replyId} />
-                  )}
-                </>
+              {data.data?.map((el: ReportReviewDataType) => (
+                <ReportedReviewItems key={el.replyId} item={el} />
               ))}
             </tbody>
           </Typotable>
@@ -189,24 +145,5 @@ export const TypothReportDetail = styled(Typoth)`
   width: 100px;
 `;
 export const TypothReportBlock = styled(Typoth)`
-  width: 80px;
-`;
-
-export const TypotdId = styled(Typotd)`
-  width: 80px;
-`;
-export const TypotdReplyName = styled(Typotd)`
-  width: 400px;
-`;
-export const TypotdReportCount = styled(Typotd)`
-  width: 100px;
-`;
-export const TypotdLastDate = styled(Typotd)`
-  width: 150px;
-`;
-export const TypotdReportDetail = styled(Typotd)`
-  width: 100px;
-`;
-export const TypotdReportBlock = styled(Typotd)`
   width: 80px;
 `;
