@@ -1,5 +1,6 @@
 package com.server.domain.reply.service;
 
+import com.server.auth.util.SecurityUtil;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.reply.controller.convert.ReplySort;
@@ -123,9 +124,7 @@ public class ReplyService {
     public void deleteReply(Long replyId, Long loginMemberId) {
         Reply reply = replyRepository.findByIdWithVideo(replyId).orElseThrow(ReplyNotFoundException::new);
 
-        if (!reply.getMember().getMemberId().equals(loginMemberId)) {
-            throw new MemberAccessDeniedException();
-        }
+        checkDeleteAuthority(loginMemberId, reply);
 
         Video video = reply.getVideo();
         video.getReplies().remove(reply);
@@ -133,6 +132,15 @@ public class ReplyService {
         replyRepository.delete(reply);
 
         video.calculateStar();
+    }
+
+    private void checkDeleteAuthority(Long loginMemberId, Reply reply) {
+
+        if(SecurityUtil.isAdmin()) return;
+
+        if (!reply.getMember().getMemberId().equals(loginMemberId)) {
+            throw new MemberAccessDeniedException();
+        }
     }
 
     public boolean reportReply(Long loginMemberId, Long replyId, String reportContent) {

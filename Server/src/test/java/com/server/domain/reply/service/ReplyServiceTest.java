@@ -605,6 +605,8 @@ class ReplyServiceTest extends ServiceTest {
        em.flush();
        em.clear();
 
+       setAuthentication(loginMember);
+
         //when
         replyService.deleteReply(reply.getReplyId(), loginMember.getMemberId());
 
@@ -633,6 +635,8 @@ class ReplyServiceTest extends ServiceTest {
         // when
         Member otherMember = createAndSaveMember();
         Long otherMemberId = otherMember.getMemberId();
+
+        setAuthentication(otherMember);
 
         // then
         assertThrows(MemberAccessDeniedException.class, () -> {
@@ -719,6 +723,8 @@ class ReplyServiceTest extends ServiceTest {
 
         em.flush();
         em.clear();
+
+        setAuthentication(member);
 
         //when
         replyService.deleteReply(reply.getReplyId(), member.getMemberId());
