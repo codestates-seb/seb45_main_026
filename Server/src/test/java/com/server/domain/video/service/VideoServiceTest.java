@@ -1089,16 +1089,4 @@ class VideoServiceTest extends ServiceTest {
         given(awsService.getUploadVideoUrl(anyLong(), anyString())).willReturn("https://test.com");
         given(awsService.getPublicUploadUrl(anyLong(), anyString(), any(FileType.class), any(ImageType.class))).willReturn("https://test.com");
     }
-
-    private void setAuthentication(Member member) {
-
-        String authority = member.getAuthority().toString();
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                member.getMemberId(),
-                null,
-                List.of(new SimpleGrantedAuthority(authority)));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
 }

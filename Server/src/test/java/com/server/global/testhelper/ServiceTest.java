@@ -43,8 +43,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.transaction.annotation.Transactional;
@@ -352,5 +354,17 @@ public abstract class ServiceTest {
         UserDetails userDetails = getUserDetails(member);
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
+
+    protected void setAuthentication(Member member) {
+
+        String authority = member.getAuthority().toString();
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                member.getMemberId(),
+                null,
+                List.of(new SimpleGrantedAuthority(authority)));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

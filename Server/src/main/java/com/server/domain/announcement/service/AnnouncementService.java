@@ -1,5 +1,6 @@
 package com.server.domain.announcement.service;
 
+import com.server.auth.util.SecurityUtil;
 import com.server.domain.announcement.entity.Announcement;
 import com.server.domain.announcement.repository.AnnouncementRepository;
 import com.server.domain.announcement.service.dto.request.AnnouncementCreateServiceRequest;
@@ -101,6 +102,9 @@ public class AnnouncementService {
     }
 
     private void checkAuthority(Long loginMemberId, Long memberId) {
+
+        if(SecurityUtil.isAdmin()) return;
+
         if(!loginMemberId.equals(memberId)) throw new MemberAccessDeniedException();
     }
 
