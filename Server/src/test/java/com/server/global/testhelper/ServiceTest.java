@@ -361,7 +361,7 @@ public abstract class ServiceTest {
         String authority = member.getAuthority().toString();
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                member.getMemberId(),
+                getUserDetails(member),
                 null,
                 List.of(new SimpleGrantedAuthority(authority)));
 
