@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { useNavigate } from "react-router-dom";
 import { useToken } from "../../hooks/useToken";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PageTitle } from "../../styles/PageTitle";
 import NavBar from "../../components/navBar/NavBar";
 import Loading from "../../components/loading/Loading";
@@ -33,7 +33,7 @@ const ReportNoticePage = () => {
   const [isSort, setSort] = useState<string>("last-reported-date");
 
   const { isLoading, error, data, isFetching, isPreviousData } = useQuery({
-    queryKey: ["ReportNotice"],
+    queryKey: ["ReportNotice", currentPage, accessToken],
     queryFn: async () => {
       const response = await getReportNoticeList(
         accessToken.authorization,
@@ -41,6 +41,7 @@ const ReportNoticePage = () => {
         isSize,
         isSort
       );
+      setMaxPage(response.pageInfo.totalPage);
 
       if (response.response?.data.message === "만료된 토큰입니다.") {
         refreshToken();
@@ -55,12 +56,26 @@ const ReportNoticePage = () => {
     retryDelay: 1000,
   });
 
+  const queryClient = useQueryClient();
   useEffect(() => {
     if (!isLogin) {
       navigate("/login");
       return;
     }
-    setMaxPage(data?.pageInfo.totalPage);
+    if (currentPage < maxPage) {
+      queryClient.prefetchQuery({
+        queryKey: ["ReportVideo"],
+        queryFn: async () => {
+          const response = await getReportNoticeList(
+            accessToken.authorization,
+            currentPage + 1,
+            isSize,
+            isSort
+          );
+          return response;
+        },
+      });
+    }
   }, []);
 
   return (

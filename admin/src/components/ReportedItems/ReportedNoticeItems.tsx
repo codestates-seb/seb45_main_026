@@ -44,6 +44,7 @@ const ReportedNoticeItems: React.FC<OwnProps> = ({ item }) => {
       });
     },
     onSuccess: () => {
+      // 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["ReportNotice"] });
     },
   });
