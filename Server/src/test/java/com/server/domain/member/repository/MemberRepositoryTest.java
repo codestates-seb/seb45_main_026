@@ -12,15 +12,10 @@ import com.server.domain.member.repository.dto.MemberVideoData;
 import com.server.domain.order.entity.Order;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.repository.RewardRepository;
-import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
 import com.server.domain.watch.entity.Watch;
-import com.server.global.exception.businessexception.channelException.ChannelNotFoundException;
-import com.server.global.exception.businessexception.memberexception.MemberNotFoundException;
-import com.server.global.exception.businessexception.videoexception.VideoNotFoundException;
 import com.server.global.testhelper.RepositoryTest;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -33,19 +28,15 @@ import org.springframework.data.domain.Sort;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.server.domain.channel.entity.QChannel.*;
-import static com.server.domain.video.entity.QVideo.*;
-import static com.server.domain.watch.entity.QWatch.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.DynamicTest.*;
+import static com.server.domain.channel.entity.QChannel.channel;
+import static com.server.domain.video.entity.QVideo.video;
+import static com.server.domain.watch.entity.QWatch.watch;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 
 class MemberRepositoryTest extends RepositoryTest {
@@ -600,123 +591,28 @@ class MemberRepositoryTest extends RepositoryTest {
         );
     }
 
-    // @TestFactory
-    // @DisplayName("채널 혹은 다른 것들과 연관된 멤버의 삭제 테스트")
-    Collection<DynamicTest> deleteMemberWithAll() {
-        //1
-        Member user = createAndSaveMember();
-        Channel channel = createAndSaveChannelWithName(user, "1aaaaaaaaa");
-        //2
-        Member user2 = createAndSaveMember();
-        Channel channel2 = createAndSaveChannelWithName(user2, "1aaaaaaaaa");
-        Video video1 = createAndSaveVideo(channel2);
-        Video video2 = createAndSaveVideo(channel2);
-        //3
-        Member user3 = createAndSaveMember();
-        Channel channel3 = createAndSaveChannelWithName(user3, "1aaaaaaaaa");
-        Video video3 = createAndSaveVideo(channel2);
-        Video video4 = createAndSaveVideo(channel2);
-        Member subscriber1 = createAndSaveMember();
-        createAndSaveSubscribe(subscriber1, channel3);
-        //4
-        Member user4 = createAndSaveMember();
-        Channel channel4 = createAndSaveChannelWithName(user4, "1aaaaaaaaa");
-        Video video5 = createAndSaveVideo(channel2);
-        Video video6 = createAndSaveVideo(channel2);
-        Member subscriber2 = createAndSaveMember();
-        Channel channel5 = createAndSaveChannelWithName(subscriber2, "1aaaaaaaaa");
-        createAndSaveSubscribe(subscriber2, channel4);
-        createAndSaveSubscribe(user4, channel5);
+    @Test
+    @DisplayName("이메일을 통해 회원 목록을 찾는다.")
+    void findAllByEmails() {
+        //given
+        String email1 = "test1@email.com";
+        String email2 = "test2@email.com";
+        String email3 = "test3@email.com";
 
-        em.flush();
-        em.clear();
+        Member member1 = createMemberWithChannel(email1);
+        Member member2 = createMemberWithChannel(email2);
+        Member member3 = createMemberWithChannel(email3);
+
+        HashSet<String> emails = new HashSet<>();
+        emails.add(email1);
+        emails.add(email2);
 
         //when
-        return List.of(
-            dynamicTest(
-                "회원이 채널만 가지고 있는 경우 회원과 채널 모두 같이 삭제되는지 테스트",
-                () -> {
-                    memberRepository.delete(user);
-                    em.flush();
-                    em.clear();
+        List<Member> members = memberRepository.findAllByEmails(emails);
 
-                    assertThrows(MemberNotFoundException.class,
-                        () -> memberRepository.findById(user.getMemberId()).orElseThrow(MemberNotFoundException::new));
-
-                    assertThrows(ChannelNotFoundException.class,
-                        () -> channelRepository.findById(channel.getChannelId()).orElseThrow(ChannelNotFoundException::new));
-                }
-            ),
-            dynamicTest(
-                "회원이 채널을 가지고 있고 채널에 비디오를 업로드한 경우 셋 모두 삭제되지 않고 회원과 채널만 삭제",
-                () -> {
-                    memberRepository.delete(user2);
-                    em.flush();
-                    em.clear();
-
-                    assertThrows(MemberNotFoundException.class,
-                        () -> memberRepository.findById(user2.getMemberId()).orElseThrow(MemberNotFoundException::new));
-
-                    assertThrows(ChannelNotFoundException.class,
-                        () -> channelRepository.findById(channel2.getChannelId()).orElseThrow(ChannelNotFoundException::new));
-
-                    assertDoesNotThrow(() -> videoRepository.findById(video1.getVideoId()).orElseThrow(VideoNotFoundException::new));
-                    assertDoesNotThrow(() -> videoRepository.findById(video2.getVideoId()).orElseThrow(VideoNotFoundException::new));
-                }
-            ),
-            dynamicTest(
-                "회원 + 채널 + 비디오 + 구독자가 있는 경우",
-                () -> {
-                    Member member = memberRepository.findById(subscriber1.getMemberId()).orElseThrow();
-
-                    assertThat(channelRepository.findById(channel3.getChannelId()).orElseThrow().getSubscribes().size())
-                        .isEqualTo(1);
-
-                    memberRepository.delete(user3);
-                    em.flush();
-                    em.clear();
-
-                    assertThrows(MemberNotFoundException.class,
-                        () -> memberRepository.findById(user3.getMemberId()).orElseThrow(MemberNotFoundException::new));
-
-                    assertThrows(ChannelNotFoundException.class,
-                        () -> channelRepository.findById(channel3.getChannelId()).orElseThrow(ChannelNotFoundException::new));
-
-                    assertDoesNotThrow(() -> videoRepository.findById(video3.getVideoId()).orElseThrow(VideoNotFoundException::new));
-                    assertDoesNotThrow(() -> videoRepository.findById(video4.getVideoId()).orElseThrow(VideoNotFoundException::new));
-
-                    // 탈퇴한 회원의 채널을 구독한 사람의 구독이 취소되지 않고 남아있음
-                    assertThat(memberRepository.findById(member.getMemberId()).orElseThrow().getSubscribes().size()).isEqualTo(1);
-                }
-            ),
-            dynamicTest(
-                "회원 + 채널 + 비디오 + 구독자가 있고 자기도 구독한게 있는 경우",
-                () -> {
-                    Member member = memberRepository.findById(subscriber2.getMemberId()).orElseThrow();
-                    List<Subscribe> user4Subscribes = memberRepository.findById(user4.getMemberId()).orElseThrow().getSubscribes();
-
-                    assertThat(channelRepository.findById(channel4.getChannelId()).orElseThrow().getSubscribes().size())
-                        .isEqualTo(1);
-                    assertThat(user4Subscribes.size()).isEqualTo(1);
-
-                    memberRepository.delete(user4);
-                    em.flush();
-                    em.clear();
-
-                    assertThrows(MemberNotFoundException.class,
-                        () -> memberRepository.findById(user4.getMemberId()).orElseThrow(MemberNotFoundException::new));
-
-                    assertThrows(ChannelNotFoundException.class,
-                        () -> channelRepository.findById(channel4.getChannelId()).orElseThrow(ChannelNotFoundException::new));
-
-                    assertDoesNotThrow(() -> videoRepository.findById(video5.getVideoId()).orElseThrow(VideoNotFoundException::new));
-                    assertDoesNotThrow(() -> videoRepository.findById(video6.getVideoId()).orElseThrow(VideoNotFoundException::new));
-
-                    assertThat(memberRepository.findById(member.getMemberId()).orElseThrow().getSubscribes().size()).isEqualTo(1);
-                    assertThat(channelRepository.findById(member.getChannel().getChannelId()).orElseThrow().getSubscribes().size()).isEqualTo(1);
-                }
-            )
-        );
+        //then
+        assertThat(members).hasSize(2)
+            .extracting("email").containsExactlyInAnyOrder(email1, email2);
     }
 
     protected Channel createAndSaveChannelWithName(Member member, String channelName) {

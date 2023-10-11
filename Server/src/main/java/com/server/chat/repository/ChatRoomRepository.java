@@ -12,13 +12,10 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Repository
@@ -126,7 +123,7 @@ public class ChatRoomRepository {
         zSetOpsChatRecord.removeRange(roomId, 0, -1);
     }
 
-    public HashSet<String> getUserEnterRoomId(String email) {
+    public HashSet<String> getAdminEnterRoomId(String email) {
 
         if(!hashOpsAdminInfo.hasKey(ADMIN_ASSIGN, email)) {
             return new HashSet<>();

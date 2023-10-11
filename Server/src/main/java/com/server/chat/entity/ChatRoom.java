@@ -1,10 +1,14 @@
 package com.server.chat.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -16,12 +20,16 @@ public class ChatRoom implements Serializable {
     private boolean assigned;
     private String adminEmail;
     private boolean isCompleted;
+    @JsonSerialize(using = ToStringSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime inquireDate;
 
     public static ChatRoom create(String email) {
         ChatRoom chatRoom = new ChatRoom();
         chatRoom.roomId = email;
         chatRoom.assigned = false;
         chatRoom.adminEmail = null;
+        chatRoom.inquireDate = LocalDateTime.now();
         return chatRoom;
     }
 

@@ -2,6 +2,7 @@ package com.server.chat.controller;
 
 import com.server.chat.entity.ChatMessage;
 import com.server.chat.entity.ChatRoom;
+import com.server.chat.service.dto.response.ChatRoomResponse;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.global.testhelper.ControllerTest;
@@ -41,13 +42,31 @@ class AdminChatControllerTest extends ControllerTest {
     void rooms() throws Exception {
         //given
         List<ChatRoom> chatRooms = createChatRooms(3);
-        List<String> chatRoomIds = chatRooms.stream()
-                .map(ChatRoom::getRoomId)
-                .collect(Collectors.toList());
 
-        given(chatService.getChatRooms()).willReturn(chatRooms);
+        List<ChatRoomResponse> chatRoomResponses = List.of(
+                ChatRoomResponse.builder()
+                        .roomId(chatRooms.get(0).getRoomId())
+                        .memberId(1L)
+                        .nickname("nickname1")
+                        .inquireDate(LocalDateTime.now())
+                        .build(),
+                ChatRoomResponse.builder()
+                        .roomId(chatRooms.get(1).getRoomId())
+                        .memberId(2L)
+                        .nickname("nickname2")
+                        .inquireDate(LocalDateTime.now())
+                        .build(),
+                ChatRoomResponse.builder()
+                        .roomId(chatRooms.get(2).getRoomId())
+                        .memberId(3L)
+                        .nickname("nickname3")
+                        .inquireDate(LocalDateTime.now())
+                        .build()
+        );
 
-        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(chatRoomIds, "미할당 채팅방 목록 조회 성공"));
+        given(chatService.getChatRooms()).willReturn(chatRoomResponses);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(chatRoomResponses, "미할당 채팅방 목록 조회 성공"));
 
         //when
         ResultActions actions = mockMvc.perform(get(BASE_URL)
@@ -67,7 +86,11 @@ class AdminChatControllerTest extends ControllerTest {
                                 headerWithName(AUTHORIZATION).description("액세스 토큰 / 관리자용")
                         ),
                         singleResponseFields(
-                                fieldWithPath("data").description("미할당 채팅방 목록")
+                                fieldWithPath("data").description("미할당 채팅방 목록"),
+                                fieldWithPath("data[].roomId").description("채팅방 ID"),
+                                fieldWithPath("data[].memberId").description("회원 ID"),
+                                fieldWithPath("data[].nickname").description("회원 닉네임"),
+                                fieldWithPath("data[].inquireDate").description("문의 날짜")
                         )
                 )
         );
@@ -78,13 +101,31 @@ class AdminChatControllerTest extends ControllerTest {
     void myRooms() throws Exception {
         //given
         List<ChatRoom> chatRooms = createChatRooms(3);
-        List<String> chatRoomIds = chatRooms.stream()
-                .map(ChatRoom::getRoomId)
-                .collect(Collectors.toList());
 
-        given(chatService.getMyAdminRooms(anyString())).willReturn(chatRoomIds);
+        List<ChatRoomResponse> chatRoomResponses = List.of(
+                ChatRoomResponse.builder()
+                        .roomId(chatRooms.get(0).getRoomId())
+                        .memberId(1L)
+                        .nickname("nickname1")
+                        .inquireDate(LocalDateTime.now())
+                        .build(),
+                ChatRoomResponse.builder()
+                        .roomId(chatRooms.get(1).getRoomId())
+                        .memberId(2L)
+                        .nickname("nickname2")
+                        .inquireDate(LocalDateTime.now())
+                        .build(),
+                ChatRoomResponse.builder()
+                        .roomId(chatRooms.get(2).getRoomId())
+                        .memberId(3L)
+                        .nickname("nickname3")
+                        .inquireDate(LocalDateTime.now())
+                        .build()
+        );
 
-        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(chatRoomIds, "자신이 참여한 채팅방 목록 조회 성공"));
+        given(chatService.getMyAdminRooms(anyString())).willReturn(chatRoomResponses);
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(chatRoomResponses, "자신이 참여한 채팅방 목록 조회 성공"));
 
         //when
         ResultActions actions = mockMvc.perform(get(BASE_URL + "/my-rooms")
@@ -104,7 +145,11 @@ class AdminChatControllerTest extends ControllerTest {
                                 headerWithName(AUTHORIZATION).description("액세스 토큰 / 관리자용")
                         ),
                         singleResponseFields(
-                                fieldWithPath("data").description("자신에게 할당된 채팅방 목록")
+                                fieldWithPath("data").description("자신에게 할당된 채팅방 목록"),
+                                fieldWithPath("data[].roomId").description("채팅방 ID"),
+                                fieldWithPath("data[].memberId").description("회원 ID"),
+                                fieldWithPath("data[].nickname").description("회원 닉네임"),
+                                fieldWithPath("data[].inquireDate").description("문의 날짜")
                         )
                 )
         );
