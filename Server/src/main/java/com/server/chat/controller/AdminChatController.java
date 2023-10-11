@@ -4,6 +4,7 @@ import com.server.auth.util.SecurityUtil;
 import com.server.chat.entity.ChatMessage;
 import com.server.chat.entity.ChatRoom;
 import com.server.chat.service.ChatService;
+import com.server.chat.service.dto.response.ChatRoomResponse;
 import com.server.global.reponse.ApiPageResponse;
 import com.server.global.reponse.ApiSingleResponse;
 import org.springframework.data.domain.Page;
@@ -27,26 +28,22 @@ public class AdminChatController {
 
     //모든 미할당 채팅방 목록 조회
     @GetMapping
-    public ResponseEntity<ApiSingleResponse<List<String>>> rooms() {
+    public ResponseEntity<ApiSingleResponse<List<ChatRoomResponse>>> rooms() {
 
-        List<ChatRoom> chatRooms = chatService.getChatRooms();
+        List<ChatRoomResponse> notAssignedChatRooms = chatService.getChatRooms();
 
-        List<String> chatRoomIds = chatRooms.stream()
-                .map(ChatRoom::getRoomId)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(ApiSingleResponse.ok(chatRoomIds, "미할당 채팅방 목록 조회 성공"));
+        return ResponseEntity.ok(ApiSingleResponse.ok(notAssignedChatRooms, "미할당 채팅방 목록 조회 성공"));
     }
 
     //자신이 참여한 채팅방 목록 조회
     @GetMapping("/my-rooms")
-    public ResponseEntity<ApiSingleResponse<List<String>>> myRooms() {
+    public ResponseEntity<ApiSingleResponse<List<ChatRoomResponse>>> myRooms() {
 
         String email = SecurityUtil.getEmail();
 
-        List<String> chatRoomIds = chatService.getMyAdminRooms(email);
+        List<ChatRoomResponse> myAdminRooms = chatService.getMyAdminRooms(email);
 
-        return ResponseEntity.ok(ApiSingleResponse.ok(chatRoomIds, "자신이 참여한 채팅방 목록 조회 성공"));
+        return ResponseEntity.ok(ApiSingleResponse.ok(myAdminRooms, "자신이 참여한 채팅방 목록 조회 성공"));
     }
 
     //채팅방 이전 대화 조회

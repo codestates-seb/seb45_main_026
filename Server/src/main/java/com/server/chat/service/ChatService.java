@@ -1,18 +1,17 @@
 package com.server.chat.service;
 
-import com.server.auth.util.SecurityUtil;
 import com.server.chat.entity.ChatMessage;
 import com.server.chat.entity.ChatRoom;
-import com.server.chat.entity.MessageType;
 import com.server.chat.repository.ChatRoomRepository;
+import com.server.chat.service.dto.response.ChatRoomResponse;
+import com.server.domain.member.entity.Member;
+import com.server.domain.member.repository.MemberRepository;
 import com.server.global.exception.businessexception.chatexception.ChatAlreadyAssignedException;
 import com.server.global.exception.businessexception.chatexception.ChatNotValidException;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,12 +24,15 @@ public class ChatService {
     private final ChannelTopic channelTopic;
     private final RedisTemplate redisTemplate;
     private final ChatRoomRepository chatRoomRepository;
+    private final MemberRepository memberRepository;
 
     public ChatService(ChannelTopic channelTopic,
-                       RedisTemplate redisTemplate, ChatRoomRepository chatRoomRepository) {
+                       RedisTemplate redisTemplate, ChatRoomRepository chatRoomRepository,
+                       MemberRepository memberRepository) {
         this.channelTopic = channelTopic;
         this.redisTemplate = redisTemplate;
         this.chatRoomRepository = chatRoomRepository;
+        this.memberRepository = memberRepository;
     }
 
     public void sendChatMessage(ChatMessage chatMessage) {
@@ -40,22 +42,58 @@ public class ChatService {
 
     }
 
-    public List<ChatRoom> getChatRooms() {
+    public List<ChatRoomResponse> getChatRooms() {
 
-        return chatRoomRepository.findNotAssignedRoom();
+        List<ChatRoom> notAssignedRoom = chatRoomRepository.findNotAssignedRoom();
+
+        HashSet<String> notAssignedRoomIds = notAssignedRoom.stream()
+                .map(ChatRoom::getRoomId)
+                .collect(Collectors.toCollection(HashSet::new));
+
+        List<Member> members = memberRepository.findAllByEmails(notAssignedRoomIds);
+
+        List<ChatRoomResponse> responses = new ArrayList<>();
+
+        for (ChatRoom chatRoom : notAssignedRoom) {
+            Member member = members.stream()
+                    .filter(m -> m.getEmail().equals(chatRoom.getRoomId()))
+                    .findFirst()
+                    .orElse(null);
+
+            responses.add(ChatRoomResponse.of(chatRoom, member));
+        }
+
+
+        return responses;
     }
 
-    public List<String> getMyAdminRooms(String email) {
+    public List<ChatRoomResponse> getMyAdminRooms(String email) {
 
-        HashSet<String> userEnterRoomId = chatRoomRepository.getUserEnterRoomId(email);
+        HashSet<String> adminEnterRoomIds = chatRoomRepository.getAdminEnterRoomId(email);
 
-        return new ArrayList<>(userEnterRoomId);
+        List<Member> members = memberRepository.findAllByEmails(adminEnterRoomIds);
+
+        List<ChatRoomResponse> responses = new ArrayList<>();
+
+        for (String roomId : adminEnterRoomIds) {
+            ChatRoom chatRoom = getValidRoom(roomId);
+
+            Member member = members.stream()
+                    .filter(m -> m.getEmail().equals(chatRoom.getRoomId()))
+                    .findFirst()
+                    .orElse(null);
+
+            responses.add(ChatRoomResponse.of(chatRoom, member));
+
+        }
+
+        return responses;
 
     }
 
     public void assignAdmin(String adminEmail, String roomId) {
 
-        ChatRoom chatRoom = chatRoomRepository.findRoomById(roomId).orElseThrow(ChatNotValidException::new);
+        ChatRoom chatRoom = getValidRoom(roomId);
         if(chatRoom.isAssigned()) {
             if(!chatRoom.getAdminEmail().equals(adminEmail)) {
                 throw new ChatAlreadyAssignedException();
@@ -73,12 +111,12 @@ public class ChatService {
 
     public ChatRoom getChatRoom(String roomId) {
 
-        return chatRoomRepository.findRoomById(roomId).orElseThrow(ChatNotValidException::new);
+        return getValidRoom(roomId);
     }
 
     public Page<ChatMessage> getChatRecord(String email, String roomId, int page) {
 
-        ChatRoom chatRoom = chatRoomRepository.findRoomById(roomId).orElseThrow(ChatNotValidException::new);
+        ChatRoom chatRoom = getValidRoom(roomId);
 
         if(!chatRoom.getRoomId().equals(email)) {
             if(chatRoom.isAssigned()) {
@@ -93,9 +131,13 @@ public class ChatService {
         return chatRoomRepository.getChatRecord(roomId, page);
     }
 
+    private ChatRoom getValidRoom(String roomId) {
+        return chatRoomRepository.findRoomById(roomId).orElseThrow(ChatNotValidException::new);
+    }
+
     public void completeChat(String email, String roomId) {
 
-            ChatRoom chatRoom = chatRoomRepository.findRoomById(roomId).orElseThrow(ChatNotValidException::new);
+            ChatRoom chatRoom = getValidRoom(roomId);
 
             if(!chatRoom.getRoomId().equals(email)) {
                 if(!chatRoom.getAdminEmail().equals(email)) {
