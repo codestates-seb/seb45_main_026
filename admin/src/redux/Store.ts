@@ -3,20 +3,22 @@ import {
   configureStore,
   getDefaultMiddleware,
 } from "@reduxjs/toolkit";
-import uiSettingSlice from "./createSlice/uiSettingSlice";
-import storage from "redux-persist/lib/storage";
 import { FLUSH, PERSIST, PURGE, persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+import uiSettingSlice from "./createSlice/uiSettingSlice";
 import loginInfoSlice from "./createSlice/loginInfoSlice";
+import customerInfoSlice from "./createSlice/customerInfoSlice";
 
 const reducers = combineReducers({
   uiSetting: uiSettingSlice.reducer,
   loginInfo: loginInfoSlice.reducer,
+  customerInfo: customerInfoSlice.reducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["uiSetting", "loginInfo"],
+  whitelist: ["uiSetting", "loginInfo", "customerInfo"],
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);
@@ -54,6 +56,9 @@ export type RootState = {
     myid: string;
     loginInfo: loginInfoType;
     accessToken: accessTokenType;
+  };
+  customerInfo: {
+    roomId: string;
   };
 };
 

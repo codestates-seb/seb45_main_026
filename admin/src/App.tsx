@@ -1,4 +1,3 @@
-import React from "react";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
@@ -10,6 +9,8 @@ import MemberPage from "./pages/MemberPage";
 import ReportReviewPage from "./pages/reports/ReportReviewPage";
 import ReportChannelPage from "./pages/reports/ReportChannelPage";
 import ReportNoticePage from "./pages/reports/ReportNoticePage";
+import CustomerServicePage from "./pages/chats/CustomerServicePage";
+import ChatRoomPage from "./pages/chats/ChatRoomPage";
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
         <Route path="/reports/reviews" element={<ReportReviewPage />} />
         <Route path="/reports/channels" element={<ReportChannelPage />} />
         <Route path="/reports/notices" element={<ReportNoticePage />} />
+        <Route path="/chats" element={<CustomerServicePage />} />
+        <Route path="/chats/:memberId" element={<ChatRoomPage />} />
       </Routes>
       <Footer />
     </BrowserRouter>

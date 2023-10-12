@@ -19,6 +19,9 @@ a:hover,
 a:active {
   text-decoration: none;
 }
+input {
+  outline: none;
+}
 textarea {
   resize: none;
 }
