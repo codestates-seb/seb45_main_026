@@ -68,7 +68,8 @@ const Setting = () => {
   const [is계좌정보변경성공팝업, setIs계좌정보변경성공팝업] = useState(false);
   const [is계좌정보변경실패팝업, setIs계좌정보변경실패팝업] = useState(false);
   const [isBankList, setBankList] = useState([]);
-  const [selectedBank, setSelectedBank] = useState("");
+  // const [selectedBank, setSelectedBank] = useState("");
+  const [isBankDropdown, setBankDropdown] = useState(false);
 
   const {
     register,
@@ -102,7 +103,6 @@ const Setting = () => {
           );
           getAccountInfoService(accessToken.authorization).then((response) => {
             if (response.status === "success") {
-              setSelectedBank(response.data.data.bank);
               dispatch(
                 setAccountInfo({
                   accountHolder: response.data.data.name,
@@ -211,8 +211,7 @@ const Setting = () => {
   //계좌정보 변경 버튼 누르면 동작함
   const handleAccountNumberClick = async () => {
     const accountHolder = watch("accountHolder");
-    // const bank = watch("bank");
-    const bank = selectedBank;
+    const bank = watch("bank");
     const accountNumber = watch("accountNumber");
     const isAccountHolder = await trigger("accountHolder");
     const isBank = await trigger("bank");
@@ -222,7 +221,7 @@ const Setting = () => {
       const response = await updateAccountInfoService(
         accessToken.authorization,
         accountHolder,
-        bank,
+        isBank,
         accountNumber
       );
       if (response.status === "success") {
@@ -296,6 +295,11 @@ const Setting = () => {
   const handleAlertButtonClick = () => {
     setIsDeleteUserAlertModalOpen(false);
     navigate("/");
+  };
+
+  const handleSelected = (banktype) => {
+    const isBankType = watch("bank");
+    return banktype === isBankType;
   };
 
   return (
@@ -617,39 +621,43 @@ const Setting = () => {
               예금주명을 입력해 주세요.
             </InputErrorTypo>
           )}
-          <Input
-            marginTop={globalTokens.Spacing8.value}
-            label="은행"
-            width="50vw"
-            name="bank"
-            type="text"
-            placeholder="은행을 입력해 주세요."
-            register={register}
-            maxLength={20}
-            pattern={/^[A-Za-z가-힣]+$/}
-            validateFunc={() => {
-              return true;
-            }}
-            // value={}
-            isButton={false}
-            required
-          />
-          <BankLists isDark={isDark}>
-            {isBankList.map((obj, idx) => (
-              <BankList
-                key={idx}
-                id={obj.bank}
-                isSelected={selectedBank === obj.bank}
-                isDark={isDark}
-                onClick={() => setSelectedBank(obj.bank)}
-              >
-                {obj.description}
-              </BankList>
-            ))}
-          </BankLists>
+          <BankBox>
+            <Input
+              marginTop={globalTokens.Spacing8.value}
+              label="은행"
+              width="50vw"
+              name="bank"
+              type="text"
+              placeholder="아래에서 은행을 선택해 주세요."
+              register={register}
+              maxLength={20}
+              pattern={/^[A-Za-z가-힣]+$/}
+              validateFunc={() => {
+                return true;
+              }}
+              isButton={false}
+              required
+              newFunc={setBankDropdown}
+            />
+            {isBankDropdown && (
+              <BankLists isDark={isDark}>
+                {isBankList.map((obj, idx) => (
+                  <BankList
+                    key={idx}
+                    id={obj.bank}
+                    isSelected={handleSelected(obj.bank)}
+                    isDark={isDark}
+                    onMouseDown={() => setValue("bank", obj.bank)}
+                  >
+                    {obj.description}
+                  </BankList>
+                ))}
+              </BankLists>
+            )}
+          </BankBox>
           {errors.bank && errors.bank.type === "required" && (
             <InputErrorTypo isDark={isDark} width="50vw">
-              은행을 입력해 주세요.
+              아래에서 은행을 선택해 주세요.
             </InputErrorTypo>
           )}
           {errors.bank &&
@@ -742,4 +750,9 @@ export const BankList = styled.li`
   color: ${(props) =>
     props.isDark ? globalTokens.White.value : globalTokens.Black.value};
   font-weight: ${(props) => props.isSelected && 600};
+  cursor: pointer;
+`;
+
+export const BankBox = styled.div`
+  border: 1px solid red;
 `;

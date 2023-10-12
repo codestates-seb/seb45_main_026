@@ -93,7 +93,7 @@ export const Input = ({
   buttonTitle,
   handleButtonClick,
   disabled,
-  value,
+  newFunc = () => {},
 }) => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
 
@@ -121,8 +121,9 @@ export const Input = ({
             minLength: minLength,
             pattern: pattern,
             validate: validateFunc,
-            value: value || "",
           })}
+          onFocus={() => newFunc(true)}
+          onBlur={() => newFunc(false)}
           disabled={disabled ? disabled : false}
         />
         {isButton && (
