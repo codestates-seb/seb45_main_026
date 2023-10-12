@@ -7,6 +7,7 @@
     "@egjs/react-flicking": "^4.11.0",
     "@react-oauth/google": "^0.11.1",
     "@reduxjs/toolkit": "^1.9.5",
+    "@tanstack/react-query": "^4.35.7",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
