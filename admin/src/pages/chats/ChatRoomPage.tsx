@@ -190,23 +190,23 @@ const ChatRoomPage: React.FC = () => {
         {isLoading ? (
           <Loading />
         ) : (
-          <ChatContainer>
+          <ChatContainer isDark={isDark}>
             <ChatHeader isDark={isDark}>
-              <RoomID isDark={isDark}>ID : {roomId}</RoomID>
-              <BackBtn isDark={isDark} onClick={handleBack}>
-                &times;
-              </BackBtn>
-              {/* <QuestionEndBtn
+              <QuestionEndBtn
                 isDark={isDark}
                 onClick={() => {
                   patchChatEnd(accessToken.authorization, roomId);
                 }}
               >
                 상담 종료하기
-              </QuestionEndBtn> */}
+              </QuestionEndBtn>
+              <RoomID isDark={isDark}>ID : {roomId}</RoomID>
+              <BackBtn isDark={isDark} onClick={handleBack}>
+                &times;
+              </BackBtn>
             </ChatHeader>
 
-            <MsgLists ref={scrollRef}>
+            <MsgLists isDark={isDark} ref={scrollRef}>
               {ChatContents.data?.map((el: ChatContents) => {
                 const sendDate: string = el.sendDate.split(".")[0];
                 const sendTimes: string[] = sendDate.split("T")[1].split(":");
@@ -222,13 +222,13 @@ const ChatRoomPage: React.FC = () => {
                   return (
                     <LeftMsgList>
                       <MsgContent isDark={isDark}>{el.message}</MsgContent>
-                      <MsgDate>{sendTime}</MsgDate>
+                      <MsgDate isDark={isDark}>{sendTime}</MsgDate>
                     </LeftMsgList>
                   );
                 } else {
                   return (
                     <RightMsgList>
-                      <MsgDate>{sendTime}</MsgDate>
+                      <MsgDate isDark={isDark}>{sendTime}</MsgDate>
                       <MsgContent isDark={isDark}>{el.message}</MsgContent>
                     </RightMsgList>
                   );
@@ -237,8 +237,9 @@ const ChatRoomPage: React.FC = () => {
               <div ref={messageEndRef}></div>
             </MsgLists>
             <ChatFooter>
-              <ChatInputBox>
+              <ChatInputBox isDark={isDark}>
                 <ChatInput
+                  isDark={isDark}
                   value={isMsg}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setMsg(e.target.value)
@@ -247,7 +248,7 @@ const ChatRoomPage: React.FC = () => {
                     handleKeyEnter(e)
                   }
                 />
-                <ChatSendBtn onClick={handleSendMessage} />
+                <ChatSendBtn isDark={isDark} onClick={handleSendMessage} />
               </ChatInputBox>
             </ChatFooter>
           </ChatContainer>
@@ -261,23 +262,27 @@ export default ChatRoomPage;
 
 const globalTokens = tokens.global;
 
-export const ChatContainer = styled.div`
+export const ChatContainer = styled.div<DarkMode>`
   width: 100%;
   max-width: 800px;
   margin: 20px 0px;
-  border: 1px solid black;
+  background-color: ${(props) =>
+    props.isDark ? globalTokens.Black.value : globalTokens.LightRed.value};
+  border-radius: 8px;
 `;
 
 export const ChatHeader = styled.div<DarkMode>`
+  position: relative;
   width: 100%;
   padding: 10px 10px;
+  border-radius: 8px 8px 0px 0px;
   background-color: ${(props) =>
-    props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
+    props.isDark ? globalTokens.Black.value : globalTokens.LightRed.value};
   border-bottom: 1px solid
     ${(props) =>
-      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
+      props.isDark ? globalTokens.Gray.value : globalTokens.White.value};
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 `;
 
@@ -287,50 +292,87 @@ export const RoomID = styled(BodyTextTypo)`
 `;
 
 export const BackBtn = styled(BodyTextTypo)`
+  position: absolute;
+  right: 2%;
   padding: 5px 10px;
   font-weight: ${globalTokens.Bold.value};
   cursor: pointer;
 `;
 
-export const QuestionEndBtn = styled(RegularButton)``;
+export const QuestionEndBtn = styled(RegularButton)`
+  position: absolute;
+  left: 2%;
+  border: ${globalTokens.ThinHeight.value}px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.Background.value};
+  background-color: ${(props) =>
+    props.isDark ? globalTokens.MainNavy.value : globalTokens.Background.value};
+  font-weight: 600;
+  font-size: 14px;
+`;
 
-export const MsgLists = styled.ul`
+export const MsgLists = styled.ul<DarkMode>`
   width: 100%;
   height: 60vh;
   padding: 15px 10px;
   overflow-y: scroll;
+  background-color: ${(props) =>
+    props.isDark ? globalTokens.Black.value : globalTokens.LightRed.value};
   display: flex;
   flex-direction: column;
+
+  &::-webkit-scrollbar {
+    width: 8px; /* 스크롤바의 너비 */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    /* 스크롤바의 길이 */
+    height: 30%;
+    /* 스크롤바의 색상 */
+    background: ${(props) =>
+      props.isDark
+        ? globalTokens.LightNavy.value
+        : globalTokens.Background.value};
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    /*스크롤바 뒷 배경 색상*/
+    background: ${(props) =>
+      props.isDark ? globalTokens.Black.value : globalTokens.LightRed.value};
+  }
 `;
 
-export const LeftMsgList = styled.li`
+export const MsgList = styled.li`
   width: 100%;
   padding: 10px;
   display: flex;
+  align-items: end;
+`;
+
+export const LeftMsgList = styled(MsgList)`
   justify-content: start;
-  align-items: end;
 `;
 
-export const RightMsgList = styled.li`
-  width: 100%;
-  padding: 10px;
-  display: flex;
+export const RightMsgList = styled(MsgList)`
   justify-content: end;
-  align-items: end;
 `;
 
 export const MsgContent = styled(BodyTextTypo)`
-  padding: 5px 15px;
-  border: 1px solid gray;
+  padding: 8px 18px;
+  background-color: ${(props) =>
+    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
   border-radius: 8px;
   font-weight: ${globalTokens.Bold.value};
 `;
 
-export const MsgDate = styled.div`
+export const MsgDate = styled.div<DarkMode>`
   margin: 0px 10px;
   padding-bottom: 2px;
   font-size: 12px;
-  color: gray;
+  font-weight: 600;
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.White.value};
 `;
 
 export const ChatFooter = styled.div`
@@ -338,29 +380,37 @@ export const ChatFooter = styled.div`
   padding: 10px 20px;
 `;
 
-export const ChatInputBox = styled.div`
+export const ChatInputBox = styled.div<DarkMode>`
   width: 100%;
-  height: 40px;
-  padding: 0px 15px;
+  height: 45px;
+  margin: 5px 0px 10px 0px;
+  padding: 5px 15px;
   border-radius: 18px;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border: 1px solid skyblue;
+  background-color: ${(props) =>
+    props.isDark
+      ? globalTokens.LightNavy.value
+      : globalTokens.Background.value};
 `;
 
-export const ChatInput = styled.input`
+export const ChatInput = styled.input<DarkMode>`
   width: 100%;
   margin-right: 10px;
   padding: 0px 5px;
+  background: none;
   border: none;
+  color: ${(props) =>
+    props.isDark ? globalTokens.White.value : globalTokens.Black.value};
 `;
 
-export const ChatSendBtn = styled(SendArrow)`
+export const ChatSendBtn = styled(SendArrow)<DarkMode>`
   width: 20px;
   height: 20px;
   cursor: pointer;
   path {
-    fill: skyblue;
+    fill: ${(props) =>
+      props.isDark ? globalTokens.White.value : globalTokens.Gray.value};
   }
 `;
