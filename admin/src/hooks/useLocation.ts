@@ -1,5 +1,3 @@
-import React from "react";
-
 const Url: string = "https://www.itprometheus.net";
 
 export const useLocate = () => {

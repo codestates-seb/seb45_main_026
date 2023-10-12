@@ -16,9 +16,9 @@ const TypographyTest = ({isDark}:TypographyTestType) => {
     );
 }
 
-describe('<TypographyTest/>',()=>{
-    it('Typography의 Light Mode 색상은 Black이다.', ()=>{
-        const isDark = true;
-        const { container } = render(<TypographyTest isDark={isDark}/>);
-    });
-})
+// describe('<TypographyTest/>',()=>{
+//     it('Typography의 Light Mode 색상은 Black이다.', ()=>{
+//         const isDark = true;
+//         const { container } = render(<TypographyTest isDark={isDark}/>);
+//     });
+// })

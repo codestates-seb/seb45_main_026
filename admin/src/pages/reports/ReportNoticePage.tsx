@@ -4,18 +4,19 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { useNavigate } from "react-router-dom";
 import { useToken } from "../../hooks/useToken";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PageTitle } from "../../styles/PageTitle";
 import NavBar from "../../components/navBar/NavBar";
 import Loading from "../../components/loading/Loading";
 import Pagination from "../../atoms/pagination/Pagination";
-import { ReportNoticeDataType } from "../../types/reportDataType";
+import { DarkMode, ReportNoticeDataType } from "../../types/reportDataType";
 import { getReportNoticeList } from "../../services/reprotService";
 import {
   MainContainer,
   PageContainer,
 } from "../../atoms/layouts/PageContainer";
-import NoticeReportList from "../../components/reportPage/NoticeReportList";
+import tokens from "../../styles/tokens.json";
+import ReportedNoticeItems from "../../components/ReportedItems/ReportedNoticeItems";
 
 const ReportNoticePage = () => {
   const navigate = useNavigate();
@@ -27,13 +28,12 @@ const ReportNoticePage = () => {
   );
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [maxPage, setMaxPage] = useState<number>(10);
+  const [maxPage, setMaxPage] = useState<number>(1);
   const [isSize, setSize] = useState<number>(10);
   const [isSort, setSort] = useState<string>("last-reported-date");
-  const [isOpened, setOpened] = useState<number>(0);
 
   const { isLoading, error, data, isFetching, isPreviousData } = useQuery({
-    queryKey: ["reportNotice"],
+    queryKey: ["ReportNotice", currentPage, accessToken],
     queryFn: async () => {
       const response = await getReportNoticeList(
         accessToken.authorization,
@@ -41,8 +41,7 @@ const ReportNoticePage = () => {
         isSize,
         isSort
       );
-
-      console.log(response);
+      setMaxPage(response.pageInfo.totalPage);
 
       if (response.response?.data.message === "만료된 토큰입니다.") {
         refreshToken();
@@ -50,16 +49,33 @@ const ReportNoticePage = () => {
         return response;
       }
     },
+    keepPreviousData: true,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 30,
+    retry: 3, //error를 표시하기 전에 실패한 요청을 다시 시도하는 횟수
+    retryDelay: 1000,
   });
 
-  // console.log(data);
-
+  const queryClient = useQueryClient();
   useEffect(() => {
     if (!isLogin) {
       navigate("/login");
       return;
     }
-    // setMaxPage(data?.pageInfo.totalPage);
+    if (currentPage < maxPage) {
+      queryClient.prefetchQuery({
+        queryKey: ["ReportVideo"],
+        queryFn: async () => {
+          const response = await getReportNoticeList(
+            accessToken.authorization,
+            currentPage + 1,
+            isSize,
+            isSort
+          );
+          return response;
+        },
+      });
+    }
   }, []);
 
   return (
@@ -72,43 +88,20 @@ const ReportNoticePage = () => {
         ) : (
           <Typotable>
             <thead>
-              <tr>
-                <TypothId>공지사항 ID</TypothId>
-                <TypothVideoName>신고된 공지사항 내용</TypothVideoName>
-                <TypothReportCount>신고 횟수</TypothReportCount>
-                <TypothLastDate>최근 신고 날짜</TypothLastDate>
-                <TypothReportDetail>비고</TypothReportDetail>
-              </tr>
+              <TableTr isDark={isDark}>
+                <TypothId isDark={isDark}>공지사항 ID</TypothId>
+                <TypothNoticeName isDark={isDark}>
+                  신고된 공지사항 내용
+                </TypothNoticeName>
+                <TypothReportCount isDark={isDark}>신고 횟수</TypothReportCount>
+                <TypothLastDate isDark={isDark}>최근 신고 날짜</TypothLastDate>
+                <TypothReportBlock isDark={isDark}>비고</TypothReportBlock>
+                <TypothReportDetail isDark={isDark}></TypothReportDetail>
+              </TableTr>
             </thead>
             <tbody>
               {data.data?.map((el: ReportNoticeDataType) => (
-                <>
-                  <tr key={el.announcementId}>
-                    <TypotdId>{el.announcementId}</TypotdId>
-                    <TypotdVideoName>{el.content}</TypotdVideoName>
-                    <TypotdReportCount>{el.reportCount}회</TypotdReportCount>
-                    <TypotdLastDate>{el.lastReportedDate}</TypotdLastDate>
-                    <TypotdReportDetail>
-                      <button
-                        onClick={() => {
-                          if (isOpened !== el.announcementId) {
-                            setOpened(el.announcementId);
-                          } else {
-                            setOpened(0);
-                          }
-                        }}
-                      >
-                        {isOpened === el.announcementId
-                          ? "축소하기"
-                          : "상세보기"}
-                      </button>
-                    </TypotdReportDetail>
-                  </tr>
-
-                  {isOpened === el.announcementId && (
-                    <NoticeReportList announcementId={el.announcementId} />
-                  )}
-                </>
+                <ReportedNoticeItems key={el.announcementId} item={el} />
               ))}
             </tbody>
           </Typotable>
@@ -126,52 +119,42 @@ const ReportNoticePage = () => {
 
 export default ReportNoticePage;
 
+const globalTokens = tokens.global;
+
 export const Typotable = styled.table`
   margin: 30px 0px 30px 0px;
+  table-layout: fixed;
+  width: 860px;
 `;
-export const Typoth = styled.th`
-  padding: 10px 0px;
+export const TableTr = styled.tr<DarkMode>`
+  border-bottom: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
+`;
+export const Typoth = styled.th<DarkMode>`
+  background-color: ${(props) =>
+    props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
+  padding: 15px 0px;
   text-align: center;
-  border: 1px solid black;
 `;
-export const Typotd = styled.td`
-  padding: 10px 0px;
-  text-align: center;
-  border: 1px solid black;
-`;
+
 export const TypothId = styled(Typoth)`
-  width: 70px;
+  width: 100px;
 `;
-export const TypothVideoName = styled(Typoth)`
-  width: 330px;
-`;
-export const TypothVideoStatus = styled(Typoth)`
-  width: 150px;
+export const TypothNoticeName = styled(Typoth)`
+  width: 455px;
 `;
 export const TypothReportCount = styled(Typoth)`
   width: 85px;
 `;
 export const TypothLastDate = styled(Typoth)`
-  width: 190px;
+  width: 140px;
 `;
 export const TypothReportDetail = styled(Typoth)`
   width: 80px;
 `;
-export const TypotdId = styled(Typotd)`
-  width: 70px;
-`;
-export const TypotdVideoName = styled(Typotd)`
-  width: 330px;
-`;
-export const TypotdVideoStatus = styled(Typotd)`
-  width: 150px;
-`;
-export const TypotdReportCount = styled(Typotd)`
-  width: 85px;
-`;
-export const TypotdLastDate = styled(Typotd)`
-  width: 190px;
-`;
-export const TypotdReportDetail = styled(Typotd)`
-  width: 80px;
+export const TypothReportBlock = styled(Typoth)`
+  width: 90px;
 `;

@@ -10,6 +10,7 @@ export const TableContainer = styled.table`
 export const TableTh = styled.th<{isDark : boolean}>`
     transition: 300ms;
     background-color: ${props=>props.isDark?globalTokens.Black.value : globalTokens.Background.value};
+    color: ${props=>props.isDark? globalTokens.LightGray.value : globalTokens.Gray.value };
     width: 100%;
     padding: ${globalTokens.Spacing8.value}px;
     display: flex;
