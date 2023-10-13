@@ -10,7 +10,7 @@ import App from "./App";
 import store from "./redux/Store";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 export const persistor = persistStore(store);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

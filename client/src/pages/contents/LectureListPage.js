@@ -23,6 +23,7 @@ import { useToken } from "../../hooks/useToken";
 import { useInView } from "react-intersection-observer";
 import SearchSubmit from "../../components/contentListItems/Searchsubmit";
 import { Heading5Typo } from "../../atoms/typographys/Typographys";
+import { setLoginInfo } from "../../redux/createSlice/LoginInfoSlice";
 
 const LectureListPage = () => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
@@ -132,6 +133,19 @@ const LectureListPage = () => {
       behavior: "smooth", // 부드러운 스크롤을 사용하려면 'smooth'를 지정합니다.
     });
   };
+
+  useEffect(() => {
+    axios
+      .get(`https://api.itprometheus.net/members`, {
+        headers: { Authorization: accessToken.authorization },
+      })
+      .then((res) => {
+        dispatch(setLoginInfo(res.data.data));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   return (
     <PageContainer isDark={isDark}>
