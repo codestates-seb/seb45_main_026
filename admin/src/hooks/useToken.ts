@@ -18,7 +18,7 @@ export const useToken = (  ) => {
                 }));
                 callback && callback();
             } else { 
-                logout(); 
+                logout();
             }
         })
     }

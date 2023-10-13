@@ -96,7 +96,7 @@ const ReviewList = ({ el, getReview }) => {
 
   return (
     <>
-      <ReList isDark={isDark}>
+      <ReList isDark={isDark} id={el.replyId}>
         {myId === el.member.memberId ? (
           <>
             {isEditMode ? (

@@ -1,35 +1,39 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import styled from "styled-components";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/Store";
+import { useNavigate } from "react-router-dom";
+import { useToken } from "../../hooks/useToken";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { PageTitle } from "../../styles/PageTitle";
+import NavBar from "../../components/navBar/NavBar";
+import Loading from "../../components/loading/Loading";
+import Pagination from "../../atoms/pagination/Pagination";
+import { DarkMode, ReportVideoDataType } from "../../types/reportDataType";
+import { getReportVideoList } from "../../services/reprotService";
 import {
   MainContainer,
   PageContainer,
 } from "../../atoms/layouts/PageContainer";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/Store";
-import { useNavigate } from "react-router-dom";
-import { PageTitle } from "../../styles/PageTitle";
-import { useQuery } from "@tanstack/react-query";
-import { getReportVideoList } from "../../services/reprotService";
-import Pagination from "../../atoms/pagination/Pagination";
-import { reportVideoDataType } from "../../types/reportDataType";
-import Loading from "../../components/loading/Loading";
-import styled from "styled-components";
-import NavBar from "../../components/navBar/NavBar";
+import tokens from "../../styles/tokens.json";
+import ReportedVideoItems from "../../components/ReportedItems/ReportedVideoItems";
 
 const ReportVideoPage = () => {
   const navigate = useNavigate();
+  const refreshToken = useToken();
   const isDark = useSelector((state: RootState) => state.uiSetting.isDark);
   const isLogin = useSelector((state: RootState) => state.loginInfo.isLogin);
   const accessToken = useSelector(
     (state: RootState) => state.loginInfo.accessToken
   );
 
+  const [maxPage, setMaxPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [maxPage, setMaxPage] = useState<number>(10);
   const [isSize, setSize] = useState<number>(10);
   const [isSort, setSort] = useState<string>("last-reported-date");
 
-  const { isLoading, error, data, isFetching } = useQuery({
-    queryKey: ["videos"],
+  const { isLoading, error, data, isFetching, isPreviousData } = useQuery({
+    queryKey: ["ReportVideo", currentPage, accessToken],
     queryFn: async () => {
       const response = await getReportVideoList(
         accessToken.authorization,
@@ -37,52 +41,69 @@ const ReportVideoPage = () => {
         isSize,
         isSort
       );
-      return response;
+      setMaxPage(response.pageInfo.totalPage);
+
+      if (response.response?.data.message === "만료된 토큰입니다.") {
+        refreshToken();
+      } else {
+        return response;
+      }
     },
+    keepPreviousData: true,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 30,
+    retry: 3, //error를 표시하기 전에 실패한 요청을 다시 시도하는 횟수
+    retryDelay: 1000,
   });
 
-  console.log(data);
-
+  const queryClient = useQueryClient();
   useEffect(() => {
     if (!isLogin) {
       navigate("/login");
       return;
     }
-    // setMaxPage(data?.pageInfo.totalPage);
+    if (currentPage < maxPage) {
+      queryClient.prefetchQuery({
+        queryKey: ["ReportVideo"],
+        queryFn: async () => {
+          const response = await getReportVideoList(
+            accessToken.authorization,
+            currentPage + 1,
+            isSize,
+            isSort
+          );
+          return response;
+        },
+      });
+    }
   }, []);
 
   return (
     <PageContainer isDark={isDark}>
       <MainContainer isDark={isDark}>
         <PageTitle isDark={isDark}>신고 내역 관리</PageTitle>
+        <NavBar NavType="비디오" />
         {isLoading ? (
           <Loading />
         ) : (
-          <table>
+          <Typotable>
             <thead>
-              <tr>
-                <TypothId>강의 ID</TypothId>
-                <TypothVideoName>
-                  <div>강의 제목</div>
-                  {/* <div>(생성 날짜)</div> */}
-                </TypothVideoName>
-                <TypothVideoStatus>강의 상태</TypothVideoStatus>
-                <TypothReportCount>신고 횟수</TypothReportCount>
-                <TypothLastDate>최근 신고 날짜</TypothLastDate>
-              </tr>
+              <TableTr isDark={isDark}>
+                <TypothId isDark={isDark}>강의 ID</TypothId>
+                <TypothVideoName isDark={isDark}>강의 제목</TypothVideoName>
+                <TypothVideoStatus isDark={isDark}>강의 상태</TypothVideoStatus>
+                <TypothReportCount isDark={isDark}>신고 횟수</TypothReportCount>
+                <TypothLastDate isDark={isDark}>최근 신고 날짜</TypothLastDate>
+                <TypothReportBlock isDark={isDark}>비고</TypothReportBlock>
+                <TypothReportDetail isDark={isDark}></TypothReportDetail>
+              </TableTr>
             </thead>
             <tbody>
-              {data.data.map((el: reportVideoDataType) => (
-                <tr key={el.videoId}>
-                  <TypotdId>{el.videoId}</TypotdId>
-                  <TypotdVideoName>{el.videoName}</TypotdVideoName>
-                  <TypotdVideoStatus>{el.videoStatus}</TypotdVideoStatus>
-                  <TypotdReportCount>{el.reportCount}회</TypotdReportCount>
-                  <TypotdLastDate>{el.lastReportedDate}</TypotdLastDate>
-                </tr>
+              {data.data?.map((el: ReportVideoDataType) => (
+                <ReportedVideoItems key={el.videoId} item={el} />
               ))}
             </tbody>
-          </table>
+          </Typotable>
         )}
         <Pagination
           isDark={isDark}
@@ -97,48 +118,44 @@ const ReportVideoPage = () => {
 
 export default ReportVideoPage;
 
-const TypothId = styled.th`
-  width: 100px;
-  border: 1px solid black;
+const globalTokens = tokens.global;
+
+export const Typotable = styled.table`
+  margin: 30px 0px 30px 0px;
 `;
-const TypothVideoName = styled.th`
-  width: 200px;
-  border: 1px solid black;
+
+export const TableTr = styled.tr<DarkMode>`
+  border-bottom: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
 `;
-const TypothVideoStatus = styled.th`
-  width: 100px;
-  border: 1px solid black;
+export const Typoth = styled.th<DarkMode>`
+  background-color: ${(props) =>
+    props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
+  color: ${(props) =>
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
+  padding: 15px 0px;
+  text-align: center;
 `;
-const TypothReportCount = styled.th`
+
+export const TypothId = styled(Typoth)`
   width: 80px;
-  border: 1px solid black;
 `;
-const TypothLastDate = styled.th`
-  width: 200px;
-  border: 1px solid black;
+export const TypothVideoName = styled(Typoth)`
+  width: 330px;
 `;
-const TypotdId = styled.td`
-  width: 100px;
-  text-align: center;
-  border: 1px solid black;
+export const TypothVideoStatus = styled(Typoth)`
+  width: 145px;
 `;
-const TypotdVideoName = styled.td`
-  width: 200px;
-  text-align: center;
-  border: 1px solid black;
+export const TypothReportCount = styled(Typoth)`
+  width: 85px;
 `;
-const TypotdVideoStatus = styled.td`
-  width: 100px;
-  text-align: center;
-  border: 1px solid black;
+export const TypothLastDate = styled(Typoth)`
+  width: 140px;
 `;
-const TypotdReportCount = styled.td`
+export const TypothReportDetail = styled(Typoth)`
   width: 80px;
-  text-align: center;
-  border: 1px solid black;
 `;
-const TypotdLastDate = styled.td`
-  width: 200px;
-  text-align: center;
-  border: 1px solid black;
+export const TypothReportBlock = styled(Typoth)`
+  width: 90px;
 `;

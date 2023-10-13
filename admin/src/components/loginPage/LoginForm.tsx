@@ -1,4 +1,3 @@
-import React, { FC } from 'react';
 import { FormContainer, InputContainer, InputErrorTypo, LoginContainer, LoginButton, LoginTitleTypo } from './LoginForm.style';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';

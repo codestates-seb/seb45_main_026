@@ -150,7 +150,7 @@ export default function NoticeItem({
 
   return (
     <>
-      <ItemBody isDark={isDark}>
+      <ItemBody isDark={isDark} id={notice.announcementId}>
         <ProfileContainer>
           <ImgContainer>
             <ProfileImg
@@ -225,7 +225,7 @@ export default function NoticeItem({
         isModalOpen={reportedModal}
         setIsModalOpen={setReportedModal}
         isBackdropClickClose={true}
-        content="비디오가 신고 되었습니다."
+        content="해당 공지사항이 신고 되었습니다."
         buttonTitle="확인"
         handleButtonClick={() => setReportedModal(false)}
       />
@@ -233,7 +233,7 @@ export default function NoticeItem({
         isModalOpen={alreadyReportedModal}
         setIsModalOpen={setAlreadyReportedModal}
         isBackdropClickClose={true}
-        content="이미 신고한 비디오입니다."
+        content="이미 신고한 공지사항입니다."
         buttonTitle="확인"
         handleButtonClick={() => setAlreadyReportedModal(false)}
       />

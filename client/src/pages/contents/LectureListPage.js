@@ -24,73 +24,6 @@ import { useInView } from "react-intersection-observer";
 import SearchSubmit from "../../components/contentListItems/Searchsubmit";
 import { Heading5Typo } from "../../atoms/typographys/Typographys";
 
-const globalTokens = tokens.global;
-
-const LectureMainContainer = styled(MainContainer)`
-  min-width: 600px;
-  min-height: 700px;
-  background-color: ${(props) =>
-    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
-  border: none;
-  gap: ${globalTokens.Spacing12.value}px;
-  margin-top: ${globalTokens.Spacing40.value}px;
-  margin-bottom: ${globalTokens.Spacing40.value}px;
-  padding: ${globalTokens.Spacing20.value}px;
-  border-radius: ${globalTokens.RegularRadius.value}px;
-`;
-const ListTitle = styled(HomeTitle)`
-  width: 100%;
-  font-size: ${globalTokens.Heading5.value}px;
-  font-weight: ${globalTokens.Bold.value};
-  padding-left: ${globalTokens.Spacing28.value}px;
-  margin-top: ${globalTokens.Spacing20.value}px;
-  margin: ${globalTokens.Spacing8.value}px;
-`;
-const FilterContainer = styled.div`
-  width: 95%;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: start;
-  padding: 0 ${globalTokens.Spacing16.value}px;
-`;
-const StructureButton = styled.button`
-  width: 35px;
-  height: 35px;
-  background-image: ${(props) =>
-    props.isHorizon ? `url(${list})` : `url(${grid})`};
-  background-size: contain;
-  background-repeat: no-repeat;
-  border-radius: ${globalTokens.RegularRadius.value}px;
-`;
-const HorizonItemContainer = styled.ul`
-  width: 100%;
-  min-height: 800px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: ${globalTokens.Spacing16.value}px;
-  margin-bottom: ${globalTokens.Spacing28.value}px;
-`;
-const VerticalItemContainer = styled.ul`
-  width: 100%;
-  min-height: 400px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: ${globalTokens.Spacing12.value}px;
-  margin-bottom: ${globalTokens.Spacing28.value}px;
-`;
-export const BottomDiv = styled.div`
-  height: 10px;
-  width: 10px;
-`;
-const LectureBlank = styled(Heading5Typo)`
-  width: 100%;
-  margin-top: 200px;
-  text-align: center;
-`;
-
 const LectureListPage = () => {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const filterState = useSelector((state) => state.filterSlice.filter);
@@ -258,3 +191,70 @@ const LectureListPage = () => {
 };
 
 export default LectureListPage;
+
+const globalTokens = tokens.global;
+
+const LectureMainContainer = styled(MainContainer)`
+  min-width: 600px;
+  min-height: 700px;
+  background-color: ${(props) =>
+    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
+  border: none;
+  gap: ${globalTokens.Spacing12.value}px;
+  margin-top: ${globalTokens.Spacing40.value}px;
+  margin-bottom: ${globalTokens.Spacing40.value}px;
+  padding: ${globalTokens.Spacing20.value}px;
+  border-radius: ${globalTokens.RegularRadius.value}px;
+`;
+const ListTitle = styled(HomeTitle)`
+  width: 100%;
+  font-size: ${globalTokens.Heading5.value}px;
+  font-weight: ${globalTokens.Bold.value};
+  padding-left: ${globalTokens.Spacing28.value}px;
+  margin-top: ${globalTokens.Spacing20.value}px;
+  margin: ${globalTokens.Spacing8.value}px;
+`;
+const FilterContainer = styled.div`
+  width: 95%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: start;
+  padding: 0 ${globalTokens.Spacing16.value}px;
+`;
+const StructureButton = styled.button`
+  width: 35px;
+  height: 35px;
+  background-image: ${(props) =>
+    props.isHorizon ? `url(${list})` : `url(${grid})`};
+  background-size: contain;
+  background-repeat: no-repeat;
+  border-radius: ${globalTokens.RegularRadius.value}px;
+`;
+const HorizonItemContainer = styled.ul`
+  width: 100%;
+  min-height: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${globalTokens.Spacing16.value}px;
+  margin-bottom: ${globalTokens.Spacing28.value}px;
+`;
+const VerticalItemContainer = styled.ul`
+  width: 100%;
+  min-height: 400px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: ${globalTokens.Spacing12.value}px;
+  margin-bottom: ${globalTokens.Spacing28.value}px;
+`;
+export const BottomDiv = styled.div`
+  height: 10px;
+  width: 10px;
+`;
+const LectureBlank = styled(Heading5Typo)`
+  width: 100%;
+  margin-top: 200px;
+  text-align: center;
+`;
