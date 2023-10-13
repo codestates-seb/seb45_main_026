@@ -7,6 +7,7 @@
     "@egjs/react-flicking": "^4.11.0",
     "@react-oauth/google": "^0.11.1",
     "@reduxjs/toolkit": "^1.9.5",
+    "@stomp/stompjs": "^7.0.0",
     "@tanstack/react-query": "^4.35.7",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -25,6 +26,7 @@
     "redux": "^4.2.1",
     "redux-persist": "^6.0.0",
     "screenfull": "^6.0.2",
+    "sockjs-client": "^1.6.1",
     "styled-components": "^6.0.7",
     "swiper": "^10.2.0",
     "web-vitals": "^2.1.4"

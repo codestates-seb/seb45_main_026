@@ -103,12 +103,16 @@ const Setting = () => {
           );
           getAccountInfoService(accessToken.authorization).then((response) => {
             if (response.status === "success") {
-              setSelectedBank(response.data.data.bank?response.data.data.bank:'');
+              // setSelectedBank(response.data.data.bank ? response.data.data.bank : "");
               dispatch(
                 setAccountInfo({
-                  accountHolder: response.data.data.name?response.data.data.name:'',
-                  bank: response.data.data.bank?response.data.data.bank:'',
-                  account: response.data.data.account?response.data.data.account:'',
+                  accountHolder: response.data.data.name
+                    ? response.data.data.name
+                    : "",
+                  bank: response.data.data.bank ? response.data.data.bank : "",
+                  account: response.data.data.account
+                    ? response.data.data.account
+                    : "",
                 })
               );
             } else {
