@@ -11,7 +11,7 @@ import { BodyTextTypo } from "../../atoms/typographys/Typographys";
 
 const globalTokens = tokens.global;
 
-const HelpChatLists = ({ isArrive, messageEndRef }) => {
+const HelpChatLists = ({ isArrive, scrollRef }) => {
   const refreshToken = useToken();
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const accessToken = useSelector((state) => state.loginInfo.accessToken);
@@ -53,13 +53,19 @@ const HelpChatLists = ({ isArrive, messageEndRef }) => {
     retryDelay: 1000,
   });
 
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [ChatContents]);
+
   return (
     <>
       {isLoading || isError ? (
         <Loading />
       ) : (
         <>
-          {ChatContents.data?.map((el) => {
+          {ChatContents.data?.map((el, idx) => {
             const sendDate = el.sendDate.split(".")[0];
             const sendTimes = sendDate.split("T")[1].split(":");
             const sendTime =
@@ -70,14 +76,14 @@ const HelpChatLists = ({ isArrive, messageEndRef }) => {
                 : `오전 ${parseInt(sendTimes[0])}:${parseInt(sendTimes[1])}`;
             if (el.sender === el.roomId) {
               return (
-                <RightMsgList>
+                <RightMsgList key={idx}>
                   <MsgDate isDark={isDark}>{sendTime}</MsgDate>
                   <MsgContent isDark={isDark}>{el.message}</MsgContent>
                 </RightMsgList>
               );
             } else {
               return (
-                <LeftMsgList>
+                <LeftMsgList key={idx}>
                   <MsgContent isDark={isDark}>{el.message}</MsgContent>
                   <MsgDate isDark={isDark}>{sendTime}</MsgDate>
                 </LeftMsgList>
@@ -86,7 +92,6 @@ const HelpChatLists = ({ isArrive, messageEndRef }) => {
           })}
         </>
       )}
-      <div ref={messageEndRef}></div>
     </>
   );
 };
@@ -96,6 +101,7 @@ export default HelpChatLists;
 export const MsgList = styled.li`
   width: 100%;
   padding: 10px;
+  border-radius: 8px;
   display: flex;
   align-items: end;
 `;
@@ -122,5 +128,5 @@ export const MsgDate = styled.div`
   font-size: 12px;
   font-weight: 600;
   color: ${(props) =>
-    props.isDark ? globalTokens.LightGray.value : globalTokens.White.value};
+    props.isDark ? globalTokens.LightGray.value : globalTokens.Gray.value};
 `;

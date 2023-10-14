@@ -17,6 +17,7 @@ const globalTokens = tokens.global;
 
 const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
   const stompClient = useRef(null);
+  const scrollRef = useRef(null);
   const messageEndRef = useRef(null);
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const accessToken = useSelector((state) => state.loginInfo.accessToken);
@@ -43,7 +44,6 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
           `/sub/chat/room/${roomId}`,
           (data) => {
             const newMessage = JSON.parse(data.body);
-            console.log("newMessage", newMessage);
             setArrive(newMessage);
           },
           headers
@@ -58,9 +58,7 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
   // STOMP 연결 해제
   const stompDisConnect = () => {
     try {
-      stompClient.current.disconnect(() => {
-        stompClient.current.unsubscribe(`/sub/chat/room/${roomId}`);
-      });
+      stompClient.current.disconnect(() => {});
       console.log("WebSocket 연결이 끊겼습니다. (stomp)");
       mutate();
     } catch (err) {
@@ -71,9 +69,6 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
   // message 보내기
   const handleSendMessage = async () => {
     if (isMsg === "") return;
-    if (messageEndRef.current) {
-      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
     const newMessage = {
       roomId: roomId,
       message: isMsg,
@@ -116,13 +111,6 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
     }
   }, []);
 
-  const chatBox = useRef(null);
-  useEffect(() => {
-    if (chatBox && chatBox.current) {
-      chatBox.current.scrollTop = chatBox.current.scrollHeight;
-    }
-  }, []);
-
   return (
     <HelpCenterContainer
       className={isHelpClick ? "frame-in" : "frame-out"}
@@ -134,6 +122,7 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
           isDark={isDark}
           onClick={() => {
             deleteChatEnd(accessToken.authorization);
+            stompClient.current.unsubscribe(`/sub/chat/room/${roomId}`);
             setIsHelpClick(false);
           }}
         >
@@ -151,7 +140,7 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
         </HelpCenterClose>
       </HelpCenterCloseContainer>
 
-      <MsgLists isDark={isDark} ref={chatBox}>
+      <MsgLists isDark={isDark} ref={scrollRef}>
         {!isChatStart ? (
           <ChatEmpty>
             <ChatStart isDark={isDark} onClick={() => setChatStart(true)}>
@@ -159,8 +148,9 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
             </ChatStart>
           </ChatEmpty>
         ) : (
-          <HelpChatLists isArrive={isArrive} messageEndRef={messageEndRef} />
+          <HelpChatLists isArrive={isArrive} scrollRef={scrollRef} />
         )}
+        <div ref={messageEndRef}></div>
       </MsgLists>
 
       <ChatFooter>
@@ -234,7 +224,7 @@ export const HelpCenterClose = styled(Heading5Typo)`
 `;
 
 export const MsgLists = styled.ul`
-  border-radius: ${globalTokens.Spacing16.value}px;
+  /* border-radius: ${globalTokens.Spacing16.value}px; */
   border: 1px solid
     ${(props) =>
       props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
@@ -246,6 +236,7 @@ export const MsgLists = styled.ul`
   overflow-y: scroll;
   display: flex;
   flex-direction: column;
+  padding: 5px;
 
   &::-webkit-scrollbar {
     width: 8px; /* 스크롤바의 너비 */
