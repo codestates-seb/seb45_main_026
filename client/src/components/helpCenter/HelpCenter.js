@@ -1,79 +1,35 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import tokens from "../../styles/tokens.json";
-import {
-  IconButtonContainer,
-  IconButtonImg,
-} from "../../atoms/buttons/IconButtons";
-import closeWihte from "../../assets/images/icons/close/closeWhite.svg";
-import closeBlack from "../../assets/images/icons/close/closeBlack.svg";
 import { useSelector } from "react-redux";
 import { frameInBottomToTopAnimation } from "../mainPageItems/frameAnimation";
-import {
-  BodyTextTypo,
-  Heading5Typo,
-} from "../../atoms/typographys/Typographys";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { getChatComments } from "../../services/helpcenterService";
-import { useToken } from "../../hooks/useToken";
+import { Heading5Typo } from "../../atoms/typographys/Typographys";
+import { useMutation } from "@tanstack/react-query";
+import { deleteChatEnd } from "../../services/helpcenterService";
 import { queryClient } from "../..";
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
-import Loading from "../../atoms/loading/Loading";
 import { ReactComponent as SendArrow } from "../../assets/images/icons/Send.svg";
+import { RegularButton } from "../../atoms/buttons/Buttons";
+import HelpChatLists from "./HelpChatLists";
 
 const globalTokens = tokens.global;
 
 const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
-  const refreshToken = useToken();
   const stompClient = useRef(null);
   const scrollRef = useRef(null);
   const messageEndRef = useRef(null);
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const accessToken = useSelector((state) => state.loginInfo.accessToken);
   const roomId = useSelector((state) => state.loginInfo.loginInfo.email);
-  const [isPage, setPage] = useState(1);
   const [isMsg, setMsg] = useState("");
+  const [isArrive, setArrive] = useState({});
+  const [isChatStart, setChatStart] = useState(false);
 
   // token
   const headers = {
     Authorization: accessToken.authorization,
   };
-
-  // 채팅방 대화 내용 조회
-  const {
-    data: ChatContents,
-    isLoading,
-    isFetching,
-    error,
-    isPreviousData,
-  } = useQuery({
-    queryKey: ["ChatComments"],
-    queryFn: async () => {
-      try {
-        const response = await getChatComments(
-          accessToken.authorization,
-          isPage
-        );
-        console.log(response);
-        return response;
-      } catch (err) {
-        if (axios.isAxiosError(err)) {
-          if (err.response?.data.message === "만료된 토큰입니다.") {
-            refreshToken();
-          }
-        } else {
-          console.log(err);
-        }
-      }
-    },
-    keepPreviousData: true,
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 30,
-    retry: 3,
-    retryDelay: 1000,
-  });
 
   // STOMP 연결 설정
   const stompConnect = () => {
@@ -88,7 +44,7 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
           `/sub/chat/room/${roomId}`,
           (data) => {
             const newMessage = JSON.parse(data.body);
-            // console.log(newMessage);
+            setArrive(newMessage);
           },
           headers
         );
@@ -102,9 +58,7 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
   // STOMP 연결 해제
   const stompDisConnect = () => {
     try {
-      stompClient.current.disconnect(() => {
-        stompClient.current.unsubscribe(`/sub/chat/room/${roomId}`);
-      });
+      stompClient.current.disconnect(() => {});
       console.log("WebSocket 연결이 끊겼습니다. (stomp)");
       mutate();
     } catch (err) {
@@ -115,9 +69,6 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
   // message 보내기
   const handleSendMessage = async () => {
     if (isMsg === "") return;
-    if (messageEndRef.current) {
-      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
     const newMessage = {
       roomId: roomId,
       message: isMsg,
@@ -155,13 +106,8 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
       return () => {
         // 컴포넌트 언마운트 시 실행될 클린업 로직
         stompDisConnect();
+        setIsHelpClick(false);
       };
-    }
-  }, []);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, []);
 
@@ -172,54 +118,41 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
       isHelpClick={isHelpClick}
     >
       <HelpCenterCloseContainer isHelpClick={isHelpClick}>
+        <HelpCenterEnd
+          isDark={isDark}
+          onClick={() => {
+            deleteChatEnd(accessToken.authorization);
+            stompClient.current.unsubscribe(`/sub/chat/room/${roomId}`);
+            setIsHelpClick(false);
+          }}
+        >
+          상담 종료
+        </HelpCenterEnd>
         <HelpCenterTitle isDark={isDark}>고객센터</HelpCenterTitle>
-        <IconButtonContainer
+        <HelpCenterClose
+          isDark={isDark}
           isHelpClick={isHelpClick}
           onClick={() => {
             setIsHelpClick(false);
           }}
         >
-          <IconButtonImg
-            isHelpClick={isHelpClick}
-            src={isDark ? closeWihte : closeBlack}
-          />
-        </IconButtonContainer>
+          &times;
+        </HelpCenterClose>
       </HelpCenterCloseContainer>
 
       <MsgLists isDark={isDark} ref={scrollRef}>
-        {isLoading ? (
-          <Loading />
+        {!isChatStart ? (
+          <ChatEmpty>
+            <ChatStart isDark={isDark} onClick={() => setChatStart(true)}>
+              문의 시작하기
+            </ChatStart>
+          </ChatEmpty>
         ) : (
-          <>
-            {ChatContents.data?.map((el, idx) => {
-              const sendDate = el.sendDate.split(".")[0];
-              const sendTimes = sendDate.split("T")[1].split(":");
-              const sendTime =
-                parseInt(sendTimes[0]) >= 12
-                  ? `오후 ${parseInt(sendTimes[0]) - 12}:${parseInt(
-                      sendTimes[1]
-                    )}`
-                  : `오전 ${parseInt(sendTimes[0])}:${parseInt(sendTimes[1])}`;
-              if (el.sender === el.roomId) {
-                return (
-                  <RightMsgList>
-                    <MsgDate isDark={isDark}>{sendTime}</MsgDate>
-                    <MsgContent isDark={isDark}>{el.message}</MsgContent>
-                  </RightMsgList>
-                );
-              } else {
-                return (
-                  <LeftMsgList>
-                    <MsgContent isDark={isDark}>{el.message}</MsgContent>
-                    <MsgDate isDark={isDark}>{sendTime}</MsgDate>
-                  </LeftMsgList>
-                );
-              }
-            })}
-          </>
+          <HelpChatLists isArrive={isArrive} scrollRef={scrollRef} />
         )}
         <div ref={messageEndRef}></div>
       </MsgLists>
+
       <ChatFooter>
         <ChatInputBox isDark={isDark}>
           <ChatInput
@@ -265,34 +198,45 @@ export const HelpCenterContainer = styled.section`
   }
 `;
 export const HelpCenterCloseContainer = styled.div`
+  position: relative;
   width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: end;
+  justify-content: center;
   align-items: center;
   opacity: ${(props) => (props.isHelpClick ? "1" : "0")};
   visibility: ${(props) => (props.isHelpClick ? "visible" : "hidden")};
 `;
+
+export const HelpCenterEnd = styled(RegularButton)`
+  position: absolute;
+  top: 5px;
+  left: 15px;
+`;
 export const HelpCenterTitle = styled(Heading5Typo)`
-  flex-grow: 1;
-  margin-left: ${globalTokens.Spacing16.value}px;
+  padding: 10px 0px;
+`;
+export const HelpCenterClose = styled(Heading5Typo)`
+  position: absolute;
+  top: 5px;
+  right: 15px;
+  cursor: pointer;
 `;
 
 export const MsgLists = styled.ul`
-  border-radius: ${globalTokens.RegularRadius.value}px;
+  /* border-radius: ${globalTokens.Spacing16.value}px; */
   border: 1px solid
     ${(props) =>
       props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
   width: 95%;
-  max-height: 65vh;
-  min-height: 10vh;
+  height: 65vh;
   margin: ${globalTokens.Spacing4.value}px 0 ${globalTokens.Spacing12.value}px 0;
-
   background-color: ${(props) =>
-    props.isDark ? globalTokens.Black.value : globalTokens.LightRed.value};
+    props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
   overflow-y: scroll;
   display: flex;
   flex-direction: column;
+  padding: 5px;
 
   &::-webkit-scrollbar {
     width: 8px; /* 스크롤바의 너비 */
@@ -316,36 +260,17 @@ export const MsgLists = styled.ul`
   }
 `;
 
-export const MsgList = styled.li`
+export const ChatEmpty = styled.div`
   width: 100%;
-  padding: 10px;
+  height: 100%;
   display: flex;
-  align-items: end;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
 
-export const LeftMsgList = styled(MsgList)`
-  justify-content: start;
-`;
-
-export const RightMsgList = styled(MsgList)`
-  justify-content: end;
-`;
-
-export const MsgContent = styled(BodyTextTypo)`
-  padding: 8px 18px;
-  background-color: ${(props) =>
-    props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
-  border-radius: 8px;
-  font-weight: ${globalTokens.Bold.value};
-`;
-
-export const MsgDate = styled.div`
-  margin: 0px 10px;
-  padding-bottom: 2px;
-  font-size: 12px;
-  font-weight: 600;
-  color: ${(props) =>
-    props.isDark ? globalTokens.LightGray.value : globalTokens.White.value};
+export const ChatStart = styled(RegularButton)`
+  width: 50%;
 `;
 
 export const ChatFooter = styled.div`
@@ -362,7 +287,10 @@ export const ChatInputBox = styled.div`
   justify-content: space-around;
   align-items: center;
   background-color: ${(props) =>
-    props.isDark ? globalTokens.LightNavy.value : globalTokens.LightRed.value};
+    props.isDark ? globalTokens.Black.value : globalTokens.Background.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
 `;
 
 export const ChatInput = styled.input`

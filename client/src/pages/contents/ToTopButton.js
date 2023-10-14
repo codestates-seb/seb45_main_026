@@ -10,6 +10,7 @@ import HelpCenter from "../../components/helpCenter/HelpCenter";
 export default function ToTopButton() {
   const isDark = useSelector((state) => state.uiSetting.isDark);
   const match = useMatch("/");
+  const accessToken = useSelector((state) => state.loginInfo.accessToken);
   const [isHelpClick, setIsHelpClick] = useState(false);
 
   const scrollToTop = () => {
@@ -21,7 +22,7 @@ export default function ToTopButton() {
 
   return (
     <>
-      {match === null ? (
+      {accessToken.authorization && match === null ? (
         <ToTopButtonContainer>
           {isHelpClick && (
             <HelpCenter
