@@ -33,7 +33,7 @@ const MyChatItems: React.FC<OwnProps> = ({ item }) => {
       <CustomerNametd isDark={isDark}>{item.nickname}</CustomerNametd>
       <CustomerEmailtd isDark={isDark}>{item.roomId}</CustomerEmailtd>
       <InquireDatetd isDark={isDark}>
-        {item.inquireDate?.replace("T", " ")}
+        {item.inquireDate?.split(".")[0].replace("T", " ")}
       </InquireDatetd>
       <ChatBlocktd isDark={isDark}>
         <RegularButton

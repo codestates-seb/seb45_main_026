@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
@@ -19,6 +19,15 @@ import tokens from "../../styles/tokens.json";
 import { ReactComponent as arrowPrev } from "../../assets/images/icons/arrowPrev.svg";
 import { ReactComponent as arrowNext } from "../../assets/images/icons/arrowNext.svg";
 import ReportedChannelItems from "../../components/ReportedItems/ReportedChannelItems";
+import axios from "axios";
+import { errorResponseDataType } from "../../types/axiosErrorType";
+import {
+  FilterBox,
+  FilterBtn,
+  FilterContainer,
+  FilterDropdown,
+  DropdownItem,
+} from "./ReportVideoPage";
 
 const ReportChannelPage = () => {
   const navigate = useNavigate();
@@ -33,22 +42,28 @@ const ReportChannelPage = () => {
   const [maxPage, setMaxPage] = useState<number>(1);
   const [isSize, setSize] = useState<number>(10);
   const [isSort, setSort] = useState<string>("last-reported-date");
+  const [isFilter, setFilter] = useState<boolean>(false);
 
-  const { isLoading, error, data, isFetching, isPreviousData } = useQuery({
-    queryKey: ["ReportChannel", currentPage, accessToken],
+  const { isLoading, data, isFetching, isPreviousData } = useQuery({
+    queryKey: ["ReportChannel", currentPage, isSort, accessToken],
     queryFn: async () => {
-      const response = await getReportChannelList(
-        accessToken.authorization,
-        currentPage,
-        isSize,
-        isSort
-      );
-      setMaxPage(response.pageInfo.totalPage);
-
-      if (response.response?.data.message === "만료된 토큰입니다.") {
-        refreshToken();
-      } else {
+      try {
+        const response = await getReportChannelList(
+          accessToken.authorization,
+          currentPage,
+          isSize,
+          isSort
+        );
+        setMaxPage(response.pageInfo.totalPage);
         return response;
+      } catch (err) {
+        if (axios.isAxiosError<errorResponseDataType, any>(err)) {
+          if (err.response?.data.message === "만료된 토큰입니다.") {
+            refreshToken();
+          } else {
+            console.log(err);
+          }
+        }
       }
     },
     keepPreviousData: true,
@@ -79,12 +94,47 @@ const ReportChannelPage = () => {
       });
     }
   }, []);
-  
+
   return (
     <PageContainer isDark={isDark}>
       <MainContainer isDark={isDark}>
         <PageTitle isDark={isDark}>신고 내역 관리</PageTitle>
         <NavBar NavType="채널" />
+        <FilterContainer>
+          <FilterBox onClick={() => setFilter(!isFilter)}>
+            <FilterBtn isDark={isDark}>
+              {isSort === "last-reported-date"
+                ? "최신순"
+                : isSort === "report-count"
+                ? "신고순"
+                : isSort === "created-date"
+                ? "생성순"
+                : ""}
+            </FilterBtn>
+            {isFilter && (
+              <FilterDropdown isDark={isDark}>
+                <DropdownItem
+                  isDark={isDark}
+                  onClick={() => setSort("last-reported-date")}
+                >
+                  최신순
+                </DropdownItem>
+                <DropdownItem
+                  isDark={isDark}
+                  onClick={() => setSort("report-count")}
+                >
+                  신고순
+                </DropdownItem>
+                <DropdownItem
+                  isDark={isDark}
+                  onClick={() => setSort("created-date")}
+                >
+                  생성순
+                </DropdownItem>
+              </FilterDropdown>
+            )}
+          </FilterBox>
+        </FilterContainer>
         {isLoading ? (
           <Loading />
         ) : (

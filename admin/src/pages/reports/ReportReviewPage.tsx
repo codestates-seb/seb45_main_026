@@ -17,6 +17,15 @@ import {
 } from "../../atoms/layouts/PageContainer";
 import tokens from "../../styles/tokens.json";
 import ReportedReviewItems from "../../components/ReportedItems/ReportedReviewItems";
+import axios from "axios";
+import { errorResponseDataType } from "../../types/axiosErrorType";
+import {
+  FilterBox,
+  FilterBtn,
+  FilterContainer,
+  FilterDropdown,
+  DropdownItem,
+} from "./ReportVideoPage";
 
 const ReportReviewPage = () => {
   const navigate = useNavigate();
@@ -31,22 +40,28 @@ const ReportReviewPage = () => {
   const [maxPage, setMaxPage] = useState<number>(1);
   const [isSize, setSize] = useState<number>(10);
   const [isSort, setSort] = useState<string>("last-reported-date");
+  const [isFilter, setFilter] = useState<boolean>(false);
 
-  const { isLoading, error, data, isFetching, isPreviousData } = useQuery({
-    queryKey: ["ReportReview", currentPage, accessToken],
+  const { isLoading, data, isFetching, isPreviousData } = useQuery({
+    queryKey: ["ReportReview", currentPage, isSort, accessToken],
     queryFn: async () => {
-      const response = await getReportReviewList(
-        accessToken.authorization,
-        currentPage,
-        isSize,
-        isSort
-      );
-      setMaxPage(response.pageInfo.totalPage);
-
-      if (response.response?.data.message === "만료된 토큰입니다.") {
-        refreshToken();
-      } else {
+      try {
+        const response = await getReportReviewList(
+          accessToken.authorization,
+          currentPage,
+          isSize,
+          isSort
+        );
+        setMaxPage(response.pageInfo.totalPage);
         return response;
+      } catch (err) {
+        if (axios.isAxiosError<errorResponseDataType, any>(err)) {
+          if (err.response?.data.message === "만료된 토큰입니다.") {
+            refreshToken();
+          } else {
+            console.log(err);
+          }
+        }
       }
     },
     keepPreviousData: true,
@@ -64,7 +79,7 @@ const ReportReviewPage = () => {
     }
     if (currentPage < maxPage) {
       queryClient.prefetchQuery({
-        queryKey: ["ReportVideo"],
+        queryKey: ["ReportReview"],
         queryFn: async () => {
           const response = await getReportReviewList(
             accessToken.authorization,
@@ -83,6 +98,41 @@ const ReportReviewPage = () => {
       <MainContainer isDark={isDark}>
         <PageTitle isDark={isDark}>신고 내역 관리</PageTitle>
         <NavBar NavType="댓글" />
+        <FilterContainer>
+          <FilterBox onClick={() => setFilter(!isFilter)}>
+            <FilterBtn isDark={isDark}>
+              {isSort === "last-reported-date"
+                ? "최신순"
+                : isSort === "report-count"
+                ? "신고순"
+                : isSort === "created-date"
+                ? "생성순"
+                : ""}
+            </FilterBtn>
+            {isFilter && (
+              <FilterDropdown isDark={isDark}>
+                <DropdownItem
+                  isDark={isDark}
+                  onClick={() => setSort("last-reported-date")}
+                >
+                  최신순
+                </DropdownItem>
+                <DropdownItem
+                  isDark={isDark}
+                  onClick={() => setSort("report-count")}
+                >
+                  신고순
+                </DropdownItem>
+                <DropdownItem
+                  isDark={isDark}
+                  onClick={() => setSort("created-date")}
+                >
+                  생성순
+                </DropdownItem>
+              </FilterDropdown>
+            )}
+          </FilterBox>
+        </FilterContainer>
         {isLoading ? (
           <Loading />
         ) : (

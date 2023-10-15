@@ -17,6 +17,9 @@ import {
 } from "../../atoms/layouts/PageContainer";
 import tokens from "../../styles/tokens.json";
 import ReportedVideoItems from "../../components/ReportedItems/ReportedVideoItems";
+import axios from "axios";
+import { errorResponseDataType } from "../../types/axiosErrorType";
+import { RoundButton } from "../../atoms/buttons/Buttons";
 
 const ReportVideoPage = () => {
   const navigate = useNavigate();
@@ -31,22 +34,28 @@ const ReportVideoPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isSize, setSize] = useState<number>(10);
   const [isSort, setSort] = useState<string>("last-reported-date");
+  const [isFilter, setFilter] = useState<boolean>(false);
 
-  const { isLoading, error, data, isFetching, isPreviousData } = useQuery({
-    queryKey: ["ReportVideo", currentPage, accessToken],
+  const { isLoading, data, isFetching, isPreviousData } = useQuery({
+    queryKey: ["ReportVideo", currentPage, isSort, accessToken],
     queryFn: async () => {
-      const response = await getReportVideoList(
-        accessToken.authorization,
-        currentPage,
-        isSize,
-        isSort
-      );
-      setMaxPage(response.pageInfo.totalPage);
-
-      if (response.response?.data.message === "만료된 토큰입니다.") {
-        refreshToken();
-      } else {
+      try {
+        const response = await getReportVideoList(
+          accessToken.authorization,
+          currentPage,
+          isSize,
+          isSort
+        );
+        setMaxPage(response.pageInfo.totalPage);
         return response;
+      } catch (err) {
+        if (axios.isAxiosError<errorResponseDataType, any>(err)) {
+          if (err.response?.data.message === "만료된 토큰입니다.") {
+            refreshToken();
+          } else {
+            console.log(err);
+          }
+        }
       }
     },
     keepPreviousData: true,
@@ -83,6 +92,41 @@ const ReportVideoPage = () => {
       <MainContainer isDark={isDark}>
         <PageTitle isDark={isDark}>신고 내역 관리</PageTitle>
         <NavBar NavType="비디오" />
+        <FilterContainer>
+          <FilterBox onClick={() => setFilter(!isFilter)}>
+            <FilterBtn isDark={isDark}>
+              {isSort === "last-reported-date"
+                ? "최신순"
+                : isSort === "report-count"
+                ? "신고순"
+                : isSort === "created-date"
+                ? "생성순"
+                : ""}
+            </FilterBtn>
+            {isFilter && (
+              <FilterDropdown isDark={isDark}>
+                <DropdownItem
+                  isDark={isDark}
+                  onClick={() => setSort("last-reported-date")}
+                >
+                  최신순
+                </DropdownItem>
+                <DropdownItem
+                  isDark={isDark}
+                  onClick={() => setSort("report-count")}
+                >
+                  신고순
+                </DropdownItem>
+                <DropdownItem
+                  isDark={isDark}
+                  onClick={() => setSort("created-date")}
+                >
+                  생성순
+                </DropdownItem>
+              </FilterDropdown>
+            )}
+          </FilterBox>
+        </FilterContainer>
         {isLoading ? (
           <Loading />
         ) : (
@@ -158,4 +202,62 @@ export const TypothReportDetail = styled(Typoth)`
 `;
 export const TypothReportBlock = styled(Typoth)`
   width: 90px;
+`;
+
+export const FilterContainer = styled.div`
+  position: relative;
+  width: 83%;
+  height: 30px;
+  padding: 5px 0px;
+  display: flex;
+`;
+export const FilterBox = styled.div`
+  position: absolute;
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+`;
+export const FilterBtn = styled(RoundButton)`
+  width: 100%;
+  padding: ${globalTokens.Spacing8.value}px;
+  background-color: rgba(255, 255, 255, 0);
+  color: ${(props) =>
+    props.isDark ? globalTokens.White : globalTokens.Black.value};
+  &:hover {
+    background-color: ${(props) =>
+      props.isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)"};
+    color: ${(props) =>
+      props.isDark ? globalTokens.White.value : globalTokens.Black.value};
+  }
+`;
+export const FilterDropdown = styled.ul<DarkMode>`
+  margin-top: ${globalTokens.Spacing4.value}px;
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  border-radius: ${globalTokens.RegularRadius.value}px;
+  z-index: 1;
+  background-color: ${(props) =>
+    props.isDark ? globalTokens.Black.value : globalTokens.White.value};
+  border: 1px solid
+    ${(props) =>
+      props.isDark ? globalTokens.Gray.value : globalTokens.LightGray.value};
+`;
+
+export const DropdownItem = styled.li<DarkMode>`
+  width: 100px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: ${globalTokens.RegularRadius.value}px;
+  color: ${(props) =>
+    props.isDark ? globalTokens.White.value : globalTokens.Black.value};
+  transition: 300ms;
+  cursor: pointer;
+  &:hover {
+    color: ${globalTokens.Gray.value};
+  }
 `;

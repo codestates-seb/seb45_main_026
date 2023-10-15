@@ -142,7 +142,7 @@ const ChatRoomPage: React.FC = () => {
               onClick={() => {
                 patchChatEnd(accessToken.authorization, roomId);
                 stompClient.current.unsubscribe(`/sub/chat/room/${roomId}`);
-                handleBack();
+                window.location.assign("https://admin.itprometheus.net/chats");
               }}
             >
               상담 종료하기

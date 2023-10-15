@@ -15,13 +15,16 @@ import {
   CustomerTr,
   Customertable,
   InquireDateth,
+  ChatListEmpty,
 } from "../../pages/chats/CustomerServicePage";
+import axios from "axios";
+import { errorResponseDataType } from "../../types/axiosErrorType";
 
 export type MyChatRoom = {
   roomId: string;
   memberId: number;
   nickname: string;
-  inquireDate: string | null;
+  inquireDate: string;
 };
 
 const MyChatLists: React.FC = () => {
@@ -35,17 +38,21 @@ const MyChatLists: React.FC = () => {
     data: myChatRoomList,
     isLoading,
     isFetching,
-    error,
     isPreviousData,
   } = useQuery({
     queryKey: ["MyChatRoomKList"],
     queryFn: async () => {
-      const response = await getMyRoomList(accessToken.authorization);
-
-      if (response.response?.data.message === "만료된 토큰입니다.") {
-        refreshToken();
-      } else {
+      try {
+        const response = await getMyRoomList(accessToken.authorization);
         return response;
+      } catch (err) {
+        if (axios.isAxiosError<errorResponseDataType, any>(err)) {
+          if (err.response?.data.message === "만료된 토큰입니다.") {
+            refreshToken();
+          } else {
+            console.log(err);
+          }
+        }
       }
     },
     keepPreviousData: true,
@@ -55,29 +62,35 @@ const MyChatLists: React.FC = () => {
     retryDelay: 1000,
   });
 
-  // console.log(myChatRoomList);
-
   return (
     <>
       {isLoading ? (
         <Loading />
       ) : (
-        <Customertable>
-          <CustomerHead>
-            <CustomerTr isDark={isDark}>
-              <CustomerIdth isDark={isDark}>ID</CustomerIdth>
-              <CustomerNameth isDark={isDark}>문의자</CustomerNameth>
-              <CustomerEmailth isDark={isDark}>이메일</CustomerEmailth>
-              <InquireDateth isDark={isDark}>문의 날짜</InquireDateth>
-              <ChatBlockth isDark={isDark}>비고</ChatBlockth>
-            </CustomerTr>
-          </CustomerHead>
-          <CustomerBody>
-            {myChatRoomList.data?.map((el: MyChatRoom) => (
-              <MyChatItems key={el.memberId} item={el} />
-            ))}
-          </CustomerBody>
-        </Customertable>
+        <>
+          {myChatRoomList.data?.length > 0 ? (
+            <Customertable>
+              <CustomerHead>
+                <CustomerTr isDark={isDark}>
+                  <CustomerIdth isDark={isDark}>ID</CustomerIdth>
+                  <CustomerNameth isDark={isDark}>문의자</CustomerNameth>
+                  <CustomerEmailth isDark={isDark}>이메일</CustomerEmailth>
+                  <InquireDateth isDark={isDark}>문의 날짜</InquireDateth>
+                  <ChatBlockth isDark={isDark}>비고</ChatBlockth>
+                </CustomerTr>
+              </CustomerHead>
+              <CustomerBody>
+                {myChatRoomList.data?.map((el: MyChatRoom) => (
+                  <MyChatItems key={el.memberId} item={el} />
+                ))}
+              </CustomerBody>
+            </Customertable>
+          ) : (
+            <ChatListEmpty isDark={isDark}>
+              현재 답변 중인 채팅방이 없습니다.
+            </ChatListEmpty>
+          )}
+        </>
       )}
     </>
   );
