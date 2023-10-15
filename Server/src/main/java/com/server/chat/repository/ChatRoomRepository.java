@@ -108,7 +108,11 @@ public class ChatRoomRepository {
         if(!hashOpsAdminInfo.hasKey(ADMIN_ASSIGN, adminEmail)) {
             return;
         }
-        hashOpsAdminInfo.get(ADMIN_ASSIGN, adminEmail).remove(roomId);
+        HashSet<String> chatRooms = hashOpsAdminInfo.get(ADMIN_ASSIGN, adminEmail);
+
+        chatRooms.remove(roomId);
+
+        hashOpsAdminInfo.put(ADMIN_ASSIGN, adminEmail, chatRooms);
     }
 
     public void removeChatRoom(String roomId) {

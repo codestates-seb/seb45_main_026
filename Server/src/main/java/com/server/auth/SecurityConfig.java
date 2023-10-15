@@ -74,7 +74,7 @@ public class SecurityConfig {
 					"http://localhost:3000",
 					"https://www.itprometheus.net",
 					"https://admin.itprometheus.net",
-					"file://", "http://jxy.me"));
+					"file://", "http://jxy.me", "https://jxy.me"));
 			configuration.addAllowedMethod("*");
 			configuration.addAllowedHeader("*");
 			configuration.setAllowCredentials(true);
