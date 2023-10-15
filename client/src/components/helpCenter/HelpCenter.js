@@ -12,6 +12,7 @@ import { Stomp } from "@stomp/stompjs";
 import { ReactComponent as SendArrow } from "../../assets/images/icons/Send.svg";
 import { RegularButton } from "../../atoms/buttons/Buttons";
 import HelpChatLists from "./HelpChatLists";
+import { useChatContent } from "../../hooks/useChatContent";
 
 const globalTokens = tokens.global;
 
@@ -25,6 +26,14 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
   const [isMsg, setMsg] = useState("");
   const [isArrive, setArrive] = useState({});
   const [isChatStart, setChatStart] = useState(false);
+
+  const {
+    data: ChatContents,
+    isLoading,
+    isFetching,
+    isError,
+    isPreviousData,
+  } = useChatContent(isArrive, isChatStart);
 
   // token
   const headers = {
@@ -40,18 +49,22 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
       () => {
         console.log("WebSocket 연결이 열렸습니다.");
         mutate();
-        stompClient.current.subscribe(
-          `/sub/chat/room/${roomId}`,
-          (data) => {
-            const newMessage = JSON.parse(data.body);
-            setArrive(newMessage);
-          },
-          headers
-        );
       },
       (err) => {
-        console.log("WebSocket 연결에 실패했습니다.", err);
+        console.log("WebSocket 연결에 실패했습니다.");
       }
+    );
+  };
+
+  // STOMP 구독하기
+  const stompSubscribe = () => {
+    stompClient.current.subscribe(
+      `/sub/chat/room/${roomId}`,
+      (data) => {
+        const newMessage = JSON.parse(data.body);
+        setArrive(newMessage);
+      },
+      headers
     );
   };
 
@@ -59,10 +72,10 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
   const stompDisConnect = () => {
     try {
       stompClient.current.disconnect(() => {});
-      console.log("WebSocket 연결이 끊겼습니다. (stomp)");
+      console.log("WebSocket 연결이 끊겼습니다.");
       mutate();
     } catch (err) {
-      console.log("disconnect", err);
+      console.log("disconnect");
     }
   };
 
@@ -118,22 +131,29 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
       isHelpClick={isHelpClick}
     >
       <HelpCenterCloseContainer isHelpClick={isHelpClick}>
-        <HelpCenterEnd
-          isDark={isDark}
-          onClick={() => {
-            deleteChatEnd(accessToken.authorization);
-            stompClient.current.unsubscribe(`/sub/chat/room/${roomId}`);
-            setIsHelpClick(false);
-          }}
-        >
-          상담 종료
-        </HelpCenterEnd>
+        {!isError && (isChatStart || ChatContents?.data.length > 0) ? (
+          <HelpCenterEnd
+            isDark={isDark}
+            onClick={() => {
+              deleteChatEnd(accessToken.authorization);
+              stompClient.current.unsubscribe(`/sub/chat/room/${roomId}`);
+              setChatStart(false);
+              setIsHelpClick(false);
+              mutate();
+            }}
+          >
+            상담 종료
+          </HelpCenterEnd>
+        ) : (
+          ""
+        )}
         <HelpCenterTitle isDark={isDark}>고객센터</HelpCenterTitle>
         <HelpCenterClose
           isDark={isDark}
           isHelpClick={isHelpClick}
           onClick={() => {
             setIsHelpClick(false);
+            mutate();
           }}
         >
           &times;
@@ -141,14 +161,20 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
       </HelpCenterCloseContainer>
 
       <MsgLists isDark={isDark} ref={scrollRef}>
-        {!isChatStart ? (
+        {!isError && (isChatStart || ChatContents?.data.length > 0) ? (
+          <HelpChatLists isArrive={isArrive} scrollRef={scrollRef} />
+        ) : (
           <ChatEmpty>
-            <ChatStart isDark={isDark} onClick={() => setChatStart(true)}>
+            <ChatStart
+              isDark={isDark}
+              onClick={() => {
+                stompSubscribe();
+                setChatStart(true);
+              }}
+            >
               문의 시작하기
             </ChatStart>
           </ChatEmpty>
-        ) : (
-          <HelpChatLists isArrive={isArrive} scrollRef={scrollRef} />
         )}
         <div ref={messageEndRef}></div>
       </MsgLists>
@@ -160,6 +186,9 @@ const HelpCenter = ({ isHelpClick, setIsHelpClick }) => {
             value={isMsg}
             onChange={(e) => setMsg(e.target.value)}
             onKeyUp={(e) => handleKeyEnter(e)}
+            disabled={
+              !(!isError && (isChatStart || ChatContents?.data.length > 0))
+            }
           />
           <ChatSendBtn isDark={isDark} onClick={handleSendMessage} />
         </ChatInputBox>

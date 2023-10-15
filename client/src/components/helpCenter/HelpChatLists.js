@@ -1,57 +1,23 @@
-import { useQuery } from "@tanstack/react-query";
-import { getChatComments } from "../../services/helpcenterService";
 import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
-import { useToken } from "../../hooks/useToken";
-import axios from "axios";
+import { useEffect } from "react";
 import Loading from "../../atoms/loading/Loading";
 import styled from "styled-components";
 import tokens from "../../styles/tokens.json";
 import { BodyTextTypo } from "../../atoms/typographys/Typographys";
+import { useChatContent } from "../../hooks/useChatContent";
 
 const globalTokens = tokens.global;
 
 const HelpChatLists = ({ isArrive, scrollRef }) => {
-  const refreshToken = useToken();
   const isDark = useSelector((state) => state.uiSetting.isDark);
-  const accessToken = useSelector((state) => state.loginInfo.accessToken);
-  const [isPage, setPage] = useState(1);
 
-  // 채팅방 대화 내용 조회
   const {
     data: ChatContents,
     isLoading,
     isFetching,
     isError,
     isPreviousData,
-  } = useQuery({
-    queryKey: ["ChatComments", isArrive],
-    queryFn: async () => {
-      try {
-        const response = await getChatComments(
-          accessToken.authorization,
-          isPage
-        );
-        console.log("response", response);
-        return response;
-      } catch (err) {
-        if (axios.isAxiosError(err)) {
-          if (err.response?.data.message === "만료된 토큰입니다.") {
-            refreshToken();
-          } else {
-            console.log(err);
-          }
-        } else {
-          console.log(err);
-        }
-      }
-    },
-    keepPreviousData: false,
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 30,
-    retry: 3,
-    retryDelay: 1000,
-  });
+  } = useChatContent(isArrive);
 
   useEffect(() => {
     if (scrollRef.current) {
