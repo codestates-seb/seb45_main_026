@@ -16,6 +16,7 @@ import { errorResponseDataType } from "../types/axiosErrorType";
 import axios from "axios";
 import { useToken } from "../hooks/useToken";
 import MemberListHeader from "../components/memberListPage/MemberListHeader";
+import { SearchBox, SearchBtn, SearchInput } from "./VideoPage";
 
 const MemberPage = () => {
   const navigate = useNavigate();
@@ -25,17 +26,20 @@ const MemberPage = () => {
   const accessToken = useSelector(
     (state: RootState) => state.loginInfo.accessToken
   );
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [maxPage, setMaxPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [maxPage, setMaxPage] = useState<number>(10);
+  const [isKeyword, setKeyword] = useState<string>("");
+  const [searchParams, setSearchParams] = useState<{ keyword: string }>({
+    keyword: "",
+  });
 
   const { isLoading, error, data, isPreviousData } = useQuery({
-    queryKey: ["members", accessToken, currentPage],
+    queryKey: ["members", accessToken, searchParams, currentPage],
     queryFn: async () => {
       try {
         const res = await getMemberList(
           accessToken.authorization,
-          "",
+          isKeyword,
           currentPage,
           10
         );
@@ -66,7 +70,7 @@ const MemberPage = () => {
     }
     if (!isPreviousData && data?.hasMore) {
       queryClient.prefetchQuery({
-        queryKey: ["members", accessToken, currentPage + 1],
+        queryKey: ["members", accessToken, searchParams, currentPage + 1],
         queryFn: async () => {
           try {
             const res = await getMemberList(
@@ -88,12 +92,37 @@ const MemberPage = () => {
         },
       });
     }
-  }, [isLogin, data, isPreviousData, currentPage, queryClient]);
+  }, [isLogin, data, isPreviousData, currentPage, searchParams, queryClient]);
+
+  const handleChangeSearch = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setKeyword(e.target.value);
+  };
+
+  const handleKeyEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const handleSearch = () => {
+    setSearchParams({ ...searchParams, keyword: isKeyword });
+    setCurrentPage(1);
+  };
 
   return (
     <PageContainer isDark={isDark}>
       <MainContainer isDark={isDark}>
         <PageTitle isDark={isDark}>회원 관리</PageTitle>
+        <SearchBox>
+          <SearchInput
+            isDark={isDark}
+            onChange={(e) => handleChangeSearch(e)}
+            onKeyUp={(e) => handleKeyEnter(e)}
+          />
+          <SearchBtn isDark={isDark} onClick={() => handleSearch()}>
+            검색
+          </SearchBtn>
+        </SearchBox>
         {isLoading ? (
           <Loading />
         ) : error ? (

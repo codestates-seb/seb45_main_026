@@ -120,3 +120,13 @@ export const InquireDatetd = styled(Customertd)`
 export const ChatBlocktd = styled(Customertd)`
   width: 120px;
 `;
+
+export const ChatListEmpty = styled.div<DarkMode>`
+  width: 100%;
+  height: 18vh;
+  margin: 10px 0px;
+  padding: 8vh 0px;
+  text-align: center;
+  color: ${(props) =>
+    props.isDark ? globalTokens.White.value : globalTokens.Black.value};
+`;
