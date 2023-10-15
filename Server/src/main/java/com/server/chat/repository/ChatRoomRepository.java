@@ -95,7 +95,10 @@ public class ChatRoomRepository {
             hashSet.add(chatRoom.getRoomId());
             hashOpsAdminInfo.put(ADMIN_ASSIGN, adminEmail, hashSet);
         }else {
-            hashOpsAdminInfo.get(ADMIN_ASSIGN, adminEmail).add(chatRoom.getRoomId());
+            HashSet<String> hashSet = hashOpsAdminInfo.get(ADMIN_ASSIGN, adminEmail);
+            hashSet.add(chatRoom.getRoomId());
+            hashOpsAdminInfo.put(ADMIN_ASSIGN, adminEmail, hashSet);
+
         }
         hashOpsChatRoom.put(CHAT_ROOMS, chatRoom.getRoomId(), chatRoom);
     }
