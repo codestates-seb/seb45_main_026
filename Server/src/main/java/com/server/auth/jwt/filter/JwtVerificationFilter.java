@@ -13,6 +13,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.server.global.exception.businessexception.memberexception.MemberBlockedException;
+import com.server.module.redis.service.RedisService;
 import org.slf4j.MDC;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,23 +23,22 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.auth.jwt.service.CustomUserDetails;
 import com.server.auth.jwt.service.JwtProvider;
 import com.server.auth.util.AuthUtil;
 import com.server.global.exception.businessexception.BusinessException;
 import com.server.global.exception.businessexception.authexception.JwtExpiredException;
 import com.server.global.exception.businessexception.authexception.JwtNotValidException;
-import com.server.global.reponse.ApiSingleResponse;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 
 public class JwtVerificationFilter extends OncePerRequestFilter {
 	private final JwtProvider jwtProvider;
+	private final RedisService redisService;
 
-	public JwtVerificationFilter(JwtProvider jwtProvider) {
+	public JwtVerificationFilter(JwtProvider jwtProvider, RedisService redisService) {
 		this.jwtProvider = jwtProvider;
+		this.redisService = redisService;
 	}
 
 	@Override
@@ -47,6 +48,15 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 			Claims claims = verifyClaims(request);
 			setAuthenticationToContext(claims);
 			MDC.put("email", claims.getSubject());
+
+			if(redisService.isExist(claims.get(CLAIM_ID).toString())) {
+
+				String reason = redisService.getData(claims.get(CLAIM_ID).toString());
+
+				AuthUtil.setResponse(response, new MemberBlockedException(reason));
+				return;
+			}
+
 		} catch (JwtExpiredException | JwtNotValidException jwtException) {
 			AuthUtil.setResponse(response, jwtException);
 			return;

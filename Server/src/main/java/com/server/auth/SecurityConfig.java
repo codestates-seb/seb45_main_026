@@ -2,6 +2,7 @@ package com.server.auth;
 
 import java.util.List;
 
+import com.server.module.redis.service.RedisService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,11 +15,10 @@ import org.springframework.security.config.annotation.web.configurers.Expression
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.server.auth.jwt.filter.JwtAuthenticationFilter;
@@ -33,10 +33,12 @@ import javax.servlet.http.HttpServletResponse;
 
 @Configuration
 public class SecurityConfig {
-	private JwtProvider jwtProvider;
+	private final JwtProvider jwtProvider;
+	private final RedisService redisService;
 
-	public SecurityConfig(JwtProvider jwtProvider) {
+	public SecurityConfig(JwtProvider jwtProvider, RedisService redisService) {
 		this.jwtProvider = jwtProvider;
+		this.redisService = redisService;
 	}
 
 	@Bean
@@ -57,7 +59,8 @@ public class SecurityConfig {
 			.accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN))
 			.authenticationEntryPoint(new MemberAuthenticationEntryPoint())
 			.and()
-			.authorizeRequests(getAuthorizeRequests());
+			.authorizeRequests(getAuthorizeRequests())
+		;
 
 		return http.build();
 	}
@@ -67,7 +70,11 @@ public class SecurityConfig {
 
 		return cors -> {
 			CorsConfiguration configuration = new CorsConfiguration();
-			configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://www.itprometheus.net"));
+			configuration.setAllowedOrigins(List.of(
+					"http://localhost:3000",
+					"https://www.itprometheus.net",
+					"https://admin.itprometheus.net",
+					"file://", "http://jxy.me", "https://jxy.me"));
 			configuration.addAllowedMethod("*");
 			configuration.addAllowedHeader("*");
 			configuration.setAllowCredentials(true);
@@ -102,6 +109,12 @@ public class SecurityConfig {
 			.antMatchers(HttpMethod.GET, "/announcements/*").permitAll()
 			.antMatchers("/announcements/**").hasAnyRole("USER", "ADMIN")
 
+			.antMatchers("/reports/**").hasAnyRole("ADMIN")
+
+			.antMatchers("/admin/**").hasAnyRole("ADMIN")
+
+			.antMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+
 			.antMatchers("/auth/**").permitAll()
 			.anyRequest().permitAll();
 	}
@@ -111,13 +124,13 @@ public class SecurityConfig {
 		public void configure(HttpSecurity builder) {
 			AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
 
-			JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtProvider, authenticationManager);
+			JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtProvider, authenticationManager, redisService);
 			jwtAuthenticationFilter.setFilterProcessesUrl(LOGIN_URL);
 			// jwtAuthenticationFilter.setAuthenticationSuccessHandler(new MemberAuthenticationSuccessHandler());
 			// jwtAuthenticationFilter.setAuthenticationFailureHandler(new MemberAuthenticationFailureHandler());
 
 			JwtRefreshFilter jwtRefreshFilter = new JwtRefreshFilter(jwtProvider);
-			JwtVerificationFilter jwtVerificationFilter = new JwtVerificationFilter(jwtProvider);
+			JwtVerificationFilter jwtVerificationFilter = new JwtVerificationFilter(jwtProvider, redisService);
 
 			builder
 				.addFilter(jwtAuthenticationFilter)

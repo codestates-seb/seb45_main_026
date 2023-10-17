@@ -1,6 +1,0 @@
-:doctype: book
-:icons: font
-
-[[VideoReportSort]]
-
-include::{snippets}/common/enums/custom-response-fields-VideoReportSort.adoc[]

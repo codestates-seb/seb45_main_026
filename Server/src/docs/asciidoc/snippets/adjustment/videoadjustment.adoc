@@ -1,0 +1,24 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Video-Adjustment]]
+= 비디오별 정산 내역 API
+
+IMPORTANT: month 를 null 로 주면 연도별 조회, year 을 null 로 주면 전체 조회
+
+== 비디오별 정산 내역 비율
+=== HTTP Request
+include::{snippets}/adjustment/calculatevideorate/http-request.adoc[]
+==== Request Headers
+include::{snippets}/adjustment/calculatevideorate/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/adjustment/calculatevideorate/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/adjustment/calculatevideorate/http-response.adoc[]
+==== Response Fields
+include::{snippets}/adjustment/calculatevideorate/response-fields.adoc[]

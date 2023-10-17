@@ -113,6 +113,8 @@ class AnnouncementServiceTest extends ServiceTest {
 
         String content = "content";
 
+        setAuthentication(member);
+
         AnnouncementCreateServiceRequest request = AnnouncementCreateServiceRequest.builder()
                 .memberId(member.getMemberId())
                 .content(content)
@@ -135,6 +137,8 @@ class AnnouncementServiceTest extends ServiceTest {
 
         Member loginMember = createMemberWithChannel();
 
+        setAuthentication(loginMember);
+
         String content = "content";
 
         AnnouncementCreateServiceRequest request = AnnouncementCreateServiceRequest.builder()
@@ -155,6 +159,8 @@ class AnnouncementServiceTest extends ServiceTest {
 
         String content = "content";
 
+        setAuthentication(owner);
+
         Long notExistMemberId = owner.getMemberId() + 999L;
 
         AnnouncementCreateServiceRequest request = AnnouncementCreateServiceRequest.builder()
@@ -173,6 +179,8 @@ class AnnouncementServiceTest extends ServiceTest {
         //given
         Member member = createMemberWithChannel();
         Announcement announcement = createAndSaveAnnouncement(member.getChannel());
+
+        setAuthentication(member);
 
         String updateContent = "updateContent";
 
@@ -199,6 +207,7 @@ class AnnouncementServiceTest extends ServiceTest {
         String updateContent = "updateContent";
 
         Member loginMember = createMemberWithChannel();
+        setAuthentication(loginMember);
 
         AnnouncementUpdateServiceRequest request = AnnouncementUpdateServiceRequest.builder()
                 .announcementId(announcement.getAnnouncementId())
@@ -223,6 +232,7 @@ class AnnouncementServiceTest extends ServiceTest {
         Announcement announcement = createAndSaveAnnouncement(owner.getChannel());
 
         String updateContent = "updateContent";
+        setAuthentication(owner);
 
         Long notExistAnnouncementId = announcement.getAnnouncementId() + 999L; // 존재하지 않는 announcementId
 
@@ -248,6 +258,8 @@ class AnnouncementServiceTest extends ServiceTest {
         Member owner = createMemberWithChannel();
         Announcement announcement = createAndSaveAnnouncement(owner.getChannel());
 
+        setAuthentication(owner);
+
         //when
         announcementService.deleteAnnouncement(owner.getMemberId(), announcement.getAnnouncementId());
 
@@ -262,6 +274,8 @@ class AnnouncementServiceTest extends ServiceTest {
         //given
         Member owner = createMemberWithChannel();
         Announcement announcement = createAndSaveAnnouncement(owner.getChannel());
+
+        setAuthentication(owner);
 
         Long notExistMemberId = owner.getMemberId() + 999L; // 다른 멤버의 id
 
@@ -279,6 +293,8 @@ class AnnouncementServiceTest extends ServiceTest {
         //given
         Member owner = createMemberWithChannel();
         Announcement announcement = createAndSaveAnnouncement(owner.getChannel());
+
+        setAuthentication(owner);
 
         Long notExistAnnouncementId = announcement.getAnnouncementId() + 999L; // 존재하지 않는 announcementId
 

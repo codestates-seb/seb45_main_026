@@ -1,11 +1,13 @@
 package com.server.global.initailizer.warmup;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class WarmupState {
 
-    private boolean isWarmupCompleted = false;
+    @Value("${warmup.is-completed}")
+    private boolean isWarmupCompleted;
 
     public boolean isWarmupCompleted() {
         return isWarmupCompleted;

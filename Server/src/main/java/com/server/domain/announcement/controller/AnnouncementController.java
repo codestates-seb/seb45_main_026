@@ -3,6 +3,7 @@ package com.server.domain.announcement.controller;
 import com.server.domain.announcement.controller.dto.request.AnnouncementUpdateApiRequest;
 import com.server.domain.announcement.service.AnnouncementService;
 import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
+import com.server.domain.report.controller.dto.request.ReportCreateApiRequest;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiSingleResponse;
 import org.springframework.http.ResponseEntity;
@@ -52,5 +53,18 @@ public class AnnouncementController {
         announcementService.deleteAnnouncement(loginMemberId, announcementId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{announcement-id}/reports")
+    public ResponseEntity<ApiSingleResponse<Boolean>> reportAnnouncement(
+            @PathVariable("announcement-id") @Positive(message = "{validation.positive}") Long announcementId,
+            @RequestBody @Valid ReportCreateApiRequest request,
+            @LoginId Long loginMemberId) {
+
+        boolean result = announcementService.reportAnnouncement(loginMemberId, announcementId, request.getReportContent());
+
+        String message = result ? "공지사항 신고 성공" : "이미 신고한 공지사항입니다.";
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(result, message));
     }
 }

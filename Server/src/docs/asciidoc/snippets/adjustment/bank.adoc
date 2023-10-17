@@ -1,0 +1,20 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[bank]]
+= 은행 목록 API
+
+== 비디오별 정산 내역 페이징
+=== HTTP Request
+include::{snippets}/adjustment/getbanks/http-request.adoc[]
+==== Request Headers
+include::{snippets}/adjustment/getbanks/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/adjustment/getbanks/http-response.adoc[]
+==== Response Fields
+include::{snippets}/adjustment/getbanks/response-fields.adoc[]

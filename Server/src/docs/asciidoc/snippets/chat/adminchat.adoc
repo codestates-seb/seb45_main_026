@@ -1,0 +1,56 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[AdminChat]]
+= 관리자용 채팅 API
+
+== 미할당 채팅방 조회
+=== HTTP Request
+include::{snippets}/adminchat/rooms/http-request.adoc[]
+==== Request Header
+include::{snippets}/adminchat/rooms/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/adminchat/rooms/http-response.adoc[]
+==== Response Fields
+include::{snippets}/adminchat/rooms/response-fields.adoc[]
+
+== 자신이 속한 채팅방 조회
+=== HTTP Request
+include::{snippets}/adminchat/myrooms/http-request.adoc[]
+==== Request Header
+include::{snippets}/adminchat/myrooms/request-headers.adoc[]
+=== HTTP Response
+include::{snippets}/adminchat/myrooms/http-response.adoc[]
+==== Response Fields
+include::{snippets}/adminchat/myrooms/response-fields.adoc[]
+
+== 채팅방 대화 조회 API
+=== HTTP Request
+include::{snippets}/adminchat/getmessages/http-request.adoc[]
+==== Request Header
+include::{snippets}/adminchat/getmessages/request-headers.adoc[]
+==== Path Parameters
+include::{snippets}/adminchat/getmessages/path-parameters.adoc[]
+==== Query Parameters
+include::{snippets}/adminchat/getmessages/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/adminchat/getmessages/http-response.adoc[]
+==== Response Fields
+include::{snippets}/adminchat/getmessages/response-fields.adoc[]
+
+== 상담 완료 처리 API
+=== HTTP Request
+include::{snippets}/adminchat/completechat/http-request.adoc[]
+==== Request Header
+include::{snippets}/adminchat/completechat/request-headers.adoc[]
+==== Path Parameters
+include::{snippets}/adminchat/completechat/path-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/adminchat/completechat/http-response.adoc[]
+
+

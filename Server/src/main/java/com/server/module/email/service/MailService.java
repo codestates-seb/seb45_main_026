@@ -23,7 +23,7 @@ public class MailService {
 		message.setText(
 			text,"utf-8", "html"
 		);
-		message.setFrom(new InternetAddress("yj171151@naver.com", "prometheus"));
+		message.setFrom(new InternetAddress("sksjsksh32@google.com", "prometheus"));
 
 		return message;
 	}

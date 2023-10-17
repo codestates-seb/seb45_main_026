@@ -8,6 +8,7 @@ import com.server.domain.channel.service.dto.request.ChannelVideoGetServiceReque
 import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
+import com.server.domain.report.service.ReportService;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.subscribe.repository.SubscribeRepository;
 import com.server.domain.video.entity.Video;
@@ -33,22 +34,23 @@ public class ChannelService {
     private final ChannelRepository channelRepository;
     private final AwsService awsService;
     private final MemberRepository memberRepository;
-
     private final SubscribeRepository subscribeRepository;
     private final VideoRepository videoRepository;
+    private final ReportService reportService;
 
 
     public ChannelService(ChannelRepository channelRepository,
                           AwsService awsService,
                           MemberRepository memberRepository,
                           SubscribeRepository subscribeRepository,
-                          VideoRepository videoRepository) {
+                          VideoRepository videoRepository, ReportService reportService) {
 
         this.channelRepository = channelRepository;
         this.awsService = awsService;
         this.memberRepository = memberRepository;
         this.subscribeRepository = subscribeRepository;
         this.videoRepository = videoRepository;
+        this.reportService = reportService;
     }
 
     @Transactional(readOnly = true)
@@ -149,10 +151,25 @@ public class ChannelService {
         );
     }
 
+    public boolean reportChannel(Long loginMemberId, Long channelId, String reportContent) {
+
+        Channel channel = existChannel(channelId);
+
+        Member reporter = verifiedMember(loginMemberId);
+
+        return reportService.reportChannel(reporter, channel, reportContent);
+    }
+
     private Member verifiedMemberOrNull(Long loginMemberId) {
         return memberRepository.findById(loginMemberId)
                 .orElse(null);
     }
+
+    private Member verifiedMember(Long loginMemberId) {
+        return memberRepository.findById(loginMemberId)
+                .orElseThrow(MemberNotFoundException::new);
+    }
+
     public void createChannel(Member signMember) {
         Channel channel = Channel.createChannel(signMember.getNickname());
 

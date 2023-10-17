@@ -1,0 +1,6 @@
+:doctype: book
+:icons: font
+
+[[ReportSort]]
+
+include::{snippets}/common/enums/custom-response-fields-ReportSort.adoc[]

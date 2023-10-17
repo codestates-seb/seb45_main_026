@@ -61,7 +61,7 @@ public class AwsServiceImpl implements AwsService {
     }
 
     @Override
-    public String getImageUploadUrl(Long memberId, String fileName, FileType fileType, ImageType imageType) {
+    public String getPublicUploadUrl(Long memberId, String fileName, FileType fileType, ImageType imageType) {
 
         //todo : VIDEO 가 들어오지 못하게 컴파일로 막아야하는데... 어떻게 해야할까?
         if(fileType.equals(FileType.VIDEO)) {
@@ -74,7 +74,7 @@ public class AwsServiceImpl implements AwsService {
 
         URL presignedPutObjectUrl = getPresignedPutImageObjectUrl(
                 fileType.s3Location(memberId, fileName),
-                imageType.getDescription(),
+                imageType,
                 duration);
 
         return URLDecoder.decode(presignedPutObjectUrl.toString(), UTF_8);
@@ -105,6 +105,9 @@ public class AwsServiceImpl implements AwsService {
 
     @Override
     public boolean isExistFile(String fileName, FileType fileType) {
+
+        if(fileName == null) return false;
+
         return isExistFile(fileType.s3FullLocation(fileName));
     }
 
@@ -161,7 +164,9 @@ public class AwsServiceImpl implements AwsService {
         return s3Presigner.presignPutObject(presignRequest).url();
     }
 
-    private URL getPresignedPutImageObjectUrl(String location, String contentType, Duration duration) {
+    private URL getPresignedPutImageObjectUrl(String location, ImageType imageType, Duration duration) {
+
+        String contentType = imageType == null ? VIDEO_TYPE : imageType.getDescription();
 
         String bucketName = location.split("/")[0];
         String path = location.substring(location.indexOf("/") + 1);

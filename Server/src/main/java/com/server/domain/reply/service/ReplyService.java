@@ -1,11 +1,13 @@
 package com.server.domain.reply.service;
 
+import com.server.auth.util.SecurityUtil;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
 import com.server.domain.reply.controller.convert.ReplySort;
 import com.server.domain.reply.dto.*;
 import com.server.domain.reply.entity.Reply;
 import com.server.domain.reply.repository.ReplyRepository;
+import com.server.domain.report.service.ReportService;
 import com.server.domain.reward.service.RewardService;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.repository.VideoRepository;
@@ -24,8 +26,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Transactional
 @Service
 public class ReplyService {
@@ -35,19 +35,21 @@ public class ReplyService {
     private final VideoRepository videoRepository;
     private final AwsService awsService;
     private final RewardService rewardService;
+    private final ReportService reportService;
 
 
     public ReplyService(ReplyRepository replyRepository,
                         MemberRepository memberRepository,
                         VideoRepository videoRepository,
                         AwsService awsService,
-                        RewardService rewardService) {
+                        RewardService rewardService, ReportService reportService) {
 
         this.replyRepository = replyRepository;
         this.memberRepository = memberRepository;
         this.videoRepository = videoRepository;
         this.awsService = awsService;
         this.rewardService = rewardService;
+        this.reportService = reportService;
     }
 
     @Transactional(readOnly = true)
@@ -92,7 +94,7 @@ public class ReplyService {
 
     public void updateReply(Long loginMemberId, Long replyId, ReplyUpdateServiceApi request) {
 
-        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
+        Reply reply = verifiedReply(replyId);
 
             if (!reply.getMember().getMemberId().equals(loginMemberId)) {
                 throw new MemberAccessDeniedException();
@@ -106,7 +108,7 @@ public class ReplyService {
     @Transactional(readOnly = true)
     public ReplyInfo getReply(Long replyId) {
 
-        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
+        Reply reply = verifiedReply(replyId);
 
         return ReplyInfo.builder()
                 .replyId(reply.getReplyId())
@@ -122,9 +124,7 @@ public class ReplyService {
     public void deleteReply(Long replyId, Long loginMemberId) {
         Reply reply = replyRepository.findByIdWithVideo(replyId).orElseThrow(ReplyNotFoundException::new);
 
-        if (!reply.getMember().getMemberId().equals(loginMemberId)) {
-            throw new MemberAccessDeniedException();
-        }
+        checkDeleteAuthority(loginMemberId, reply);
 
         Video video = reply.getVideo();
         video.getReplies().remove(reply);
@@ -132,6 +132,28 @@ public class ReplyService {
         replyRepository.delete(reply);
 
         video.calculateStar();
+    }
+
+    private void checkDeleteAuthority(Long loginMemberId, Reply reply) {
+
+        if(SecurityUtil.isAdmin()) return;
+
+        if (!reply.getMember().getMemberId().equals(loginMemberId)) {
+            throw new MemberAccessDeniedException();
+        }
+    }
+
+    public boolean reportReply(Long loginMemberId, Long replyId, String reportContent) {
+
+        Reply reply = verifiedReply(replyId);
+
+        Member reporter = findMember(loginMemberId);
+
+        return reportService.reportReply(reporter, reply, reportContent);
+    }
+
+    private Reply verifiedReply(Long replyId) {
+        return replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
     }
 
     private void existReplies(Long loginMemberId, Long videoId) {
@@ -161,6 +183,5 @@ public class ReplyService {
     private Member findMember(Long memberId) {
         return memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
     }
-
 }
 

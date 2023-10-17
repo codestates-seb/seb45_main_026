@@ -26,7 +26,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Component
-@Profile("prod")
 @Slf4j
 public class WarmupApi implements ApplicationListener<ContextRefreshedEvent> {
 

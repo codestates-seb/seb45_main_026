@@ -1,11 +1,14 @@
 package com.server.global.restdocs;
 
+import com.server.domain.account.domain.Bank;
+import com.server.domain.adjustment.domain.AdjustmentStatus;
 import com.server.domain.answer.entity.AnswerStatus;
 import com.server.domain.member.entity.Grade;
+import com.server.domain.member.entity.MemberStatus;
 import com.server.domain.order.controller.dto.request.AdjustmentSort;
 import com.server.domain.order.entity.OrderStatus;
 import com.server.domain.reply.controller.convert.ReplySort;
-import com.server.domain.video.controller.dto.request.VideoReportSort;
+import com.server.domain.report.controller.dto.request.ReportSort;
 import com.server.domain.video.controller.dto.request.VideoSort;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.module.s3.service.dto.ImageType;
@@ -158,14 +161,17 @@ public class CommonControllerTest extends ControllerTest {
 			Authority.class,
 			OAuthProvider.class,
 			VideoSort.class,
-			VideoReportSort.class,
+			ReportSort.class,
 			OrderStatus.class,
 			AnswerStatus.class,
 			ImageType.class,
 			ReplySort.class,
 			VideoStatus.class,
 			Grade.class,
-			AdjustmentSort.class
+			AdjustmentSort.class,
+			MemberStatus.class,
+			AdjustmentStatus.class,
+			Bank.class
 		);
 
 		// Enum의 이름값들을 요청 데이터로 사용하기 위해 Json 형태로 변환

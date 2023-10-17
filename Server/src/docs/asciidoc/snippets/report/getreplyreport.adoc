@@ -1,0 +1,38 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+IMPORTANT: 관리자용 기능입니다. (ROLE_ADMIN)
+
+[[GetReportReply]]
+= 신고된 댓글 목록 조회 API
+
+== 신고된 댓글 목록 조회
+=== HTTP Request
+include::{snippets}/report/getreportreplies/http-request.adoc[]
+==== Request Headers
+include::{snippets}/report/getreportreplies/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/report/getreportreplies/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/report/getreportreplies/http-response.adoc[]
+==== Response Fields
+include::{snippets}/report/getreportreplies/response-fields.adoc[]
+
+== 신고된 댓글의 신고내용 목록 조회
+=== HTTP Request
+include::{snippets}/report/getreportreplydetail/http-request.adoc[]
+==== Request Headers
+include::{snippets}/report/getreportreplydetail/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/report/getreportreplydetail/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/report/getreportreplydetail/http-response.adoc[]
+==== Response Fields
+include::{snippets}/report/getreportreplydetail/response-fields.adoc[]
+
+
