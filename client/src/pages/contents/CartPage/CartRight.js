@@ -8,8 +8,6 @@ import { setMyInfo } from "../../../redux/createSlice/CartsSlice";
 import tokens from "../../../styles/tokens.json";
 import { useToken } from "../../../hooks/useToken";
 
-const globalTokens = tokens.global;
-
 const CartRight = () => {
   const dispatch = useDispatch();
   const refreshToken = useToken();
@@ -48,6 +46,8 @@ const CartRight = () => {
 };
 
 export default CartRight;
+
+const globalTokens = tokens.global;
 
 export const CartSection = styled.section`
   @media screen and (min-width: 1170px) {

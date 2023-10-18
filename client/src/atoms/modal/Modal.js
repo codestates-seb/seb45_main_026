@@ -56,7 +56,6 @@ export const ConfirmModal = ({
   );
 };
 
-
 //확인 버튼만 있는 모달
 export const AlertModal = ({
   isModalOpen,
@@ -124,18 +123,18 @@ export const ReportModal = ({
           e.stopPropagation();
         }}
       >
-        <ModalContent isDark={isDark}>해당 영상을 신고하시겠습니까?</ModalContent>
-        <ModalSubContent isDark={isDark}>신고 사유를 꼭 적어주세요.</ModalSubContent>
-        <ReportContent isDark={isDark} onChange={setReportContent} value={reportContent}/>
+        <ModalContent isDark={isDark}>
+          해당 영상을 신고하시겠습니까?
+        </ModalContent>
+        <ModalSubContent isDark={isDark}>
+          신고 사유를 꼭 적어주세요.
+        </ModalSubContent>
+        <ReportContent
+          isDark={isDark}
+          onChange={setReportContent}
+          value={reportContent}
+        />
         <ModalButtonContainer>
-          <ModalPositiveButton
-            isDark={isDark}
-            onClick={(e) => {
-              handlePositiveButtonClick();
-            }}
-          >
-            {positiveButtonTitle}
-          </ModalPositiveButton>
           <ModalNegativeButton
             isDark={isDark}
             onClick={(e) => {
@@ -144,6 +143,14 @@ export const ReportModal = ({
           >
             {negativeButtonTitle}
           </ModalNegativeButton>
+          <ModalPositiveButton
+            isDark={isDark}
+            onClick={(e) => {
+              handlePositiveButtonClick();
+            }}
+          >
+            {positiveButtonTitle}
+          </ModalPositiveButton>
         </ModalButtonContainer>
       </ReportModalContainer>
     </ModalBackdrop>
@@ -184,7 +191,7 @@ export const ModalContainer = styled.div`
 export const ReportModalContainer = styled(ModalContainer)`
   height: 250px;
   gap: ${globalTokens.Spacing12.value}px;
-`
+`;
 
 export const ModalContent = styled(BodyTextTypo)`
   flex-grow: 1;

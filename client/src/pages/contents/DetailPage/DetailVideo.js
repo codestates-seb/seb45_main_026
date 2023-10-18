@@ -1,6 +1,6 @@
 import axios from "axios";
 import { styled } from "styled-components";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import SubscribeBtn from "../../../components/DetailPage/SubscribeBtn";
@@ -23,6 +23,7 @@ import VideoPlayer from "../../../components/DetailPage/VideoPlayer";
 import { AlertModal, ReportModal } from "../../../atoms/modal/Modal";
 import { PositiveTextButton } from "../../../atoms/buttons/Buttons";
 import { priceToString } from "../../../components/CartPage/CartPayInfo";
+import { ReactComponent as Report } from "../../../assets/images/icons/Report.svg";
 
 const DetailVideo = ({ videoDatas }) => {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ const DetailVideo = ({ videoDatas }) => {
   const [reportedModal, setReportedModal] = useState(false);
   const [alreadyReportedModal, setAlreadyReportedModal] = useState(false);
   const [reportModal, setReportModal] = useState(false);
-  const [reportContent,setReportContent] = useState("")
+  const [reportContent, setReportContent] = useState("");
   const [alertLogin, setAlertLogin] = useState(false);
 
   const getVideoInfo = () => {
@@ -50,7 +51,6 @@ const DetailVideo = ({ videoDatas }) => {
       })
       .then((res) => {
         setChannelInfo({ ...channelInfo, ...res.data.data.channel });
-        console.log(res.data.data.channel);
       })
       .catch((err) => {
         if (err.response.data.message === "만료된 토큰입니다.") {
@@ -124,47 +124,52 @@ const DetailVideo = ({ videoDatas }) => {
     }
   };
 
-
   const handleNavChannel = () => {
     return navigate(`/channels/${videoDatas.channel.memberId}`);
   };
-    
+
   const handleReportVideo = () => {
     if (reportContent !== "") {
-      axios.post(
-        `https://api.itprometheus.net/videos/${videoId}/reports`,
-        {
-          reportContent: reportContent,
-        },
-        {
-          headers: { Authorization: token.authorization },
-        }
-      ).then(res => {
-        if (res.data.data) {
-          setReportModal(false);
-          setReportedModal(true);
-        } else {
-          setReportModal(false);
-          setAlreadyReportedModal(true);
-        }
-      }).catch((err) => {
-        if (err.response.data.message === "만료된 토큰입니다.") {
-          refreshToken();
-        } else {
-          console.log(err);
-        }
-      })
+      axios
+        .post(
+          `https://api.itprometheus.net/videos/${videoId}/reports`,
+          {
+            reportContent: reportContent,
+          },
+          {
+            headers: { Authorization: token.authorization },
+          }
+        )
+        .then((res) => {
+          if (res.data.data) {
+            setReportModal(false);
+            setReportedModal(true);
+            setReportContent("");
+          } else {
+            setReportModal(false);
+            setAlreadyReportedModal(true);
+          }
+        })
+        .catch((err) => {
+          if (err.response.data.message === "만료된 토큰입니다.") {
+            refreshToken();
+          } else {
+            console.log(err);
+          }
+        });
     }
-  }
+  };
 
   const reportContentHandler = (e) => {
-    setReportContent(e.target.value)
-  }
+    setReportContent(e.target.value);
+  };
 
   return (
     <>
       <VideoContainer isDark={isDark}>
-        <BackButton isDark={isDark} onClick={()=>navigate('/lecture')}>← 목록으로</BackButton>
+        <BackButton isDark={isDark} onClick={() => navigate("/lecture")}>
+          ← 목록으로
+        </BackButton>
         <VideoHeader isDark={isDark}>
           <HeaderBtnContainer>
             부적절한 영상인가요?
@@ -180,41 +185,40 @@ const DetailVideo = ({ videoDatas }) => {
           </HeaderBtnContainer>
         </VideoHeader>
 
-        {!isPrevCover ||
-        videoDatas.isPurchased ||
-        myId === videoDatas.channel?.memberId ? (
-          <VideoPlayer
-            videoId={videoId}
-            thumbnailUrl={videoDatas.thumbnailUrl}
-            isPrevMode={isPrevMode}
-            controlBar={true}
-          />
-        ) : (
-          <VideoCover url={videoDatas.thumbnailUrl}>
-            <PrevBtn
-              onClick={() => {
-                setPrevMode(true);
-                setPrevCover(false);
-                setTimeout(() => {
+        <PlayerBox>
+          {!isPrevCover ||
+          videoDatas.isPurchased ||
+          myId === videoDatas.channel?.memberId ? (
+            <VideoPlayer
+              videoId={videoId}
+              thumbnailUrl={videoDatas.thumbnailUrl}
+              isPrevMode={isPrevMode || !videoDatas.isPurchased}
+              controlBar={true}
+            />
+          ) : (
+            <VideoCover url={videoDatas.thumbnailUrl}>
+              <PrevBtn
+                onClick={() => {
+                  setPrevMode(true);
                   setPrevCover(false);
-                }, 61000);
-              }}
-            >
-              1분 미리보기
-            </PrevBtn>
-            <PurchaseBtn
-              onClick={() => {
-                if (videoDatas.price > 0) {
-                  handleCartNav();
-                } else {
-                  handlePurchase();
-                }
-              }}
-            >
-              강의 구매하기
-            </PurchaseBtn>
-          </VideoCover>
-        )}
+                }}
+              >
+                1분 미리보기
+              </PrevBtn>
+              <PurchaseBtn
+                onClick={() => {
+                  if (videoDatas.price > 0) {
+                    handleCartNav();
+                  } else {
+                    handlePurchase();
+                  }
+                }}
+              >
+                강의 구매하기
+              </PurchaseBtn>
+            </VideoCover>
+          )}
+        </PlayerBox>
 
         <VideoTitle isDark={isDark}>
           <span>{videoDatas.videoName}</span>
@@ -227,7 +231,7 @@ const DetailVideo = ({ videoDatas }) => {
           )}
         </VideoTitle>
         <VideoInfo>
-          <Profile onClick={handleNavChannel}>
+          <Profile isDark={isDark} onClick={handleNavChannel}>
             <ProfileImg
               src={videoDatas.channel?.imageUrl || profileGray}
               alt="프로필 이미지"
@@ -323,7 +327,7 @@ const DetailVideo = ({ videoDatas }) => {
         positiveButtonTitle="취소"
         handleNegativeButtonClick={() => handleReportVideo()}
         handlePositiveButtonClick={() => setReportModal(false)}
-       />
+      />
       <AlertModal
         isModalOpen={alertLogin}
         setIsModalOpen={setAlertLogin}
@@ -373,6 +377,11 @@ export const VideoContainer = styled.section`
   border-radius: ${globalTokens.RegularRadius.value}px;
   background-color: ${(props) =>
     props.isDark ? "rgba(255,255,255,0.15)" : globalTokens.White.value};
+`;
+
+export const PlayerBox = styled.div`
+  width: 100%;
+  height: 600px;
 `;
 
 export const VideoCover = styled.div`
@@ -425,7 +434,7 @@ export const HeaderBtnContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-`
+`;
 
 export const HeaderBtn = styled(NegativeTextButton)`
   margin-left: 10px;
@@ -457,14 +466,20 @@ export const VideoInfo = styled.button`
 export const Profile = styled.div`
   min-width: 180px;
   height: 60px;
-  padding: 0px 10px;
+  padding: 0px 25px 0px 10px;
+  margin-right: 50px;
   display: flex;
   justify-content: start;
   align-items: center;
-  margin-right: 50px;
   cursor: pointer;
+  border-radius: ${globalTokens.RegularRadius.value}px;
+  transition: 300ms;
   &:hover {
-    background-color: ${globalTokens.Gray.value};
+    background-color: ${(props) =>
+      props.isDark
+        ? globalTokens.LightNavy.value
+        : globalTokens.LightRed.value};
+    border-radius: ${globalTokens.RegularRadius.value}px;
   }
 `;
 
@@ -499,5 +514,17 @@ export const CreditBox = styled.div`
   bottom: 15%;
 `;
 
-const BackButton = styled(PositiveTextButton)`
+const BackButton = styled(PositiveTextButton)``;
+
+export const ReportBtn = styled(Report)`
+  width: 18px;
+  height: 18px;
+  path {
+    fill: ${globalTokens.Negative.value};
+  }
+  &:hover {
+    path {
+      fill: ${globalTokens.Gray.value};
+    }
+  }
 `;
