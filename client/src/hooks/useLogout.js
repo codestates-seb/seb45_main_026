@@ -11,7 +11,8 @@ export const useLogout = () => {
             nickname: "",
             grade: "",
             imgUrl: "",
-            reward: "" 
+            reward: "",
+            authority: "",
         }));
         dispatch(setChannelInfo({
             channelName: "",
