@@ -121,7 +121,6 @@ const Setting = () => {
           });
           getBankInfoService(accessToken.authorization)
             .then((res) => {
-              console.log(res.data.data);
               setBankList(res.data.data);
             })
             .catch((err) => {
@@ -758,6 +757,4 @@ export const BankList = styled.li`
   cursor: pointer;
 `;
 
-export const BankBox = styled.div`
-  border: 1px solid red;
-`;
+export const BankBox = styled.div``;
