@@ -140,7 +140,15 @@ const LectureListPage = () => {
         headers: { Authorization: accessToken.authorization },
       })
       .then((res) => {
-        dispatch(setLoginInfo(res.data.data));
+        console.log(res.data.data)
+        dispatch(setLoginInfo({
+          email: res.data.data.email, 
+          nickname: res.data.data.nickname, 
+          grade: res.data.data.grade, 
+          imgUrl: res.data.data.imageUrl, 
+          reward: res.data.data.reward,
+          authority: res.data.data.authority,
+        }));
       })
       .catch((err) => {
         console.log(err);
