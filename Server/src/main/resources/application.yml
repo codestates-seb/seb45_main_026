@@ -117,5 +117,5 @@ decorator:
       enable-logging: false
 
 warmup:
-  is-completed: true
+  is-completed: false
 
