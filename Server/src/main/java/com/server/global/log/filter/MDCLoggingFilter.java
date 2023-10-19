@@ -38,7 +38,7 @@ public class MDCLoggingFilter implements Filter {
             OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
             double sysCpuLoad = osBean.getSystemCpuLoad() * 100;
 
-            log.info("Thread Count : {}, CPU usage : {}%", Thread.activeCount(), sysCpuLoad);
+            log.info("Thread Count: {} CPU usage: {} %", Thread.activeCount(), sysCpuLoad);
         }
 
 
