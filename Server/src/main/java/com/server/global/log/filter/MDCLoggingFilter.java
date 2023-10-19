@@ -1,6 +1,7 @@
 package com.server.global.log.filter;
 
 import com.server.global.initailizer.warmup.WarmupState;
+import com.sun.management.OperatingSystemMXBean;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.UUID;
 
 @Component
@@ -31,6 +33,14 @@ public class MDCLoggingFilter implements Filter {
         MDC.put("email", "anonymous");
 
         long startTime = System.currentTimeMillis();
+
+        if(warmupState.isWarmupCompleted()) {
+            OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+            double sysCpuLoad = osBean.getSystemCpuLoad() * 100;
+
+            log.info("Thread Count : {}, CPU usage : {}%", Thread.activeCount(), sysCpuLoad);
+        }
+
 
         chain.doFilter(request, response);
 
