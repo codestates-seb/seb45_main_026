@@ -7,10 +7,12 @@ ARG JAR_FILE=build/libs/*-SNAPSHOT.jar
 # (3) jar 빌드 파일을 도커 컨테이너로 복사
 COPY ${JAR_FILE} app.jar
 COPY src/main/resources/prometheus.pem prometheus.pem
+COPY start.sh start.sh
 
 # (4) pem 파일의 권한 설정
 RUN groupadd -r ubuntu && useradd -r -g ubuntu ubuntu \
-    && chmod 400 prometheus.pem && chown ubuntu:ubuntu prometheus.pem
+    && chmod 400 prometheus.pem && chown ubuntu:ubuntu prometheus.pem \
+    && chmod +x start.sh  # 스크립트에 실행 권한 부여
 
 # (5) jar 파일 실행
-ENTRYPOINT ["java","-jar","/app.jar"]
+CMD ["./start.sh"]
