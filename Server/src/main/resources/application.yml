@@ -71,7 +71,7 @@ jwt:
 server:
   tomcat:
     threads:
-      max: 100
+      max: 60
       min-spare: 20
     max-connections: 8192
     accept-count: 100
@@ -96,7 +96,7 @@ spring:
       on-profile: prod
   datasource:
     hikari:
-      maximumPoolSize: 40 # 유휴 및 사용중인 connection을 포함하여 풀에 보관가능한 최대 커넥션 개수
+      maximumPoolSize: 60 # 유휴 및 사용중인 connection을 포함하여 풀에 보관가능한 최대 커넥션 개수
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://sixman-rds.c2bhjqsi4ogs.ap-northeast-2.rds.amazonaws.com/sixmandb?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
   jpa:
