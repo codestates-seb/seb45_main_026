@@ -71,7 +71,7 @@ jwt:
 server:
   tomcat:
     threads:
-      max: 60
+      max: 40
       min-spare: 20
     max-connections: 8192
     accept-count: 100
@@ -106,7 +106,7 @@ spring:
     properties:
       hibernate:
         dialect: com.server.global.dialect.CustomMySQL8Dialect
-#    open-in-view: false
+    open-in-view: false
 
 pem:
   location: /prometheus.pem
