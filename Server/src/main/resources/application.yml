@@ -106,7 +106,7 @@ spring:
     properties:
       hibernate:
         dialect: com.server.global.dialect.CustomMySQL8Dialect
-
+#    open-in-view: false
 
 pem:
   location: /prometheus.pem
@@ -118,3 +118,4 @@ decorator:
 
 warmup:
   is-completed: true
+
