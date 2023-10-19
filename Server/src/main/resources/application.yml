@@ -10,13 +10,6 @@ spring:
       enabled: true
       path: /h2
   datasource:
-    hikari:
-      jdbc-url: url
-      connectionTimeout: 30000 # 30초를 뜻함. 클라이언트가 pool에 connection 을 요청하는데 기다리는 최대시간
-      maximumPoolSize: 40 # 유휴 및 사용중인 connection을 포함하여 풀에 보관가능한 최대 커넥션 개수
-      maxLifetime: 1800000 # 30분을 뜻함. connection의 최대 유지 시간을 설정
-      poolName: HikariCP
-      readOnly: false # pool에서 얻은 connection이 기본적으로 readOnly인지 지정하는 설정, 데이터베이스가 readOnly 속성을 지원할 경우에만 사용가능
     url: jdbc:h2:mem:test
     driver-class-name: org.h2.Driver
   jpa:
@@ -102,6 +95,8 @@ spring:
     activate:
       on-profile: prod
   datasource:
+    hikari:
+      maximumPoolSize: 40 # 유휴 및 사용중인 connection을 포함하여 풀에 보관가능한 최대 커넥션 개수
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://sixman-rds.c2bhjqsi4ogs.ap-northeast-2.rds.amazonaws.com/sixmandb?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
   jpa:
@@ -122,4 +117,4 @@ decorator:
       enable-logging: false
 
 warmup:
-  is-completed: false
+  is-completed: true
