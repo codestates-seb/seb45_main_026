@@ -37,5 +37,13 @@ public interface VideoRepository extends JpaRepository<Video, Long>, VideoReposi
             "where v.videoId = ?1")
     String findVideoUrlByVideoId(Long videoId);
 
+    @Query(value = "select v.previewFile " +
+            "from Video v " +
+            "where v.videoId = ?1")
+    String findPreviewUrlByVideoId(Long videoId);
 
+    @Query(value = "select v " +
+            "from Video v " +
+            "where v.channel.channelId = ?1")
+    List<Video> findByMemberId(Long memberId);
 }

@@ -120,14 +120,14 @@ function App() {
         <Route path="/activity/income" element={<IncomePage />} />
         <Route path="/watched" element={<WatchedListPage />} />
         <Route path="/result/:keyword" element={<ResultPage />} />
-        
-        <Route path='/admin' element={<AdminList/>}/>
-        <Route path='/admin/:videoId' element={<AdminDetail/>}/>
 
-        <Route path="/*" element={<NotFound/>} />
+        <Route path="/admin" element={<AdminList />} />
+        <Route path="/admin/:videoId" element={<AdminDetail />} />
+
+        <Route path="/*" element={<NotFound />} />
       </Routes>
       <Footer />
-      <ToTopButton/>
+      <ToTopButton />
     </BrowserRouter>
   );
 }

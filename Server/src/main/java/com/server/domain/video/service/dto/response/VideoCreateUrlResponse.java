@@ -10,5 +10,6 @@ import lombok.Getter;
 public class VideoCreateUrlResponse {
 
     private String thumbnailUrl;
+    private String previewUrl;
     private String videoUrl;
 }

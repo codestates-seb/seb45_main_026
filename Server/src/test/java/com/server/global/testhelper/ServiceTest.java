@@ -2,6 +2,7 @@ package com.server.global.testhelper;
 
 import com.server.auth.jwt.service.CustomUserDetails;
 import com.server.auth.jwt.service.JwtProvider;
+import com.server.domain.account.repository.AccountRepository;
 import com.server.domain.announcement.repository.AnnouncementRepository;
 import com.server.domain.answer.entity.Answer;
 import com.server.domain.answer.repository.AnswerRepository;
@@ -24,7 +25,6 @@ import com.server.domain.report.repository.ReportRepository;
 import com.server.domain.reward.entity.Reward;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.reward.repository.RewardRepository;
-import com.server.domain.reward.service.RewardService;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.subscribe.repository.SubscribeRepository;
 import com.server.domain.video.entity.Video;
@@ -46,6 +46,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,6 +79,7 @@ public abstract class ServiceTest {
     @Autowired protected CartRepository cartRepository;
     @Autowired protected RewardRepository rewardRepository;
     @Autowired protected ReportRepository reportRepository;
+    @Autowired protected AccountRepository accountRepository;
     @Autowired protected EntityManager em;
 
     @MockBean protected RedisService redisService;
@@ -167,6 +169,7 @@ public abstract class ServiceTest {
                 .description("description")
                 .thumbnailFile("thumbnailFile")
                 .videoFile("videoFile")
+                .previewFile("previewFile")
                 .view(0)
                 .star(0.0F)
                 .price(1000)
@@ -351,5 +354,17 @@ public abstract class ServiceTest {
         UserDetails userDetails = getUserDetails(member);
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
+
+    protected void setAuthentication(Member member) {
+
+        String authority = member.getAuthority().toString();
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                getUserDetails(member),
+                null,
+                List.of(new SimpleGrantedAuthority(authority)));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

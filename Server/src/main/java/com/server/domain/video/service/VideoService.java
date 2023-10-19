@@ -4,15 +4,16 @@ import com.server.domain.cart.entity.Cart;
 import com.server.domain.cart.repository.CartRepository;
 import com.server.domain.category.entity.Category;
 import com.server.domain.category.repository.CategoryRepository;
-import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.domain.member.repository.MemberRepository;
-import com.server.domain.report.entity.Report;
+import com.server.domain.report.entity.VideoReport;
 import com.server.domain.report.service.ReportService;
+import com.server.domain.report.service.dto.response.ReportDetailResponse;
+import com.server.domain.report.service.dto.response.VideoReportResponse;
 import com.server.domain.video.entity.Video;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.repository.VideoRepository;
-import com.server.domain.video.repository.dto.response.VideoReportData;
+import com.server.domain.report.repository.dto.response.VideoReportData;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
 import com.server.domain.video.service.dto.request.VideoCreateUrlServiceRequest;
 import com.server.domain.video.service.dto.request.VideoGetServiceRequest;
@@ -102,7 +103,7 @@ public class VideoService {
 
         Long memberId = member == null ? null : member.getMemberId();
 
-        Boolean isPurchased = isPurchased(memberId, video);
+        Boolean isPurchased = isPurchased(memberId, video.getVideoId());
 
         if(member != null && member.isAdmin()) isPurchased = true;
 
@@ -116,7 +117,22 @@ public class VideoService {
                 isInCart(memberId, video));
     }
 
-    public VideoUrlResponse getVideoUrl(Long videoId) {
+    public PreviewUrlResponse getPreviewUrl(Long videoId) {
+
+        String videoFile = videoRepository.findPreviewUrlByVideoId(videoId);
+
+        String previewUrl = awsService.getFileUrl(videoFile, FileType.PREVIEW);
+
+        return PreviewUrlResponse.of(previewUrl);
+    }
+
+    public VideoUrlResponse getVideoUrl(Long memberId, Long videoId) {
+
+        Boolean isPurchased = isPurchased(memberId, videoId);
+
+        if(isAdmin()) isPurchased = true;
+
+        if(!isPurchased) throw new VideoNotPurchasedException();
 
         String videoFile = videoRepository.findVideoUrlByVideoId(videoId);
 
@@ -160,6 +176,7 @@ public class VideoService {
 
         return VideoCreateUrlResponse.builder()
                 .videoUrl(getUploadVideoUrl(loginMemberId, location))
+                .previewUrl(getUploadPreviewUrl(loginMemberId, location))
                 .thumbnailUrl(getUploadThumbnailUrl(loginMemberId, location, request.getImageType()))
                 .build();
     }
@@ -172,7 +189,8 @@ public class VideoService {
         video.additionalCreateProcess(
                 request.getPrice(),
                 request.getDescription(),
-                verifiedCategories(request.getCategories())
+                verifiedCategories(request.getCategories()),
+                request.isHasPreview()
         );
 
         checkIfVideoUploaded(video);
@@ -263,13 +281,13 @@ public class VideoService {
         return videoReportData.map(VideoReportResponse::of);
     }
 
-    public Page<ReportResponse> getReports(Long videoId, int page, int size) {
+    public Page<ReportDetailResponse> getReports(Long videoId, int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Report> reports = videoRepository.findReportsByVideoId(videoId, pageable);
+        Page<VideoReport> reports = videoRepository.findReportsByVideoId(videoId, pageable);
 
-        return reports.map(ReportResponse::of);
+        return reports.map(ReportDetailResponse::of);
     }
 
     private void checkValidVideoName(String fileName) {
@@ -336,7 +354,7 @@ public class VideoService {
 
         Member owner = video.getChannel() == null ? null : video.getChannel().getMember();
 
-        urls.put("videoUrl", getVideoUrl(video));
+        urls.put("previewUrl", getPreviewUrl(video));
         urls.put("thumbnailUrl", getThumbnailUrl(video));
         urls.put("imageUrl", getImageUrl(owner));
 
@@ -360,13 +378,21 @@ public class VideoService {
         return awsService.getFileUrl(video.getThumbnailFile(), FileType.THUMBNAIL);
     }
 
+    private String getPreviewUrl(Video video) {
+        return awsService.getFileUrl(video.getPreviewFile(), FileType.PREVIEW);
+    }
+
 
     private String getUploadVideoUrl(Long loginMemberId, String location) {
         return awsService.getUploadVideoUrl(loginMemberId, location);
     }
 
+    private String getUploadPreviewUrl(Long loginMemberId, String location) {
+        return awsService.getPublicUploadUrl(loginMemberId, location, FileType.PREVIEW, null);
+    }
+
     private String getUploadThumbnailUrl(Long loginMemberId, String location, ImageType imageType) {
-        return awsService.getImageUploadUrl(loginMemberId,
+        return awsService.getPublicUploadUrl(loginMemberId,
                 location,
                 FileType.THUMBNAIL,
                 imageType);
@@ -405,6 +431,14 @@ public class VideoService {
         if(!existThumbnail) {
             throw new ThumbnailNotUploadedException(video.getVideoName());
         }
+
+        if(video.getPreviewFile() != null) {
+            boolean existPreview = awsService.isExistFile(video.getPreviewFile(), FileType.PREVIEW);
+            if(!existPreview) {
+                throw new PreviewNotUploadedException(video.getVideoName());
+            }
+        }
+
     }
 
     private Long verifiedMemberIdOrNull(Long loginMemberId) {
@@ -500,11 +534,11 @@ public class VideoService {
         return watchRepository.save(Watch.createWatch(member, video));
     }
 
-    private Boolean isPurchased(Long memberId, Video video) {
+    private Boolean isPurchased(Long memberId, Long videoId) {
 
         if(memberId == null) return false;
 
-        return videoRepository.isPurchased(memberId, video.getVideoId());
+        return videoRepository.isPurchased(memberId, videoId);
     }
 
     private Boolean isReplied(Long memberId, Video video) {

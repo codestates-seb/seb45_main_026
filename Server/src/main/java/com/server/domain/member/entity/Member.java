@@ -2,6 +2,7 @@ package com.server.domain.member.entity;
 
 import javax.persistence.*;
 
+import com.server.domain.account.domain.Account;
 import com.server.domain.answer.entity.Answer;
 import com.server.domain.cart.entity.Cart;
 import com.server.domain.channel.entity.Channel;
@@ -57,13 +58,17 @@ public class Member extends BaseEntity {
 	private int gradePoint;
 
 	private int reward;
-
+	
 	@OneToMany(mappedBy = "member")
 	@Builder.Default
 	private List<Order> orders = new ArrayList<>();
 
 	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
 	private Channel channel;
+
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "account_id")
+	private Account account;
 
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
 	@Builder.Default
@@ -164,5 +169,9 @@ public class Member extends BaseEntity {
 
 	private void checkEnoughReward(int reward) {
 		if(this.reward - reward < 0) throw new RewardNotEnoughException();
+	}
+
+	public void updateAccount(Account account) {
+		this.account = account;
 	}
 }

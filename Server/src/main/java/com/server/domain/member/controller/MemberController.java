@@ -153,7 +153,7 @@ public class MemberController {
 
 		memberService.updateImage(loginId, request.getImageName());
 
-		String presignedUrl = awsService.getImageUploadUrl(
+		String presignedUrl = awsService.getPublicUploadUrl(
 				loginId,
 				request.getImageName(),
 				FileType.PROFILE_IMAGE,

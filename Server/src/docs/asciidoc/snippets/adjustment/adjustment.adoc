@@ -1,0 +1,38 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:docinfo: shared-head
+
+[[Adjustment]]
+= 정산 내역 API
+
+IMPORTANT: month 를 null 로 주면 연도별 조회, year 을 null 로 주면 전체 조회
+
+[[Adjustment-list]]
+== 비디오별 정산 내역 페이징
+=== HTTP Request
+include::{snippets}/adjustment/adjustment/http-request.adoc[]
+==== Request Headers
+include::{snippets}/adjustment/adjustment/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/adjustment/adjustment/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/adjustment/adjustment/http-response.adoc[]
+==== Response Fields
+include::{snippets}/adjustment/adjustment/response-fields.adoc[]
+
+[[Adjustment-totalyear]]
+== 특정 연도의 정산 총 금액 및 월별 정산 내역
+=== HTTP Request
+include::{snippets}/adjustment/calculateamountyear/http-request.adoc[]
+==== Request Headers
+include::{snippets}/adjustment/calculateamountyear/request-headers.adoc[]
+==== Request Query Parameters
+include::{snippets}/adjustment/calculateamountyear/request-parameters.adoc[]
+=== HTTP Response
+include::{snippets}/adjustment/calculateamountyear/http-response.adoc[]
+==== Response Fields
+include::{snippets}/adjustment/calculateamountyear/response-fields.adoc[]

@@ -6,7 +6,7 @@ import com.server.domain.channel.entity.Channel;
 import com.server.domain.order.entity.OrderVideo;
 import com.server.domain.question.entity.Question;
 import com.server.domain.reply.entity.Reply;
-import com.server.domain.report.entity.Report;
+import com.server.domain.report.entity.VideoReport;
 import com.server.domain.reward.entity.Rewardable;
 import com.server.domain.videoCategory.entity.VideoCategory;
 import com.server.domain.watch.entity.Watch;
@@ -37,6 +37,8 @@ public class Video extends BaseEntity implements Rewardable {
     private String description;
 
     private String thumbnailFile;
+
+    private String previewFile;
 
     private String videoFile;
 
@@ -76,7 +78,7 @@ public class Video extends BaseEntity implements Rewardable {
     private List<OrderVideo> orderVideos = new ArrayList<>();
 
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
-    private List<Report> reports = new ArrayList<>();
+    private List<VideoReport> videoReports = new ArrayList<>();
 
 
     public static Video createVideo(Channel channel, String videoName) {
@@ -124,17 +126,19 @@ public class Video extends BaseEntity implements Rewardable {
         this.description = description == null ? this.description : description;
     }
 
-    public void additionalCreateProcess(Integer price, String description, List<Category> categories) {
+    public void additionalCreateProcess(Integer price, String description, List<Category> categories, boolean hasPreview) {
 
         checkIsUploading();
 
         String filePath = getMemberId() + "/videos/" + this.videoId + "/" + this.videoName;
+
 
         this.price = price;
         this.description = description;
         this.videoStatus = VideoStatus.CREATED;
         this.thumbnailFile = filePath;
         this.videoFile = filePath;
+
 
         this.videoCategories.clear();
         for (Category category : categories) {
@@ -145,6 +149,10 @@ public class Video extends BaseEntity implements Rewardable {
         if(price == 0) {
             this.getChannel().getMember().addReward(100);
             this.getChannel().getMember().addGradePoint(100);
+        }
+
+        if(hasPreview) {
+            this.previewFile = getMemberId() + "/previews/" + this.videoId + "/" + this.videoName;
         }
     }
 

@@ -8,6 +8,7 @@ import com.server.domain.channel.service.dto.ChannelUpdate;
 import com.server.domain.channel.service.dto.request.ChannelVideoGetServiceRequest;
 import com.server.domain.channel.service.dto.response.ChannelVideoResponse;
 import com.server.domain.member.entity.Grade;
+import com.server.domain.report.controller.dto.request.ReportCreateApiRequest;
 import com.server.domain.video.controller.dto.request.VideoSort;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.service.dto.response.VideoCategoryResponse;
@@ -385,6 +386,51 @@ class ChannelControllerTest extends ControllerTest {
                         )
                 )
         );
+    }
+
+    @Test
+    @DisplayName("채널 최초 신고 API")
+    void reportChannel() throws Exception {
+        //given
+        Long channelId = 1L;
+
+        ReportCreateApiRequest request = ReportCreateApiRequest.builder()
+                .reportContent("신고 내용")
+                .build();
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(true, "채널 신고 성공"));
+
+        given(channelService.reportChannel(anyLong(), anyLong(), anyString())).willReturn(true);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                post(BASE_URL + "/{channel-id}/reports", channelId)
+                        .header(AUTHORIZATION, TOKEN)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse));
+
+        //restdocs
+        actions
+                .andDo(documentHandler.document(
+                        pathParameters(
+                                parameterWithName("channel-id").description("신고할 채널 ID")
+                        ),
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("Access Token")
+                        ),
+                        requestFields(
+                                fieldWithPath("reportContent").description("신고 내용")
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("채널 신고 성공 여부")
+                        )
+                ));
     }
 
     @TestFactory

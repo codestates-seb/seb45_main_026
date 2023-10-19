@@ -7,7 +7,10 @@ import com.server.domain.reply.dto.CreateReply;
 import com.server.domain.reply.dto.MemberInfo;
 import com.server.domain.reply.dto.ReplyCreateControllerApi;
 import com.server.domain.reply.dto.ReplyInfo;
-import com.server.domain.reply.entity.Reply;
+import com.server.domain.report.controller.dto.request.ReportCreateApiRequest;
+import com.server.domain.report.controller.dto.request.ReportSort;
+import com.server.domain.report.service.dto.response.ReportDetailResponse;
+import com.server.domain.report.service.dto.response.VideoReportResponse;
 import com.server.domain.video.controller.dto.request.*;
 import com.server.domain.video.entity.VideoStatus;
 import com.server.domain.video.service.dto.request.VideoCreateServiceRequest;
@@ -318,7 +321,7 @@ class VideoControllerTest extends ControllerTest {
                                 fieldWithPath("data.videoName").description("비디오 제목"),
                                 fieldWithPath("data.description").description("비디오 설명"),
                                 fieldWithPath("data.thumbnailUrl").description("섬네일 URL"),
-                                fieldWithPath("data.videoUrl").description("비디오 URL"),
+                                fieldWithPath("data.previewUrl").description("비디오 미리보기 URL"),
                                 fieldWithPath("data.views").description("조회 수"),
                                 fieldWithPath("data.star").description("별점"),
                                 fieldWithPath("data.price").description("가격"),
@@ -342,7 +345,7 @@ class VideoControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("비디오 호버링용 url 조회 API")
+    @DisplayName("비디오 url 조회 API")
     void getVideoUrl() throws Exception {
         //given
         Long videoId = 1L;
@@ -353,11 +356,53 @@ class VideoControllerTest extends ControllerTest {
 
         String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(response, "비디오 url 조회 성공"));
 
-        given(videoService.getVideoUrl(anyLong())).willReturn(response);
+        given(videoService.getVideoUrl(anyLong(), anyLong())).willReturn(response);
 
         //when
         ResultActions actions = mockMvc.perform(
                 get(BASE_URL + "/{video-id}/url", videoId)
+                        .header(AUTHORIZATION, TOKEN)
+                        .contentType(APPLICATION_JSON)
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse));
+
+        //restDocs
+        actions
+                .andDo(documentHandler.document(
+                        pathParameters(
+                                parameterWithName("video-id").description("조회할 비디오 ID")
+                        ),
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("Access Token")
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("비디오 정보"),
+                                fieldWithPath("data.videoUrl").description("비디오 url")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("preview url 조회 API")
+    void getPreviewUrl() throws Exception {
+        //given
+        Long videoId = 1L;
+
+        PreviewUrlResponse response = PreviewUrlResponse.builder()
+                .previewUrl("https://s3.ap-northeast-2.amazonaws.com/test/test.mp4")
+                .build();
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(response, "preview url 조회 성공"));
+
+        given(videoService.getPreviewUrl(anyLong())).willReturn(response);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                get(BASE_URL + "/{video-id}/preview", videoId)
                         .contentType(APPLICATION_JSON)
         );
 
@@ -374,7 +419,7 @@ class VideoControllerTest extends ControllerTest {
                         ),
                         singleResponseFields(
                                 fieldWithPath("data").description("비디오 정보"),
-                                fieldWithPath("data.videoUrl").description("비디오 url")
+                                fieldWithPath("data.previewUrl").description("비디오 미리보기 url")
                         )
                 ));
     }
@@ -390,6 +435,7 @@ class VideoControllerTest extends ControllerTest {
 
         VideoCreateUrlResponse response = VideoCreateUrlResponse.builder()
                 .videoUrl("https://s3.ap-northeast-2.amazonaws.com/prometheus-videos/1")
+                .thumbnailUrl("https://s3.ap-northeast-2.amazonaws.com/prometheus-images/1")
                 .thumbnailUrl("https://s3.ap-northeast-2.amazonaws.com/prometheus-images/1")
                 .build();
 
@@ -426,6 +472,7 @@ class VideoControllerTest extends ControllerTest {
                         singleResponseFields(
                                 fieldWithPath("data").description("put url 정보"),
                                 fieldWithPath("data.videoUrl").description("비디오 put url"),
+                                fieldWithPath("data.previewUrl").description("비디오 미리보기 put url"),
                                 fieldWithPath("data.thumbnailUrl").description("섬네일 put url")
                         )
                 ));
@@ -442,6 +489,7 @@ class VideoControllerTest extends ControllerTest {
                 .price(10000)
                 .description("description")
                 .categories(List.of("java", "react"))
+                .hasPreview(true)
                 .build();
 
         given(videoService.createVideo(anyLong(), any(VideoCreateServiceRequest.class))).willReturn(videoId);
@@ -473,7 +521,8 @@ class VideoControllerTest extends ControllerTest {
                                 fieldWithPath("price").description("가격").attributes(getConstraint("price")),
                                 fieldWithPath("description").description("비디오 설명").optional()
                                         .attributes(getConstraint("description")),
-                                fieldWithPath("categories").description("카테고리 목록").attributes(getConstraint("categories"))
+                                fieldWithPath("categories").description("카테고리 목록").attributes(getConstraint("categories")),
+                                fieldWithPath("hasPreview").description("미리보기 여부").attributes(getConstraint("hasPreview"))
                         ),
                         responseHeaders(
                                 headerWithName("Location").description("생성된 비디오 URL")
@@ -824,7 +873,7 @@ class VideoControllerTest extends ControllerTest {
         //given
         Long videoId = 1L;
 
-        VideoReportCreateApiRequest request = VideoReportCreateApiRequest.builder()
+        ReportCreateApiRequest request = ReportCreateApiRequest.builder()
                 .reportContent("신고 내용")
                 .build();
 
@@ -869,7 +918,7 @@ class VideoControllerTest extends ControllerTest {
         //given
         Long videoId = 1L;
 
-        VideoReportCreateApiRequest request = VideoReportCreateApiRequest.builder()
+        ReportCreateApiRequest request = ReportCreateApiRequest.builder()
                 .reportContent("신고 내용")
                 .build();
 
@@ -891,7 +940,7 @@ class VideoControllerTest extends ControllerTest {
                 .andExpect(content().string(apiResponse));
 
         //restdocs
-        setConstraintClass(VideoReportCreateApiRequest.class);
+        setConstraintClass(ReportCreateApiRequest.class);
 
         actions
                 .andDo(documentHandler.document(
@@ -948,7 +997,7 @@ class VideoControllerTest extends ControllerTest {
                         requestParameters(
                                 parameterWithName("page").description("페이지 번호").optional(),
                                 parameterWithName("size").description("페이지 크기").optional(),
-                                parameterWithName("sort").description(generateLinkCode(VideoReportSort.class)).optional()
+                                parameterWithName("sort").description(generateLinkCode(ReportSort.class)).optional()
                         ),
                         pageResponseFields(
                                 fieldWithPath("data").description("비디오 신고 목록"),
@@ -971,7 +1020,7 @@ class VideoControllerTest extends ControllerTest {
         int page = 1;
         int size = 10;
 
-        Page<ReportResponse> pageResponses = createPage(createReportResponses(size), page, size, 100);
+        Page<ReportDetailResponse> pageResponses = createPage(createReportResponses(size), page, size, 100);
 
         String apiResponse = objectMapper.writeValueAsString(ApiPageResponse.ok(pageResponses, "비디오 신고 세부 내용 조회 성공"));
 
@@ -1017,11 +1066,11 @@ class VideoControllerTest extends ControllerTest {
         );
     }
 
-    private List<ReportResponse> createReportResponses(int size) {
-        List<ReportResponse> reportResponses = new ArrayList<>();
+    private List<ReportDetailResponse> createReportResponses(int size) {
+        List<ReportDetailResponse> reportDetailResponse = new ArrayList<>();
 
         for (int i = 1; i <= size; i++) {
-            reportResponses.add(ReportResponse.builder()
+            reportDetailResponse.add(ReportDetailResponse.builder()
                     .reportId((long) i)
                     .reportContent("신고 내용")
                     .createdDate(LocalDateTime.now())
@@ -1031,7 +1080,7 @@ class VideoControllerTest extends ControllerTest {
                     .build());
         }
 
-        return reportResponses;
+        return reportDetailResponse;
     }
 
     @Test
@@ -1558,6 +1607,7 @@ class VideoControllerTest extends ControllerTest {
                             .price(10000)
                             .description("description")
                             .categories(List.of("java", "react"))
+                            .hasPreview(true)
                             .build();
 
                     //when
@@ -1586,6 +1636,7 @@ class VideoControllerTest extends ControllerTest {
                             .price(10000)
                             .description("description")
                             .categories(List.of("java", "react"))
+                            .hasPreview(true)
                             .build();
 
                     //when
@@ -1611,6 +1662,7 @@ class VideoControllerTest extends ControllerTest {
                             .videoName("videoName")
                             .description("description")
                             .categories(List.of("java", "react"))
+                            .hasPreview(true)
                             .build();
 
                     //when
@@ -1639,6 +1691,7 @@ class VideoControllerTest extends ControllerTest {
                             .price(wrongPrice)
                             .description("description")
                             .categories(List.of("java", "react"))
+                            .hasPreview(true)
                             .build();
 
                     //when
@@ -1664,6 +1717,7 @@ class VideoControllerTest extends ControllerTest {
                             .price(0)
                             .description("description")
                             .categories(List.of("java", "react"))
+                            .hasPreview(true)
                             .build();
 
                     //when
@@ -1687,6 +1741,7 @@ class VideoControllerTest extends ControllerTest {
                             .videoName("videoName")
                             .price(10000)
                             .description("description")
+                            .hasPreview(true)
                             .build();
 
                     //when
@@ -1712,6 +1767,7 @@ class VideoControllerTest extends ControllerTest {
                             .price(10000)
                             .description("description")
                             .categories(new ArrayList<>())
+                            .hasPreview(true)
                             .build();
 
                     //when
@@ -1729,6 +1785,32 @@ class VideoControllerTest extends ControllerTest {
                             .andExpect(jsonPath("$.data[0].field").value("categories"))
                             .andExpect(jsonPath("$.data[0].value").value("[]"))
                             .andExpect(jsonPath("$.data[0].reason").value("카테고리는 1개 이상이어야 합니다."));
+                }),
+                dynamicTest("hasPreview 가 null 이면 검증에 실패한다..", ()-> {
+                    //given
+                    VideoCreateApiRequest request = VideoCreateApiRequest.builder()
+                            .videoName("videoName")
+                            .price(0)
+                            .description("description")
+                            .categories(List.of("java", "react"))
+                            .build();
+
+                    //when
+                    ResultActions actions = mockMvc.perform(
+                            post(BASE_URL)
+                                    .contentType(APPLICATION_JSON)
+                                    .accept(APPLICATION_JSON)
+                                    .header(AUTHORIZATION, TOKEN)
+                                    .content(objectMapper.writeValueAsString(request))
+                    );
+
+                    //then
+                    actions.andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(jsonPath("$.data[0].field").value("hasPreview"))
+                            .andExpect(jsonPath("$.data[0].value").value("null"))
+                            .andExpect(jsonPath("$.data[0].reason").value("미리보기가 있는지 여부는 필수입니다."));
+
                 })
         );
     }
@@ -2253,7 +2335,7 @@ class VideoControllerTest extends ControllerTest {
                 .videoName("videoName")
                 .description("description")
                 .thumbnailUrl("https://www.cloudfront.net/thumbnail/" + 1)
-                .videoUrl("https://www.cloudfront.net/video/" + 1)
+                .previewUrl("https://www.cloudfront.net/video/" + 1)
                 .views(100)
                 .price(1000)
                 .reward(10)

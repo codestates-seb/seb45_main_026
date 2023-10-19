@@ -2,6 +2,7 @@ package com.server.domain.announcement.controller;
 
 import com.server.domain.announcement.controller.dto.request.AnnouncementUpdateApiRequest;
 import com.server.domain.announcement.service.dto.response.AnnouncementResponse;
+import com.server.domain.report.controller.dto.request.ReportCreateApiRequest;
 import com.server.global.reponse.ApiSingleResponse;
 import com.server.global.testhelper.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+import static com.server.global.testhelper.RestDocsUtil.singleResponseFields;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -145,6 +147,51 @@ class AnnouncementControllerTest extends ControllerTest {
                         parameterWithName("announcement-id").description("삭제할 공지사항의 ID")
                 )
         ));
+    }
+
+    @Test
+    @DisplayName("공지사항 최초 신고 API")
+    void reportAnnouncement() throws Exception {
+        //given
+        Long announcementId = 1L;
+
+        ReportCreateApiRequest request = ReportCreateApiRequest.builder()
+                .reportContent("신고 내용")
+                .build();
+
+        String apiResponse = objectMapper.writeValueAsString(ApiSingleResponse.ok(true, "공지사항 신고 성공"));
+
+        given(announcementService.reportAnnouncement(anyLong(), anyLong(), anyString())).willReturn(true);
+
+        //when
+        ResultActions actions = mockMvc.perform(
+                post(BASE_URL + "/{announcement-id}/reports", announcementId)
+                        .header(AUTHORIZATION, TOKEN)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+        );
+
+        //then
+        actions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(apiResponse));
+
+        //restdocs
+        actions
+                .andDo(documentHandler.document(
+                        pathParameters(
+                                parameterWithName("announcement-id").description("신고할 공지사항 ID")
+                        ),
+                        requestHeaders(
+                                headerWithName(AUTHORIZATION).description("Access Token")
+                        ),
+                        requestFields(
+                                fieldWithPath("reportContent").description("신고 내용")
+                        ),
+                        singleResponseFields(
+                                fieldWithPath("data").description("공지사항 신고 성공 여부")
+                        )
+                ));
     }
 
     @TestFactory

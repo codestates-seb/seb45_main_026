@@ -1,6 +1,7 @@
 package com.server.domain.channel.entity;
 
 import com.server.domain.announcement.entity.Announcement;
+import com.server.domain.report.entity.ChannelReport;
 import com.server.domain.subscribe.entity.Subscribe;
 import com.server.domain.member.entity.Member;
 import com.server.domain.video.entity.Video;
@@ -44,6 +45,9 @@ public class Channel extends BaseEntity {
 
     @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL)
     private List<Announcement> announcements = new ArrayList<>();
+
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL)
+    private List<ChannelReport> channelReports = new ArrayList<>();
 
 
     public static Channel createChannel(String memberNickname) {

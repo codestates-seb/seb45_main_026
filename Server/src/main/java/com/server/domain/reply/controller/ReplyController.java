@@ -3,6 +3,7 @@ package com.server.domain.reply.controller;
 import com.server.domain.reply.dto.ReplyInfo;
 import com.server.domain.reply.dto.ReplyUpdateControllerApi;
 import com.server.domain.reply.service.ReplyService;
+import com.server.domain.report.controller.dto.request.ReportCreateApiRequest;
 import com.server.global.annotation.LoginId;
 import com.server.global.reponse.ApiSingleResponse;
 import org.springframework.http.ResponseEntity;
@@ -53,5 +54,18 @@ public class ReplyController {
         replyService.deleteReply(replyId, loginMemberId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{reply-id}/reports")
+    public ResponseEntity<ApiSingleResponse<Boolean>> reportReply(
+            @PathVariable("reply-id") @Positive(message = "{validation.positive}") Long replyId,
+            @RequestBody @Valid ReportCreateApiRequest request,
+            @LoginId Long loginMemberId) {
+
+        boolean result = replyService.reportReply(loginMemberId, replyId, request.getReportContent());
+
+        String message = result ? "댓글 신고 성공" : "이미 신고한 댓글입니다.";
+
+        return ResponseEntity.ok(ApiSingleResponse.ok(result, message));
     }
 }

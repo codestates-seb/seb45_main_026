@@ -25,6 +25,7 @@ import javax.validation.metadata.BeanDescriptor;
 import javax.validation.metadata.ConstraintDescriptor;
 import javax.validation.metadata.PropertyDescriptor;
 
+import com.server.module.redis.service.RedisService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -71,7 +72,6 @@ import com.server.module.email.service.MailService;
 @SpringBootTest // 시큐리티를 사용하기 위해서 통합 테스트 사용해야 함 (다른 방법 나중에 찾아보기)
 @ExtendWith({RestDocumentationExtension.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) // 테스트 인스턴스 생명주기 클래스에 맞추기
-@ActiveProfiles("local")
 public class AuthControllerTest {
 
 	@MockBean
@@ -82,6 +82,8 @@ public class AuthControllerTest {
 	private MailService mailService;
 	@MockBean
 	private MemberService memberService;
+	@MockBean
+	private RedisService redisService;
 	@Autowired
 	private ObjectMapper objectMapper;
 	@Autowired

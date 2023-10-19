@@ -13,12 +13,10 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,7 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.auth.controller.dto.AuthApiRequest;
-import com.server.auth.jwt.service.JwtProvider;
 import com.server.domain.member.entity.Authority;
 import com.server.domain.member.entity.Member;
 import com.server.global.testhelper.ServiceTest;
@@ -45,7 +42,7 @@ public class AuthenticationFilterTest extends ServiceTest {
 	@Test
 	@DisplayName("로그인 요청 시 JwtAuthenticationFilter을 통과해 액세스 토큰과 리프래시 토큰을 전달 받는지 테스트")
 	void authenticationFilterAttemptAuthenticationSuccess() throws ServletException, IOException {
-		JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtProvider, authenticationManager);
+		JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtProvider, authenticationManager, redisService);
 
 		// 로그인 요청 DTO
 		AuthApiRequest.Login loginDto = new AuthApiRequest.Login();
@@ -85,7 +82,7 @@ public class AuthenticationFilterTest extends ServiceTest {
 	@Test
 	@DisplayName("잘못된 로그인 요청시 실패하는지 테스트")
 	void authenticationFilterAttemptAuthenticationFailure() throws ServletException, IOException {
-		JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtProvider, authenticationManager);
+		JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtProvider, authenticationManager, redisService);
 
 		// 로그인 요청 DTO
 		AuthApiRequest.Login loginDto = new AuthApiRequest.Login();

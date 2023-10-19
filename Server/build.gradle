@@ -67,11 +67,19 @@ dependencies {
     implementation platform('software.amazon.awssdk:bom:2.20.56')
     implementation 'software.amazon.awssdk:s3:'
     implementation 'software.amazon.awssdk:cloudfront'
+    //batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    //quartz
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
+    //socket (stomp)
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    //test container
+    testImplementation group: 'org.testcontainers', name: 'testcontainers', version: '1.17.2'
 }
 
-//jar {
-////    enabled = false
-//}
+jar {
+    enabled = false
+}
 
 ext {
     snippetsDir = file('build/generated-snippets')

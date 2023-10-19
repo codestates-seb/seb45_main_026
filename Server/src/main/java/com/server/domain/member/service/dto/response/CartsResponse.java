@@ -2,16 +2,11 @@ package com.server.domain.member.service.dto.response;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.server.domain.cart.entity.Cart;
 import com.server.domain.category.service.dto.response.CategoryResponse;
-import com.server.domain.video.entity.Video;
-import com.server.domain.videoCategory.entity.VideoCategory;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Builder
