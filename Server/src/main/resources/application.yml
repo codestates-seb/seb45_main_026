@@ -71,8 +71,8 @@ jwt:
 server:
   tomcat:
     threads:
-      max: 80
-      min-spare: 20
+      max: 100
+      min-spare: 100
     max-connections: 8192
     accept-count: 100
     connection-timeout: 20000
