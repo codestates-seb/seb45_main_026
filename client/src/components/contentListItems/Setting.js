@@ -76,18 +76,21 @@ const Setting = () => {
     watch,
     trigger,
     setValue,
+    reset,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      email: loginUserInfo.email,
-      nickname: loginUserInfo.nickname,
-      channelName: channelInfo.channelName,
-      channelDescription: channelInfo.description,
-      accountHolder: accountInfo.accountHolder,
-      bank: accountInfo.bank,
-      accountNumber: accountInfo.account,
-    },
-  });
+  } = useForm();
+
+  useEffect(()=>{
+    reset({
+      email: loginUserInfo.email?loginUserInfo.email:'',
+      nickname: loginUserInfo.nickname?loginUserInfo.nickname:'',
+      channelName: channelInfo.channelName?channelInfo.channelName:'',
+      channelDescription: channelInfo.description?channelInfo.description:'',
+      accountHolder: accountInfo.accountHolder?accountInfo.accountHolder:'',
+      bank: accountInfo.bank?accountInfo.bank:'',
+      accountNumber: accountInfo.account?accountInfo.account:'',
+    })
+  }, [ loginUserInfo, channelInfo, accountInfo ]);
 
   useEffect(() => {
     getUserChannelInfoService(accessToken.authorization, myid).then(
@@ -97,8 +100,8 @@ const Setting = () => {
           const newDescription = response.data.description;
           dispatch(
             setChannelInfo({
-              channelName: newChannelName !== null ? newChannelName : "",
-              description: newDescription !== null ? newDescription : "",
+              channelName: newChannelName,
+              description: newDescription,
             })
           );
           getAccountInfoService(accessToken.authorization).then((response) => {
@@ -106,13 +109,9 @@ const Setting = () => {
               // setSelectedBank(response.data.data.bank ? response.data.data.bank : "");
               dispatch(
                 setAccountInfo({
-                  accountHolder: response.data.data.name
-                    ? response.data.data.name
-                    : "",
-                  bank: response.data.data.bank ? response.data.data.bank : "",
-                  account: response.data.data.account
-                    ? response.data.data.account
-                    : "",
+                  accountHolder: response.data.data.name,
+                  bank: response.data.data.bank,
+                  account: response.data.data.account,
                 })
               );
             } else {
@@ -225,7 +224,7 @@ const Setting = () => {
       const response = await updateAccountInfoService(
         accessToken.authorization,
         accountHolder,
-        isBank,
+        bank,
         accountNumber
       );
       if (response.status === "success") {
