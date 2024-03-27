@@ -470,7 +470,7 @@ BE JAVA 애플리케이션에서 총 800 개의 단위 및 통합테스트를 �
 
 - [방승환](https://velog.io/@luna1328/%EB%A9%94%EC%9D%B8%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%ED%9A%8C%EA%B3%A0-lc2prhgg)
 
-- [이종범](https://dunggu.tistory.com/66)
+- [이종범](https://velog.io/@rltkqja/%EB%A9%94%EC%9D%B8-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%ED%9A%8C%EA%B3%A0-%EC%BD%94%EB%93%9C%EC%8A%A4%ED%85%8C%EC%9D%B4%EC%B8%A0)
 
 - [김호빈](https://hobeen-kim.github.io/review/Review-%EC%B2%AB-%ED%8C%80%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%EB%A5%BC-%EB%A7%88%EC%B9%98%EB%A9%B0/)
 
